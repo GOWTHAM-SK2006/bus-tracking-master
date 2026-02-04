@@ -58,7 +58,7 @@ const CONFIG = {
     /**
      * GPS update interval in milliseconds
      */
-    UPDATE_INTERVAL: 3000,
+    UPDATE_INTERVAL: 1000,
 
     /**
      * Geolocation API options

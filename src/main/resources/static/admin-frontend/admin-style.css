@@ -33,6 +33,14 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     background: radial-gradient(circle at top left, #fef3e7, #f1f5f9);
@@ -56,9 +64,8 @@ body {
 }
 
 .header-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
+    width: 100%;
+    padding: 0 var(--spacing-sm);
     height: 70px;
     display: flex;
     align-items: center;
@@ -308,8 +315,7 @@ body {
 }
 
 .admin-main {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
     padding: 0;
     height: calc(100vh - 70px);
     position: relative;
@@ -524,7 +530,6 @@ body {
 .map-background {
     position: absolute;
     inset: 0;
-    border-radius: var(--radius-lg);
     overflow: hidden;
     background: #e5edf7;
     z-index: 1;

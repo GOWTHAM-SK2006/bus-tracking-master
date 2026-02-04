@@ -213,6 +213,7 @@ var MapManager = {
         this.map.addControl(new maptilersdk.NavigationControl(), 'top-right');
 
         console.log('[Map] MapTiler SDK Map Initialized');
+        this.map.resize();
 
         // Delegated listener for panel close button (more robust)
         document.addEventListener('click', (e) => {

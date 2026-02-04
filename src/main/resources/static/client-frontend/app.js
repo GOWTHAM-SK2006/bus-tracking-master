@@ -125,10 +125,16 @@ const DOM = {
 const MapManager = {
     map: null,
     markers: new Map(),
-    isNavigating: false, // Prevents easeTo from interrupting flyTo
-    navTimeout: null,    // For managing major navigation timeouts
-    lockTimeout: null,   // For managing lock duration
-    // Removed routes mapping and visibility state
+    isNavigating: false,
+    navTimeout: null,
+    lockTimeout: null,
+
+    // Smooth Animation State
+    animationTargets: new Map(), // Stores target positions for each bus
+    animationLoopId: null,      // RequestAnimationFrame ID
+
+    // Route definitions removed
+
 
     init() {
         console.log('[Map] Initializing MapTiler SDK...');
@@ -147,6 +153,12 @@ const MapManager = {
 
         // Add navigation controls
         this.map.addControl(new maptilersdk.NavigationControl(), 'top-right');
+
+        // Ensure animation loop is killed on re-init
+        if (this.animationLoopId) {
+            cancelAnimationFrame(this.animationLoopId);
+        }
+        this.startAnimationLoop();
 
         console.log('[Map] MapTiler SDK Map Initialized');
     },
@@ -223,6 +235,20 @@ const MapManager = {
             marker.prevGpsOn = isGpsOn;
 
             this.markers.set(busId, marker);
+
+            // Initialize animation state for new marker
+            this.animationTargets.set(busId, {
+                startLngLat: [longitude, latitude],
+                targetLngLat: [longitude, latitude],
+                startTime: performance.now(),
+                duration: 1100 // 1.1s (Matches 1s update rate + buffer)
+            });
+
+            // Start loop if not running
+            if (!this.animationLoopId) {
+                this.startAnimationLoop();
+            }
+
         } else {
             const prevGpsOn = marker.prevGpsOn;
 
@@ -237,28 +263,79 @@ const MapManager = {
             marker.busData = bus;
         }
 
-        const currentPos = marker.getLngLat();
-        const distance = Math.sqrt(
-            Math.pow((currentPos.lng - longitude) * 111320, 2) +
-            Math.pow((currentPos.lat - latitude) * 110540, 2)
-        );
+        // Set new target for animation
+        const currentTarget = this.animationTargets.get(busId);
+        if (currentTarget) {
+            // Only update target if changed significantly to avoid jitter
+            const targetLng = currentTarget.targetLngLat[0];
+            const targetLat = currentTarget.targetLngLat[1];
 
-        // Only animate/move if both coordinates are valid numbers
-        if (typeof latitude !== 'number' || typeof longitude !== 'number' || isNaN(latitude) || isNaN(longitude)) {
-            return;
-        }
+            if (targetLng !== longitude || targetLat !== latitude) {
+                // Use current ACTUAL position as start, not old target
+                // This prevents "jumping" if the previous animation wasn't finished
+                const currentPos = marker.getLngLat();
 
-        if (distance > 5) { // Update if moved more than 5 meters
-            if (isGpsOn) {
-                marker.setLngLat([longitude, latitude]);
-
-                if (isSelected && !this.isNavigating) {
-                    this.map.panTo([longitude, latitude], { duration: 1000 });
-                }
-            } else {
-                marker.setLngLat([longitude, latitude]);
+                this.animationTargets.set(busId, {
+                    startLngLat: [currentPos.lng, currentPos.lat],
+                    targetLngLat: [longitude, latitude],
+                    startTime: performance.now(),
+                    duration: 1100 // 1.1s interpolation
+                });
             }
         }
+    },
+
+    // =========================================
+    // Smooth Animation Loop
+    // =========================================
+    startAnimationLoop() {
+        const animate = () => {
+            this.interpolateMarkers();
+            this.animationLoopId = requestAnimationFrame(animate);
+        };
+        this.animationLoopId = requestAnimationFrame(animate);
+        console.log('[Map] Animation loop started');
+    },
+
+    interpolateMarkers() {
+        const now = performance.now();
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        this.animationTargets.forEach((anim, busId) => {
+            const marker = this.markers.get(busId);
+            if (!marker) return;
+
+            const elapsed = now - anim.startTime;
+            let progress = Math.min(elapsed / anim.duration, 1);
+
+            // Apply easing
+            const eased = easeOutCubic(progress);
+
+            const startLng = anim.startLngLat[0];
+            const startLat = anim.startLngLat[1];
+            const targetLng = anim.targetLngLat[0];
+            const targetLat = anim.targetLngLat[1];
+
+            // Interpolate
+            const newLng = startLng + (targetLng - startLng) * eased;
+            const newLat = startLat + (targetLat - startLat) * eased;
+
+            // Update marker position
+            marker.setLngLat([newLng, newLat]);
+
+            // Camera follow if selected and tracking
+            if (state.selectedBusId === busId && !this.isNavigating && state.isConnected) {
+                // Smooth pan only if distance is small
+                this.map.easeTo({
+                    center: [newLng, newLat],
+                    duration: 0, // Instant update for camera frame
+                    essential: true
+                });
+            }
+
+            // Cleanup separate entries if done (optional optimization, 
+            // but keeping them map-based is fine for <100 buses)
+        });
     },
 
     createMarkerHTML(bus, isSelected) {

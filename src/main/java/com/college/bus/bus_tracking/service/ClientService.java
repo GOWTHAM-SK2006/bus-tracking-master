@@ -36,10 +36,15 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client loginClient(String email, String password) {
-        Optional<Client> client = clientRepository.findByEmail(email);
+    public Client loginClient(String identifier, String password) {
+        Optional<Client> client = clientRepository.findByEmail(identifier);
+
         if (client.isEmpty()) {
-            throw new RuntimeException("Invalid email or password");
+            client = clientRepository.findByUsername(identifier);
+        }
+
+        if (client.isEmpty()) {
+            throw new RuntimeException("Invalid username/email or password");
         }
 
         if (!client.get().getPassword().equals(password)) {

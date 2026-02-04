@@ -49,10 +49,13 @@ public class ClientController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
-            String email = credentials.get("email");
+            String identifier = credentials.get("username");
+            if (identifier == null) {
+                identifier = credentials.get("email");
+            }
             String password = credentials.get("password");
 
-            Client client = clientService.loginClient(email, password);
+            Client client = clientService.loginClient(identifier, password);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
