@@ -7,9 +7,8 @@
     <meta name="description" content="BusTrack Admin - Manage drivers and buses">
     <title>BusTrack Admin Panel</title>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- MapTiler SDK CSS -->
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.css" rel="stylesheet" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -139,23 +138,24 @@
             <div id="map" class="map-container"></div>
         </div>
 
+        <!-- Active Bus Counter Widget (Bottom Left) -->
+        <div class="bus-counter-widget">
+            <div class="counter-icon">🚌</div>
+            <div class="counter-info">
+                <span class="counter-value" id="activeBusCount">0</span>
+                <span class="counter-label">Active Buses</span>
+            </div>
+        </div>
+
         <!-- Map Overlays -->
         <div class="map-overlays" id="mapOverlays">
-            <!-- Bus Counter -->
-            <div class="bus-counter-widget">
-                <div class="counter-icon">🚌</div>
-                <div class="counter-info">
-                    <span class="counter-value" id="activeBusCount">0</span>
-                    <span class="counter-label">Active Buses</span>
-                </div>
-            </div>
 
             <!-- Selected Bus Panel (Right Side) -->
             <div class="bus-info-panel" id="busInfoPanel">
                 <button class="panel-close-btn" id="panelCloseBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
                 <div class="panel-header">
@@ -280,9 +280,8 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- MapTiler SDK JS -->
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.umd.js"></script>
 
     <!-- PDF Export Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

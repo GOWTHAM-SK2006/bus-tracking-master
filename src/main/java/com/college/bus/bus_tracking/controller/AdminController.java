@@ -35,8 +35,10 @@ public class AdminController {
             response.put("lastModified", settings.getLastModified());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             response.put("success", false);
-            response.put("error", e.getMessage());
+            response.put("error", e.toString());
+            response.put("trace", java.util.Arrays.toString(e.getStackTrace()));
             return ResponseEntity.internalServerError().body(response);
         }
     }
@@ -58,7 +60,7 @@ public class AdminController {
             System.err.println("Error toggling account creation:");
             e.printStackTrace();
             response.put("success", false);
-            response.put("error", e.getMessage());
+            response.put("error", e.toString());
             return ResponseEntity.internalServerError().body(response);
         }
     }

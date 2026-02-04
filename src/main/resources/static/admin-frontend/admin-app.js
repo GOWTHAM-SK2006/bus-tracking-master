@@ -46,7 +46,10 @@ const CONFIG = {
         console.log('[CONFIG] Admin WS_URL:', url);
         return url;
     })(),
-    // Match client map defaults: store as [lng, lat] and swap when initializing Leaflet
+    // MapTiler Configuration
+    MAPTILER_API_KEY: 'qT5xViuAuUmEXe01G0oI',
+    MAPTILER_STYLE_URL: 'https://api.maptiler.com/maps/019bfffb-7613-7306-82a6-88f9659c6bff/style.json',
+    // Map defaults: store as [lng, lat]
     MAP_CENTER: [80.2707, 13.0827],
     MAP_ZOOM: 12,
     MAP_MIN_ZOOM: 10,
@@ -160,6 +163,12 @@ const PanelManager = {
         const ep = DOM.exportPanel;
         if (bp) bp.classList.remove('visible');
         if (ep) ep.classList.remove('visible');
+
+        // Also close the right-side info panel if MapManager is initialized
+        if (typeof MapManager !== 'undefined' && MapManager.closeInfoPanel) {
+            MapManager.closeInfoPanel();
+        }
+
         adminState.activePanel = null;
         this.updateActiveTab('map');
     },
@@ -178,7 +187,7 @@ const PanelManager = {
 // =========================================
 // Map Manager
 // =========================================
-const MapManager = {
+var MapManager = {
     map: null,
     markers: new Map(),
     isNavigating: false,
@@ -186,76 +195,34 @@ const MapManager = {
     lockTimeout: null,
 
     init() {
-        console.log('[Map] Initializing Leaflet Map with CartoDB Tiles...');
+        console.log('[Map] Initializing MapTiler SDK...');
 
-        // Leaflet Initialization
-        this.map = L.map(DOM.mapContainer, {
-            center: [CONFIG.MAP_CENTER[1], CONFIG.MAP_CENTER[0]],
+        // MapTiler SDK Initialization
+        maptilersdk.config.apiKey = CONFIG.MAPTILER_API_KEY;
+
+        this.map = new maptilersdk.Map({
+            container: DOM.mapContainer,
+            style: CONFIG.MAPTILER_STYLE_URL,
+            center: CONFIG.MAP_CENTER, // [lng, lat]
             zoom: CONFIG.MAP_ZOOM,
             minZoom: CONFIG.MAP_MIN_ZOOM,
-            maxZoom: CONFIG.MAP_MAX_ZOOM,
-            zoomControl: true,
-            rotate: true,
-            touchRotate: true
+            maxZoom: CONFIG.MAP_MAX_ZOOM
         });
 
-        // =========================================
-        // CartoDB Basemaps Configuration
-        // =========================================
-        const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+        // Add navigation controls
+        this.map.addControl(new maptilersdk.NavigationControl(), 'top-right');
 
-        // 1. Voyager
-        const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
+        console.log('[Map] MapTiler SDK Map Initialized');
+
+        // Delegated listener for panel close button (more robust)
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#panelCloseBtn')) {
+                console.log('[Map] Panel close button clicked (delegated)');
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeInfoPanel();
+            }
         });
-        const voyagerNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // 2. Positron
-        const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-        const positronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // 3. Dark Matter
-        const darkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-        const darkMatterNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // Add default layer
-        voyager.addTo(this.map);
-
-        // Layer Control
-        const baseMaps = {
-            "Voyager": voyager,
-            "Voyager (No Labels)": voyagerNoLabels,
-            "Positron (Light)": positron,
-            "Positron (No Labels)": positronNoLabels,
-            "Dark Matter": darkMatter,
-            "Dark Matter (No Labels)": darkMatterNoLabels
-        };
-
-        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(this.map);
-
-        DOM.panelCloseBtn.addEventListener('click', () => this.closeInfoPanel());
     },
 
     updateBusMarker(bus) {
@@ -273,47 +240,48 @@ const MapManager = {
         let marker = this.markers.get(busId);
 
         if (!marker) {
-            const customIcon = L.divIcon({
-                className: 'custom-bus-marker-container',
-                html: this.createMarkerHTML(bus, isSelected),
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+            // Create HTML element for marker
+            const el = document.createElement('div');
+            el.className = 'custom-bus-marker-container';
+            el.innerHTML = this.createMarkerHTML(bus, isSelected);
 
-            marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(this.map);
+            // Create MapTiler marker
+            marker = new maptilersdk.Marker({ element: el })
+                .setLngLat([longitude, latitude])
+                .addTo(this.map);
 
-            marker.on('click', (e) => {
-                L.DomEvent.stopPropagation(e);
+            // Add click handler
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.selectBus(busId);
             });
 
             marker.currentIsSelected = isSelected;
-            marker.busData = bus; // Store data on marker
+            marker.busData = bus;
             marker.prevGpsOn = isGpsOn;
             this.markers.set(busId, marker);
         } else {
+            // Update marker if state changed
             if (marker.currentIsSelected !== isSelected || marker.prevGpsOn !== isGpsOn) {
-                const newIcon = L.divIcon({
-                    className: 'custom-bus-marker-container',
-                    html: this.createMarkerHTML(bus, isSelected),
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
-                });
-                marker.setIcon(newIcon);
+                const el = marker.getElement();
+                el.innerHTML = this.createMarkerHTML(bus, isSelected);
                 marker.currentIsSelected = isSelected;
                 marker.prevGpsOn = isGpsOn;
             }
             marker.busData = bus;
         }
 
-        const currentPos = marker.getLatLng();
-        const distance = currentPos.distanceTo([latitude, longitude]);
+        const currentPos = marker.getLngLat();
+        const distance = Math.sqrt(
+            Math.pow((currentPos.lng - longitude) * 111320, 2) +
+            Math.pow((currentPos.lat - latitude) * 110540, 2)
+        );
 
         if (distance > 5) {
-            marker.setLatLng([latitude, longitude]);
+            marker.setLngLat([longitude, latitude]);
 
             if (isSelected && !this.isNavigating) {
-                this.map.panTo([latitude, longitude], { animate: true, duration: 1 });
+                this.map.panTo([longitude, latitude], { duration: 1000 });
             }
         }
     },
@@ -373,9 +341,11 @@ const MapManager = {
         // 4. Fly to location
         if (bus.latitude && bus.longitude && Math.abs(bus.latitude) > 0.0001) {
             this.isNavigating = true;
-            this.map.invalidateSize();
-            this.map.flyTo([bus.latitude, bus.longitude], 16.5, {
-                duration: 2
+            this.map.resize();
+            this.map.flyTo({
+                center: [bus.longitude, bus.latitude],
+                zoom: 16.5,
+                duration: 2000
             });
 
             if (this.lockTimeout) clearTimeout(this.lockTimeout);
@@ -410,7 +380,10 @@ const MapManager = {
     },
 
     closeInfoPanel() {
-        DOM.busInfoPanel.classList.remove('visible');
+        console.log('[Map] Closing Info Panel');
+        if (DOM.busInfoPanel) {
+            DOM.busInfoPanel.classList.remove('visible');
+        }
         const prevId = adminState.selectedBusId;
         adminState.selectedBusId = null;
         if (prevId) {

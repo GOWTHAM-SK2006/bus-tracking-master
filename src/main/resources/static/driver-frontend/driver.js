@@ -245,18 +245,37 @@ const SetupController = {
         }
 
         const driverData = sessionStorage.getItem('driver');
-        if (!driverData) return;
+        if (!driverData) {
+            AlertController.show('Session Error', 'No driver session found. Please login again.', 'error');
+            return;
+        }
+
         const driver = JSON.parse(driverData);
+
+        // Debug logging
+        console.log('[Setup] Driver data:', driver);
+        console.log('[Setup] Driver ID:', driver.id);
+
+        if (!driver.id) {
+            AlertController.show('Session Error', 'Driver ID is missing. Please login again.', 'error');
+            console.error('[Setup] Driver ID is undefined or null');
+            return;
+        }
 
         try {
             const baseUrl = getApiBaseUrl();
-            const response = await fetch(`${baseUrl}/api/driver/${driver.id}/profile`, {
+            const url = `${baseUrl}/api/driver/${driver.id}/profile`;
+            console.log('[Setup] Calling API:', url);
+            console.log('[Setup] Payload:', { name, phone, busNumber, busName });
+
+            const response = await fetch(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, phone, busNumber, busName })
             });
 
             const data = await response.json();
+            console.log('[Setup] Response:', data);
 
             if (data.success) {
                 // Update local storage and app state
@@ -275,10 +294,11 @@ const SetupController = {
                 this.finishSetup();
             } else {
                 AlertController.show('Error', data.message || 'Failed to update setup information', 'error');
+                console.error('[Setup] Backend error:', data.message);
             }
         } catch (error) {
             console.error('Setup error:', error);
-            AlertController.show('Network Error', 'Failed to connect to server', 'error');
+            AlertController.show('Network Error', 'Failed to connect to server. Check console for details.', 'error');
         }
     },
 

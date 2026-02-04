@@ -44,7 +44,7 @@ body {
 /* ======================================== 
    Header Styles
    ======================================== */
- .admin-header {
+.admin-header {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-light);
@@ -78,7 +78,7 @@ body {
     height: 50px;
 }
 
- .nav-tabs {
+.nav-tabs {
     display: inline-flex;
     gap: 8px;
     flex: 1;
@@ -194,6 +194,29 @@ body {
     background: #ccc;
 }
 
+.bus-counter-widget {
+    position: absolute;
+    bottom: 20px;
+    /* Changed from top to bottom */
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(232, 93, 4, 0.2);
+}
+
+.bus-counter-widget:hover {
+    box-shadow: 0 6px 20px rgba(232, 93, 4, 0.25);
+    transform: translateY(-2px);
+}
+
 .toggle-slider {
     position: absolute;
     top: 2px;
@@ -284,7 +307,7 @@ body {
     min-height: 500px;
 }
 
- .admin-main {
+.admin-main {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0;
@@ -498,7 +521,7 @@ body {
 /* ======================================== 
    Map View
    ======================================== */
- .map-background {
+.map-background {
     position: absolute;
     inset: 0;
     border-radius: var(--radius-lg);
@@ -518,33 +541,8 @@ body {
     top: var(--spacing-md);
     right: var(--spacing-md);
     z-index: 5;
-}
-
-.bus-counter-widget {
-    background: var(--bg-white);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    min-width: 200px;
-}
-
-.counter-icon {
-    font-size: 32px;
-}
-
-.counter-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary);
-}
-
-.counter-label {
-    font-size: 12px;
-    color: var(--text-secondary);
+    pointer-events: none;
+    /* Let clicks pass through empty areas */
 }
 
 /* Bus Info Panel */
@@ -556,6 +554,10 @@ body {
     max-height: 600px;
     overflow-y: auto;
     display: none;
+    position: relative;
+    /* Ensure close button is relative to panel */
+    pointer-events: auto;
+    /* Re-enable clicks for the panel */
 }
 
 .bus-info-panel.visible {
@@ -576,6 +578,10 @@ body {
     cursor: pointer;
     color: var(--text-secondary);
     transition: all var(--transition-normal);
+    pointer-events: auto;
+    /* Ensure button receives clicks */
+    z-index: 10;
+    /* Ensure it's on top */
 }
 
 .panel-close-btn:hover {
@@ -720,7 +726,7 @@ body {
     padding: var(--spacing-md);
 }
 
- .export-card {
+.export-card {
     background: var(--bg-white);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);

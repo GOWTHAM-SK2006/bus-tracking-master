@@ -32,8 +32,12 @@ const CONFIG = {
         return url;
     })(),
 
+    // MapTiler Configuration
+    MAPTILER_API_KEY: 'qT5xViuAuUmEXe01G0oI',
+    MAPTILER_STYLE_URL: 'https://api.maptiler.com/maps/019bfffb-7613-7306-82a6-88f9659c6bff/style.json',
+
     // Map Defaults
-    MAP_CENTER: [80.2707, 13.0827], // [lng, lat] Chennai (Leaflet uses [lat, lng] in map init, but we store as [lng, lat] for GeoJSON consistency)
+    MAP_CENTER: [80.2707, 13.0827], // [lng, lat]
     MAP_ZOOM: 12,
     MAP_MIN_ZOOM: 10,
     MAP_MAX_ZOOM: 18,
@@ -127,76 +131,24 @@ const MapManager = {
     // Removed routes mapping and visibility state
 
     init() {
-        console.log('[Map] Initializing Leaflet Map with CartoDB Tiles...');
+        console.log('[Map] Initializing MapTiler SDK...');
 
-        // Leaflet Initialization
-        this.map = L.map(DOM.mapContainer, {
-            center: [CONFIG.MAP_CENTER[1], CONFIG.MAP_CENTER[0]], // Leaflet uses [lat, lng]
+        // MapTiler SDK Initialization
+        maptilersdk.config.apiKey = CONFIG.MAPTILER_API_KEY;
+
+        this.map = new maptilersdk.Map({
+            container: DOM.mapContainer,
+            style: CONFIG.MAPTILER_STYLE_URL,
+            center: CONFIG.MAP_CENTER, // [lng, lat]
             zoom: CONFIG.MAP_ZOOM,
             minZoom: CONFIG.MAP_MIN_ZOOM,
-            maxZoom: CONFIG.MAP_MAX_ZOOM,
-            zoomControl: true,
-            rotate: true,       // Enable rotation
-            touchRotate: true   // Enable touch rotation
+            maxZoom: CONFIG.MAP_MAX_ZOOM
         });
 
-        // =========================================
-        // CartoDB Basemaps Configuration
-        // =========================================
-        const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+        // Add navigation controls
+        this.map.addControl(new maptilersdk.NavigationControl(), 'top-right');
 
-        // 1. Voyager
-        const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-        const voyagerNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // 2. Positron
-        const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-        const positronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // 3. Dark Matter
-        const darkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-        const darkMatterNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-            attribution: attribution,
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
-
-        // Add default layer
-        voyager.addTo(this.map);
-
-        // Layer Control
-        const baseMaps = {
-            "Voyager": voyager,
-            "Voyager (No Labels)": voyagerNoLabels,
-            "Positron (Light)": positron,
-            "Positron (No Labels)": positronNoLabels,
-            "Dark Matter": darkMatter,
-            "Dark Matter (No Labels)": darkMatterNoLabels
-        };
-
-        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(this.map);
-
-        console.log('[Map] Leaflet Map Initialized with CartoDB Layer Control');
+        console.log('[Map] MapTiler SDK Map Initialized');
     },
 
     createBusElement(bus, isSelected = false) {
@@ -250,19 +202,19 @@ const MapManager = {
         if (!marker) {
             console.log(`[Map] Creating NEW marker for bus ${busId}`);
 
-            // Create custom icon
-            const customIcon = L.divIcon({
-                className: 'custom-bus-marker-container', // We'll need to adjust CSS or use existing structure
-                html: this.createMarkerHTML(bus, isSelected),
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+            // Create HTML element for marker
+            const el = document.createElement('div');
+            el.className = 'custom-bus-marker-container';
+            el.innerHTML = this.createMarkerHTML(bus, isSelected);
 
-            marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(this.map);
+            // Create MapTiler marker
+            marker = new maptilersdk.Marker({ element: el })
+                .setLngLat([longitude, latitude])
+                .addTo(this.map);
 
             // Add click handler
-            marker.on('click', (e) => {
-                L.DomEvent.stopPropagation(e);
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.selectBus(busId);
             });
 
@@ -276,13 +228,8 @@ const MapManager = {
 
             // Update icon if state changed
             if (marker.currentIsSelected !== isSelected || prevGpsOn !== isGpsOn) {
-                const newIcon = L.divIcon({
-                    className: 'custom-bus-marker-container',
-                    html: this.createMarkerHTML(bus, isSelected),
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
-                });
-                marker.setIcon(newIcon);
+                const el = marker.getElement();
+                el.innerHTML = this.createMarkerHTML(bus, isSelected);
                 marker.currentIsSelected = isSelected;
                 marker.prevGpsOn = isGpsOn;
             }
@@ -290,8 +237,11 @@ const MapManager = {
             marker.busData = bus;
         }
 
-        const currentPos = marker.getLatLng();
-        const distance = currentPos.distanceTo([latitude, longitude]); // Leaflet distanceTo is in meters
+        const currentPos = marker.getLngLat();
+        const distance = Math.sqrt(
+            Math.pow((currentPos.lng - longitude) * 111320, 2) +
+            Math.pow((currentPos.lat - latitude) * 110540, 2)
+        );
 
         // Only animate/move if both coordinates are valid numbers
         if (typeof latitude !== 'number' || typeof longitude !== 'number' || isNaN(latitude) || isNaN(longitude)) {
@@ -300,14 +250,13 @@ const MapManager = {
 
         if (distance > 5) { // Update if moved more than 5 meters
             if (isGpsOn) {
-                // Simple setLatLng for now, animation can be added via CSS or plugins if needed
-                marker.setLatLng([latitude, longitude]);
+                marker.setLngLat([longitude, latitude]);
 
                 if (isSelected && !this.isNavigating) {
-                    this.map.panTo([latitude, longitude], { animate: true, duration: 1 });
+                    this.map.panTo([longitude, latitude], { duration: 1000 });
                 }
             } else {
-                marker.setLatLng([latitude, longitude]);
+                marker.setLngLat([longitude, latitude]);
             }
         }
     },
@@ -402,16 +351,7 @@ const MapManager = {
                 try {
                     const el = prevMarker.getElement();
                     if (el) {
-                        const icon = prevMarker.options.icon; // Get current icon
-                        // Just re-create icon to update class? Leaflet doesn't modify DOM in-place easily like this
-                        // Better to use setIcon again
-                        const newIcon = L.divIcon({
-                            className: 'custom-bus-marker-container',
-                            html: this.createMarkerHTML(prevMarker.busData, false),
-                            iconSize: [36, 36],
-                            iconAnchor: [18, 18]
-                        });
-                        prevMarker.setIcon(newIcon);
+                        el.innerHTML = this.createMarkerHTML(prevMarker.busData, false);
                     }
                 } catch (e) {
                     console.warn('[Map] Error updating previous marker:', e);
@@ -453,37 +393,32 @@ const MapManager = {
 
             // Update marker style
             try {
-                const newIcon = L.divIcon({
-                    className: 'custom-bus-marker-container',
-                    html: this.createMarkerHTML(freshBus, true),
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
-                });
-                marker.setIcon(newIcon);
+                const el = marker.getElement();
+                el.innerHTML = this.createMarkerHTML(freshBus, true);
             } catch (e) {
                 console.warn('[Map] Error updating marker selection style:', e);
             }
 
             this.navTimeout = setTimeout(() => {
                 this.isNavigating = true;
-                this.map.invalidateSize(); // Leaflet equivalent of resize()
+                this.map.resize();
 
                 // Validate Coordinates
                 if (typeof freshBus.latitude !== 'number' || typeof freshBus.longitude !== 'number' ||
                     (Math.abs(freshBus.latitude) < 0.0001 && Math.abs(freshBus.longitude) < 0.0001)) {
 
                     console.warn('[Map] GPS coordinates are unavailable. Aborting FlyTo.');
-                    // Update status text
                     this.isNavigating = false;
                     return;
                 }
 
-                // Leaflet flyTo
-                const targetCoord = [freshBus.latitude, freshBus.longitude]; // LatLng
-                console.log(`[Map] Starting flyTo navigation to ${targetCoord}`);
+                // MapTiler flyTo
+                console.log(`[Map] Starting flyTo navigation to [${freshBus.longitude}, ${freshBus.latitude}]`);
 
-                this.map.flyTo(targetCoord, 16.5, {
-                    duration: 2 // seconds
+                this.map.flyTo({
+                    center: [freshBus.longitude, freshBus.latitude],
+                    zoom: 16.5,
+                    duration: 2000
                 });
 
                 this.lockTimeout = setTimeout(() => {
@@ -496,9 +431,11 @@ const MapManager = {
             if (busData.latitude && busData.longitude && (Math.abs(busData.latitude) > 0.0001)) {
                 this.navTimeout = setTimeout(() => {
                     this.isNavigating = true;
-                    this.map.invalidateSize();
-                    this.map.flyTo([busData.latitude, busData.longitude], 16.5, {
-                        duration: 2
+                    this.map.resize();
+                    this.map.flyTo({
+                        center: [busData.longitude, busData.latitude],
+                        zoom: 16.5,
+                        duration: 2000
                     });
 
                     this.lockTimeout = setTimeout(() => {
@@ -621,6 +558,7 @@ const WebSocketManager = {
 
         this.socket.onmessage = (event) => {
             try {
+                // console.log('[WS] Raw message:', event.data);
                 const data = JSON.parse(event.data);
                 this.handleMessage(data);
             } catch (e) {
@@ -801,7 +739,7 @@ const BusTracker = {
         }));
 
         if (MapManager.map) {
-            MapManager.map.invalidateSize();
+            MapManager.map.resize();
         }
 
         // Update state Map (Merge with Coordinate Preservation)
@@ -1118,7 +1056,7 @@ const TabManager = {
             // If switching to map, maybe we want to resize just to be safe, 
             // though it's always visible now.
             if (MapManager.map) {
-                setTimeout(() => MapManager.map.invalidateSize(), 50);
+                setTimeout(() => MapManager.map.resize(), 50);
             }
         }
 

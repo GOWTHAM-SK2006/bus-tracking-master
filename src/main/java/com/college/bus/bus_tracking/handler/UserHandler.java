@@ -72,15 +72,29 @@ public class UserHandler extends TextWebSocketHandler {
             for (BusData bus : BusSessionStore.BUS_MAP.values()) {
                 if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
                     validBuses.add(bus);
+                } else {
+                    System.out
+                            .println("[UserHandler] Skipping bus " + bus.getBusNumber() + " due to (0,0) coordinates");
                 }
+            }
+
+            if (validBuses.isEmpty()) {
+                // System.out.println("[UserHandler] No valid buses to broadcast");
+                return;
             }
 
             String payload = mapper.writeValueAsString(validBuses);
             TextMessage message = new TextMessage(payload);
+            int clientCount = 0;
             for (WebSocketSession session : SESSIONS) {
                 if (session.isOpen()) {
                     session.sendMessage(message);
+                    clientCount++;
                 }
+            }
+            if (clientCount > 0) {
+                System.out.println(
+                        "[UserHandler] Broadcasted " + validBuses.size() + " buses to " + clientCount + " clients");
             }
 
             // Also broadcast a structured update to all connected admins
