@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Complete your BusTrack profile">
+    <title>BusTrack - Setup Profile</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.4), transparent 60%),
+                radial-gradient(circle at 10% 20%, rgba(236, 72, 153, 0.3), transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.3), transparent 50%);
+            animation: bgFloat 15s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes bgFloat {
+            0% {
+                transform: translate(-5%, -5%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(5%, 5%) rotate(5deg);
+            }
+        }
+
+        .profile-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .profile-card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: var(--glass-shadow);
+            color: var(--text-main);
+            animation: cardEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes cardEntrance {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Avatar Section */
+        .avatar-upload {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+        }
+
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        .avatar-edit input {
+            display: none;
+        }
+
+        .avatar-edit label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .avatar-edit label:hover {
+            transform: scale(1.1);
+            background: #6366f1;
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        /* Hidden Utility */
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        .step-container {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* OTP Input */
+        .otp-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 14px 20px;
+            margin-bottom: 0;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        /* Loader */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h1 class="profile-title">Setup Profile</h1>
+                <p class="profile-subtitle">Welcome, <span id="clientName">User</span>! Let's get you ready.</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="profile-body">
+                <!-- Step 1: Profile Picture -->
+                <div id="stepPicture" class="step-container">
+                    <div class="avatar-upload">
+                        <div class="avatar-edit">
+                            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+                            <label for="imageUpload">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
+                                    stroke-width="2">
+                                    <path
+                                        d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                                    </path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                            </label>
+                        </div>
+                        <div class="avatar-preview">
+                            <div id="imagePreview">
+                                <span class="placeholder-icon">👤</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Upload a photo</span>
+                    </div>
+
+                    <button id="uploadPictureBtn" class="btn btn-primary">Save Photo</button>
+                    <button id="skipPictureBtn" class="btn btn-secondary">Skip for now</button>
+                </div>
+
+                <!-- Step 3: Success -->
+                <div id="stepFinal" class="step-container hidden" style="text-align: center; padding: 20px 0;">
+                    <div
+                        style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 10px;">You're All Set!</h2>
+                    <p style="color: var(--text-muted);">Redirecting to dashboard...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL
+        function getApiBaseUrl() {
+            const host = window.location.hostname;
+            const protocol = window.location.protocol;
+            if (host.includes('.devtunnels.ms')) {
+                const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+            }
+            return `${protocol}//${host}:8080`;
+        }
+
+        const client = JSON.parse(sessionStorage.getItem('client'));
+        if (!client) window.location.href = 'login.html';
+
+        document.getElementById('clientName').textContent = (client.name || client.username).split(' ')[0];
+
+        let profilePictureBase64 = null;
+
+        // Image Preview
+        document.getElementById('imageUpload').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    profilePictureBase64 = event.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Navigation
+        const goToStep = (hideId, showId) => {
+            document.getElementById(hideId).classList.add('hidden');
+            document.getElementById(showId).classList.remove('hidden');
+        };
+
+        // Step 1 Actions
+        document.getElementById('uploadPictureBtn').addEventListener('click', async () => {
+            if (!profilePictureBase64) return showAlert('Please select a photo first', 'error');
+            const btn = document.getElementById('uploadPictureBtn');
+            btn.innerHTML = '<span class="loader"></span> Saving';
+
+            // Mark as verified so they don't see this screen again
+            if (await updateProfile({ profilePicture: profilePictureBase64, phoneVerified: true })) {
+                // User requested to go directly to dashboard
+                window.location.href = 'index.html';
+            } else {
+                btn.textContent = 'Save Photo';
+            }
+        });
+
+        document.getElementById('skipPictureBtn').addEventListener('click', async () => {
+            // Mark as verified even if they skip
+            await updateProfile({ phoneVerified: true });
+            window.location.href = 'index.html';
+        });
+
+        // Step 2 Actions
+        // Step 2 Actions (Removed as per request to skip directly to dashboard)
+        /* 
+        document.getElementById('savePhoneBtn').addEventListener('click', async () => {
+             ... code removed ...
+        }); 
+        */
+
+        async function updateProfile(data) {
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/client/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clientId: client.id, ...data })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    sessionStorage.setItem('client', JSON.stringify(result.client));
+                    return true;
+                }
+                showAlert(result.message, 'error');
+                return false;
+            } catch {
+                showAlert('Update failed', 'error');
+                return false;
+            }
+        }
+
+        function showAlert(msg, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+    </script>
+</body>
+
+</html>

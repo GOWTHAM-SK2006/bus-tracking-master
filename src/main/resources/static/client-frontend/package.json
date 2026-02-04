@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@tomtom-org/maps-sdk": "^0.34.0",
+    "maplibre-gl": "^5.17.0"
+  }
+}

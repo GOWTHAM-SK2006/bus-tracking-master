@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - BusTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./admin-style.css">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .profile-field {
+            margin-bottom: 25px;
+        }
+
+        .profile-field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .profile-field input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-update {
+            flex: 1;
+            padding: 12px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-update:hover {
+            background: #E55A25;
+        }
+
+        .btn-back {
+            flex: 1;
+            padding: 12px;
+            background: #E0E0E0;
+            color: #333;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #D0D0D0;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const adminSession = sessionStorage.getItem('admin');
+        if (!adminSession) {
+            window.location.href = 'admin-login.html';
+        }
+    </script>
+
+    <header class="admin-header" style="margin-bottom: 0;">
+        <div class="header-container">
+            <div class="logo" onclick="window.location.href='admin.html'" style="cursor: pointer;">
+                <svg class="logo-svg" width="50" height="50" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                    <text x="60" y="18" text-anchor="middle" fill="#E85D04" font-family="Arial, sans-serif"
+                        font-size="20" font-weight="700">BT</text>
+                </svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <button onclick="window.history.back()" class="profile-btn"
+                style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-gray); border: none; border-radius: 30px; color: var(--text-dark); cursor: pointer;">
+                ← Back
+            </button>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-name" id="profileName">Admin</h1>
+        </div>
+
+        <div class="profile-field">
+            <label>Email Address</label>
+            <input type="email" id="adminEmail" readonly>
+        </div>
+
+        <div class="profile-field">
+            <label>Full Name</label>
+            <input type="text" id="adminFullName" placeholder="Enter your full name">
+        </div>
+
+        <div class="profile-field">
+            <label>Department</label>
+            <input type="text" id="adminDepartment" placeholder="e.g., Operations">
+        </div>
+
+        <div class="profile-field">
+            <label>Contact Number</label>
+            <input type="tel" id="adminContact" placeholder="+1234567890">
+        </div>
+
+        <div class="profile-field">
+            <label>Change Password</label>
+            <input type="password" id="adminPassword" placeholder="Leave blank to keep current password">
+        </div>
+
+        <div class="profile-actions">
+            <button class="btn-update" onclick="updateProfile()">Save Changes</button>
+            <button class="btn-back" onclick="window.history.back()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const admin = JSON.parse(sessionStorage.getItem('admin'));
+        if (admin) {
+            document.getElementById('profileName').textContent = admin.name || 'Admin';
+            document.getElementById('adminEmail').value = admin.email || '';
+            document.getElementById('adminFullName').value = admin.fullName || '';
+            document.getElementById('adminDepartment').value = admin.department || '';
+            document.getElementById('adminContact').value = admin.contact || '';
+        }
+
+        function updateProfile() {
+            const updatedAdmin = {
+                ...admin,
+                fullName: document.getElementById('adminFullName').value,
+                department: document.getElementById('adminDepartment').value,
+                contact: document.getElementById('adminContact').value
+            };
+
+            sessionStorage.setItem('admin', JSON.stringify(updatedAdmin));
+            alert('Profile updated successfully!');
+            window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+
+</html>

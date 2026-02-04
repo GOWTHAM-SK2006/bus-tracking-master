@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Bus Tracking Client Signup">
+    <title>BusTrack - Create Account</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.4), transparent 60%),
+                radial-gradient(circle at 10% 20%, rgba(236, 72, 153, 0.3), transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.3), transparent 50%);
+            animation: bgFloat 15s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes bgFloat {
+            0% {
+                transform: translate(-5%, -5%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(5%, 5%) rotate(5deg);
+            }
+        }
+
+        .auth-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: var(--glass-shadow);
+            color: var(--text-main);
+            animation: cardEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes cardEntrance {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            margin-left: 4px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:active {
+            transform: translateY(2px);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-primary:hover:not(:disabled)::after {
+            left: 100%;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .auth-footer a:hover {
+            border-color: #fff;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            animation: slideDown 0.3s ease;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <!-- Premium SVG Logo -->
+                <svg class="logo-svg" width="80" height="80" viewBox="0 0 100 100" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="url(#logo_gradient)" />
+                    <mask id="bus_mask" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="5" y="5" width="90"
+                        height="90">
+                        <circle cx="50" cy="50" r="45" fill="white" />
+                    </mask>
+                    <g mask="url(#bus_mask)">
+                        <path d="M30 40H70V70C70 75.5228 65.5228 80 60 80H40C34.4772 80 30 75.5228 30 70V40Z"
+                            fill="white" fill-opacity="0.9" />
+                        <path d="M30 40C30 31.7157 36.7157 25 45 25H55C63.2843 25 70 31.7157 70 40V40H30V40Z"
+                            fill="white" fill-opacity="0.9" />
+                        <rect x="35" y="45" width="30" height="12" rx="2" fill="#4F46E5" />
+                        <circle cx="38" cy="70" r="4" fill="#4F46E5" />
+                        <circle cx="62" cy="70" r="4" fill="#4F46E5" />
+                    </g>
+                    <defs>
+                        <linearGradient id="logo_gradient" x1="0" y1="0" x2="100" y2="100"
+                            gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#4F46E5" />
+                            <stop offset="1" stop-color="#7C3AED" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <h1 class="auth-title">Join BusTrack</h1>
+                <p class="auth-subtitle">Create an account to get started</p>
+            </div>
+
+            <div id="alertContainer">
+                <div class="alert">
+                    📧 Use your @sairam.edu.in email address
+                </div>
+            </div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="name" class="form-input" placeholder="e.g. John Doe" required
+                        autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Choose a unique username" required
+                        autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">College Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="student@sairam.edu.in" required
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Create a strong password"
+                        required autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getApiBaseUrl() {
+            const host = window.location.hostname;
+            const protocol = window.location.protocol;
+            if (host.includes('.devtunnels.ms')) {
+                const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+            }
+            return `${protocol}//${host}:8080`;
+        }
+
+        const signupForm = document.getElementById('signupForm');
+        const alertContainer = document.getElementById('alertContainer');
+        const emailInput = document.getElementById('email');
+
+        const ALLOWED_DOMAINS = ['@sairam.edu.in', '@sairamtap.edu.in'];
+
+        function isValidEmailDomain(email) {
+            const lowerEmail = email.toLowerCase();
+            return ALLOWED_DOMAINS.some(domain => lowerEmail.endsWith(domain));
+        }
+
+        // Check if account creation is enabled
+        async function checkAccountCreationEnabled() {
+            try {
+                const baseUrl = getApiBaseUrl();
+                const response = await fetch(`${baseUrl}/api/admin/settings`);
+                const data = await response.json();
+
+                if (data.success && !data.accountCreationEnabled) {
+                    // Disable signup
+                    signupForm.querySelector('button').disabled = true;
+                    signupForm.querySelectorAll('input').forEach(input => input.disabled = true);
+                    showAlert('Unable to create account. Contact admin for further details.', 'error');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Error checking account creation status:', error);
+                return true; // Allow signup if check fails
+            }
+        }
+
+        // Check on page load
+        checkAccountCreationEnabled();
+
+        // Real-time validation
+        emailInput.addEventListener('blur', () => {
+            const email = emailInput.value.trim();
+            if (email && !isValidEmailDomain(email)) {
+                showAlert('Please use a valid college email (@sairam.edu.in)', 'error');
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value.trim();
+
+            if (!isValidEmailDomain(email)) {
+                showAlert('Invalid email domain. Use @sairam.edu.in', 'error');
+                return;
+            }
+
+            // Loading State
+            btn.textContent = 'Creating Account...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            try {
+                const baseUrl = getApiBaseUrl();
+                const response = await fetch(`${baseUrl}/api/client/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, name })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch {
+                    throw new Error('Server returned an invalid response');
+                }
+
+                if (response.ok && data.success) {
+                    showAlert('Account created! Redirecting to login...', 'success');
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                } else {
+                    showAlert(data.message || 'Signup failed', 'error');
+                    resetBtn(btn, originalText);
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert('Could not connect to server. Is it running?', 'error');
+                resetBtn(btn, originalText);
+            }
+        });
+
+        function resetBtn(btn, text) {
+            btn.textContent = text;
+            btn.style.opacity = '1';
+            btn.disabled = false;
+        }
+
+        function showAlert(message, type) {
+            // Keep the info alert if it's there and just append/replace
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+    </script>
+</body>
+
+</html>

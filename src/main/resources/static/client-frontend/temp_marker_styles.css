@@ -1,0 +1,134 @@
+/* =========================================
+   Bus Markers (New Dot Style)
+   ========================================= */
+
+.bus-marker-container {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.bus-marker-container:hover {
+    transform: scale(1.1);
+    z-index: 100;
+}
+
+.bus-marker-container.selected {
+    z-index: 101;
+    transform: scale(1.2);
+}
+
+.marker-dot {
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+/* Status Colors */
+.bus-marker-container.status-active .marker-dot {
+    background: #2ecc71;
+    /* Green */
+    border-color: #fff;
+}
+
+.bus-marker-container.status-inactive .marker-dot {
+    background: #e74c3c;
+    /* Red */
+    border-color: #fff;
+}
+
+/* Pulse Animation for Active Buses */
+.marker-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: rgba(46, 204, 113, 0.4);
+    border-radius: 50%;
+    z-index: 1;
+    opacity: 0;
+}
+
+.bus-marker-container.status-active .marker-pulse {
+    animation: markerPulse 2s infinite;
+}
+
+@keyframes markerPulse {
+    0% {
+        width: 20px;
+        height: 20px;
+        opacity: 0.6;
+    }
+
+    100% {
+        width: 50px;
+        height: 50px;
+        opacity: 0;
+    }
+}
+
+/* Tooltip */
+.marker-tooltip {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    pointer-events: none;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.marker-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px 5px 0;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+}
+
+.bus-marker-container:hover .marker-tooltip,
+.bus-marker-container.selected .marker-tooltip {
+    opacity: 1;
+    visibility: visible;
+    bottom: 34px;
+}
+
+.marker-tooltip strong {
+    display: block;
+    color: #333;
+}
+
+.marker-tooltip .status-text {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.bus-marker-container.status-active .marker-tooltip .status-text {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+.bus-marker-container.status-inactive .marker-tooltip .status-text {
+    color: #e74c3c;
+    font-weight: 600;
+}

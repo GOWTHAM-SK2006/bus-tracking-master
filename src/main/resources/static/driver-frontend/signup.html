@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Bus Tracking Driver Signup">
+    <title>Driver Signup – Bus Tracking</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--bg-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .auth-header {
+            padding: var(--space-8) var(--space-6) var(--space-6);
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auth-logo {
+            height: 60px;
+            margin-bottom: var(--space-4);
+        }
+
+        .auth-title {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+        }
+
+        .auth-subtitle {
+            font-size: var(--text-sm);
+            opacity: 0.9;
+        }
+
+        .auth-body {
+            padding: var(--space-6);
+        }
+
+        .alert {
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+            font-size: var(--text-sm);
+        }
+
+        .alert-error {
+            background-color: var(--danger-50);
+            color: var(--danger-700);
+            border: 1px solid var(--danger-200);
+        }
+
+        .alert-success {
+            background-color: var(--success-50);
+            color: var(--success-700);
+            border: 1px solid var(--success-200);
+        }
+
+        .auth-footer {
+            padding: var(--space-4) var(--space-6);
+            background-color: var(--bg-muted);
+            text-align: center;
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .auth-footer a {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <svg class="auth-logo" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                    <text x="60" y="18" text-anchor="middle" fill="#FFF" font-family="Arial, sans-serif" font-size="20"
+                        font-weight="700">BusTrack</text>
+                    <defs>
+                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#F4C430;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="60" cy="52" r="26" fill="url(#goldGradient)" />
+                    <g transform="translate(60, 52)" stroke="#FFF" stroke-width="2" fill="none">
+                        <rect x="-14" y="-12" width="28" height="18" rx="4" />
+                        <rect x="-10" y="-9" width="20" height="10" rx="2" />
+                        <line x1="-14" y1="-5" x2="-17" y2="-5" />
+                        <line x1="14" y1="-5" x2="17" y2="-5" />
+                        <circle cx="-7" cy="4" r="2" fill="#FFF" />
+                        <circle cx="7" cy="4" r="2" fill="#FFF" />
+                    </g>
+                </svg>
+                <h1 class="auth-title">Driver Signup</h1>
+                <p class="auth-subtitle">Create your driver account</p>
+            </div>
+
+            <div class="auth-body">
+                <div id="alertContainer"></div>
+
+                <form id="signupForm" class="form">
+                    <div class="form-group">
+                        <label class="form-label" for="username">
+                            Username <span class="required">*</span>
+                        </label>
+                        <input type="text" id="username" class="form-input" placeholder="Choose a username" required
+                            autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">
+                            Password <span class="required">*</span>
+                        </label>
+                        <input type="password" id="password" class="form-input" placeholder="Choose a password" required
+                            autocomplete="new-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="name">
+                            Full Name <span class="required">*</span>
+                        </label>
+                        <input type="text" id="name" class="form-input" placeholder="Enter your full name" required
+                            autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">
+                            Phone Number <span class="required">*</span>
+                        </label>
+                        <input type="tel" id="phone" class="form-input" placeholder="Enter your phone number" required
+                            autocomplete="tel">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-4);">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Sign in here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper to get backend URL
+        function getApiBaseUrl() {
+            const host = window.location.hostname;
+            const protocol = window.location.protocol;
+
+            // VS Code Dev Tunnels
+            if (host.includes('.devtunnels.ms')) {
+                const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+                if (tunnelMatch) {
+                    return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                }
+            }
+
+            return `${protocol}//${host}:8080`;
+        }
+
+        const signupForm = document.getElementById('signupForm');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Check if account creation is enabled
+        async function checkAccountCreationEnabled() {
+            try {
+                const baseUrl = getApiBaseUrl();
+                const response = await fetch(`${baseUrl}/api/admin/settings`);
+                const data = await response.json();
+
+                if (data.success && !data.accountCreationEnabled) {
+                    // Disable signup
+                    signupForm.querySelector('button').disabled = true;
+                    signupForm.querySelectorAll('input').forEach(input => input.disabled = true);
+                    showAlert('Unable to create account. Contact admin for further details.', 'error');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Error checking account creation status:', error);
+                return true; // Allow signup if check fails
+            }
+        }
+
+        // Check on page load
+        checkAccountCreationEnabled();
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+
+            try {
+                const baseUrl = getApiBaseUrl();
+                console.log('Connecting to:', baseUrl);
+                const response = await fetch(`${baseUrl}/api/driver/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password, name, phone })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.error('Failed to parse JSON:', e);
+                    throw new Error('Server returned an invalid response');
+                }
+
+                if (response.ok && data.success) {
+                    showAlert('Account created successfully! Redirecting to login...', 'success');
+
+                    // Redirect to login page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showAlert(data.message || 'Signup failed', 'error');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert(`Error connecting to server at ${getApiBaseUrl()}. Is the backend running?`, 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+    </script>
+</body>
+
+</html>
