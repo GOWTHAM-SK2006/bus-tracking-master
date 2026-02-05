@@ -735,7 +735,7 @@ const BusTracker = {
             latitude: busData.latitude,
             longitude: busData.longitude,
             status: busData.status,
-            gpsOn: (busData.status && busData.status.toUpperCase() === 'RUNNING'),
+            gpsOn: (busData.status && (busData.status.toUpperCase() === 'RUNNING' || busData.status.toUpperCase() === 'GPS_ACTIVE')),
             stops: busData.busStop ? [busData.busStop] : (busData.stops || []),
             lastUpdate: new Date().toISOString()
         };
@@ -806,7 +806,7 @@ const BusTracker = {
             latitude: bus.latitude,
             longitude: bus.longitude,
             status: bus.status,
-            gpsOn: (bus.status && bus.status.toUpperCase() === 'RUNNING'),
+            gpsOn: (bus.status && (bus.status.toUpperCase() === 'RUNNING' || bus.status.toUpperCase() === 'GPS_ACTIVE')),
             // Use static route if available, otherwise fallback to single stop
             stops: ROUTE_DEFINITIONS[bus.busNumber || bus.busNo] || (bus.busStop ? [bus.busStop] : (bus.stops || [])),
             driverName: bus.driverName || 'Unknown Driver',

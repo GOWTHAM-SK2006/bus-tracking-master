@@ -85,6 +85,34 @@ public class DriverHandler extends TextWebSocketHandler {
                 return;
             }
 
+            if (node.has("action") && "GPS_ERROR".equals(node.get("action").asText())) {
+                System.out.println("[DriverHandler] Processing GPS_ERROR action for bus: " + busNumber);
+                BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
+                if (bus != null) {
+                    bus.setStatus("STOPPED");
+                }
+                repository.findById(busNumber).ifPresent(entity -> {
+                    entity.setStatus("STOPPED");
+                    repository.save(entity);
+                });
+                userHandler.broadcastUpdate();
+                return;
+            }
+
+            if (node.has("action") && "GPS_ACTIVE".equals(node.get("action").asText())) {
+                System.out.println("[DriverHandler] Processing GPS_ACTIVE action for bus: " + busNumber);
+                BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
+                if (bus != null) {
+                    bus.setStatus("RUNNING");
+                }
+                repository.findById(busNumber).ifPresent(entity -> {
+                    entity.setStatus("RUNNING");
+                    repository.save(entity);
+                });
+                userHandler.broadcastUpdate();
+                return;
+            }
+
             // Regular update
             BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
             if (bus != null) {

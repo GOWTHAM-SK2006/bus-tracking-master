@@ -91,6 +91,8 @@ const state = {
     watchId: null,
     lastPosition: null,
     gpsStatus: 'inactive', // inactive | active | error
+    gpsPermissionGranted: false,
+    gpsErrorCount: 0,
 
     // Transmission state
     sendInterval: null,
@@ -779,6 +781,16 @@ const TrackingController = {
                     if (!state.isTracking) {
                         // First successful position
                         state.isTracking = true;
+                        state.gpsPermissionGranted = true;
+                        state.gpsErrorCount = 0;
+
+                        // Send GPS_ACTIVE action to backend
+                        WebSocketController.send({
+                            busNumber: state.busNumber,
+                            action: 'GPS_ACTIVE'
+                        });
+                        LogController.add('GPS active - backend notified', 'success');
+
                         this.updateTrackingUI('active');
                         this.startDataTransmission();
                         LogController.add('GPS tracking active', 'success');
@@ -908,29 +920,60 @@ const TrackingController = {
      */
     handleGPSError(error) {
         let title, message;
+        let shouldStopTracking = true;
 
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 title = 'GPS Permission Denied';
                 message = 'Please allow location access in your browser settings to use tracking.';
+                shouldStopTracking = true; // Must stop - permission denied
                 break;
             case error.POSITION_UNAVAILABLE:
                 title = 'Location Unavailable';
-                message = 'Unable to determine your location. Ensure GPS is enabled on your device.';
+                message = 'GPS signal lost. Waiting for GPS to reconnect...';
+                shouldStopTracking = false; // Don't stop - GPS might come back
                 break;
             case error.TIMEOUT:
                 title = 'GPS Timeout';
-                message = 'Location request timed out. Please try again.';
+                message = 'Location request timed out. Retrying...';
+                shouldStopTracking = false; // Don't stop - just a timeout
                 break;
             default:
                 title = 'GPS Error';
                 message = error.message || 'An unknown GPS error occurred.';
+                shouldStopTracking = false;
         }
 
-        AlertController.show(title, message, 'error');
-        LogController.add(`GPS Error: ${title}`, 'error');
+        // Only show alert for permission denied (critical error)
+        if (error.code === error.PERMISSION_DENIED) {
+            AlertController.show(title, message, 'error');
+        } else {
+            // For other errors, just log (GPS might recover)
+            LogController.add(`${title}: ${message}`, 'warning');
+        }
 
-        this.stop();
+        // Send GPS_ERROR action to backend to mark bus as inactive
+        state.gpsPermissionGranted = false;
+        state.gpsErrorCount++;
+
+        if (state.isTracking && state.socket && state.socket.readyState === WebSocket.OPEN) {
+            WebSocketController.send({
+                busNumber: state.busNumber,
+                action: 'GPS_ERROR',
+                errorCode: error.code,
+                errorMessage: title
+            });
+            LogController.add('GPS error reported to backend', 'info');
+        }
+
+        // Only stop tracking if permission was denied
+        if (shouldStopTracking) {
+            this.stop();
+        } else {
+            // Keep tracking active but update UI to show GPS is unavailable
+            GPSController.updateStatus('error');
+            this.updateTrackingUI('error');
+        }
     },
 
     /**

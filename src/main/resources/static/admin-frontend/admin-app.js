@@ -429,7 +429,7 @@ const BusManager = {
             latitude: bus.latitude,
             longitude: bus.longitude,
             status: bus.status,
-            gpsOn: (bus.status && bus.status.toUpperCase() === 'RUNNING'),
+            gpsOn: (bus.status && (bus.status.toUpperCase() === 'RUNNING' || bus.status.toUpperCase() === 'GPS_ACTIVE')),
             // Use static route logic for parity, though currently just stored
             stops: ROUTE_DEFINITIONS[bus.busNumber || bus.busNo] || (bus.busStop ? [bus.busStop] : (bus.stops || [])),
             driverName: bus.driverName || 'Unknown',
