@@ -615,10 +615,10 @@ function disableSignupUI() {
     const btn = signupForm.querySelector('button[type="submit"]');
     if (btn) {
         btn.disabled = true;
-        btn.dataset.originalText = btn.textContent; // Store original text if needed
-        btn.textContent = 'Unable to create account. Please contact admin';
+        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
+        btn.textContent = 'Registration Closed';
         btn.classList.add('btn-secondary'); 
-        btn.classList.remove('btn-success'); // Driver button is usually success/primary
+        btn.classList.remove('btn-success'); 
         btn.classList.remove('btn-primary');
     }
 
@@ -633,7 +633,9 @@ function disableSignupUI() {
         alert.id = 'signupDisabledAlert';
         alert.className = 'alert alert-error';
         alert.style.marginBottom = '20px';
-        alert.textContent = 'Driver registration is currently disabled by the administrator.';
+        alert.style.color = '#ef4444'; // Force red
+        alert.style.fontWeight = '600';
+        alert.textContent = 'Unable to create account. Please contact admin';
         signupForm.insertBefore(alert, signupForm.firstChild);
     }
 }
