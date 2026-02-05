@@ -19,12 +19,25 @@ public class SystemSettingsService {
      * Uses findAll() to retrieve any existing settings to avoid ID conflicts.
      */
     public SystemSettings getSettings() {
-        return settingsRepository.findAll().stream().findFirst()
-                .orElseGet(() -> {
-                    SystemSettings defaultSettings = new SystemSettings();
-                    // Do not manually set ID, let @GeneratedValue handle it
-                    return settingsRepository.save(defaultSettings);
-                });
+        java.util.List<SystemSettings> all = settingsRepository.findAll();
+
+        if (all.isEmpty()) {
+            SystemSettings defaultSettings = new SystemSettings();
+            return settingsRepository.save(defaultSettings);
+        }
+
+        // Cleanup duplicates if any
+        if (all.size() > 1) {
+            System.out.println("Warning: Multiple SystemSettings found. Cleaning up...");
+            // Keep the first one, delete others
+            SystemSettings primary = all.get(0);
+            for (int i = 1; i < all.size(); i++) {
+                settingsRepository.delete(all.get(i));
+            }
+            return primary;
+        }
+
+        return all.get(0);
     }
 
     /**

@@ -110,6 +110,24 @@ public class ClientService {
     }
 
     /**
+     * Update client password
+     */
+    public void updatePassword(String identifier, String newPassword) {
+        Optional<Client> clientOpt = clientRepository.findByEmail(identifier);
+        if (clientOpt.isEmpty()) {
+            clientOpt = clientRepository.findByUsername(identifier);
+        }
+
+        if (clientOpt.isEmpty()) {
+            throw new RuntimeException("Client not found");
+        }
+
+        Client client = clientOpt.get();
+        client.setPassword(newPassword);
+        clientRepository.save(client);
+    }
+
+    /**
      * Get client by ID
      */
     public Client getClientById(Long clientId) {

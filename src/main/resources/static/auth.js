@@ -1,0 +1,671 @@
+/**
+ * BusTrack - Unified Authentication
+ * Handles role selection, tab switching, form submission
+ */
+
+// State
+let currentRole = 'client';
+let currentTab = 'signin';
+
+// DOM Elements
+const roleCards = document.querySelectorAll('.role-card');
+const authTabs = document.querySelectorAll('.auth-tab');
+const signinForm = document.getElementById('signinForm');
+const signupForm = document.getElementById('signupForm');
+const signinFooter = document.getElementById('signinFooter');
+const signupFooter = document.getElementById('signupFooter');
+const driverFields = document.getElementById('driverFields');
+const errorAlert = document.getElementById('errorAlert');
+const successAlert = document.getElementById('successAlert');
+const authTabsContainer = document.querySelector('.auth-tabs');
+const signupTab = document.querySelector('.auth-tab[data-tab="signup"]');
+const collegeEmailBanner = document.getElementById('collegeEmailBanner');
+const signupEmailLabel = document.getElementById('signupEmailLabel');
+const signupEmailInput = document.getElementById('signupEmail');
+const signinEmailGroup = document.getElementById('signinEmailGroup');
+const signinUsernameGroup = document.getElementById('signinUsernameGroup');
+const signinUsernameInput = document.getElementById('signinUsername');
+const signupEmailGroup = document.getElementById('signupEmailGroup');
+const signupUsernameGroup = document.getElementById('signupUsernameGroup');
+const signupUsernameInput = document.getElementById('signupUsername');
+const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+const resetPasswordForm = document.getElementById('resetPasswordForm');
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+const cancelResetBtn = document.getElementById('cancelResetBtn');
+
+// =========================================
+// Role Selection
+// =========================================
+
+roleCards.forEach(card => {
+    card.addEventListener('click', () => {
+        const role = card.dataset.role;
+        selectRole(role);
+    });
+});
+
+function selectRole(role) {
+    currentRole = role;
+
+    // Update UI
+    roleCards.forEach(card => {
+        card.classList.toggle('active', card.dataset.role === role);
+    });
+
+    // Show/hide driver-specific fields in signup
+    if (driverFields) {
+        if (role === 'driver') {
+            driverFields.classList.remove('hidden');
+            // Make driver fields required
+            driverFields.querySelectorAll('input').forEach(input => {
+                input.required = true;
+            });
+        } else {
+            driverFields.classList.add('hidden');
+            // Remove required from driver fields
+            driverFields.querySelectorAll('input').forEach(input => {
+                input.required = false;
+            });
+        }
+    }
+
+    // Show/hide college banner and update email label for students
+    if (role === 'client') {
+        if (currentTab === 'signup') collegeEmailBanner.classList.remove('hidden');
+        signupEmailLabel.textContent = 'College Email';
+        signupEmailInput.placeholder = 'student@sairamtap.edu.in';
+    } else {
+        collegeEmailBanner.classList.add('hidden');
+        signupEmailLabel.textContent = 'Email address';
+        signupEmailInput.placeholder = 'you@example.com';
+    }
+
+    // Toggle Email vs Username fields
+    if (role === 'driver') {
+        // Show Username, Hide Email
+        signinEmailGroup.classList.add('hidden');
+        signinUsernameGroup.classList.remove('hidden');
+        signupEmailGroup.classList.add('hidden');
+        signupUsernameGroup.classList.remove('hidden');
+
+        // Update requirements
+        document.getElementById('signinEmail').required = false;
+        signinUsernameInput.required = true;
+        signupEmailInput.required = false;
+        signupUsernameInput.required = true;
+    } else {
+        // Show Email, Hide Username
+        signinEmailGroup.classList.remove('hidden');
+        signinUsernameGroup.classList.add('hidden');
+        signupEmailGroup.classList.remove('hidden');
+        signupUsernameGroup.classList.add('hidden');
+
+        // Update requirements
+        document.getElementById('signinEmail').required = true;
+        signinUsernameInput.required = false;
+        signupEmailInput.required = true;
+        signupUsernameInput.required = false;
+    }
+
+    // Hide sign up tab for admin (admin can only sign in)
+    if (role === 'admin') {
+        signupTab.style.display = 'none';
+        signinFooter.classList.add('hidden'); // Hide "Don't have an account?" text
+        signupFooter.classList.add('hidden'); // Hide "Already have an account?" text
+        // Force switch to signin if currently on signup
+        if (currentTab === 'signup') {
+            switchTab('signin');
+        }
+    } else {
+        signupTab.style.display = '';
+        if (currentTab === 'signin') {
+            signinFooter.classList.remove('hidden');
+        }
+    }
+
+    // Hide alerts on role change
+    hideAlerts();
+
+    // Toggle Forgot Password button visibility
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.style.display = (role === 'admin') ? 'none' : 'block';
+    }
+
+    // Update Signup State (Driver restriction)
+    if (typeof updateSignupState === 'function') {
+        updateSignupState();
+    }
+}
+
+// =========================================
+// Tab Switching
+// =========================================
+
+authTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        switchTab(tabName);
+    });
+});
+
+function switchTab(tab) {
+    currentTab = tab;
+
+    // Update tab UI
+    authTabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+
+    // Animate form transition
+    const showForm = tab === 'signin' ? signinForm : signupForm;
+    const hideForm = tab === 'signin' ? signupForm : signinForm;
+    const showFooter = tab === 'signin' ? signinFooter : signupFooter;
+    const hideFooter = tab === 'signin' ? signupFooter : signinFooter;
+
+    // Fade out current form
+    hideForm.classList.add('fade-out');
+
+    setTimeout(() => {
+        hideForm.classList.add('hidden');
+        hideForm.classList.remove('fade-out');
+
+        showForm.classList.remove('hidden');
+
+        // Handle college banner visibility
+        if (tab === 'signup' && currentRole === 'client') {
+            collegeEmailBanner.classList.remove('hidden');
+        } else {
+            collegeEmailBanner.classList.add('hidden');
+        }
+
+        // Only show footer if not admin
+        if (currentRole !== 'admin') {
+            showFooter.classList.remove('hidden');
+        } else {
+            showFooter.classList.add('hidden');
+        }
+
+        hideFooter.classList.add('hidden');
+    }, 200);
+
+    // Hide alerts on tab switch
+    hideAlerts();
+}
+
+// =========================================
+// Password Toggle
+// =========================================
+
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+
+    // Update icon
+    btn.innerHTML = isPassword
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+               <line x1="1" y1="1" x2="23" y2="23"/>
+           </svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+               <circle cx="12" cy="12" r="3"/>
+           </svg>`;
+}
+
+// =========================================
+// Alerts
+// =========================================
+
+function showError(message) {
+    errorAlert.textContent = message;
+    errorAlert.classList.add('show');
+    successAlert.classList.remove('show');
+}
+
+function showSuccess(message) {
+    successAlert.textContent = message;
+    successAlert.classList.add('show');
+    errorAlert.classList.remove('show');
+}
+
+function hideAlerts() {
+    errorAlert.classList.remove('show');
+    successAlert.classList.remove('show');
+}
+
+// =========================================
+// Form Submission - Sign In
+// =========================================
+
+signinForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const signinEmail = document.getElementById('signinEmail').value.trim();
+    const signinUsername = document.getElementById('signinUsername').value.trim();
+    const password = document.getElementById('signinPassword').value;
+    const btn = document.getElementById('signinBtn');
+
+    // Determine identifier based on role
+    let identifier = '';
+    if (currentRole === 'driver') {
+        identifier = signinUsername;
+    } else {
+        identifier = signinEmail;
+    }
+
+    // Validate
+    if (!identifier || !password) {
+        showError('Please fill in all fields');
+        return;
+    }
+
+    // Show loading
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+
+    try {
+        let endpoint = '';
+        let body = {};
+
+        switch (currentRole) {
+            case 'client':
+                endpoint = '/api/client/login';
+                body = { email: identifier, password };
+                break;
+            case 'driver':
+                endpoint = '/api/driver/login';
+                body = { username: identifier, password };
+                break;
+            case 'admin':
+                endpoint = '/api/admin/login';
+                body = { email: identifier, password };
+                break;
+        }
+
+        // Admin login (Client-side validation)
+        let data;
+
+        if (currentRole === 'admin') {
+            if (identifier === 'admin@college.com' && password === 'admin123') {
+                // Simulate success for admin
+                data = { success: true };
+            } else {
+                throw new Error('Invalid admin credentials');
+            }
+        } else {
+            // Client & Driver Login (Backend API)
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+        }
+
+        // Store session and redirect
+        switch (currentRole) {
+            case 'client':
+                sessionStorage.setItem('client', JSON.stringify(data.client));
+                window.location.href = 'client-frontend/index.html';
+                break;
+            case 'driver':
+                sessionStorage.setItem('driver', JSON.stringify(data.driver));
+                window.location.href = 'driver-frontend/index.html';
+                break;
+            case 'admin':
+                // Admin login is handled client-side for now as per previous logic
+                sessionStorage.setItem('admin', JSON.stringify({
+                    id: 1,
+                    name: 'Administrator',
+                    email: identifier,
+                    role: 'ADMIN'
+                }));
+                window.location.href = 'admin-frontend/admin.html';
+                break;
+        }
+
+    } catch (error) {
+        showError(error.message || 'Login failed. Please try again.');
+    } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+    }
+});
+
+// =========================================
+// Form Submission - Sign Up
+// =========================================
+
+signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const username = document.getElementById('signupUsername').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const btn = document.getElementById('signupBtn');
+
+    // Validate basic fields (Name & Password)
+    if (!name || !password) {
+        showError('Please fill in name and password');
+        return;
+    }
+
+    // Validate role-specific identity
+    if (currentRole === 'driver' && !username) {
+        showError('Please enter a username');
+        return;
+    }
+    if (currentRole !== 'driver' && !email) {
+        showError('Please enter an email address');
+        return;
+    }
+
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+    }
+
+    // Domain validation for students
+    if (currentRole === 'client') {
+        if (!email.toLowerCase().endsWith('@sairamtap.edu.in')) {
+            showError('Please use your @sairamtap.edu.in college email address');
+            return;
+        }
+    }
+
+    // Show loading
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+
+    try {
+        let endpoint = '';
+        let body = {};
+
+        switch (currentRole) {
+            case 'client':
+                endpoint = '/api/client/signup';
+                body = { 
+                    name, 
+                    email, 
+                    password,
+                    username: email // Backend requires username, use email
+                };
+                break;
+            case 'driver':
+                // ... driver fields ...
+                const busNo = document.getElementById('busNo').value.trim();
+                const phoneNo = document.getElementById('phoneNo').value.trim();
+                const busName = document.getElementById('busName').value.trim();
+
+                if (!busNo || !phoneNo || !busName) {
+                    showError('Please fill in all driver fields');
+                    btn.classList.remove('btn-loading');
+                    btn.disabled = false;
+                    return;
+                }
+
+                endpoint = '/api/driver/signup';
+                body = {
+                    name,
+                    username: username,// Send username instead of email/username
+                    password,
+                    busNumber: busNo,
+                    phone: phoneNo,
+                    busName
+                };
+
+                // Save to localStorage for pre-filling driver dashboard
+                const driverConfig = {
+                    name: name,
+                    phone: phoneNo,
+                    busNumber: busNo,
+                    busName: busName
+                };
+                localStorage.setItem('driverConfig', JSON.stringify(driverConfig));
+                break;
+            case 'admin':
+                endpoint = '/api/admin/signup';
+                body = { name, email, password };
+                break;
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Signup failed');
+        }
+
+        showSuccess('Account created! Please sign in.');
+
+        // Switch to signin tab after short delay
+        setTimeout(() => {
+            switchTab('signin');
+        }, 1500);
+
+    } catch (error) {
+        showError(error.message || 'Signup failed. Please try again.');
+    } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+    }
+});
+
+// =========================================
+// Initialize
+// =========================================
+
+// Check for URL parameters (e.g., ?role=driver&tab=signup)
+function initFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+
+    const role = params.get('role');
+    if (role && ['client', 'driver', 'admin'].includes(role)) {
+        selectRole(role);
+    }
+
+    const tab = params.get('tab');
+    if (tab && ['signin', 'signup'].includes(tab)) {
+        switchTab(tab);
+    }
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', initFromUrl);
+
+// =========================================
+// Reset Password Logic
+// =========================================
+
+if (forgotPasswordBtn) {
+    forgotPasswordBtn.addEventListener('click', () => {
+        signinForm.classList.add('hidden');
+        signinFooter.classList.add('hidden');
+        resetPasswordForm.classList.remove('hidden');
+        hideAlerts();
+    });
+}
+
+if (cancelResetBtn) {
+    cancelResetBtn.addEventListener('click', () => {
+        resetPasswordForm.classList.add('hidden');
+        signinForm.classList.remove('hidden');
+        // Restore footer if not admin
+        if (currentRole !== 'admin') {
+            signinFooter.classList.remove('hidden');
+        }
+        hideAlerts();
+    });
+}
+
+if (resetPasswordForm) {
+    resetPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const identifier = document.getElementById('resetIdentifier').value.trim();
+        const newPassword = document.getElementById('resetNewPassword').value;
+        const btn = document.getElementById('resetPasswordBtn');
+
+        if (!identifier || !newPassword) {
+            showError('Please fill in all fields');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            showError('Password must be at least 6 characters');
+            return;
+        }
+
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+
+        try {
+            let endpoint = '';
+            let body = {};
+
+            if (currentRole === 'client') {
+                endpoint = '/api/client/reset-password';
+                body = { email: identifier, newPassword };
+            } else if (currentRole === 'driver') {
+                endpoint = '/api/driver/reset-password';
+                body = { username: identifier, newPassword };
+            } else {
+                throw new Error('Action not allowed for this role');
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Password reset failed');
+            }
+
+            showSuccess('Password updated successfully! Please sign in.');
+            resetPasswordForm.reset();
+            
+            // Switch back to signin after delay
+            setTimeout(() => {
+                cancelResetBtn.click();
+            }, 1500);
+
+        } catch (error) {
+            showError(error.message || 'Failed to reset password');
+        } finally {
+            btn.classList.remove('btn-loading');
+            btn.disabled = false;
+        }
+    });
+}
+
+// =========================================
+// System Settings Check
+// =========================================
+
+// =========================================
+// System Settings Check
+// =========================================
+
+let driverSignupDisabled = false;
+
+async function checkAccountCreation() {
+    try {
+        const response = await fetch('/api/admin/settings');
+        const data = await response.json();
+        
+        // Store state
+        if (data.accountCreationEnabled === false) {
+            driverSignupDisabled = true;
+        } else {
+            driverSignupDisabled = false;
+        }
+        updateSignupState();
+    } catch (error) {
+        console.error('Failed to check settings:', error);
+    }
+}
+
+function updateSignupState() {
+    // Only disable if Driver Role AND Disabled
+    if (currentRole === 'driver' && driverSignupDisabled) {
+        disableSignupUI();
+    } else {
+        enableSignupUI();
+    }
+}
+
+function disableSignupUI() {
+    // Disable Submit Button
+    const btn = signupForm.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.dataset.originalText = btn.textContent; // Store original text if needed
+        btn.textContent = 'Unable to create account. Please contact admin';
+        btn.classList.add('btn-secondary'); 
+        btn.classList.remove('btn-success'); // Driver button is usually success/primary
+        btn.classList.remove('btn-primary');
+    }
+
+    // Disable all inputs in signup form
+    signupForm.querySelectorAll('input').forEach(input => {
+        input.disabled = true;
+    });
+
+    // Show warning banner
+    if (!document.getElementById('signupDisabledAlert')) {
+        const alert = document.createElement('div');
+        alert.id = 'signupDisabledAlert';
+        alert.className = 'alert alert-error';
+        alert.style.marginBottom = '20px';
+        alert.textContent = 'Driver registration is currently disabled by the administrator.';
+        signupForm.insertBefore(alert, signupForm.firstChild);
+    }
+}
+
+function enableSignupUI() {
+    // Enable Submit Button
+    const btn = signupForm.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = false;
+        // Restore text based on role? Or generic "Create Account"
+        btn.textContent = 'Create Account'; 
+        btn.classList.remove('btn-secondary');
+        
+        // Restore proper class
+        if (currentRole === 'driver') {
+            btn.classList.add('btn-success'); // Assuming driver button style
+        } else {
+            btn.classList.add('btn-primary');
+        }
+    }
+
+    // Enable inputs
+    signupForm.querySelectorAll('input').forEach(input => {
+        input.disabled = false;
+    });
+
+    // Remove warning banner
+    const alert = document.getElementById('signupDisabledAlert');
+    if (alert) {
+        alert.remove();
+    }
+}
+
+// Run check on load
+document.addEventListener('DOMContentLoaded', checkAccountCreation);

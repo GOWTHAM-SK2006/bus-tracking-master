@@ -3,86 +3,71 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Bus Tracking Driver Login">
-    <title>Driver Login – Bus Tracking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login - DYGON</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <!-- Design System -->
+    <link rel="stylesheet" href="../design-system.css">
 
     <style>
-        .auth-container {
+        body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: var(--space-6);
-            background: linear-gradient(135deg, #002fff 0%, #764ba2 100%);
+            background: var(--bg-secondary);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: var(--space-4);
         }
 
         .auth-card {
-            width: 100%;
-            max-width: 420px;
-            background-color: var(--bg-surface);
-            border-radius: var(--radius-xl);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-md);
         }
 
         .auth-header {
-            padding: var(--space-8) var(--space-6) var(--space-6);
             text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            margin-bottom: var(--space-8);
         }
 
-        .auth-logo {
-            height: 60px;
-            margin-bottom: var(--space-4);
+        .logo {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--space-4);
+            background: var(--success);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
         }
 
         .auth-title {
             font-size: var(--text-2xl);
-            font-weight: 700;
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
             margin-bottom: var(--space-2);
         }
 
         .auth-subtitle {
             font-size: var(--text-sm);
-            opacity: 0.9;
-        }
-
-        .auth-body {
-            padding: var(--space-6);
-        }
-
-        .alert {
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-4);
-            font-size: var(--text-sm);
-        }
-
-        .alert-error {
-            background-color: var(--danger-50);
-            color: var(--danger-700);
-            border: 1px solid var(--danger-200);
-        }
-
-        .alert-success {
-            background-color: var(--success-50);
-            color: var(--success-700);
-            border: 1px solid var(--success-200);
+            color: var(--text-secondary);
         }
 
         .auth-footer {
-            padding: var(--space-4) var(--space-6);
-            background-color: var(--bg-muted);
+            margin-top: var(--space-6);
             text-align: center;
             font-size: var(--text-sm);
             color: var(--text-secondary);
@@ -91,11 +76,44 @@
         .auth-footer a {
             color: var(--primary-600);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: var(--font-medium);
         }
 
         .auth-footer a:hover {
             text-decoration: underline;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .alert-container {
+            margin-bottom: var(--space-4);
+        }
+
+        .back-link {
+            display: block;
+            margin-top: var(--space-4);
+            text-align: center;
+        }
+
+        .back-link a {
+            font-size: var(--text-sm);
+            color: var(--gray-500);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            color: var(--gray-700);
         }
     </style>
 </head>
@@ -104,129 +122,93 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <svg class="auth-logo" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                    <text x="60" y="18" text-anchor="middle" fill="#FFF" font-family="Arial, sans-serif" font-size="20"
-                        font-weight="700">BusTrack</text>
-                    <defs>
-                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#F4C430;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="60" cy="52" r="26" fill="url(#goldGradient)" />
-                    <g transform="translate(60, 52)" stroke="#FFF" stroke-width="2" fill="none">
-                        <rect x="-14" y="-12" width="28" height="18" rx="4" />
-                        <rect x="-10" y="-9" width="20" height="10" rx="2" />
-                        <line x1="-14" y1="-5" x2="-17" y2="-5" />
-                        <line x1="14" y1="-5" x2="17" y2="-5" />
-                        <circle cx="-7" cy="4" r="2" fill="#FFF" />
-                        <circle cx="7" cy="4" r="2" fill="#FFF" />
-                    </g>
-                </svg>
+                <img src="../logo.png" alt="DYGON"
+                    style="width: 300px; height: 300px; object-fit: contain; margin-bottom: var(--space-4);">
                 <h1 class="auth-title">Driver Login</h1>
-                <p class="auth-subtitle">Sign in to access the driver dashboard</p>
+                <p class="auth-subtitle">Sign in to start sharing your location</p>
             </div>
 
-            <div class="auth-body">
-                <div id="alertContainer"></div>
+            <div class="alert-container" id="alertContainer"></div>
 
-                <form id="loginForm" class="form">
-                    <div class="form-group">
-                        <label class="form-label" for="username">
-                            Username <span class="required">*</span>
-                        </label>
-                        <input type="text" id="username" class="form-input" placeholder="Enter your username" required
-                            autocomplete="username">
-                    </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Enter your username" required
+                        autocomplete="username">
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="password">
-                            Password <span class="required">*</span>
-                        </label>
-                        <input type="password" id="password" class="form-input" placeholder="Enter your password"
-                            required autocomplete="current-password">
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required
+                        autocomplete="current-password">
+                </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-4);">
-                        Sign In
-                    </button>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-success btn-lg btn-full">Sign in</button>
+            </form>
 
             <div class="auth-footer">
-                Don't have an account? <a href="signup.html">Sign up here</a>
+                Don't have an account? <a href="signup.html">Sign up</a>
+            </div>
+
+            <div class="back-link">
+                <a href="../index.html">← Back to role selection</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Helper to get backend URL
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
-
-            // VS Code Dev Tunnels
             if (host.includes('.devtunnels.ms')) {
                 const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-                if (tunnelMatch) {
-                    return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
-                }
+                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
             }
-
             return `${protocol}//${host}:8080`;
         }
 
         const loginForm = document.getElementById('loginForm');
         const alertContainer = document.getElementById('alertContainer');
 
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+
+            submitBtn.textContent = 'Signing in...';
+            submitBtn.disabled = true;
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             try {
-                const baseUrl = getApiBaseUrl();
-                console.log('Connecting to:', baseUrl);
-                const response = await fetch(`${baseUrl}/api/driver/login`, {
+                const response = await fetch(`${getApiBaseUrl()}/api/driver/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
 
-                let data;
-                try {
-                    data = await response.json();
-                } catch (e) {
-                    console.error('Failed to parse JSON:', e);
-                    throw new Error('Server returned an invalid response');
-                }
+                const data = await response.json();
 
                 if (response.ok && data.success) {
-                    // Store driver info in sessionStorage
                     sessionStorage.setItem('driver', JSON.stringify(data.driver));
-
-                    // Show success message
-                    showAlert('Login successful! Redirecting...', 'success');
-
-                    // Redirect to dashboard
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
+                    showAlert('Success! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = 'index.html'; }, 500);
                 } else {
-                    showAlert(data.message || 'Login failed', 'error');
+                    showAlert(data.message || 'Invalid credentials', 'error');
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                showAlert(`Error connecting to server at ${getApiBaseUrl()}. Is the backend running?`, 'error');
+                showAlert('Could not connect to server', 'error');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         });
-
-        function showAlert(message, type) {
-            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-        }
     </script>
 </body>
 

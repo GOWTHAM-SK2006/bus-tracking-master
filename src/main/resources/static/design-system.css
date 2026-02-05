@@ -1,0 +1,651 @@
+/* =========================================
+   DYGON Design System
+   Professional SaaS UI - Minimal & Clean
+   ========================================= */
+
+/* =========================================
+   CSS Variables - Design Tokens
+   ========================================= */
+:root {
+    /* ========== BRAND COLORS (DYGON) ========== */
+    /* Primary Purple (from logo) */
+    --brand-purple-50: #FAF5FF;
+    --brand-purple-100: #F3E8FF;
+    --brand-purple-200: #E9D5FF;
+    --brand-purple-300: #D8B4FE;
+    --brand-purple-400: #C084FC;
+    --brand-purple-500: #A855F7;
+    --brand-purple-600: #9333EA;
+    --brand-purple-700: #7E22CE;
+    --brand-purple-800: #6B21A8;
+    --brand-purple-900: #581C87;
+
+    /* Primary Pink (from logo) */
+    --brand-pink-50: #FDF2F8;
+    --brand-pink-100: #FCE7F3;
+    --brand-pink-200: #FBCFE8;
+    --brand-pink-300: #F9A8D4;
+    --brand-pink-400: #F472B6;
+    --brand-pink-500: #EC4899;
+    --brand-pink-600: #DB2777;
+    --brand-pink-700: #BE185D;
+    --brand-pink-800: #9D174D;
+    --brand-pink-900: #831843;
+
+    /* Accent Orange (from logo) */
+    --brand-orange-50: #FFF7ED;
+    --brand-orange-100: #FFEDD5;
+    --brand-orange-200: #FED7AA;
+    --brand-orange-300: #FDBA74;
+    --brand-orange-400: #FB923C;
+    --brand-orange-500: #F59E0B;
+    --brand-orange-600: #EA580C;
+    --brand-orange-700: #C2410C;
+    --brand-orange-800: #9A3412;
+    --brand-orange-900: #7C2D12;
+
+    /* ========== NEUTRAL GRAYS ========== */
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+
+    /* ========== PRIMARY BRAND COLOR ========== */
+    /* Using purple as primary */
+    --primary-50: var(--brand-purple-50);
+    --primary-100: var(--brand-purple-100);
+    --primary-200: var(--brand-purple-200);
+    --primary-300: var(--brand-purple-300);
+    --primary-400: var(--brand-purple-400);
+    --primary-500: var(--brand-purple-500);
+    --primary-600: var(--brand-purple-600);
+    --primary-700: var(--brand-purple-700);
+    --primary-800: var(--brand-purple-800);
+    --primary-900: var(--brand-purple-900);
+
+    /* ========== SEMANTIC COLORS ========== */
+    /* Success - Green */
+    --success-50: #F0FDF4;
+    --success-100: #DCFCE7;
+    --success-500: #22C55E;
+    --success-600: #16A34A;
+    --success-700: #15803D;
+    --success: var(--success-600);
+    --success-light: var(--success-100);
+
+    /* Warning - Amber */
+    --warning-50: #FFFBEB;
+    --warning-100: #FEF3C7;
+    --warning-500: #F59E0B;
+    --warning-600: #D97706;
+    --warning-700: #B45309;
+    --warning: var(--warning-600);
+    --warning-light: var(--warning-100);
+
+    /* Error - Red */
+    --error-50: #FEF2F2;
+    --error-100: #FEE2E2;
+    --error-500: #EF4444;
+    --error-600: #DC2626;
+    --error-700: #B91C1C;
+    --error: var(--error-600);
+    --error-light: var(--error-100);
+
+    /* Info - Blue */
+    --info-50: #EFF6FF;
+    --info-100: #DBEAFE;
+    --info-500: #3B82F6;
+    --info-600: #2563EB;
+    --info-700: #1D4ED8;
+    --info: var(--info-600);
+    --info-light: var(--info-100);
+
+    /* ========== BACKGROUNDS ========== */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --bg-tertiary: #F3F4F6;
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+
+    /* ========== TEXT COLORS ========== */
+    --text-primary: var(--gray-900);
+    --text-secondary: var(--gray-600);
+    --text-tertiary: var(--gray-500);
+    --text-placeholder: var(--gray-400);
+    --text-inverse: #FFFFFF;
+
+    /* ========== BORDERS ========== */
+    --border-color: var(--gray-200);
+    --border-color-dark: var(--gray-300);
+    --border-color-light: var(--gray-100);
+
+    /* ========== SHADOWS (Elevation System) ========== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* Colored shadows for brand elements */
+    --shadow-purple: 0 10px 25px -5px rgba(147, 51, 234, 0.3);
+    --shadow-pink: 0 10px 25px -5px rgba(236, 72, 153, 0.3);
+    --shadow-orange: 0 10px 25px -5px rgba(245, 158, 11, 0.3);
+
+    /* ========== BORDER RADIUS ========== */
+    --radius-xs: 2px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* ========== SPACING SCALE ========== */
+    --space-0: 0;
+    --space-px: 1px;
+    --space-0-5: 0.125rem;
+    /* 2px */
+    --space-1: 0.25rem;
+    /* 4px */
+    --space-1-5: 0.375rem;
+    /* 6px */
+    --space-2: 0.5rem;
+    /* 8px */
+    --space-2-5: 0.625rem;
+    /* 10px */
+    --space-3: 0.75rem;
+    /* 12px */
+    --space-3-5: 0.875rem;
+    /* 14px */
+    --space-4: 1rem;
+    /* 16px */
+    --space-5: 1.25rem;
+    /* 20px */
+    --space-6: 1.5rem;
+    /* 24px */
+    --space-7: 1.75rem;
+    /* 28px */
+    --space-8: 2rem;
+    /* 32px */
+    --space-9: 2.25rem;
+    /* 36px */
+    --space-10: 2.5rem;
+    /* 40px */
+    --space-11: 2.75rem;
+    /* 44px */
+    --space-12: 3rem;
+    /* 48px */
+    --space-14: 3.5rem;
+    /* 56px */
+    --space-16: 4rem;
+    /* 64px */
+    --space-20: 5rem;
+    /* 80px */
+    --space-24: 6rem;
+    /* 96px */
+
+    /* ========== TYPOGRAPHY SCALE ========== */
+    --text-xs: 0.75rem;
+    /* 12px */
+    --text-sm: 0.875rem;
+    /* 14px */
+    --text-base: 1rem;
+    /* 16px */
+    --text-lg: 1.125rem;
+    /* 18px */
+    --text-xl: 1.25rem;
+    /* 20px */
+    --text-2xl: 1.5rem;
+    /* 24px */
+    --text-3xl: 1.875rem;
+    /* 30px */
+    --text-4xl: 2.25rem;
+    /* 36px */
+    --text-5xl: 3rem;
+    /* 48px */
+    --text-6xl: 3.75rem;
+    /* 60px */
+
+    /* ========== FONT WEIGHTS ========== */
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+
+    /* ========== LINE HEIGHTS ========== */
+    --leading-none: 1;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+
+    /* ========== ANIMATION DURATIONS ========== */
+    --duration-instant: 100ms;
+    --duration-fast: 200ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+
+    /* ========== EASING FUNCTIONS ========== */
+    --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ========== Z-INDEX SCALE ========== */
+    --z-0: 0;
+    --z-10: 10;
+    --z-20: 20;
+    --z-30: 30;
+    --z-40: 40;
+    --z-50: 50;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+
+    /* ========== INTERACTION STATES ========== */
+    --opacity-disabled: 0.5;
+    --opacity-hover: 0.8;
+
+    /* Focus ring */
+    --ring-width: 3px;
+    --ring-offset: 2px;
+    --ring-color: var(--primary-500);
+    --ring-opacity: 0.5;
+}
+
+/* =========================================
+   Reset & Base Styles
+   ========================================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: var(--text-base);
+    font-weight: var(--font-normal);
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+/* =========================================
+   Typography
+   ========================================= */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: var(--font-semibold);
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+h1 {
+    font-size: var(--text-3xl);
+}
+
+h2 {
+    font-size: var(--text-2xl);
+}
+
+h3 {
+    font-size: var(--text-xl);
+}
+
+h4 {
+    font-size: var(--text-lg);
+}
+
+h5 {
+    font-size: var(--text-base);
+}
+
+h6 {
+    font-size: var(--text-sm);
+}
+
+p {
+    margin-bottom: var(--space-4);
+    line-height: 1.6;
+}
+
+/* =========================================
+   Buttons
+   ========================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 10px 16px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    font-family: inherit;
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-in-out);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Primary Button */
+.btn-primary {
+    background: var(--primary-600);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-700);
+}
+
+.btn-primary:active:not(:disabled) {
+    background: var(--primary-700);
+    transform: scale(0.98);
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background: white;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--gray-50);
+    border-color: var(--border-color-dark);
+}
+
+/* Success Button */
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #059669;
+}
+
+/* Danger Button */
+.btn-danger {
+    background: var(--error);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #DC2626;
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: var(--text-xs);
+}
+
+.btn-lg {
+    padding: 14px 20px;
+    font-size: var(--text-base);
+}
+
+/* =========================================
+   Form Elements
+   ========================================= */
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: var(--text-base);
+    font-family: inherit;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: white;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.form-input::placeholder {
+    color: var(--text-placeholder);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* =========================================
+   Cards
+   ========================================= */
+.card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+/* =========================================
+   Badges & Status
+   ========================================= */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 4px 12px;
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    border-radius: var(--radius-full);
+}
+
+.badge-success {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.badge-warning {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.badge-error {
+    background: var(--error-light);
+    color: var(--error);
+}
+
+.badge-neutral {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+/* Status Dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot-success {
+    background: var(--success);
+}
+
+.status-dot-error {
+    background: var(--error);
+}
+
+.status-dot-warning {
+    background: var(--warning);
+}
+
+/* =========================================
+   Alerts
+   ========================================= */
+.alert {
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+}
+
+.alert-success {
+    background: var(--success-light);
+    color: #065F46;
+    border: 1px solid var(--success);
+}
+
+.alert-error {
+    background: var(--error-light);
+    color: #991B1B;
+    border: 1px solid var(--error);
+}
+
+.alert-warning {
+    background: var(--warning-light);
+    color: #92400E;
+    border: 1px solid var(--warning);
+}
+
+/* =========================================
+   Utilities
+   ========================================= */
+.text-xs {
+    font-size: var(--text-xs);
+}
+
+.text-sm {
+    font-size: var(--text-sm);
+}
+
+.text-base {
+    font-size: var(--text-base);
+}
+
+.text-lg {
+    font-size: var(--text-lg);
+}
+
+.text-xl {
+    font-size: var(--text-xl);
+}
+
+.text-2xl {
+    font-size: var(--text-2xl);
+}
+
+.font-normal {
+    font-weight: var(--font-normal);
+}
+
+.font-medium {
+    font-weight: var(--font-medium);
+}
+
+.font-semibold {
+    font-weight: var(--font-semibold);
+}
+
+.font-bold {
+    font-weight: var(--font-bold);
+}
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-tertiary {
+    color: var(--text-tertiary);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-2);
+}
+
+.mb-4 {
+    margin-bottom: var(--space-4);
+}
+
+.mb-6 {
+    margin-bottom: var(--space-6);
+}
+
+.mt-2 {
+    margin-top: var(--space-2);
+}
+
+.mt-4 {
+    margin-top: var(--space-4);
+}
+
+.mt-6 {
+    margin-top: var(--space-6);
+}

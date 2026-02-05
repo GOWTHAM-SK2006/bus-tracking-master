@@ -67,6 +67,30 @@ public class DriverController {
         }
     }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String username = request.get("username");
+            String newPassword = request.get("newPassword");
+
+            if (username == null || newPassword == null) {
+                throw new RuntimeException("Username and new password are required");
+            }
+
+            driverService.updatePassword(username, newPassword);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
     @PutMapping("/{id}/bus-details")
     public ResponseEntity<?> updateBusDetails(@PathVariable Long id, @RequestBody Map<String, String> busDetails) {
         try {

@@ -26,13 +26,6 @@ public class ClientController {
     public ResponseEntity<?> signup(@RequestBody Client client) {
         Map<String, Object> response = new HashMap<>();
 
-        // Check if account creation is enabled
-        if (!systemSettingsService.isAccountCreationEnabled()) {
-            response.put("success", false);
-            response.put("message", "Unable to create account. Contact admin for further details.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
-
         try {
             Client savedClient = clientService.registerClient(client);
             response.put("success", true);
@@ -67,6 +60,30 @@ public class ClientController {
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String newPassword = request.get("newPassword");
+
+            if (email == null || newPassword == null) {
+                throw new RuntimeException("Email and new password are required");
+            }
+
+            clientService.updatePassword(email, newPassword);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 

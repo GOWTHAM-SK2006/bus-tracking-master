@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Login - DYGON</title>
+    <title>Sign in - DYGON</title>
 
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Design System -->
-    <link rel="stylesheet" href="../design-system.css">
+    <link rel="stylesheet" href="design-system.css">
 
     <style>
         body {
@@ -52,6 +52,8 @@
             align-items: center;
             justify-content: center;
             color: white;
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
         }
 
         .auth-title {
@@ -90,22 +92,6 @@
         .alert-container {
             margin-bottom: var(--space-4);
         }
-
-        .back-link {
-            display: block;
-            margin-top: var(--space-4);
-            text-align: center;
-        }
-
-        .back-link a {
-            font-size: var(--text-sm);
-            color: var(--gray-500);
-            text-decoration: none;
-        }
-
-        .back-link a:hover {
-            color: var(--gray-700);
-        }
     </style>
 </head>
 
@@ -113,10 +99,16 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <img src="../logo.png" alt="DYGON"
-                    style="width: 300px; height: 300px; object-fit: contain; margin-bottom: var(--space-4);">
-                <h1 class="auth-title">Students / Staffs Login</h1>
-                <p class="auth-subtitle">Sign in to track buses in real-time</p>
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="6" width="18" height="12" rx="2" />
+                        <path d="M3 10h18" />
+                        <circle cx="7" cy="16" r="1" fill="currentColor" />
+                        <circle cx="17" cy="16" r="1" fill="currentColor" />
+                    </svg>
+                </div>
+                <h1 class="auth-title">Sign in to DYGON</h1>
+                <p class="auth-subtitle">Track your college bus in real-time</p>
             </div>
 
             <div class="alert-container" id="alertContainer"></div>
@@ -134,20 +126,19 @@
                         autocomplete="current-password">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg btn-full">Sign in</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                    Sign in
+                </button>
             </form>
 
             <div class="auth-footer">
                 Don't have an account? <a href="signup.html">Sign up</a>
             </div>
-
-            <div class="back-link">
-                <a href="../index.html">← Back to role selection</a>
-            </div>
         </div>
     </div>
 
     <script>
+        // API Base URL helper
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
@@ -165,11 +156,18 @@
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
         }
 
+        function clearAlert() {
+            alertContainer.innerHTML = '';
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            clearAlert();
+
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
 
+            // Loading state
             submitBtn.textContent = 'Signing in...';
             submitBtn.disabled = true;
 
@@ -177,26 +175,90 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch(`${getApiBaseUrl()}/api/client/login`, {
+                const baseUrl = getApiBaseUrl();
+
+                // Try client login first
+                let response = await fetch(`${baseUrl}/api/client/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await response.json();
+                let data;
+                try {
+                    data = await response.json();
+                } catch {
+                    throw new Error('Invalid server response');
+                }
 
                 if (response.ok && data.success) {
+                    // Client login successful
                     sessionStorage.setItem('client', JSON.stringify(data.client));
                     showAlert('Success! Redirecting...', 'success');
-                    const nextPage = data.client.phoneVerified ? 'index.html' : 'profile.html';
-                    setTimeout(() => { window.location.href = nextPage; }, 500);
-                } else {
-                    showAlert(data.message || 'Invalid credentials', 'error');
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
+
+                    setTimeout(() => {
+                        const nextPage = data.client.phoneVerified ? 'client-frontend/index.html' : 'client-frontend/profile.html';
+                        window.location.href = nextPage;
+                    }, 500);
+                    return;
                 }
+
+                // Try driver login
+                response = await fetch(`${baseUrl}/api/driver/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: email, password })
+                });
+
+                try {
+                    data = await response.json();
+                } catch {
+                    throw new Error('Invalid server response');
+                }
+
+                if (response.ok && data.success) {
+                    // Driver login successful
+                    sessionStorage.setItem('driver', JSON.stringify(data.driver));
+                    showAlert('Success! Redirecting...', 'success');
+
+                    setTimeout(() => {
+                        window.location.href = 'driver-frontend/index.html';
+                    }, 500);
+                    return;
+                }
+
+                // Try admin login
+                response = await fetch(`${baseUrl}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: email, password })
+                });
+
+                try {
+                    data = await response.json();
+                } catch {
+                    throw new Error('Invalid server response');
+                }
+
+                if (response.ok && data.success) {
+                    // Admin login successful
+                    sessionStorage.setItem('admin', JSON.stringify(data.admin));
+                    showAlert('Success! Redirecting...', 'success');
+
+                    setTimeout(() => {
+                        window.location.href = 'admin-frontend/index.html';
+                    }, 500);
+                    return;
+                }
+
+                // All login attempts failed
+                showAlert('Invalid email or password', 'error');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+
             } catch (error) {
-                showAlert('Could not connect to server', 'error');
+                console.error('Login error:', error);
+                showAlert('Could not connect to server. Please try again.', 'error');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }

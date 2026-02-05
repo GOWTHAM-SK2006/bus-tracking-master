@@ -61,7 +61,8 @@ const state = {
     selectedBusId: null,
     isConnected: false,
     reconnectAttempts: 0,
-    pollingInterval: null
+    pollingInterval: null,
+    searchFilter: '' // Added for global filtering
 };
 
 // =========================================
@@ -78,10 +79,18 @@ const ROUTE_DEFINITIONS = {
 // DOM Elements
 // =========================================
 const DOM = {
+    // Welcome Modal
+    welcomeSearchModal: document.getElementById('welcomeSearchModal'),
+    welcomeSearchForm: document.getElementById('welcomeSearchForm'),
+    welcomeSearchInput: document.getElementById('welcomeSearchInput'),
+    welcomeSearchDropdown: document.getElementById('welcomeSearchDropdown'),
+    welcomeSearchDropdownContent: document.getElementById('welcomeSearchDropdownContent'),
+
     // Header
     searchInput: document.getElementById('searchInput'),
     searchClear: document.getElementById('searchClear'),
     searchDropdown: document.getElementById('searchDropdown'),
+    searchDropdownContent: document.getElementById('searchDropdownContent'),
     connectionBadge: document.getElementById('connectionBadge'),
     mobileMenuBtn: document.getElementById('mobileMenuBtn'),
     // Profile Elements (Adding these back)
@@ -731,7 +740,7 @@ const BusTracker = {
         const mappedBus = {
             busId: busData.busNumber || busData.busId,
             busNo: busData.busNumber || busData.busNo,
-            busName: "College Bus " + (busData.busNumber || busData.busNo),
+            busName: busData.busName || ("College Bus " + (busData.busNumber || busData.busNo)),
             latitude: busData.latitude,
             longitude: busData.longitude,
             status: busData.status,
@@ -743,7 +752,12 @@ const BusTracker = {
         state.buses.set(mappedBus.busId, mappedBus);
 
         if (mappedBus.latitude !== 0 || mappedBus.longitude !== 0) {
-            MapManager.updateBusMarker(mappedBus);
+            // Apply filtering: Only show if matches filter
+            if (SearchManager.shouldShowBus(mappedBus)) {
+                MapManager.updateBusMarker(mappedBus);
+            } else {
+                MapManager.removeBusMarker(mappedBus.busId);
+            }
         }
 
         let activeCount = 0;
@@ -795,14 +809,14 @@ const BusTracker = {
 
         const now = Date.now();
         console.log(`[WS] Received data for ${buses.length} buses`);
-        console.log('[WS] Sample bus data:', buses[0]); // Log the actual data received
+        // console.log('[WS] Sample bus data:', buses[0]);
 
         // Map backend data to frontend state format
         const mappedBuses = buses.map(bus => ({
             busId: bus.busNumber || bus.busId,
             busNo: bus.busNumber || bus.busNo,
-            busName: "College Bus " + (bus.busNumber || bus.busNo), // Display name
-            routeName: bus.busName || bus.route || bus.busRoute || bus.routePath || `Bus ${bus.busNumber || bus.busNo}`, // Use the actual route name from backend
+            busName: bus.busName || ("College Bus " + (bus.busNumber || bus.busNo)), // Display name
+            routeName: bus.busName || bus.route || bus.busRoute || bus.routePath || `Bus ${bus.busNumber || bus.busNo}`,
             latitude: bus.latitude,
             longitude: bus.longitude,
             status: bus.status,
@@ -828,7 +842,7 @@ const BusTracker = {
                 const isOldValid = oldBus.latitude && oldBus.longitude && (Math.abs(oldBus.latitude) > 0.0001 || Math.abs(oldBus.longitude) > 0.0001);
 
                 if (isNewInvalid && isOldValid) {
-                    console.warn(`[Map] Preserving valid coordinates for ${bus.busNo} despite invalid update (0,0)`);
+                    // console.warn(`[Map] Preserving valid coordinates for ${bus.busNo} despite invalid update (0,0)`);
                     bus.latitude = oldBus.latitude;
                     bus.longitude = oldBus.longitude;
                 }
@@ -852,7 +866,13 @@ const BusTracker = {
         state.buses.forEach(bus => {
             // Note: We only draw markers for buses with valid coordinates
             if (bus.latitude !== 0 || bus.longitude !== 0) {
-                MapManager.updateBusMarker(bus);
+                // Apply filtering
+                if (SearchManager.shouldShowBus(bus)) {
+                    MapManager.updateBusMarker(bus);
+                } else {
+                    MapManager.removeBusMarker(bus.busId);
+                }
+
                 if (state.selectedBusId === bus.busId) {
                     MapManager.updatePanel(bus);
                 }
@@ -880,8 +900,72 @@ const BusTracker = {
 const SearchManager = {
     debounceTimer: null,
 
+    shouldShowBus(bus) {
+        if (!state.searchFilter) return true;
+        const q = state.searchFilter.toLowerCase();
+        return (bus.busNo && bus.busNo.toLowerCase().includes(q)) ||
+            (bus.busName && bus.busName.toLowerCase().includes(q)) ||
+            (bus.routeName && bus.routeName.toLowerCase().includes(q));
+    },
+
+    initWelcomeSearch() {
+        if (DOM.welcomeSearchModal) {
+            DOM.welcomeSearchModal.style.display = 'flex';
+            
+            // Focus input
+            setTimeout(() => {
+                if(DOM.welcomeSearchInput) DOM.welcomeSearchInput.focus();
+            }, 100);
+
+            // Input Listener for Dropdown
+            if (DOM.welcomeSearchInput) {
+                DOM.welcomeSearchInput.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if (val.trim()) {
+                        DOM.welcomeSearchDropdown.style.display = 'block';
+                        this.handleSearch(val, 'welcome');
+                    } else {
+                        DOM.welcomeSearchDropdown.style.display = 'none';
+                    }
+                });
+            }
+
+            DOM.welcomeSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const query = DOM.welcomeSearchInput.value.trim();
+                this.applyWelcomeFilter(query);
+            });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (DOM.welcomeSearchDropdown && 
+                    !DOM.welcomeSearchInput.contains(e.target) && 
+                    !DOM.welcomeSearchDropdown.contains(e.target)) {
+                    DOM.welcomeSearchDropdown.style.display = 'none';
+                }
+            });
+        }
+    },
+
+    applyWelcomeFilter(query) {
+        if (query) {
+            state.searchFilter = query;
+            if (DOM.welcomeSearchModal) DOM.welcomeSearchModal.style.display = 'none';
+            if (DOM.searchInput) DOM.searchInput.value = query;
+            BusTracker.handleBusData(Array.from(state.buses.values()));
+        }
+    },
+
     init() {
+        // Main Search Bar
         DOM.searchInput.addEventListener('input', (e) => {
+            // Update filter state immediately
+            state.searchFilter = e.target.value.trim();
+
+            // Refresh view
+            BusTracker.handleBusData(Array.from(state.buses.values()));
+
+            // Existing dropdown logic
             this.handleSearch(e.target.value);
             DOM.searchClear.classList.toggle('hidden', !e.target.value);
         });
@@ -894,6 +978,9 @@ const SearchManager = {
 
         DOM.searchClear.addEventListener('click', () => {
             DOM.searchInput.value = '';
+            state.searchFilter = ''; // Clear filter
+            BusTracker.handleBusData(Array.from(state.buses.values())); // Reset view
+
             DOM.searchDropdown.classList.remove('active');
             DOM.searchClear.classList.add('hidden');
             DOM.searchInput.focus();
@@ -906,11 +993,12 @@ const SearchManager = {
         });
     },
 
-    handleSearch(query) {
+    handleSearch(query, context = 'header') {
         clearTimeout(this.debounceTimer);
 
         if (!query.trim()) {
-            DOM.searchDropdown.classList.remove('active');
+            if (context === 'header') DOM.searchDropdown.classList.remove('active');
+            else if (context === 'welcome') DOM.welcomeSearchDropdown.style.display = 'none';
             return;
         }
 
@@ -929,11 +1017,11 @@ const SearchManager = {
                 }));
             }
 
-            this.performSearch(q);
+            this.performSearch(q, context);
         }, CONFIG.SEARCH_DEBOUNCE);
     },
 
-    async performSearch(query) {
+    async performSearch(query, context) {
         const results = [];
 
         // 1. Local Search (Buses)
@@ -950,7 +1038,7 @@ const SearchManager = {
         });
 
         // 2. Clear previous results before adding remote ones
-        this.renderResults(results, true);
+        this.renderResults(results, true, context);
 
         // 3. Remote Search (Bus Stops from Drivers)
         try {
@@ -960,32 +1048,36 @@ const SearchManager = {
             if (data.success && data.busStops.length > 0) {
                 const stopResults = data.busStops.map(stop => ({ type: 'stop', name: stop }));
                 // Append stops to results
-                this.renderResults([...results, ...stopResults], false);
+                this.renderResults([...results, ...stopResults], false, context);
             } else if (results.length === 0) {
-                this.renderNoResults();
+                this.renderNoResults(context);
             }
         } catch (err) {
             console.error('[Search] Remote search failed:', err);
         }
     },
 
-    renderNoResults() {
-        const container = DOM.searchDropdownContent;
+    renderNoResults(context) {
+        const container = context === 'welcome' ? DOM.welcomeSearchDropdownContent : DOM.searchDropdownContent;
+        if (!container) return;
+
         container.innerHTML = `
             <div class="dropdown-no-results" style="padding: 1.5rem; text-align: center; color: var(--text-secondary);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 32px; height: 32px; margin-bottom: 0.5rem; opacity: 0.5;">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <p style="font-size: 0.9rem;">No results found for this bus stop</p>
-                <p style="font-size: 0.8rem; margin-top: 0.25rem;">Try a different name or check your spelling</p>
+                <p style="font-size: 0.9rem;">No results found</p>
             </div>
         `;
-        DOM.searchDropdown.classList.add('active');
+        
+        if (context === 'welcome') DOM.welcomeSearchDropdown.style.display = 'block';
+        else DOM.searchDropdown.classList.add('active');
     },
 
-    renderResults(results, initial) {
-        const container = DOM.searchDropdownContent;
+    renderResults(results, initial, context) {
+        const container = context === 'welcome' ? DOM.welcomeSearchDropdownContent : DOM.searchDropdownContent;
+        if (!container) return;
 
         if (results.length === 0) {
             if (initial) container.innerHTML = '<div class="searching-hint">Searching...</div>';
@@ -1036,7 +1128,15 @@ const SearchManager = {
         container.querySelectorAll('.dropdown-item').forEach(item => {
             if (item.dataset.type === 'bus') {
                 item.addEventListener('click', () => {
-                    this.selectBusResult(item.dataset.id);
+                   if (context === 'welcome') {
+                        const bus = state.buses.get(item.dataset.id);
+                        if (bus) {
+                            DOM.welcomeSearchInput.value = bus.busNo;
+                            this.applyWelcomeFilter(bus.busNo);
+                        }
+                   } else {
+                       this.selectBusResult(item.dataset.id);
+                   }
                 });
             }
         });
@@ -1049,7 +1149,8 @@ const SearchManager = {
             });
         });
 
-        DOM.searchDropdown.classList.add('active');
+        if (context === 'welcome') DOM.welcomeSearchDropdown.style.display = 'block';
+        else DOM.searchDropdown.classList.add('active');
     },
 
     selectBusResult(busId) {
@@ -1154,6 +1255,9 @@ const UIManager = {
         DOM.busesEmpty.style.display = 'none';
 
         state.buses.forEach((bus, busId) => {
+            // Apply filtering
+            if (!SearchManager.shouldShowBus(bus)) return;
+
             let card = DOM.busGrid.querySelector(`.bus-card[data-bus-id="${busId}"]`);
             if (card) {
                 // Update existing card status & details
@@ -1179,9 +1283,10 @@ const UIManager = {
             }
         });
 
-        // Remove cards for buses no longer present
+        // Remove cards for buses no longer present OR filtered out
         DOM.busGrid.querySelectorAll('.bus-card').forEach(card => {
-            if (!state.buses.has(card.dataset.busId)) {
+            const bus = state.buses.get(card.dataset.busId);
+            if (!bus || !SearchManager.shouldShowBus(bus)) {
                 card.remove();
             }
         });
@@ -1304,6 +1409,7 @@ async function init() {
         MapManager.init();
         TabManager.init();
         SearchManager.init();
+        SearchManager.initWelcomeSearch(); // Activate welcome prompt
         initMobileMenu();
         initTomTomServices();
 

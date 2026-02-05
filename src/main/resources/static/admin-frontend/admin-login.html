@@ -4,238 +4,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BusTrack Admin Login</title>
+    <title>Admin Login - DYGON</title>
+
+    <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../design-system.css">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #FF6B35;
-            --secondary: #004E89;
-            --success: #4CAF50;
-            --danger: #F44336;
-            --warning: #FFC107;
-            --bg-light: #F5F5F5;
-            --bg-white: #FFFFFF;
-            --text-dark: #333;
-            --text-secondary: #666;
-            --border-light: #E0E0E0;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-dark);
+            background: var(--bg-secondary);
         }
 
-        .login-container {
-            background: var(--bg-white);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            max-width: 420px;
+        .auth-container {
             width: 100%;
+            max-width: 400px;
+            padding: var(--space-4);
         }
 
-        .login-header {
+        .auth-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: var(--space-8);
         }
 
-        .login-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 15px;
+        .logo {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--space-4);
+            background: var(--gray-800);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            font-weight: bold;
             color: white;
         }
 
-        .login-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 5px;
+        .auth-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
         }
 
-        .login-subtitle {
-            font-size: 14px;
+        .auth-subtitle {
+            font-size: var(--text-sm);
             color: var(--text-secondary);
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 14px;
-        }
-
-        input[type="email"],
-        input[type="password"] {
+        .btn-full {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s;
         }
 
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        .alert-container {
+            margin-bottom: var(--space-4);
         }
 
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .error-message {
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .error-message.show {
+        .back-link {
             display: block;
-        }
-
-        .loading {
-            display: none;
+            margin-top: var(--space-6);
             text-align: center;
+            font-size: var(--text-sm);
             color: var(--text-secondary);
-            font-size: 14px;
         }
 
-        .loading.show {
-            display: block;
+        .back-link a {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: var(--font-medium);
         }
 
-        .spinner {
-            border: 3px solid var(--border-light);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .back-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1 class="login-title">BusTrack Admin</h1>
-            <p class="login-subtitle">Administrator Login</p>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="../logo.png" alt="DYGON"
+                    style="width: 300px; height: 300px; object-fit: contain; margin-bottom: var(--space-4);">
+                <h1 class="auth-title">Admin Login</h1>
+                <p class="auth-subtitle">Access the admin dashboard</p>
+            </div>
+
+            <div class="alert-container" id="alertContainer"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <input type="email" id="email" class="form-input" placeholder="admin@example.com" required
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required
+                        autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                    Sign in
+                </button>
+            </form>
+
+            <div class="back-link">
+                <a href="../login.html">← Back to main login</a>
+            </div>
         </div>
-
-        <div class="error-message" id="errorMessage"></div>
-
-        <form onsubmit="handleAdminLogin(event)">
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="admin@example.com" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            </div>
-
-            <button type="submit" class="submit-btn" id="submitBtn">Login</button>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Authenticating...</p>
-            </div>
-        </form>
     </div>
 
     <script>
-        function handleAdminLogin(event) {
-            event.preventDefault();
+        const loginForm = document.getElementById('loginForm');
+        const alertContainer = document.getElementById('alertContainer');
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        function clearAlert() {
+            alertContainer.innerHTML = '';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlert();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+
+            submitBtn.textContent = 'Signing in...';
+            submitBtn.disabled = true;
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-            const loading = document.getElementById('loading');
-            const submitBtn = document.getElementById('submitBtn');
 
-            errorMessage.classList.remove('show');
-            loading.classList.add('show');
-            submitBtn.disabled = true;
-
-            // Simulate API call - Replace with actual backend call
-            setTimeout(() => {
-                // For demo purposes: accept admin@college.com / admin123
-                if (email === 'admin@college.com' && password === 'admin123') {
-                    sessionStorage.setItem('admin', JSON.stringify({
-                        id: 1,
-                        name: 'Admin',
-                        email: email,
-                        role: 'ADMIN'
-                    }));
+            // Demo admin credentials
+            if (email === 'admin@college.com' && password === 'admin123') {
+                sessionStorage.setItem('admin', JSON.stringify({
+                    id: 1,
+                    name: 'Admin',
+                    email: email,
+                    role: 'ADMIN'
+                }));
+                showAlert('Success! Redirecting...', 'success');
+                setTimeout(() => {
                     window.location.href = 'admin.html';
-                } else {
-                    errorMessage.textContent = 'Invalid email or password';
-                    errorMessage.classList.add('show');
-                    loading.classList.remove('show');
-                    submitBtn.disabled = false;
-                }
-            }, 1000);
-        }
+                }, 500);
+            } else {
+                showAlert('Invalid email or password', 'error');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 

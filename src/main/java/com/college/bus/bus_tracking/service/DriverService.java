@@ -2,6 +2,7 @@ package com.college.bus.bus_tracking.service;
 
 import com.college.bus.bus_tracking.entity.Driver;
 import com.college.bus.bus_tracking.repository.DriverRepository;
+import com.college.bus.bus_tracking.service.SystemSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,15 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private SystemSettingsService systemSettingsService;
+
     public Driver registerDriver(Driver driver) {
+        // Check if account creation is enabled
+        if (!systemSettingsService.isAccountCreationEnabled()) {
+            throw new RuntimeException("Unable to create account. Contact admin for further details.");
+        }
+
         // Check if username already exists
         Optional<Driver> existing = driverRepository.findByUsername(driver.getUsername());
         if (existing.isPresent()) {
@@ -61,6 +70,17 @@ public class DriverService {
         driver.setBusName(busName);
 
         return driverRepository.save(driver);
+    }
+
+    public void updatePassword(String username, String newPassword) {
+        Optional<Driver> driverOpt = driverRepository.findByUsername(username);
+        if (driverOpt.isEmpty()) {
+            throw new RuntimeException("Driver not found");
+        }
+
+        Driver driver = driverOpt.get();
+        driver.setPassword(newPassword);
+        driverRepository.save(driver);
     }
 
     public Driver getDriverById(Long driverId) {

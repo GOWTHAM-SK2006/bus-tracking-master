@@ -60,13 +60,13 @@ body {
     top: 0;
     z-index: 2000;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-    height: 70px;
+    height: 100px;
 }
 
 .header-container {
     width: 100%;
     padding: 0 var(--spacing-sm);
-    height: 70px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -317,7 +317,7 @@ body {
 .admin-main {
     width: 100%;
     padding: 0;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 100px);
     position: relative;
 }
 

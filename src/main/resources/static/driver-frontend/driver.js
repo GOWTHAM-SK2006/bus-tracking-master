@@ -1149,6 +1149,28 @@ function initApp() {
         return;
     }
 
+    // Prefill form from localStorage (from signup) or sessionStorage (from login)
+    try {
+        const savedConfig = localStorage.getItem('driverConfig');
+        const driverObj = JSON.parse(driverData);
+
+        // Priority: 1. localStorage (new signup), 2. sessionStorage (existing profile), 3. Empty
+        const config = savedConfig ? JSON.parse(savedConfig) : {};
+
+        if (DOM.setupName) DOM.setupName.value = config.name || driverObj.name || '';
+        if (DOM.setupPhone) DOM.setupPhone.value = config.phone || driverObj.phone || '';
+        if (DOM.setupBusNumber) DOM.setupBusNumber.value = config.busNumber || driverObj.busNumber || '';
+        if (DOM.setupBusName) DOM.setupBusName.value = config.busName || driverObj.busName || '';
+
+        // Clear temp storage to prevent stale data
+        if (savedConfig) {
+            localStorage.removeItem('driverConfig');
+        }
+
+    } catch (e) {
+        console.error('Error prefilling driver config:', e);
+    }
+
     // Check GPS support
     if (!GPSController.isSupported()) {
         AlertController.show(
