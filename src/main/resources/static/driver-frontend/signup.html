@@ -209,7 +209,10 @@
                     // Disable signup
                     const btn = signupForm.querySelector('button');
                     btn.disabled = true;
-                    btn.textContent = 'Registration Closed';
+                    btn.textContent = 'Unable to create account. Please contact admin';
+                    btn.style.backgroundColor = '#fee2e2';
+                    btn.style.color = '#dc2626';
+                    btn.style.borderColor = '#fecaca';
                     signupForm.querySelectorAll('input').forEach(input => input.disabled = true);
                     showAlert('Unable to create account. Please contact admin', 'error');
                     return false;
@@ -224,6 +227,64 @@
 
         // Check on page load
         checkAccountCreationEnabled();
+
+        // Real-time update via WebSocket
+        function initWebSocket() {
+            const baseUrl = getApiBaseUrl();
+            const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws';
+            const wsUrl = baseUrl.replace(/^http/, wsProtocol) + '/ws/admin';
+            
+            console.log('[WS] Connecting for updates:', wsUrl);
+            
+            try {
+                const socket = new WebSocket(wsUrl);
+                
+                socket.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'REGISTRATION_UPDATE') {
+                            console.log('[WS] Registration update received:', data.accountCreationEnabled);
+                            if (data.accountCreationEnabled === false) {
+                                // Disable signup
+                                const btn = signupForm.querySelector('button');
+                                btn.disabled = true;
+                                btn.textContent = 'Unable to create account. Please contact admin';
+                                btn.style.backgroundColor = '#fee2e2';
+                                btn.style.color = '#dc2626';
+                                btn.style.borderColor = '#fecaca';
+                                signupForm.querySelectorAll('input').forEach(input => input.disabled = true);
+                                showAlert('Unable to create account. Please contact admin', 'error');
+                            } else {
+                                // Enable signup
+                                const btn = signupForm.querySelector('button');
+                                btn.disabled = false;
+                                btn.textContent = 'Create Account';
+                                btn.style.backgroundColor = '';
+                                btn.style.color = '';
+                                btn.style.borderColor = '';
+                                signupForm.querySelectorAll('input').forEach(input => input.disabled = false);
+                                // Remove warning if it matches the specific message
+                                const alertEl = alertContainer.querySelector('.alert-error');
+                                if (alertEl && alertEl.textContent.includes('Unable to create account')) {
+                                    alertContainer.innerHTML = '';
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('[WS] Parse error:', e);
+                    }
+                };
+                
+                socket.onclose = () => {
+                    console.log('[WS] Connection closed, retrying in 5s...');
+                    setTimeout(initWebSocket, 5000);
+                };
+            } catch (e) {
+                console.error('[WS] Socket error:', e);
+            }
+        }
+
+        initWebSocket();
 
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();

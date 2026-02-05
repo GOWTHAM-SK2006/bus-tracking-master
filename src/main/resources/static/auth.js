@@ -615,10 +615,12 @@ function disableSignupUI() {
     const btn = signupForm.querySelector('button[type="submit"]');
     if (btn) {
         btn.disabled = true;
-        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
-        btn.textContent = 'Registration Closed';
-        btn.classList.add('btn-secondary'); 
-        btn.classList.remove('btn-success'); 
+        btn.textContent = 'Unable to create account. Please contact admin';
+        btn.style.backgroundColor = '#fee2e2'; // Light red background
+        btn.style.color = '#dc2626';           // Strong red text
+        btn.style.border = '1px solid #fecaca';
+        btn.classList.add('btn-error-state'); 
+        btn.classList.remove('btn-secondary'); 
         btn.classList.remove('btn-primary');
     }
 
@@ -647,7 +649,11 @@ function enableSignupUI() {
         btn.disabled = false;
         // Restore text based on role? Or generic "Create Account"
         btn.textContent = 'Create Account'; 
+        btn.style.backgroundColor = ''; 
+        btn.style.color = '';
+        btn.style.border = '';
         btn.classList.remove('btn-secondary');
+        btn.classList.remove('btn-error-state');
         
         // Restore proper class
         if (currentRole === 'driver') {
@@ -670,4 +676,50 @@ function enableSignupUI() {
 }
 
 // Run check on load
-document.addEventListener('DOMContentLoaded', checkAccountCreation);
+document.addEventListener('DOMContentLoaded', () => {
+    checkAccountCreation();
+    initWebSocket();
+});
+
+function initWebSocket() {
+    const wsUrl = getWebSocketUrl('/ws/admin');
+    console.log('[WS] Connecting for system updates:', wsUrl);
+    
+    try {
+        const socket = new WebSocket(wsUrl);
+        
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'REGISTRATION_UPDATE') {
+                    console.log('[WS] Registration update received:', data.accountCreationEnabled);
+                    driverSignupDisabled = !data.accountCreationEnabled;
+                    updateSignupState();
+                }
+            } catch (e) {
+                console.error('[WS] Error parsing message:', e);
+            }
+        };
+        
+        socket.onclose = () => {
+            console.log('[WS] Connection closed, retrying in 5s...');
+            setTimeout(initWebSocket, 5000);
+        };
+        
+        socket.onerror = (err) => {
+            console.error('[WS] Connection error:', err);
+        };
+    } catch (e) {
+        console.error('[WS] Failed to connect:', e);
+    }
+}
+
+function getWebSocketUrl(endpoint) {
+    const host = window.location.hostname;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    if (host.includes('.devtunnels.ms')) {
+        const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+        if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}${endpoint}`;
+    }
+    return `${protocol}//${host}:8080${endpoint}`;
+}

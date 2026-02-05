@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -51,6 +52,14 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
         try {
             SystemSettings settings = systemSettingsService.toggleAccountCreation();
+
+            // Trigger WebSocket broadcast
+            Map<String, Object> update = new HashMap<>();
+            update.put("type", "REGISTRATION_UPDATE");
+            update.put("accountCreationEnabled", settings.getAccountCreationEnabled());
+            update.put("timestamp", System.currentTimeMillis());
+            AdminWebSocketHandler.broadcastSystemUpdate(update);
+
             response.put("success", true);
             response.put("accountCreationEnabled", settings.getAccountCreationEnabled());
             response.put("message",

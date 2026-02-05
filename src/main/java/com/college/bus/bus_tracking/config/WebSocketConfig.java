@@ -2,7 +2,7 @@ package com.college.bus.bus_tracking.config;
 
 import com.college.bus.bus_tracking.handler.DriverHandler;
 import com.college.bus.bus_tracking.handler.UserHandler;
-import com.college.bus.websocket.AdminWebSocketHandler;
+import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(driverHandler, "/ws/driver").setAllowedOrigins("*");
         registry.addHandler(userHandler, "/ws/user").setAllowedOrigins("*");
-        
+
         if (adminWebSocketHandler != null) {
             registry.addHandler(adminWebSocketHandler, "/ws/admin").setAllowedOrigins("*");
         }

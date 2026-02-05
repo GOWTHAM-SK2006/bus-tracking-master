@@ -2,7 +2,7 @@ package com.college.bus.bus_tracking.handler;
 
 import com.college.bus.bus_tracking.model.BusData;
 import com.college.bus.bus_tracking.store.BusSessionStore;
-import com.college.bus.websocket.AdminWebSocketHandler;
+import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;

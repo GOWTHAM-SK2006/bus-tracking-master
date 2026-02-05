@@ -251,10 +251,19 @@ body::before {
     background: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Changed from center to allow natural growth */
     align-items: center;
-    padding: var(--space-8);
+    padding: 3rem var(--space-8); /* Increased vertical padding */
     position: relative;
+    min-height: 100vh;
+    overflow-y: auto; /* Ensure panel is scrollable if needed */
+}
+
+/* Maintain centering for shorter content while allowing growth */
+@media (min-height: 800px) {
+    .auth-panel {
+        justify-content: center;
+    }
 }
 
 .auth-card {

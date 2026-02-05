@@ -18,9 +18,30 @@
 
     <!-- Auth Styles -->
     <link rel="stylesheet" href="auth.css">
+
+    <!-- Cinematic Branding Styles -->
+    <link rel="stylesheet" href="intro-branding.css">
 </head>
 
 <body>
+    <!-- Cinematic Splash Sequence -->
+    <div class="intro-container" id="introContainer">
+        <!-- Motion Background -->
+        <svg class="motion-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path class="route-path" d="M -10,10 C 20,40 40,0 60,60 C 80,90 110,70 110,70" />
+            <path class="route-path" d="M -10,80 C 10,60 30,90 50,40 C 70,10 110,30 110,30" style="animation-delay: 0.8s;" />
+        </svg>
+
+        <!-- GPS Pulse Elements -->
+        <div class="gps-pulse"></div>
+        <div class="gps-pulse"></div>
+
+        <!-- Logo Reveal Area -->
+        <div class="logo-reveal">
+            <img src="admin-frontend/logo.png" alt="Logo" class="logo-image">
+        </div>
+    </div>
+
     <div class="auth-container">
         <!-- Left Branding Panel -->
         <aside class="auth-branding">
@@ -256,6 +277,20 @@
 
     <!-- Auth Script -->
     <script src="auth.js"></script>
+    <script>
+        // Cinematic Sequence Control for Refresh Persistency
+        document.addEventListener('DOMContentLoaded', () => {
+            const intro = document.getElementById('introContainer');
+            const animationTime = 2800; 
+
+            setTimeout(() => {
+                intro.classList.add('fade-out');
+                setTimeout(() => {
+                    intro.style.display = 'none'; // Completely remove from flow
+                }, 800);
+            }, animationTime);
+        });
+    </script>
 </body>
 
 </html>

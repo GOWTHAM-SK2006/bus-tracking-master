@@ -1,0 +1,151 @@
+/* =========================================
+   BusTrack - Cinematic Intro Branding
+   Experience: Premium, Cinematic, Modern
+   ========================================= */
+
+:root {
+    --intro-bg: radial-gradient(circle at center, #1a1a1c 0%, #0a0a0b 100%);
+    --brand-primary: #E85D04;
+    --brand-secondary: #F4C430;
+    --glow-color: rgba(232, 93, 4, 0.5);
+    --animation-duration: 3s;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a0b;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+.intro-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--intro-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* ========== BACKGROUND ELEMENTS ========== */
+
+.motion-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.route-path {
+    fill: none;
+    stroke: var(--brand-primary);
+    stroke-width: 1;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    opacity: 0.2;
+    filter: blur(1px);
+    animation: drawLine 2.5s ease-in-out forwards;
+}
+
+@keyframes drawLine {
+    0% { stroke-dashoffset: 1000; opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { stroke-dashoffset: 0; opacity: 0.1; }
+}
+
+.gps-pulse {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border: 2px solid var(--brand-primary);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.5);
+    animation: pulseWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.gps-pulse:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+@keyframes pulseWave {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.4; }
+    100% { transform: scale(3); opacity: 0; }
+}
+
+/* ========== LOGO ANIMATION ========== */
+
+.logo-reveal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: scale(0.85);
+    opacity: 0;
+    filter: blur(10px);
+    animation: revealLogo 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes revealLogo {
+    0% {
+        transform: scale(0.85);
+        opacity: 0;
+        filter: blur(10px);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+.logo-image {
+    width: 280px; /* Enlarged for impact */
+    height: auto;
+    filter: drop-shadow(0 0 40px var(--glow-color));
+    border-radius: 20px;
+}
+
+/* Light Sweep Effect */
+.logo-reveal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    animation: lightSweep 1.5s ease-in-out forwards;
+    animation-delay: 1.8s;
+}
+
+@keyframes lightSweep {
+    0% { left: -150%; }
+    100% { left: 150%; }
+}
+
+/* Brand name styles removed as per user request */
+
+/* ========== EXIT TRANSITION ========== */
+
+.intro-container.fade-out {
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
