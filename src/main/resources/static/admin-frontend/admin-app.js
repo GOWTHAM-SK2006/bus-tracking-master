@@ -81,6 +81,7 @@ const DOM = {
     get tabBtns() { return document.querySelectorAll('.tab-btn'); },
 
     // Panels
+    get dashboardPanel() { return document.getElementById('dashboardView'); },
     get busesPanel() { return document.getElementById('busesView'); },
     get exportPanel() { return document.getElementById('exportView'); },
     get closePanelBtns() { return document.querySelectorAll('.close-panel-btn'); },
@@ -122,6 +123,8 @@ const PanelManager = {
                 const target = btn.dataset.tab;
                 if (target === 'map') {
                     this.closeAllPanels();
+                } else if (target === 'dashboard') {
+                    this.togglePanel('dashboard');
                 } else if (target === 'buses') {
                     this.togglePanel('buses');
                 } else if (target === 'export') {
@@ -147,7 +150,10 @@ const PanelManager = {
         this.closeAllPanels();
 
         // Open target
-        if (panelName === 'buses' && DOM.busesPanel) {
+        if (panelName === 'dashboard' && DOM.dashboardPanel) {
+            DOM.dashboardPanel.classList.add('visible');
+            this.updateActiveTab('dashboard');
+        } else if (panelName === 'buses' && DOM.busesPanel) {
             DOM.busesPanel.classList.add('visible');
             this.updateActiveTab('buses');
         } else if (panelName === 'export' && DOM.exportPanel) {
@@ -161,8 +167,10 @@ const PanelManager = {
     closeAllPanels() {
         const bp = DOM.busesPanel;
         const ep = DOM.exportPanel;
+        const dp = DOM.dashboardPanel;
         if (bp) bp.classList.remove('visible');
         if (ep) ep.classList.remove('visible');
+        if (dp) dp.classList.remove('visible');
 
         // Also close the right-side info panel if MapManager is initialized
         if (typeof MapManager !== 'undefined' && MapManager.closeInfoPanel) {
@@ -408,6 +416,201 @@ const ROUTE_DEFINITIONS = {
 };
 
 // =========================================
+// Dashboard Manager
+// =========================================
+const DashboardManager = {
+    selectedBusId: null,
+    busUpdateCounts: new Map(), // Track update counts per bus
+
+    init() {
+        const searchInput = document.getElementById('dashboardBusSearch');
+        const dropdown = document.getElementById('dashboardBusDropdown');
+        if (!searchInput || !dropdown) return;
+
+        // Handle search input
+        searchInput.addEventListener('input', (e) => {
+            this.filterBuses(e.target.value);
+        });
+
+        // Handle focus - show all buses
+        searchInput.addEventListener('focus', () => {
+            this.filterBuses(searchInput.value);
+        });
+
+        // Handle click outside to close dropdown
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    },
+
+    populateBusSelector() {
+        // This will be called when buses are updated
+        // If search is active, re-filter
+        const searchInput = document.getElementById('dashboardBusSearch');
+        if (searchInput && searchInput === document.activeElement) {
+            this.filterBuses(searchInput.value);
+        }
+    },
+
+    filterBuses(searchTerm) {
+        const dropdown = document.getElementById('dashboardBusDropdown');
+        if (!dropdown) return;
+
+        const buses = Array.from(adminState.buses.values());
+        const term = searchTerm.toLowerCase().trim();
+
+        // Filter buses based on search term
+        const filteredBuses = buses.filter(bus => {
+            const busNo = bus.busNo.toLowerCase();
+            const routeName = bus.routeName.toLowerCase();
+            return busNo.includes(term) || routeName.includes(term);
+        });
+
+        // Clear dropdown
+        dropdown.innerHTML = '';
+
+        if (filteredBuses.length === 0) {
+            dropdown.innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">No buses found</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        // Populate dropdown with filtered results
+        filteredBuses.forEach(bus => {
+            const item = document.createElement('div');
+            item.style.cssText = 'padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;';
+            item.innerHTML = `
+                <div style="font-weight: 600; color: #333;">Bus ${bus.busNo}</div>
+                <div style="font-size: 12px; color: #666;">${bus.routeName}</div>
+            `;
+            
+            // Hover effect
+            item.addEventListener('mouseenter', () => {
+                item.style.background = '#f8f9fa';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.background = 'white';
+            });
+
+            // Click to select
+            item.addEventListener('click', () => {
+                this.selectBus(bus.busId);
+                document.getElementById('dashboardBusSearch').value = `Bus ${bus.busNo} - ${bus.routeName}`;
+                dropdown.style.display = 'none';
+            });
+
+            dropdown.appendChild(item);
+        });
+
+        dropdown.style.display = 'block';
+    },
+
+
+    selectBus(busId) {
+        if (!busId) {
+            this.hideDashboard();
+            return;
+        }
+
+        this.selectedBusId = busId;
+        const bus = adminState.buses.get(busId);
+        
+        if (!bus) {
+            this.hideDashboard();
+            return;
+        }
+
+        this.showDashboard();
+        this.updateDashboard(bus);
+    },
+
+    showDashboard() {
+        const container = document.getElementById('dashboardDataContainer');
+        if (container) container.style.display = 'block';
+    },
+
+    hideDashboard() {
+        const container = document.getElementById('dashboardDataContainer');
+        if (container) container.style.display = 'none';
+        this.selectedBusId = null;
+    },
+
+    updateDashboard(bus) {
+        if (!bus) return;
+
+        // Bus Info Header
+        const busNumber = document.getElementById('dashBusNumber');
+        const busRoute = document.getElementById('dashBusRoute');
+        if (busNumber) busNumber.textContent = `Bus ${bus.busNo}`;
+        if (busRoute) busRoute.textContent = `Route: ${bus.routeName}`;
+
+        // GPS Status
+        const gpsStatus = document.getElementById('dashGpsStatus');
+        if (gpsStatus) {
+            gpsStatus.textContent = bus.gpsOn ? 'Active' : 'Inactive';
+            gpsStatus.style.color = bus.gpsOn ? '#4CAF50' : '#f44336';
+        }
+
+        // Tracking Status
+        const trackingStatus = document.getElementById('dashTrackingStatus');
+        if (trackingStatus) {
+            trackingStatus.textContent = bus.gpsOn ? 'Running' : 'Stopped';
+            trackingStatus.style.color = bus.gpsOn ? '#2196F3' : '#999';
+        }
+
+        // GPS Coordinates
+        const latitude = document.getElementById('dashLatitude');
+        const longitude = document.getElementById('dashLongitude');
+        const accuracy = document.getElementById('dashAccuracy');
+        
+        if (latitude && bus.latitude) {
+            latitude.textContent = bus.latitude.toFixed(6);
+        }
+        if (longitude && bus.longitude) {
+            longitude.textContent = bus.longitude.toFixed(6);
+        }
+        if (accuracy && bus.accuracy) {
+            accuracy.textContent = `±${Math.round(bus.accuracy)}m`;
+        } else if (accuracy) {
+            accuracy.textContent = 'N/A';
+        }
+
+        // Updates Sent Counter
+        const updatesSent = document.getElementById('dashUpdatesSent');
+        if (updatesSent) {
+            const count = this.busUpdateCounts.get(bus.busId) || 0;
+            updatesSent.textContent = count;
+        }
+
+        // Last Update
+        const lastUpdate = document.getElementById('dashLastUpdate');
+        if (lastUpdate && bus.lastUpdate) {
+            const date = new Date(bus.lastUpdate);
+            lastUpdate.textContent = date.toLocaleTimeString();
+        }
+
+        // Driver Info
+        const driverName = document.getElementById('dashDriverName');
+        const driverPhone = document.getElementById('dashDriverPhone');
+        if (driverName) driverName.textContent = bus.driverName || '--';
+        if (driverPhone) driverPhone.textContent = bus.driverPhone || '--';
+    },
+
+    handleBusUpdate(bus) {
+        // Increment update counter for this bus
+        const currentCount = this.busUpdateCounts.get(bus.busId) || 0;
+        this.busUpdateCounts.set(bus.busId, currentCount + 1);
+
+        // Update dashboard if this bus is selected
+        if (this.selectedBusId === bus.busId) {
+            this.updateDashboard(bus);
+        }
+    }
+};
+
+// =========================================
 // Bus Manager
 // =========================================
 const BusManager = {
@@ -443,12 +646,18 @@ const BusManager = {
             adminState.buses.set(bus.busId, bus);
             if (bus.gpsOn) activeCount++;
             MapManager.updateBusMarker(bus);
+            
+            // Notify dashboard of bus update
+            DashboardManager.handleBusUpdate(bus);
         });
 
-        DOM.activeBusCount.textContent = `${activeCount} Active`;
+        DOM.activeBusCount.textContent = activeCount;
         if (DOM.totalBuses) DOM.totalBuses.textContent = mappedBuses.length;
 
         this.renderBusesTable();
+        
+        // Populate dashboard bus selector
+        DashboardManager.populateBusSelector();
 
         if (adminState.selectedBusId && adminState.buses.has(adminState.selectedBusId)) {
             MapManager.updateInfoPanel(adminState.buses.get(adminState.selectedBusId));
@@ -785,6 +994,11 @@ function toggleExportPanel(show) {
     else PanelManager.closeAllPanels();
 }
 
+function toggleDashboardPanel(show) {
+    if (show) PanelManager.togglePanel('dashboard');
+    else PanelManager.closeAllPanels();
+}
+
 // =========================================
 // Initialization
 // =========================================
@@ -807,11 +1021,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // 3. Bus Manager
-        updateDebugStatus('Step 3/4: Bus Logic...');
+        updateDebugStatus('Step 3/5: Bus Logic...');
         BusManager.init();
+        
+        // 4. Dashboard Manager
+        updateDebugStatus('Step 4/5: Dashboard...');
+        DashboardManager.init();
 
-        // 4. WebSocket & Auth
-        updateDebugStatus('Step 4/4: Connecting...');
+        // 5. WebSocket & Auth
+        updateDebugStatus('Step 5/5: Connecting...');
         WebSocketManager.init();
         await loadAccountCreationState();
 

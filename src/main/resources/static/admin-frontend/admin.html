@@ -51,6 +51,15 @@
 
             <!-- Navigation Tabs (Simplified) -->
             <nav class="nav-tabs">
+                <button class="tab-btn" data-tab="dashboard">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
                 <button class="tab-btn active" data-tab="map">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
@@ -122,14 +131,18 @@
             <div id="map" class="map-container"></div>
         </div>
 
-        <!-- Active Bus Counter Widget (Bottom Left) -->
+         <!-- Active Bus Counter Widget (Bottom Left) -->
         <div class="bus-counter-widget">
             <div class="counter-icon">🚌</div>
             <div class="counter-info">
-                <span class="counter-value" id="activeBusCount">0</span>
-                <span class="counter-label">Buses</span>
+                <div class="counter-top">
+                    <span class="counter-number" id="activeBusCount">0</span>
+                    <span class="counter-status">Active</span>
+                </div>
+                <span class="counter-label">ACTIVE BUSES</span>
             </div>
         </div>
+
 
         <!-- Map Overlays -->
         <div class="map-overlays" id="mapOverlays">
@@ -169,7 +182,114 @@
             </div>
         </div>
 
-        <!-- Buses List Panel (Floating Overlay) -->
+        <!-- Dashboard Panel (Floating Overlay) -->
+        <section class="floating-panel" id="dashboardView">
+            <div class="panel-container">
+                <div class="list-header">
+                    <h2>Bus Dashboard</h2>
+                    <button class="close-panel-btn" onclick="toggleDashboardPanel(false)">×</button>
+                </div>
+
+                <!-- Bus Selector -->
+                <div class="dashboard-selector">
+                    <label for="dashboardBusSearch" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Search Bus:</label>
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            id="dashboardBusSearch" 
+                            class="form-input" 
+                            placeholder="Type bus number or route name..."
+                            autocomplete="off"
+                            style="width: 100%; padding: 10px 40px 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                        <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #999; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <div id="dashboardBusDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;">
+                            <!-- Dropdown items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GPS Data Display -->
+                <div id="dashboardDataContainer" style="display: none; margin-top: 20px;">
+                    <!-- Bus Info Header -->
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 24px;" id="dashBusNumber">--</h3>
+                        <p style="margin: 0; opacity: 0.9;" id="dashBusRoute">Route: --</p>
+                    </div>
+
+                    <!-- Status Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                        <!-- GPS Status -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">GPS Status</div>
+                            <div style="font-size: 18px; font-weight: 600; color: #4CAF50;" id="dashGpsStatus">--</div>
+                        </div>
+
+                        <!-- Tracking Status -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Tracking</div>
+                            <div style="font-size: 18px; font-weight: 600; color: #2196F3;" id="dashTrackingStatus">--</div>
+                        </div>
+
+                        <!-- Updates Sent -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Updates Sent</div>
+                            <div style="font-size: 18px; font-weight: 600; color: #FF6B35;" id="dashUpdatesSent">0</div>
+                        </div>
+
+                        <!-- Last Update -->
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Last Update</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #333;" id="dashLastUpdate">--</div>
+                        </div>
+                    </div>
+
+                    <!-- GPS Coordinates -->
+                    <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #333;">GPS Coordinates</h4>
+                        
+                        <div style="display: grid; gap: 12px;">
+                            <!-- Latitude -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <span style="color: #666; font-size: 14px;">Latitude:</span>
+                                <span style="font-family: 'Courier New', monospace; font-weight: 600; color: #333;" id="dashLatitude">--</span>
+                            </div>
+
+                            <!-- Longitude -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <span style="color: #666; font-size: 14px;">Longitude:</span>
+                                <span style="font-family: 'Courier New', monospace; font-weight: 600; color: #333;" id="dashLongitude">--</span>
+                            </div>
+
+                            <!-- Accuracy -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <span style="color: #666; font-size: 14px;">Accuracy:</span>
+                                <span style="font-weight: 600; color: #4CAF50;" id="dashAccuracy">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Driver Info -->
+                    <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0; margin-top: 15px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #333;">Driver Information</h4>
+                        
+                        <div style="display: grid; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #666;">Name:</span>
+                                <span style="font-weight: 600;" id="dashDriverName">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #666;">Phone:</span>
+                                <span style="font-weight: 600;" id="dashDriverPhone">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="floating-panel" id="busesView">
             <div class="panel-container">
                 <div class="list-header">

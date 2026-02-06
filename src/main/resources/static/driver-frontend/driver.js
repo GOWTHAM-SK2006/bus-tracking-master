@@ -140,14 +140,10 @@ const DOM = {
     dashGpsStatus: document.getElementById('dashGpsStatus'),
     dashTrackingStatus: document.getElementById('dashTrackingStatus'),
     dashGetStartedBtn: document.getElementById('dashGetStartedBtn'),
-    dashUpdateCount: document.getElementById('dashUpdateCount'),
     dashLastUpdate: document.getElementById('dashLastUpdate'),
     dashStartBtn: document.getElementById('dashStartBtn'),
     dashStopBtn: document.getElementById('dashStopBtn'),
     dashHelpText: document.getElementById('dashHelpText'),
-    dashLatitude: document.getElementById('dashLatitude'),
-    dashLongitude: document.getElementById('dashLongitude'),
-    dashAccuracy: document.getElementById('dashAccuracy'),
 
     // Dashboard details (new)
     dashDriverName: document.getElementById('dashDriverName'),
@@ -171,9 +167,6 @@ const DOM = {
     stopTrackingBtn: document.getElementById('stopTrackingBtn'),
     gpsStatusBadge: document.getElementById('gpsStatusBadge'),
     gpsStatusValue: document.getElementById('gpsStatusValue'),
-    latitudeValue: document.getElementById('latitudeValue'),
-    longitudeValue: document.getElementById('longitudeValue'),
-    accuracyValue: document.getElementById('accuracyValue'),
     lastUpdatedValue: document.getElementById('lastUpdatedValue'),
 
     // Log
@@ -568,24 +561,11 @@ const GPSController = {
 
     /**
      * Update GPS display values
+     * Note: Display removed from driver UI - data still tracked for backend transmission
      */
     updateDisplay() {
-        if (!state.lastPosition) return;
-
-        const { latitude, longitude, accuracy } = state.lastPosition;
-        const formattedLat = latitude.toFixed(6);
-        const formattedLng = longitude.toFixed(6);
-        const formattedAcc = `±${Math.round(accuracy)}m`;
-
-        // Tracking panel
-        DOM.latitudeValue.textContent = formattedLat;
-        DOM.longitudeValue.textContent = formattedLng;
-        DOM.accuracyValue.textContent = formattedAcc;
-
-        // Dashboard
-        DOM.dashLatitude.textContent = formattedLat;
-        DOM.dashLongitude.textContent = formattedLng;
-        DOM.dashAccuracy.textContent = formattedAcc;
+        // GPS coordinates no longer displayed in driver UI
+        // Data is still captured in state.lastPosition for backend transmission
     }
 };
 
@@ -749,8 +729,9 @@ const TrackingController = {
      */
     init() {
         DOM.dashStartBtn.addEventListener('click', async () => {
-            await this.start();
+            // Switch to tracking tab first for better UX
             NavigationController.switchTab('tracking-status');
+            await this.start();
         });
         DOM.dashStopBtn.addEventListener('click', () => this.stop());
 
@@ -901,15 +882,6 @@ const TrackingController = {
         // Update state
         state.isTracking = false;
         state.lastPosition = null;
-
-        // Reset display values
-        DOM.latitudeValue.textContent = '--';
-        DOM.longitudeValue.textContent = '--';
-        DOM.accuracyValue.textContent = '--';
-        DOM.lastUpdatedValue.textContent = '--';
-        DOM.dashLatitude.textContent = '--';
-        DOM.dashLongitude.textContent = '--';
-        DOM.dashAccuracy.textContent = '--';
 
         this.updateTrackingUI('stopped');
 
@@ -1079,12 +1051,15 @@ const TrackingController = {
      * Update counter displays
      */
     updateCounterDisplay() {
-        DOM.dashUpdateCount.textContent = state.updateCount;
-
+        // Update last update timestamp
         if (state.lastUpdateTime) {
             const timeStr = state.lastUpdateTime.toLocaleTimeString('en-US', { hour12: false });
-            DOM.dashLastUpdate.textContent = timeStr;
-            DOM.lastUpdatedValue.textContent = timeStr;
+            if (DOM.dashLastUpdate) {
+                DOM.dashLastUpdate.textContent = timeStr;
+            }
+            if (DOM.lastUpdatedValue) {
+                DOM.lastUpdatedValue.textContent = timeStr;
+            }
         }
     },
 

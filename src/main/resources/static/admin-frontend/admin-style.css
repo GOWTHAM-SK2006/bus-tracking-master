@@ -199,30 +199,82 @@ body {
     cursor: pointer;
     transition: all 0.25s;
     background: #ccc;
-}
-
-.bus-counter-widget {
+}.bus-counter-widget {
     position: absolute;
     bottom: 20px;
-    /* Changed from top to bottom */
     left: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 16px 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
+
+    display: inline-flex;
     align-items: center;
     gap: 12px;
+
+    padding: 12px 18px;
+    background: #ffffff;
+    border-radius: 14px;
+
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+    font-family: 'Inter', system-ui, sans-serif;
     z-index: 1000;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(232, 93, 4, 0.2);
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bus-counter-widget:hover {
-    box-shadow: 0 6px 20px rgba(232, 93, 4, 0.25);
     transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
+
+/* Icon */
+.counter-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff7ed;
+    font-size: 20px;
+}
+
+/* Text container */
+.counter-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+/* Top row: number + Active */
+.counter-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.counter-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f99d00; /* orange accent */
+}
+
+.counter-status {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+/* Label */
+.counter-label {
+    margin-top: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+}
+
 
 .toggle-slider {
     position: absolute;
@@ -1133,18 +1185,72 @@ body {
 .list-header h2 {
     font-size: 1.25rem;
     font-weight: 700;
+    font-size: 20px;
+    font-weight: 600;
     color: var(--text-dark);
 }
 
 .list-count {
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: var(--text-dark);
+}
+
+/* ======================================== 
+   Floating Panels (Dashboard, Buses, Export)
+   ======================================== */
+.floating-panel {
+    /* Full-screen overlay panel over the live map for list / export views */
+    position: absolute;
+    inset: var(--spacing-lg);
+    /* top, right, bottom, left */
+    background: rgba(15, 23, 42, 0.08);
+    /* subtle dim behind card */
+    z-index: 1000;
+    pointer-events: none;
+    display: none;
+    /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-panel.visible {
+    display: flex;
+    /* Centered flex when visible */
+}
+
+.panel-container {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    pointer-events: auto;
+    width: min(1120px, 100%);
+    max-height: 90%;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.panel-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.panel-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
 }
 
 .close-panel-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
     background: var(--bg-gray);
     border: none;
     display: flex;
