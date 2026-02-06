@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import com.college.bus.bus_tracking.repository.BusRepository;
-import com.college.bus.websocket.AdminWebSocketHandler;
+import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 import java.util.*;
 
 @RestController
