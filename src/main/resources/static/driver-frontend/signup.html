@@ -181,6 +181,11 @@
             const host = window.location.hostname;
             const protocol = window.location.protocol;
 
+            // File protocol fallback
+            if (protocol === 'file:') {
+                return 'http://localhost:8080';
+            }
+
             // VS Code Dev Tunnels
             if (host.includes('.devtunnels.ms')) {
                 const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
@@ -189,7 +194,11 @@
                 }
             }
 
-            return `${protocol}//${host}:8080`;
+            if (window.location.port) {
+                return `${protocol}//${host}:${window.location.port}`;
+            }
+
+            return `${protocol}//${host}`;
         }
 
         const signupForm = document.getElementById('signupForm');
@@ -204,7 +213,7 @@
 
                 // DEBUG: Alert the received data
                 alert('DEBUG Settings: ' + JSON.stringify(data));
-                
+
                 if (data.accountCreationEnabled === false) {
                     // Disable signup
                     const btn = signupForm.querySelector('button');
@@ -233,12 +242,12 @@
             const baseUrl = getApiBaseUrl();
             const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws';
             const wsUrl = baseUrl.replace(/^http/, wsProtocol) + '/ws/admin';
-            
+
             console.log('[WS] Connecting for updates:', wsUrl);
-            
+
             try {
                 const socket = new WebSocket(wsUrl);
-                
+
                 socket.onmessage = (event) => {
                     try {
                         const data = JSON.parse(event.data);
@@ -274,7 +283,7 @@
                         console.error('[WS] Parse error:', e);
                     }
                 };
-                
+
                 socket.onclose = () => {
                     console.log('[WS] Connection closed, retrying in 5s...');
                     setTimeout(initWebSocket, 5000);
