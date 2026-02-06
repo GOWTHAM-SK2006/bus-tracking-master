@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class UserHandler extends TextWebSocketHandler {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final List<WebSocketSession> SESSIONS = new ArrayList<>();
+    private static final List<WebSocketSession> SESSIONS = new CopyOnWriteArrayList<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {

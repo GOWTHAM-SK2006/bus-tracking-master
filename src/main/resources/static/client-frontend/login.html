@@ -175,6 +175,15 @@
         const loginForm = document.getElementById('loginForm');
         const alertContainer = document.getElementById('alertContainer');
 
+        // Reset button state on page load (handles bfcache/back button)
+        window.addEventListener('pageshow', () => {
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign in';
+            }
+        });
+
         function showAlert(message, type) {
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
         }
