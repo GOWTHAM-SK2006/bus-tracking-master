@@ -11,9 +11,15 @@
 // Modify these values to match your backend
 // =========================================
 // Helper to detect WebSocket URL based on environment
+// Helper to detect WebSocket URL based on environment
 function getWebSocketUrl(endpoint) {
     const host = window.location.hostname;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    // File protocol fallback (local testing)
+    if (window.location.protocol === 'file:') {
+        return `ws://localhost:8080${endpoint}`;
+    }
 
     // VS Code Dev Tunnels: hostname format is "xxx-PORT.inc1.devtunnels.ms"
     if (host.includes('.devtunnels.ms')) {
@@ -25,13 +31,26 @@ function getWebSocketUrl(endpoint) {
     }
 
     // Standard localhost or IP-based deployment
-    return `${protocol}//${host}:8080${endpoint}`;
+    // If running on standard port 80/443, don't append port if not needed, 
+    // but here we assume backend is same origin.
+    // However, if we are on a different port (e.g. frontend 5500, backend 8080), we need config.
+    // For Spring Boot serving static files, we use the same host/port.
+    if (window.location.port) {
+        return `${protocol}//${host}:${window.location.port}${endpoint}`;
+    }
+
+    return `${protocol}//${host}${endpoint}`;
 }
 
 // Helper to get backend HTTP URL
 function getApiBaseUrl() {
     const host = window.location.hostname;
     const protocol = window.location.protocol;
+
+    // File protocol fallback
+    if (protocol === 'file:') {
+        return 'http://localhost:8080';
+    }
 
     // VS Code Dev Tunnels
     if (host.includes('.devtunnels.ms')) {
@@ -41,7 +60,11 @@ function getApiBaseUrl() {
         }
     }
 
-    return `${protocol}//${host}:8080`;
+    if (window.location.port) {
+        return `${protocol}//${host}:${window.location.port}`;
+    }
+
+    return `${protocol}//${host}`;
 }
 
 const CONFIG = {
@@ -236,6 +259,7 @@ const SetupController = {
     },
 
     async handleSetup() {
+        console.log('[Setup] handleSetup triggered');
         const name = DOM.setupName.value.trim();
         const phone = DOM.setupPhone.value.trim();
         const busNumber = DOM.setupBusNumber.value.trim();
