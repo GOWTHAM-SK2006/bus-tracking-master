@@ -740,7 +740,7 @@ const BusTracker = {
         const mappedBus = {
             busId: busData.busNumber || busData.busId,
             busNo: busData.busNumber || busData.busNo,
-            busName: busData.busName || ("College Bus " + (busData.busNumber || busData.busNo)),
+            busName: busData.busName || ("Bus " + (busData.busNumber || busData.busNo)),
             latitude: busData.latitude,
             longitude: busData.longitude,
             status: busData.status,
@@ -815,7 +815,7 @@ const BusTracker = {
         const mappedBuses = buses.map(bus => ({
             busId: bus.busNumber || bus.busId,
             busNo: bus.busNumber || bus.busNo,
-            busName: bus.busName || ("College Bus " + (bus.busNumber || bus.busNo)), // Display name
+            busName: bus.busName || ("Bus " + (bus.busNumber || bus.busNo)), // Display name
             routeName: bus.busName || bus.route || bus.busRoute || bus.routePath || `Bus ${bus.busNumber || bus.busNo}`,
             latitude: bus.latitude,
             longitude: bus.longitude,
@@ -903,9 +903,18 @@ const SearchManager = {
     shouldShowBus(bus) {
         if (!state.searchFilter) return true;
         const q = state.searchFilter.toLowerCase();
-        return (bus.busNo && bus.busNo.toLowerCase().includes(q)) ||
-            (bus.busName && bus.busName.toLowerCase().includes(q)) ||
-            (bus.routeName && bus.routeName.toLowerCase().includes(q));
+        
+        // Check for direct matches
+        const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(q);
+        const matchesName = bus.busName && bus.busName.toLowerCase().includes(q);
+        const matchesRoute = bus.routeName && bus.routeName.toLowerCase().includes(q);
+        
+        // Check stops - explicitly ignore "college" to avoid generic matches
+        const matchesStop = bus.stops && bus.stops.some(stop => 
+            stop.toLowerCase().includes(q) && stop.toLowerCase() !== 'college'
+        );
+
+        return matchesNo || matchesName || matchesRoute || matchesStop;
     },
 
     initWelcomeSearch() {
@@ -1029,7 +1038,7 @@ const SearchManager = {
             const matchesNo = bus.busNo.toLowerCase().includes(query);
             const matchesName = bus.busName.toLowerCase().includes(query);
             const matchesStop = bus.stops && bus.stops.some(stop =>
-                stop.toLowerCase().includes(query)
+                stop.toLowerCase().includes(query) && stop.toLowerCase() !== 'college'
             );
 
             if (matchesNo || matchesName || matchesStop) {
