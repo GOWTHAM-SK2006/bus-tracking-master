@@ -117,11 +117,12 @@
     --transition-fast: 150ms ease;
     --transition-normal: 200ms ease;
 
-    /* Layout */
-    /* layout additions */
     --navbar-height: 100px;
     --footer-height: 48px;
     --content-max-width: 1200px;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--primary-600), var(--primary-800));
 }
 
 /* =========================================
@@ -210,13 +211,23 @@ body {
 
 .nav-tab:hover {
     color: var(--primary-600);
-    background-color: var(--primary-50);
+    background-color: var(--primary-50); /* Subtle tint on hover only */
 }
 
 .nav-tab.active {
-    color: var(--text-inverse);
-    background: var(--gradient-primary);
-    box-shadow: var(--shadow-sm);
+    color: var(--primary-700);
+    background-color: transparent; /* No background on active */
+    background: none;
+    box-shadow: none;
+    border-bottom: 2px solid var(--primary-600);
+    border-radius: 4px 4px 0 0; /* Align with bottom border */
+    font-weight: 600;
+}
+
+.nav-tab:focus-visible {
+    outline: 2px solid var(--primary-200);
+    outline-offset: 1px;
+    background-color: var(--bg-surface);
 }
 
 /* Connection Indicator & Actions */
