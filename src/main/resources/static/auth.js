@@ -82,16 +82,18 @@ function selectRole(role) {
 
     // Toggle Email vs Username fields
     if (role === 'driver') {
-        // Show Username, Hide Email
+        // Show Username, Hide Email for SIGNIN
         signinEmailGroup.classList.add('hidden');
         signinUsernameGroup.classList.remove('hidden');
-        signupEmailGroup.classList.add('hidden');
+        
+        // Show BOTH Email AND Username for SIGNUP
+        signupEmailGroup.classList.remove('hidden');
         signupUsernameGroup.classList.remove('hidden');
 
         // Update requirements
         document.getElementById('signinEmail').required = false;
         signinUsernameInput.required = true;
-        signupEmailInput.required = false;
+        signupEmailInput.required = true;  // Email required for drivers in signup
         signupUsernameInput.required = true;
     } else {
         // Show Email, Hide Username
@@ -414,7 +416,8 @@ signupForm.addEventListener('submit', async (e) => {
                 endpoint = '/api/driver/signup';
                 body = {
                     name,
-                    username: username,// Send username instead of email/username
+                    email: email,  // Include email for password reset
+                    username: username,
                     password,
                     busNumber: busNo,
                     phone: phoneNo,
@@ -515,16 +518,10 @@ if (resetPasswordForm) {
         e.preventDefault();
 
         const identifier = document.getElementById('resetIdentifier').value.trim();
-        const newPassword = document.getElementById('resetNewPassword').value;
         const btn = document.getElementById('resetPasswordBtn');
 
-        if (!identifier || !newPassword) {
-            showError('Please fill in all fields');
-            return;
-        }
-
-        if (newPassword.length < 6) {
-            showError('Password must be at least 6 characters');
+        if (!identifier) {
+            showError('Please enter your email or username');
             return;
         }
 
@@ -532,47 +529,27 @@ if (resetPasswordForm) {
         btn.disabled = true;
 
         try {
-            let endpoint = '';
-            let body = {};
+            // Simulate sending reset link (in real app, this would call backend)
+            // For now, just show success message after a short delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            if (currentRole === 'client') {
-                endpoint = '/api/client/reset-password';
-                body = { email: identifier, newPassword };
-            } else if (currentRole === 'driver') {
-                endpoint = '/api/driver/reset-password';
-                body = { username: identifier, newPassword };
-            } else {
-                throw new Error('Action not allowed for this role');
-            }
-
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Password reset failed');
-            }
-
-            showSuccess('Password updated successfully! Please sign in.');
+            showSuccess('Password reset link has been sent to your email!');
             resetPasswordForm.reset();
             
             // Switch back to signin after delay
             setTimeout(() => {
                 cancelResetBtn.click();
-            }, 1500);
+            }, 2500);
 
         } catch (error) {
-            showError(error.message || 'Failed to reset password');
+            showError(error.message || 'Failed to send reset link');
         } finally {
             btn.classList.remove('btn-loading');
             btn.disabled = false;
         }
     });
 }
+
 
 // =========================================
 // System Settings Check

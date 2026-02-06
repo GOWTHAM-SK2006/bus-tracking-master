@@ -167,26 +167,13 @@
                 <!-- Reset Password Form -->
                 <form class="auth-form hidden" id="resetPasswordForm">
                      <div style="text-align: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Reset Password</h2>
-                        <p style="color: var(--text-light); font-size: 0.9rem;">Enter your email or username and a new password.</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Forgot Password?</h2>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">Enter your email or username and we'll send you a reset link.</p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="resetIdentifier">Email or Username</label>
-                        <input type="text" id="resetIdentifier" class="form-input" placeholder="Enter identifier" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="resetNewPassword">New Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="resetNewPassword" class="form-input" placeholder="Min. 6 characters" required minlength="6">
-                            <button type="button" class="password-toggle" onclick="togglePassword('resetNewPassword', this)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg>
-                            </button>
-                        </div>
+                        <input type="text" id="resetIdentifier" class="form-input" placeholder="Enter your email or username" required>
                     </div>
 
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -194,7 +181,7 @@
                             <span class="btn-text">Cancel</span>
                         </button>
                         <button type="submit" class="btn btn-primary" id="resetPasswordBtn" style="flex: 1;">
-                            <span class="btn-text">Reset</span>
+                            <span class="btn-text">Send Link</span>
                         </button>
                     </div>
                 </form>
