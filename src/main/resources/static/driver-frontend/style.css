@@ -196,27 +196,56 @@ body {
 }
 
 .nav-tab {
+    position: relative;
     padding: var(--space-2) var(--space-4);
     background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 150ms ease;
+    outline: none;
 }
 
+/* Remove any default button styling */
+.nav-tab:focus {
+    outline: none;
+    background: transparent;
+}
+
+.nav-tab:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+/* Hover state - subtle background tint */
 .nav-tab:hover {
     color: var(--primary-600);
     background-color: var(--primary-50);
+    border-bottom-color: transparent;
 }
 
+/* Active state - clean underline indicator */
 .nav-tab.active {
-    color: var(--text-inverse);
-    background: var(--gradient-primary);
-    box-shadow: var(--shadow-sm);
+    color: var(--primary-600);
+    background: transparent;
+    border-bottom-color: var(--primary-600);
+    font-weight: 600;
+}
+
+/* Active + hover state */
+.nav-tab.active:hover {
+    background-color: var(--primary-50);
+}
+
+/* Prevent background flash on click */
+.nav-tab:active {
+    background: transparent;
+    transform: none;
 }
 
 /* Connection Indicator & Actions */
