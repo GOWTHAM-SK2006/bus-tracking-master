@@ -11,6 +11,11 @@ function getWebSocketUrl(endpoint) {
     const host = window.location.hostname;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
+    // File protocol fallback (local testing)
+    if (window.location.protocol === 'file:') {
+        return `ws://localhost:8080${endpoint}`;
+    }
+
     // VS Code Dev Tunnels: hostname format is "xxx-PORT.inc1.devtunnels.ms"
     if (host.includes('.devtunnels.ms')) {
         // Extract the tunnel ID prefix and replace port with 8080
@@ -20,8 +25,13 @@ function getWebSocketUrl(endpoint) {
         }
     }
 
-    // Standard localhost or IP-based deployment
-    return `${protocol}//${host}:8080${endpoint}`;
+    // Standard localhost or IP-based deployment (Railway)
+    // If running on standard port, don't append port
+    if (window.location.port) {
+        return `${protocol}//${host}:${window.location.port}${endpoint}`;
+    }
+
+    return `${protocol}//${host}${endpoint}`;
 }
 
 const CONFIG = {
@@ -903,14 +913,14 @@ const SearchManager = {
     shouldShowBus(bus) {
         if (!state.searchFilter) return true;
         const q = state.searchFilter.toLowerCase();
-        
+
         // Check for direct matches
         const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(q);
         const matchesName = bus.busName && bus.busName.toLowerCase().includes(q);
         const matchesRoute = bus.routeName && bus.routeName.toLowerCase().includes(q);
-        
+
         // Check stops - explicitly ignore "college" to avoid generic matches
-        const matchesStop = bus.stops && bus.stops.some(stop => 
+        const matchesStop = bus.stops && bus.stops.some(stop =>
             stop.toLowerCase().includes(q) && stop.toLowerCase() !== 'college'
         );
 
@@ -920,10 +930,10 @@ const SearchManager = {
     initWelcomeSearch() {
         if (DOM.welcomeSearchModal) {
             DOM.welcomeSearchModal.style.display = 'flex';
-            
+
             // Focus input
             setTimeout(() => {
-                if(DOM.welcomeSearchInput) DOM.welcomeSearchInput.focus();
+                if (DOM.welcomeSearchInput) DOM.welcomeSearchInput.focus();
             }, 100);
 
             // Input Listener for Dropdown
@@ -947,8 +957,8 @@ const SearchManager = {
 
             // Close dropdown on outside click
             document.addEventListener('click', (e) => {
-                if (DOM.welcomeSearchDropdown && 
-                    !DOM.welcomeSearchInput.contains(e.target) && 
+                if (DOM.welcomeSearchDropdown &&
+                    !DOM.welcomeSearchInput.contains(e.target) &&
                     !DOM.welcomeSearchDropdown.contains(e.target)) {
                     DOM.welcomeSearchDropdown.style.display = 'none';
                 }
@@ -1079,7 +1089,7 @@ const SearchManager = {
                 <p style="font-size: 0.9rem;">No results found</p>
             </div>
         `;
-        
+
         if (context === 'welcome') DOM.welcomeSearchDropdown.style.display = 'block';
         else DOM.searchDropdown.classList.add('active');
     },
@@ -1137,15 +1147,15 @@ const SearchManager = {
         container.querySelectorAll('.dropdown-item').forEach(item => {
             if (item.dataset.type === 'bus') {
                 item.addEventListener('click', () => {
-                   if (context === 'welcome') {
+                    if (context === 'welcome') {
                         const bus = state.buses.get(item.dataset.id);
                         if (bus) {
                             DOM.welcomeSearchInput.value = bus.busNo;
                             this.applyWelcomeFilter(bus.busNo);
                         }
-                   } else {
-                       this.selectBusResult(item.dataset.id);
-                   }
+                    } else {
+                        this.selectBusResult(item.dataset.id);
+                    }
                 });
             }
         });

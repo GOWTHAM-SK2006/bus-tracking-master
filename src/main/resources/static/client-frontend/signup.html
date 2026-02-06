@@ -113,6 +113,7 @@
             margin-bottom: 8px;
             background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -350,11 +351,25 @@
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
+
+            // File protocol fallback (local testing)
+            if (protocol === 'file:') {
+                return 'http://localhost:8080';
+            }
+
+            // VS Code Dev Tunnels
             if (host.includes('.devtunnels.ms')) {
                 const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                if (tunnelMatch) {
+                    return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                }
             }
-            return `${protocol}//${host}:8080`;
+
+            if (window.location.port) {
+                return `${protocol}//${host}:${window.location.port}`;
+            }
+
+            return `${protocol}//${host}`;
         }
 
         const signupForm = document.getElementById('signupForm');
