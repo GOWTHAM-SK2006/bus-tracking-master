@@ -545,7 +545,7 @@ const GPSController = {
             inactive: 'Inactive',
             waiting: 'Requesting Permission...',
             active: 'Active',
-            error: 'Permission Denied'
+            error: 'GPS Error'
         };
 
         const badgeClasses = {
@@ -778,7 +778,7 @@ const TrackingController = {
                         GPSController.updateStatus('error');
                         reject(error);
                     },
-                    { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 45000, maximumAge: 0 }
                 );
             });
 
@@ -949,7 +949,12 @@ const TrackingController = {
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 title = 'GPS Permission Denied';
-                message = 'Please allow location access in your browser settings to use tracking.';
+                const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+                if (!isSecure) {
+                    message = 'Browser blocked GPS because the connection is not secure. YOU MUST USE HTTPS.';
+                } else {
+                    message = 'Please allow location access in your browser settings to use tracking.';
+                }
                 shouldStopTracking = true; // Must stop - permission denied
                 break;
             case error.POSITION_UNAVAILABLE:
@@ -1202,6 +1207,20 @@ function initApp() {
             'Your browser does not support the Geolocation API. Please use a modern browser.',
             'error'
         );
+    }
+
+    // New: Check for HTTPS
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('.devtunnels.ms');
+
+    if (protocol !== 'https:' && !isLocal) {
+        AlertController.show(
+            'Insecure Connection',
+            'GPS Tracking REQUIRES a secure HTTPS connection. Please use "https://" instead of "http://".',
+            'error'
+        );
+        LogController.add('CRITICAL: GPS requires HTTPS on non-local networks.', 'error');
     }
 
     // Initialize controllers
