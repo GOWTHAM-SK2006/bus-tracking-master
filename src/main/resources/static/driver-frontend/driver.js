@@ -597,6 +597,8 @@ const WebSocketController = {
     maxReconnectAttempts: 10,
     shouldReconnect: true,
     reconnectTimeout: null,
+    heartbeatInterval: null,
+    HEARTBEAT_RATE: 30000, // 30 seconds keep-alive
 
     connect() {
         return new Promise((resolve, reject) => {
@@ -620,6 +622,7 @@ const WebSocketController = {
             state.socket.onopen = () => {
                 state.isConnected = true;
                 this.reconnectAttempts = 0; // Reset on successful connection
+                this.startHeartbeat(); // Start keep-alive
                 this.updateUI('connected');
                 LogController.add('Connected to backend successfully', 'success');
                 resolve();
@@ -627,6 +630,7 @@ const WebSocketController = {
 
             state.socket.onclose = (event) => {
                 state.isConnected = false;
+                this.stopHeartbeat(); // Stop keep-alive
                 this.updateUI('offline');
                 LogController.add(`Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`, 'warning');
 
@@ -666,6 +670,10 @@ const WebSocketController = {
             };
 
             state.socket.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                // Ignore internal PONG reflection if any
+                if (msg.type === 'PING') return;
+
                 LogController.add('Received from server: ' + event.data, 'info');
             };
         });
@@ -673,6 +681,7 @@ const WebSocketController = {
 
     disconnect() {
         this.shouldReconnect = false; // Prevent auto-reconnect on intentional disconnect
+        this.stopHeartbeat();
         if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
             this.reconnectTimeout = null;
@@ -709,6 +718,24 @@ const WebSocketController = {
                 break;
             default:
                 text.textContent = 'Offline';
+        }
+    },
+
+    startHeartbeat() {
+        this.stopHeartbeat();
+        this.heartbeatInterval = setInterval(() => {
+            if (state.socket && state.socket.readyState === WebSocket.OPEN) {
+                // Send light-weight PING to keep connection alive
+                state.socket.send(JSON.stringify({ type: 'PING' }));
+                console.log('[WebSocket] Sent PING');
+            }
+        }, this.HEARTBEAT_RATE);
+    },
+
+    stopHeartbeat() {
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = null;
         }
     }
 };
@@ -809,15 +836,24 @@ const TrackingController = {
                         state.gpsErrorCount = 0;
 
                         // Send GPS_ACTIVE action to backend
-                        WebSocketController.send({
+                        if (WebSocketController.send({
                             busNumber: state.busNumber,
                             action: 'GPS_ACTIVE'
-                        });
-                        LogController.add('GPS active - backend notified', 'success');
-
-                        this.updateTrackingUI('active');
-                        this.startDataTransmission();
-                        LogController.add('GPS tracking active', 'success');
+                        })) {
+                            LogController.add('GPS active - backend notified', 'success');
+                            this.updateTrackingUI('active');
+                            this.startDataTransmission();
+                            LogController.add('GPS tracking active', 'success');
+                        } else {
+                            // Wait a bit and try again if connection is just finishing
+                            setTimeout(() => {
+                                WebSocketController.send({
+                                    busNumber: state.busNumber,
+                                    action: 'GPS_ACTIVE'
+                                });
+                                this.startDataTransmission();
+                            }, 2000);
+                        }
                     }
                 },
                 (error) => {
