@@ -26,11 +26,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(driverHandler, "/ws/driver").setAllowedOrigins("*");
-        registry.addHandler(userHandler, "/ws/user").setAllowedOrigins("*");
+        // Use setAllowedOriginPatterns("*") for better compatibility behind proxies
+        // (Railway)
+        registry.addHandler(driverHandler, "/ws/driver").setAllowedOriginPatterns("*");
+        registry.addHandler(userHandler, "/ws/user").setAllowedOriginPatterns("*");
 
         if (adminWebSocketHandler != null) {
-            registry.addHandler(adminWebSocketHandler, "/ws/admin").setAllowedOrigins("*");
+            registry.addHandler(adminWebSocketHandler, "/ws/admin").setAllowedOriginPatterns("*");
         }
     }
 }

@@ -658,9 +658,9 @@ const WebSocketController = {
             };
 
             state.socket.onerror = (event) => {
-                const errorMsg = 'Connection failed - Is port 8080 forwarded in Dev Tunnels?';
+                const errorMsg = 'Connection to server failed. Retrying...';
                 LogController.add(errorMsg, 'error');
-                console.error('[WebSocket] Error event:', event);
+                console.error('[WebSocket] Connection failed to:', CONFIG.WS_URL, event);
                 this.updateUI('error');
                 reject(new Error(errorMsg));
             };
