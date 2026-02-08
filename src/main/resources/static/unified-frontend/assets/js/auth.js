@@ -4,11 +4,22 @@ const AuthManager = {
     getApiBaseUrl() {
         const host = window.location.hostname;
         const protocol = window.location.protocol;
+
+        // File protocol fallback
+        if (protocol === 'file:') {
+            return 'http://localhost:8080';
+        }
+
         if (host.includes('.devtunnels.ms')) {
             const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
             if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
         }
-        return `${protocol}//${host}:8080`;
+
+        if (window.location.port) {
+            return `${protocol}//${host}:${window.location.port}`;
+        }
+
+        return `${protocol}//${host}`;
     },
 
     // Login function
@@ -21,11 +32,11 @@ const AuthManager = {
         switch (role) {
             case 'client':
                 endpoint = '/api/client/login';
-                redirectPath = 'http://localhost:3000/index.html';
+                redirectPath = '/client-frontend/index.html';
                 break;
             case 'driver':
                 endpoint = '/api/driver/login';
-                redirectPath = 'http://localhost:3000/index.html';
+                redirectPath = '/driver-frontend/index.html';
                 break;
             case 'admin':
                 // Admin uses client-side authentication (no backend API)
@@ -37,7 +48,7 @@ const AuthManager = {
                         email: username,
                         role: 'ADMIN'
                     }));
-                    window.location.href = 'http://localhost:3002/admin.html';
+                    window.location.href = '/admin-frontend/admin.html';
                     return;
                 } else {
                     this.showError('Invalid admin credentials. Use admin@college.com / admin123');

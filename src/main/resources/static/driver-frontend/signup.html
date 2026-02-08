@@ -211,26 +211,20 @@
                 const response = await fetch(`${baseUrl}/api/admin/settings`);
                 const data = await response.json();
 
-                // DEBUG: Alert the received data
-                alert('DEBUG Settings: ' + JSON.stringify(data));
-
-                if (data.accountCreationEnabled === false) {
+                if (data.success && data.accountCreationEnabled === false) {
                     // Disable signup
                     const btn = signupForm.querySelector('button');
                     btn.disabled = true;
-                    btn.textContent = 'Unable to create account. Please contact admin';
-                    btn.style.backgroundColor = '#fee2e2';
-                    btn.style.color = '#dc2626';
-                    btn.style.borderColor = '#fecaca';
+                    btn.textContent = 'Account creation is currently disabled by admin';
+                    btn.classList.add('btn-disabled'); // Optional: check if class exists
                     signupForm.querySelectorAll('input').forEach(input => input.disabled = true);
-                    showAlert('Unable to create account. Please contact admin', 'error');
+                    showAlert('Account creation is currently disabled. Please contact admin', 'error');
                     return false;
                 }
                 return true;
             } catch (error) {
                 console.error('Error checking account creation status:', error);
-                // alert('Debug Error: ' + error.message); 
-                return true; // Keep default true to avoid blocking if just a network glitch, but maybe backend is 403?
+                return true; // Fallback to enabled
             }
         }
 

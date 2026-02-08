@@ -4,11 +4,22 @@ const AuthManager = {
     getApiBaseUrl() {
         const host = window.location.hostname;
         const protocol = window.location.protocol;
+
+        // File protocol fallback
+        if (protocol === 'file:') {
+            return 'http://localhost:8080';
+        }
+
         if (host.includes('.devtunnels.ms')) {
             const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
             if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
         }
-        return `${protocol}//${host}:8080`;
+
+        if (window.location.port) {
+            return `${protocol}//${host}:${window.location.port}`;
+        }
+
+        return `${protocol}//${host}`;
     },
 
     // Login function
