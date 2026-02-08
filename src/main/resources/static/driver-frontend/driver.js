@@ -181,6 +181,7 @@ const DOM = {
     profileBusName: document.getElementById('profileBusName'),
     profileUsername: document.getElementById('profileUsername'),
     logoutBtn: document.getElementById('logoutBtn'),
+    deleteAccountBtn: document.getElementById('deleteAccountBtn'),
 
     // Tracking Info Panel
     infoDriverName: document.getElementById('infoDriverName'),
@@ -345,6 +346,10 @@ const ProfileController = {
             DOM.logoutBtn.addEventListener('click', () => logout());
         }
 
+        if (DOM.deleteAccountBtn) {
+            DOM.deleteAccountBtn.addEventListener('click', () => this.deleteAccount());
+        }
+
         this.loadProfileData();
     },
 
@@ -449,6 +454,41 @@ const ProfileController = {
             }
         } catch (error) {
             console.error('Profile update error:', error);
+            AlertController.show('Network Error', 'Failed to connect to server', 'error');
+        }
+    },
+
+    /**
+     * Delete driver account
+     */
+    async deleteAccount() {
+        const driverData = sessionStorage.getItem('driver');
+        if (!driverData) return;
+
+        const driver = JSON.parse(driverData);
+
+        const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+        if (!confirmed) return;
+
+        try {
+            const baseUrl = getApiBaseUrl();
+            const response = await fetch(`${baseUrl}/api/driver/${driver.id}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                AlertController.show('Success', 'Your account has been deleted successfully.', 'success');
+                setTimeout(() => {
+                    sessionStorage.removeItem('driver');
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                AlertController.show('Error', data.message || 'Failed to delete account', 'error');
+            }
+        } catch (error) {
+            console.error('Account deletion error:', error);
             AlertController.show('Network Error', 'Failed to connect to server', 'error');
         }
     }

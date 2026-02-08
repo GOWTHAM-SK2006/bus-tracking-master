@@ -87,4 +87,11 @@ public class DriverService {
         return driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
     }
+
+    public void deleteDriver(Long id) {
+        if (!driverRepository.existsById(id)) {
+            throw new RuntimeException("Driver not found");
+        }
+        driverRepository.deleteById(id);
+    }
 }

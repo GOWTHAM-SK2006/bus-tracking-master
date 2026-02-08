@@ -353,8 +353,10 @@
                     </div>
                     <div class="section-body">
                         <p class="help-text">You are logged in as <strong id="profileUsername">--</strong></p>
-                        <button class="btn btn-danger" onclick="logout()" style="margin-top: var(--space-4);">Logout
-                            from Account</button>
+                        <div style="display: flex; gap: var(--space-4); margin-top: var(--space-4);">
+                            <button class="btn btn-danger" onclick="logout()">Logout from Account</button>
+                            <button class="btn btn-outline-danger" id="deleteAccountBtn">Delete Account</button>
+                        </div>
                     </div>
                 </div>
             </section>
