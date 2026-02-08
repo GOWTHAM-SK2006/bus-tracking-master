@@ -10,25 +10,24 @@
 function getWebSocketUrl(endpoint) {
     const host = window.location.hostname;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const port = window.location.port;
 
     // File protocol fallback (local testing)
     if (window.location.protocol === 'file:') {
         return `ws://localhost:8080${endpoint}`;
     }
 
-    // VS Code Dev Tunnels: hostname format is "xxx-PORT.inc1.devtunnels.ms"
+    // VS Code Dev Tunnels
     if (host.includes('.devtunnels.ms')) {
-        // Extract the tunnel ID prefix and replace port with 8080
         const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
         if (tunnelMatch) {
             return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}${endpoint}`;
         }
     }
 
-    // Standard localhost or IP-based deployment (Railway)
-    // If running on standard port, don't append port
-    if (window.location.port) {
-        return `${protocol}//${host}:${window.location.port}${endpoint}`;
+    // Standard production ports or specified ports
+    if (port && port !== '80' && port !== '443') {
+        return `${protocol}//${host}:${port}${endpoint}`;
     }
 
     return `${protocol}//${host}${endpoint}`;

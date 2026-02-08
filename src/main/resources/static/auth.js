@@ -85,7 +85,7 @@ function selectRole(role) {
         // Show Username, Hide Email for SIGNIN
         signinEmailGroup.classList.add('hidden');
         signinUsernameGroup.classList.remove('hidden');
-        
+
         // Show BOTH Email AND Username for SIGNUP
         signupEmailGroup.classList.remove('hidden');
         signupUsernameGroup.classList.remove('hidden');
@@ -393,9 +393,9 @@ signupForm.addEventListener('submit', async (e) => {
         switch (currentRole) {
             case 'client':
                 endpoint = '/api/client/signup';
-                body = { 
-                    name, 
-                    email, 
+                body = {
+                    name,
+                    email,
                     password,
                     username: email // Backend requires username, use email
                 };
@@ -535,7 +535,7 @@ if (resetPasswordForm) {
 
             showSuccess('Password reset link has been sent to your email!');
             resetPasswordForm.reset();
-            
+
             // Switch back to signin after delay
             setTimeout(() => {
                 cancelResetBtn.click();
@@ -565,7 +565,7 @@ async function checkAccountCreation() {
     try {
         const response = await fetch('/api/admin/settings');
         const data = await response.json();
-        
+
         // Store state
         if (data.accountCreationEnabled === false) {
             driverSignupDisabled = true;
@@ -596,8 +596,8 @@ function disableSignupUI() {
         btn.style.backgroundColor = '#fee2e2'; // Light red background
         btn.style.color = '#dc2626';           // Strong red text
         btn.style.border = '1px solid #fecaca';
-        btn.classList.add('btn-error-state'); 
-        btn.classList.remove('btn-secondary'); 
+        btn.classList.add('btn-error-state');
+        btn.classList.remove('btn-secondary');
         btn.classList.remove('btn-primary');
     }
 
@@ -625,13 +625,13 @@ function enableSignupUI() {
     if (btn) {
         btn.disabled = false;
         // Restore text based on role? Or generic "Create Account"
-        btn.textContent = 'Create Account'; 
-        btn.style.backgroundColor = ''; 
+        btn.textContent = 'Create Account';
+        btn.style.backgroundColor = '';
         btn.style.color = '';
         btn.style.border = '';
         btn.classList.remove('btn-secondary');
         btn.classList.remove('btn-error-state');
-        
+
         // Restore proper class
         if (currentRole === 'driver') {
             btn.classList.add('btn-success'); // Assuming driver button style
@@ -661,10 +661,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function initWebSocket() {
     const wsUrl = getWebSocketUrl('/ws/admin');
     console.log('[WS] Connecting for system updates:', wsUrl);
-    
+
     try {
         const socket = new WebSocket(wsUrl);
-        
+
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -677,12 +677,12 @@ function initWebSocket() {
                 console.error('[WS] Error parsing message:', e);
             }
         };
-        
+
         socket.onclose = () => {
             console.log('[WS] Connection closed, retrying in 5s...');
             setTimeout(initWebSocket, 5000);
         };
-        
+
         socket.onerror = (err) => {
             console.error('[WS] Connection error:', err);
         };
@@ -694,9 +694,18 @@ function initWebSocket() {
 function getWebSocketUrl(endpoint) {
     const host = window.location.hostname;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const port = window.location.port;
+
     if (host.includes('.devtunnels.ms')) {
         const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
         if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}${endpoint}`;
     }
-    return `${protocol}//${host}:8080${endpoint}`;
+
+    // In production (port 80/443), window.location.port is often empty
+    if (port && port !== '80' && port !== '443') {
+        return `${protocol}//${host}:${port}${endpoint}`;
+    }
+
+    // For production or default ports
+    return `${protocol}//${host}${endpoint}`;
 }
