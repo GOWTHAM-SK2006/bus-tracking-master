@@ -148,4 +148,20 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+        try {
+            clientService.deleteClient(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Account deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 }

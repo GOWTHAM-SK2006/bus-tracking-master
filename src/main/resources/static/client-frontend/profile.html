@@ -364,6 +364,9 @@
 
                     <button id="uploadPictureBtn" class="btn btn-primary">Save Photo</button>
                     <button id="skipPictureBtn" class="btn btn-secondary">Skip for now</button>
+                    <button id="deleteAccountBtn" class="btn btn-secondary"
+                        style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2);">Delete
+                        Account</button>
                 </div>
 
                 <!-- Step 3: Success -->
@@ -439,6 +442,39 @@
             // Mark as verified even if they skip
             await updateProfile({ phoneVerified: true });
             window.location.href = 'index.html';
+        });
+
+        // Delete Account Action
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+            if (!confirmed) return;
+
+            const btn = document.getElementById('deleteAccountBtn');
+            btn.innerHTML = '<span class="loader"></span> Deleting...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/client/${client.id}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showAlert('Account deleted successfully', 'success');
+                    setTimeout(() => {
+                        sessionStorage.removeItem('client');
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showAlert(result.message || 'Failed to delete account', 'error');
+                    btn.textContent = 'Delete Account';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Account deletion error:', error);
+                showAlert('Network Error', 'error');
+                btn.textContent = 'Delete Account';
+                btn.disabled = false;
+            }
         });
 
         // Step 2 Actions

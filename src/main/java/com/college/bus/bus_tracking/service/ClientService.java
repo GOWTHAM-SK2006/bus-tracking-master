@@ -134,4 +134,11 @@ public class ClientService {
         return clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
     }
+
+    public void deleteClient(Long id) {
+        if (!clientRepository.existsById(id)) {
+            throw new RuntimeException("Client not found");
+        }
+        clientRepository.deleteById(id);
+    }
 }
