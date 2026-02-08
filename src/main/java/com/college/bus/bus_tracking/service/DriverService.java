@@ -1,8 +1,11 @@
 package com.college.bus.bus_tracking.service;
 
 import com.college.bus.bus_tracking.entity.Driver;
+import com.college.bus.bus_tracking.repository.BusRepository;
 import com.college.bus.bus_tracking.repository.DriverRepository;
 import com.college.bus.bus_tracking.service.SystemSettingsService;
+import com.college.bus.bus_tracking.store.BusSessionStore;
+import com.college.bus.bus_tracking.handler.UserHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,12 @@ public class DriverService {
 
     @Autowired
     private DriverRepository driverRepository;
+
+    @Autowired
+    private BusRepository busRepository;
+
+    @Autowired
+    private UserHandler userHandler;
 
     @Autowired
     private SystemSettingsService systemSettingsService;
@@ -89,9 +98,30 @@ public class DriverService {
     }
 
     public void deleteDriver(Long id) {
-        if (!driverRepository.existsById(id)) {
-            throw new RuntimeException("Driver not found");
-        }
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        String busNumber = driver.getBusNumber();
+
+        // 1. Delete driver record
         driverRepository.deleteById(id);
+
+        // 2. Clean up associated bus data if it exists
+        if (busNumber != null && !busNumber.trim().isEmpty()) {
+            // Remove from database
+            if (busRepository.existsById(busNumber)) {
+                busRepository.deleteById(busNumber);
+                System.out.println("[DriverService] Deleted bus entity for busNumber: " + busNumber);
+            }
+
+            // Remove from in-memory session store
+            if (BusSessionStore.BUS_MAP.containsKey(busNumber)) {
+                BusSessionStore.BUS_MAP.remove(busNumber);
+                System.out.println("[DriverService] Removed bus from memory: " + busNumber);
+            }
+
+            // 3. Broadcast update to passengers to remove the bus from map
+            userHandler.broadcastUpdate();
+        }
     }
 }

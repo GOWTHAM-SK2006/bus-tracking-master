@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import com.college.bus.bus_tracking.repository.BusRepository;
+import com.college.bus.bus_tracking.store.BusSessionStore;
 import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
+import com.college.bus.bus_tracking.model.BusData;
 import java.util.*;
 
 @RestController
@@ -19,55 +21,20 @@ public class BusController {
      * Get all buses
      */
     @GetMapping("/all")
-    public ResponseEntity<List<?>> getAllBuses() {
+    public ResponseEntity<List<BusData>> getAllBuses() {
         try {
-            // For now, return sample data
-            List<Map<String, Object>> buses = new ArrayList<>();
+            // Return real bus data from memory store
+            List<BusData> buses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
 
-            // Sample bus 1
-            Map<String, Object> bus1 = new HashMap<>();
-            bus1.put("busId", 1);
-            bus1.put("busNumber", "BUS001");
-            bus1.put("busName", "Express Route A");
-            bus1.put("latitude", 13.0827);
-            bus1.put("longitude", 80.2707);
-            bus1.put("status", "RUNNING");
-            bus1.put("driverId", 1);
-            bus1.put("driverName", "Raj Kumar");
-            bus1.put("driverPhone", "+91-9876543210");
-            buses.add(bus1);
-
-            // Sample bus 2
-            Map<String, Object> bus2 = new HashMap<>();
-            bus2.put("busId", 2);
-            bus2.put("busNumber", "BUS002");
-            bus2.put("busName", "Local Route B");
-            bus2.put("latitude", 13.0901);
-            bus2.put("longitude", 80.2821);
-            bus2.put("status", "RUNNING");
-            bus2.put("driverId", 2);
-            bus2.put("driverName", "Vikram Singh");
-            bus2.put("driverPhone", "+91-8765432109");
-            buses.add(bus2);
-
-            // Sample bus 3
-            Map<String, Object> bus3 = new HashMap<>();
-            bus3.put("busId", 3);
-            bus3.put("busNumber", "BUS003");
-            bus3.put("busName", "Campus Shuttle");
-            bus3.put("latitude", 13.0650);
-            bus3.put("longitude", 80.2500);
-            bus3.put("status", "IDLE");
-            bus3.put("driverId", 3);
-            bus3.put("driverName", "Ramesh Patel");
-            bus3.put("driverPhone", "+91-7654321098");
-            buses.add(bus3);
+            // Debug log
+            System.out.println("[BusController] Returning " + buses.size() + " buses from memory");
 
             // Broadcast to all connected clients
-            broadcastBusUpdates(buses);
+            broadcastBusDataUpdates(buses);
 
             return ResponseEntity.ok(buses);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
@@ -193,6 +160,15 @@ public class BusController {
     }
 
     private void broadcastBusUpdates(List<Map<String, Object>> buses) throws Exception {
+        Map<String, Object> update = new HashMap<>();
+        update.put("type", "BUS_UPDATE");
+        update.put("buses", buses);
+        update.put("timestamp", System.currentTimeMillis());
+
+        AdminWebSocketHandler.broadcastToAdmins(update);
+    }
+
+    private void broadcastBusDataUpdates(List<BusData> buses) throws Exception {
         Map<String, Object> update = new HashMap<>();
         update.put("type", "BUS_UPDATE");
         update.put("buses", buses);
