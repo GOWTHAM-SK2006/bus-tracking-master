@@ -29,6 +29,7 @@ updateDebugStatus('System: Initializing...');
 function getWebSocketUrl(endpoint) {
     const host = window.location.hostname;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const port = window.location.port;
 
     if (host.includes('.devtunnels.ms')) {
         const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
@@ -37,7 +38,12 @@ function getWebSocketUrl(endpoint) {
         }
     }
 
-    return `${protocol}//${host}:8080${endpoint}`;
+    // Standard production ports or specified ports
+    if (port && port !== '80' && port !== '443') {
+        return `${protocol}//${host}:${port}${endpoint}`;
+    }
+
+    return `${protocol}//${host}${endpoint}`;
 }
 
 const CONFIG = {
@@ -485,7 +491,7 @@ const DashboardManager = {
                 <div style="font-weight: 600; color: #333;">Bus ${bus.busNo}</div>
                 <div style="font-size: 12px; color: #666;">${bus.routeName}</div>
             `;
-            
+
             // Hover effect
             item.addEventListener('mouseenter', () => {
                 item.style.background = '#f8f9fa';
@@ -516,7 +522,7 @@ const DashboardManager = {
 
         this.selectedBusId = busId;
         const bus = adminState.buses.get(busId);
-        
+
         if (!bus) {
             this.hideDashboard();
             return;
@@ -564,7 +570,7 @@ const DashboardManager = {
         const latitude = document.getElementById('dashLatitude');
         const longitude = document.getElementById('dashLongitude');
         const accuracy = document.getElementById('dashAccuracy');
-        
+
         if (latitude && bus.latitude) {
             latitude.textContent = bus.latitude.toFixed(6);
         }
@@ -646,7 +652,7 @@ const BusManager = {
             adminState.buses.set(bus.busId, bus);
             if (bus.gpsOn) activeCount++;
             MapManager.updateBusMarker(bus);
-            
+
             // Notify dashboard of bus update
             DashboardManager.handleBusUpdate(bus);
         });
@@ -655,7 +661,7 @@ const BusManager = {
         if (DOM.totalBuses) DOM.totalBuses.textContent = mappedBuses.length;
 
         this.renderBusesTable();
-        
+
         // Populate dashboard bus selector
         DashboardManager.populateBusSelector();
 
@@ -1023,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 3. Bus Manager
         updateDebugStatus('Step 3/5: Bus Logic...');
         BusManager.init();
-        
+
         // 4. Dashboard Manager
         updateDebugStatus('Step 4/5: Dashboard...');
         DashboardManager.init();
