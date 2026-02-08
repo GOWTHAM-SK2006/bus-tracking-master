@@ -389,11 +389,26 @@
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
+            const port = window.location.port;
+
+            // File protocol fallback
+            if (protocol === 'file:') {
+                return 'http://localhost:8080';
+            }
+
+            // VS Code Dev Tunnels
             if (host.includes('.devtunnels.ms')) {
                 const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                if (tunnelMatch) {
+                    return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                }
             }
-            return `${protocol}//${host}:8080`;
+
+            if (port && port !== '80' && port !== '443') {
+                return `${protocol}//${host}:${port}`;
+            }
+
+            return `${protocol}//${host}`;
         }
 
         const client = JSON.parse(sessionStorage.getItem('client'));
