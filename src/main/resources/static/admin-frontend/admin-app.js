@@ -120,6 +120,41 @@ const DOM = {
 };
 
 // =========================================
+// Mobile Menu Manager
+// =========================================
+const MobileMenuManager = {
+    init() {
+        const btn = document.getElementById('mobileMenuBtn');
+        const header = document.querySelector('.admin-header');
+        if (!btn || !header) return;
+
+        // Toggle menu
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            header.classList.toggle('menu-open');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (header.classList.contains('menu-open') && 
+                !header.contains(e.target)) {
+                header.classList.remove('menu-open');
+            }
+        });
+
+        // Close when a tab is clicked
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                header.classList.remove('menu-open');
+            });
+        });
+        
+        console.log('[MobileMenu] Initialized');
+    }
+};
+
+// =========================================
 // Panel Manager (Replaces TabManager)
 // =========================================
 const PanelManager = {
@@ -699,15 +734,15 @@ const BusManager = {
 
         DOM.busesTableBody.innerHTML = buses.map(bus => `
             <tr onclick="PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')" style="cursor: pointer;">
-                <td><strong>${bus.busNo}</strong></td>
-                <td>${bus.driverName}</td>
-                <td>${bus.routeName}</td>
-                <td>
+                <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
+                <td data-label="Driver">${bus.driverName}</td>
+                <td data-label="Route">${bus.routeName}</td>
+                <td data-label="Status">
                     <span class="status-badge ${bus.gpsOn ? 'active' : 'inactive'}">
                         ${bus.gpsOn ? 'Active' : 'Offline'}
                     </span>
                 </td>
-                <td>
+                <td data-label="Action">
                     <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;">
                         Locate
                     </button>
@@ -1027,6 +1062,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDebugStatus('System: Initializing Components...');
 
     try {
+        // 0. Mobile Menu
+        MobileMenuManager.init();
+
         // 1. Panel Manager
         updateDebugStatus('Step 1/4: UI Panels...');
         PanelManager.init();

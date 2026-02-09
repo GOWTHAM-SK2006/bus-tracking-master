@@ -796,6 +796,440 @@ body {
     gap: var(--spacing-sm);
 }
 
+/* ======================================== 
+   Mobile Menu Button
+   ======================================== */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-dark);
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2002;
+    margin-right: -8px; /* Alignment fix */
+}
+
+.mobile-menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ======================================== 
+   Dashboard Stats (Refactored)
+   ======================================== */
+.dashboard-selector {
+    margin-bottom: var(--spacing-md);
+}
+
+.selector-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.selector-wrapper {
+    position: relative;
+}
+
+.selector-input {
+    width: 100%;
+    padding: 10px 40px 10px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+}
+
+.selector-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.selector-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+}
+
+.dashboard-data-container {
+    margin-top: var(--spacing-lg);
+    animation: fadeIn 0.3s ease;
+}
+
+.dash-bus-header {
+    background: radial-gradient(circle at top left, #6a40bf, #5b21b6);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    color: white;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3);
+}
+
+.dash-bus-number {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.dash-bus-route {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dash-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.dash-card {
+    background: var(--bg-white);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.dash-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.dash-value.success { color: var(--success); }
+.dash-value.info { color: #0284c7; } /* specific blue */
+.dash-value.warning { color: #eab308; } /* specific yellow */
+.dash-value.active { color: var(--primary); }
+
+.dash-section {
+    background: var(--bg-white);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    margin-top: var(--spacing-md);
+}
+
+.dash-section-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--bg-gray);
+    padding-bottom: 8px;
+}
+
+.dash-list {
+    display: grid;
+    gap: 10px;
+}
+
+.dash-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.dash-list-label {
+    color: var(--text-secondary);
+}
+
+.dash-list-value {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.dash-list-value.monospace {
+    font-family: 'SF Mono', 'Roboto Mono', monospace;
+    letter-spacing: -0.5px;
+}
+
+/* ======================================== 
+   Responsive Media Queries
+   ======================================== */
+
+/* Tablet & Mobile (<= 1024px) */
+@media (max-width: 1024px) {
+    .header-container {
+        padding: 0 var(--spacing-md);
+        height: 80px;
+    }
+    
+    .logo img {
+        height: 60px !important;
+    }
+
+    .nav-tabs {
+        margin-left: var(--spacing-sm);
+    }
+    
+    .tab-btn span {
+        display: none; /* Hide text, show icons only on Laptop/Tablet */
+    }
+    
+    .tab-btn {
+        padding: 10px;
+    }
+}
+
+/* Mobile (<= 768px) */
+@media (max-width: 768px) {
+    /* Header & Navigation */
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .admin-header {
+        height: 70px;
+    }
+
+    .header-container {
+        height: 70px;
+        position: relative;
+    }
+
+    .nav-tabs,
+    .header-actions {
+        display: none; /* Hidden by default */
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: var(--spacing-md);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    /* When menu is open */
+    .admin-header.menu-open .nav-tabs {
+        display: flex;
+        background: #f8fafc;
+        border-radius: 0;
+        align-items: stretch;
+    }
+
+    .admin-header.menu-open .header-actions {
+        display: flex;
+        top: auto; /* Below tabs */
+        position: static;
+        padding-top: 0;
+    }
+
+    /* Wrap nav and actions in a container if needed by JS, 
+       but here we can just target them. 
+       Actually, standard "hamburger" implies they slide in or drop down.
+       Since they are separate in HTML, we might need JS to toggle classes on both.
+       Better strategy: 
+       Make .header-container flex-wrap: wrap on open? No.
+       Let's stick to valid CSS toggling.
+    */
+    
+    .admin-header.menu-open {
+        height: auto;
+    }
+
+    .nav-tabs {
+        width: 100%;
+        margin: 0;
+        order: 3;
+    }
+
+    .tab-btn {
+        width: 100%;
+        justify-content: flex-start;
+        border-radius: var(--radius-sm);
+        padding: 12px;
+    }
+
+    .tab-btn span {
+        display: inline; /* Show text in mobile menu */
+    }
+
+    .header-actions {
+        width: 100%;
+        order: 4;
+        justify-content: space-between;
+        margin-top: var(--spacing-sm);
+        padding-top: var(--spacing-sm);
+        border-top: 1px solid var(--border-light);
+    }
+
+    /* Main Content Adjustments */
+    .admin-main {
+        height: calc(100vh - 70px);
+    }
+
+    /* Floating Panels */
+    .bus-info-panel,
+    .floating-panel .panel-container {
+        width: 100%;
+        max-height: 50%;
+        bottom: 0px;
+        top: auto;
+        border-radius: 20px 20px 0 0;
+        position: fixed;
+        left: 0;
+        right: 0;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bus-info-panel.visible {
+        transform: translateY(0);
+    }
+    
+    /* Current floating-panel behavior in admin-style.css might be missing? 
+       Check lines 778+ or similar. 
+       I will assume floating-panel needs styles if not present.
+    */
+    .floating-panel {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1000;
+        display: none; /* JS toggles .visible or display block */
+    }
+
+    .floating-panel.visible {
+        display: block;
+    }
+
+    .floating-panel .panel-container {
+        /* Mobile specific override */
+        pointer-events: auto;
+        position: absolute;
+        bottom: 0;
+        top: auto; 
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 70vh; /* Bottom sheet */
+        max-width: none;
+        border-radius: 20px 20px 0 0;
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+
+    /* Bus Counter Widget */
+    .bus-counter-widget {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        justify-content: center;
+        width: auto;
+    }
+    
+    /* Hide bus counter if panel is open to avoid overlap? 
+       Maybe just keeping it is fine. 
+    */
+
+    /* Dashboard Grid Mobile */
+    .dash-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Buses Table Cards */
+    .buses-table thead {
+        display: none;
+    }
+    
+    .buses-table, .buses-table tbody, .buses-table tr, .buses-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .buses-table tr {
+        margin-bottom: var(--spacing-md);
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .buses-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid var(--bg-gray);
+        text-align: right;
+    }
+    
+    .buses-table td:last-child {
+        border-bottom: none;
+    }
+    
+    .buses-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-right: 10px;
+    }
+    
+    /* Edit button text needs to be hidden or iconified if needed? 
+       Table row HTML doesn't have data-label yet. 
+       I might need to add it or just use nth-child in content.
+    */
+    .buses-table td:nth-of-type(1)::before { content: "Bus No"; }
+    .buses-table td:nth-of-type(2)::before { content: "Driver"; }
+    .buses-table td:nth-of-type(3)::before { content: "Route"; }
+    .buses-table td:nth-of-type(4)::before { content: "Status"; }
+    .buses-table td:nth-of-type(5)::before { content: "Action"; }
+
+}
+
+/* Very Small Mobile */
+@media (max-width: 375px) {
+    .dash-bus-header {
+        padding: 12px;
+    }
+    .dash-bus-number {
+        font-size: 20px;
+    }
+}
 .export-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);

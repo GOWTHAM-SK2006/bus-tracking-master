@@ -696,7 +696,8 @@ body::before {
 }
 
 /* Responsive - Enhanced */
-@media (max-width: 900px) {
+/* Responsive - Enhanced */
+@media (max-width: 768px) {
     .auth-branding {
         display: none;
     }
@@ -706,15 +707,32 @@ body::before {
     }
 
     .auth-panel {
-        padding: var(--space-6);
+        padding: var(--space-4);
+        justify-content: center;
     }
 
     .auth-card {
         max-width: 100%;
         padding: var(--space-6);
-        box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.05),
-            0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: none;
+        border: none;
+    }
+
+    /* Keep roles usually horizontal on tablet unless very small */
+    .role-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Mobile Styles */
+    .auth-panel {
+        padding: var(--space-4);
+        align-items: stretch;
+    }
+
+    .auth-card {
+        padding: var(--space-2);
     }
 
     .role-cards {
@@ -725,19 +743,23 @@ body::before {
     .role-card {
         flex-direction: row;
         justify-content: flex-start;
-        padding: var(--space-3) var(--space-4);
+        padding: var(--space-3);
+        min-height: 50px; /* Touch target */
     }
 
     .role-icon {
         margin: 0;
     }
-}
 
-@media (max-width: 480px) {
-    .auth-card {
-        padding: var(--space-5);
+    .form-input {
+        font-size: 16px !important; /* Prevent iOS zoom */
+        padding: 12px;
     }
 
+    .btn {
+        min-height: 48px;
+    }
+    
     .branding-title {
         font-size: 2rem;
     }
