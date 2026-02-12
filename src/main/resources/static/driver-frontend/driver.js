@@ -17,6 +17,11 @@ function getWebSocketUrl(endpoint) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port;
 
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    }
+
     // File protocol fallback (local testing)
     if (window.location.protocol === 'file:') {
         return `ws://localhost:8080${endpoint}`;
@@ -43,6 +48,11 @@ function getApiBaseUrl() {
     const host = window.location.hostname;
     const protocol = window.location.protocol;
     const port = window.location.port;
+
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return 'https://bus-tracking-master-production.up.railway.app';
+    }
 
     // File protocol fallback
     if (protocol === 'file:') {
@@ -113,6 +123,7 @@ const state = {
     gpsStatus: 'inactive', // inactive | active | error
     gpsPermissionGranted: false,
     gpsErrorCount: 0,
+    backgroundWatcherId: null, // Capacitor Background Watcher ID
 
     // Transmission state
     sendInterval: null,
@@ -521,6 +532,43 @@ const GPSController = {
      * @returns {number|null} Watch ID or null on failure
      */
     startWatching(onSuccess, onError) {
+        if (window.Capacitor && window.Capacitor.isPluginAvailable('BackgroundGeolocation')) {
+            LogController.add('Using Capacitor Background Geolocation', 'info');
+            const { BackgroundGeolocation } = window.Capacitor.Plugins;
+
+            this.updateStatus('waiting');
+
+            BackgroundGeolocation.addWatcher(
+                {
+                    backgroundMessage: "Bus tracking is active in the background.",
+                    backgroundTitle: "Tracking Active",
+                    requestPermissions: true,
+                    stale: false,
+                    distanceFilter: 0 // Update on every small change
+                },
+                (location, error) => {
+                    if (error) {
+                        this.updateStatus('error');
+                        onError(error);
+                        return;
+                    }
+                    if (location) {
+                        state.lastPosition = {
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            accuracy: location.accuracy,
+                            timestamp: location.time
+                        };
+                        this.updateStatus('active');
+                        onSuccess(state.lastPosition);
+                    }
+                }
+            ).then(id => {
+                state.backgroundWatcherId = id;
+            });
+            return "capacitor-watcher";
+        }
+
         if (!this.isSupported()) {
             onError({
                 code: 0,
@@ -558,7 +606,11 @@ const GPSController = {
      * @param {number} watchId - Watch ID to clear
      */
     stopWatching(watchId) {
-        if (watchId !== null) {
+        if (window.Capacitor && state.backgroundWatcherId) {
+            const { BackgroundGeolocation } = window.Capacitor.Plugins;
+            BackgroundGeolocation.removeWatcher({ id: state.backgroundWatcherId });
+            state.backgroundWatcherId = null;
+        } else if (watchId !== null) {
             navigator.geolocation.clearWatch(watchId);
         }
         this.updateStatus('inactive');

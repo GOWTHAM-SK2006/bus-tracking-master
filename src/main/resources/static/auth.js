@@ -297,7 +297,7 @@ signinForm.addEventListener('submit', async (e) => {
             }
         } else {
             // Client & Driver Login (Backend API)
-            const response = await fetch(endpoint, {
+            const response = await fetch(getApiBaseUrl() + endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -696,6 +696,11 @@ function getWebSocketUrl(endpoint) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port;
 
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    }
+
     if (host.includes('.devtunnels.ms')) {
         const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
         if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}${endpoint}`;
@@ -709,3 +714,12 @@ function getWebSocketUrl(endpoint) {
     // For production or default ports
     return `${protocol}//${host}${endpoint}`;
 }
+
+function getApiBaseUrl() {
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return 'https://bus-tracking-master-production.up.railway.app';
+    }
+    return ''; // Relative URLs work fine in browser
+}
+

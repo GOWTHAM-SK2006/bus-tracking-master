@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Node ###
+node_modules/
+
+### Capacitor ###
+android/
+ios/

@@ -1,0 +1,5 @@
+{
+  "appId": "com.dygon.bustracking",
+  "appName": "BusTracking",
+  "webDir": "src/main/resources/static"
+}

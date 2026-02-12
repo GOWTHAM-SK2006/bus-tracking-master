@@ -12,6 +12,11 @@ function getWebSocketUrl(endpoint) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port;
 
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    }
+
     // File protocol fallback (local testing)
     if (window.location.protocol === 'file:') {
         return `ws://localhost:8080${endpoint}`;
