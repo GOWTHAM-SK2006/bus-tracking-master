@@ -85,6 +85,17 @@ body {
     height: 50px;
 }
 
+.logo-img {
+    height: 70px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.05);
+}
+
 .nav-tabs {
     display: inline-flex;
     gap: 8px;
