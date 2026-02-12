@@ -924,6 +924,10 @@ const TrackingController = {
                                 this.startDataTransmission();
                             }, 2000);
                         }
+                    } else {
+                        // CONTINUOUS UPDATE: Send data immediately on position change
+                        // This ensures background updates are sent even if the interval timer is throttled
+                        this.sendUpdate();
                     }
                 },
                 (error) => {
