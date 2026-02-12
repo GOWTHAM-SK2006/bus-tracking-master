@@ -718,6 +718,7 @@ const WebSocketController = {
                                 busName: state.busName, // Added busName
                                 busStop: 'College',
                                 action: 'START',
+                                driverId: driverData ? driverData.id : null,
                                 driverName: driverData ? driverData.name : '',
                                 driverPhone: driverData ? driverData.phone : ''
                             };
@@ -890,6 +891,7 @@ const TrackingController = {
                 busName: state.busName, // Added busName
                 busStop: 'College',
                 action: 'START',
+                driverId: driverData ? driverData.id : null,
                 driverName: driverData ? driverData.name : '',
                 driverPhone: driverData ? driverData.phone : ''
             };

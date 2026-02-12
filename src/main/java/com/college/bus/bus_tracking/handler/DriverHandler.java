@@ -30,16 +30,39 @@ public class DriverHandler extends TextWebSocketHandler {
 
         try {
             JsonNode node = mapper.readTree(payload);
-            if (!node.has("busNumber")) {
-                System.err.println("[DriverHandler] Error: busNumber missing in payload");
-                return;
+
+            // Check for driverId, if not present try to extract from session or handle
+            // error
+            Long driverId = null;
+            if (node.has("driverId")) {
+                driverId = node.get("driverId").asLong();
             }
-            String busNumber = node.get("busNumber").asText();
+
+            String busNumber = null;
+            if (node.has("busNumber")) {
+                busNumber = node.get("busNumber").asText();
+            }
 
             if (node.has("action") && "START".equals(node.get("action").asText())) {
-                System.out.println("[DriverHandler] Processing START action for bus: " + busNumber);
-                BusEntity entity = repository.findById(busNumber).orElse(new BusEntity());
-                entity.setBusNumber(busNumber);
+                if (driverId == null) {
+                    System.err.println("[DriverHandler] Error: driverId missing in START payload");
+                    return;
+                }
+
+                System.out.println("[DriverHandler] Processing START action for driver: " + driverId);
+
+                // Find existing bus for this driver or create new
+                BusEntity entity = repository.findByDriverId(driverId).orElse(new BusEntity());
+
+                // If bus number changed, we might want to clean up old session store entry
+                String oldBusNumber = entity.getBusNumber();
+                if (oldBusNumber != null && !oldBusNumber.equals(busNumber)) {
+                    BusSessionStore.BUS_MAP.remove(oldBusNumber);
+                }
+
+                entity.setDriverId(driverId);
+                if (busNumber != null)
+                    entity.setBusNumber(busNumber);
                 if (node.has("busStop"))
                     entity.setBusStop(node.get("busStop").asText());
                 entity.setStatus("RUNNING");
@@ -53,10 +76,12 @@ public class DriverHandler extends TextWebSocketHandler {
                 if (node.has("busName"))
                     entity.setBusName(node.get("busName").asText());
 
-                repository.save(entity);
+                entity = repository.save(entity);
 
                 BusData busData = new BusData(
-                        busNumber,
+                        entity.getId(),
+                        entity.getBusNumber(),
+                        entity.getDriverId(),
                         entity.getBusName(),
                         entity.getBusStop(),
                         entity.getLatitude(),
@@ -65,9 +90,19 @@ public class DriverHandler extends TextWebSocketHandler {
                         entity.getDriverName(),
                         entity.getDriverPhone());
 
-                BusSessionStore.BUS_MAP.put(busNumber, busData);
-                System.out.println("[DriverHandler] Bus added to memory: " + busNumber);
+                if (entity.getBusNumber() != null) {
+                    BusSessionStore.BUS_MAP.put(entity.getBusNumber(), busData);
+                    System.out.println("[DriverHandler] Bus added to memory: " + entity.getBusNumber() + " (ID: "
+                            + entity.getId() + ")");
+                }
+
                 userHandler.broadcastUpdate();
+                return;
+            }
+
+            // For other actions, we need busNumber to identify the bus in session store
+            if (busNumber == null) {
+                System.err.println("[DriverHandler] Error: busNumber missing in payload");
                 return;
             }
 
@@ -77,7 +112,7 @@ public class DriverHandler extends TextWebSocketHandler {
                 if (bus != null) {
                     bus.setStatus("STOPPED");
                 }
-                repository.findById(busNumber).ifPresent(entity -> {
+                repository.findByBusNumber(busNumber).ifPresent(entity -> {
                     entity.setStatus("STOPPED");
                     repository.save(entity);
                 });
@@ -91,7 +126,7 @@ public class DriverHandler extends TextWebSocketHandler {
                 if (bus != null) {
                     bus.setStatus("STOPPED");
                 }
-                repository.findById(busNumber).ifPresent(entity -> {
+                repository.findByBusNumber(busNumber).ifPresent(entity -> {
                     entity.setStatus("STOPPED");
                     repository.save(entity);
                 });
@@ -105,7 +140,7 @@ public class DriverHandler extends TextWebSocketHandler {
                 if (bus != null) {
                     bus.setStatus("RUNNING");
                 }
-                repository.findById(busNumber).ifPresent(entity -> {
+                repository.findByBusNumber(busNumber).ifPresent(entity -> {
                     entity.setStatus("RUNNING");
                     repository.save(entity);
                 });
@@ -122,7 +157,9 @@ public class DriverHandler extends TextWebSocketHandler {
                 bus.setLatitude(lat);
                 bus.setLongitude(lng);
 
-                repository.findById(busNumber).ifPresent(e -> {
+                // Update in memory first for speed
+                // Async update DB
+                repository.findByBusNumber(busNumber).ifPresent(e -> {
                     e.setLatitude(bus.getLatitude());
                     e.setLongitude(bus.getLongitude());
                     repository.save(e);

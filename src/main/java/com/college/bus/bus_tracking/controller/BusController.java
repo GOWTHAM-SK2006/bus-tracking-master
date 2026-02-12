@@ -43,7 +43,7 @@ public class BusController {
      * Get a specific bus by ID
      */
     @GetMapping("/{busId}")
-    public ResponseEntity<?> getBusById(@PathVariable Integer busId) {
+    public ResponseEntity<?> getBusById(@PathVariable Long busId) {
         try {
             // Sample bus
             Map<String, Object> bus = new HashMap<>();
@@ -66,9 +66,9 @@ public class BusController {
     /**
      * Update bus location (Called by Driver App)
      */
-    @PostMapping("/{busId}/location")
+    @PutMapping("/{busId}/location")
     public ResponseEntity<?> updateBusLocation(
-            @PathVariable Integer busId,
+            @PathVariable Long busId,
             @RequestBody Map<String, Object> locationData) {
         try {
             Double latitude = ((Number) locationData.get("latitude")).doubleValue();
@@ -97,9 +97,9 @@ public class BusController {
     /**
      * Update bus status
      */
-    @PostMapping("/{busId}/status")
+    @PutMapping("/{busId}/status")
     public ResponseEntity<?> updateBusStatus(
-            @PathVariable Integer busId,
+            @PathVariable Long busId,
             @RequestBody Map<String, String> statusData) {
         try {
             String status = statusData.get("status"); // RUNNING, IDLE, STOPPED

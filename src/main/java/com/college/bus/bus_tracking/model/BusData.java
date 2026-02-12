@@ -2,7 +2,9 @@ package com.college.bus.bus_tracking.model;
 
 public class BusData {
 
+    private Long busId;
     private String busNumber;
+    private Long driverId;
     private String busName;
     private String busStop;
     private double latitude;
@@ -14,9 +16,12 @@ public class BusData {
     public BusData() {
     }
 
-    public BusData(String busNumber, String busName, String busStop, double latitude, double longitude, String status,
+    public BusData(Long busId, String busNumber, Long driverId, String busName, String busStop, double latitude,
+            double longitude, String status,
             String driverName, String driverPhone) {
+        this.busId = busId;
         this.busNumber = busNumber;
+        this.driverId = driverId;
         this.busName = busName;
         this.busStop = busStop;
         this.latitude = latitude;
@@ -24,6 +29,22 @@ public class BusData {
         this.status = status;
         this.driverName = driverName;
         this.driverPhone = driverPhone;
+    }
+
+    public Long getBusId() {
+        return busId;
+    }
+
+    public void setBusId(Long busId) {
+        this.busId = busId;
+    }
+
+    public Long getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(Long driverId) {
+        this.driverId = driverId;
     }
 
     public String getBusNumber() {
