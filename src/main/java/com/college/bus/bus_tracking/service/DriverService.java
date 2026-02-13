@@ -21,6 +21,9 @@ public class DriverService {
     private BusRepository busRepository;
 
     @Autowired
+    private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
     private UserHandler userHandler;
 
     @Autowired
@@ -37,6 +40,15 @@ public class DriverService {
         if (existing.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
+
+        // Check if email already exists
+        if (driver.getEmail() != null) {
+            Optional<Driver> existingEmail = driverRepository.findByEmail(driver.getEmail());
+            if (existingEmail.isPresent()) {
+                throw new RuntimeException("Email already registered");
+            }
+        }
+
         return driverRepository.save(driver);
     }
 
@@ -46,11 +58,16 @@ public class DriverService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        if (!driver.get().getPassword().equals(password)) {
-            throw new RuntimeException("Invalid username or password");
+        if (driver.get().getPassword().equals(password)) {
+            return driver.get();
         }
 
-        return driver.get();
+        // Check if it's a BCrypt hash
+        if (passwordEncoder.matches(password, driver.get().getPassword())) {
+            return driver.get();
+        }
+
+        throw new RuntimeException("Invalid username or password");
     }
 
     public Driver updateBusDetails(Long driverId, String busNumber, String busName) {

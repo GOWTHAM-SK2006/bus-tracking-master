@@ -1,4 +1,6 @@
 {
+  "name": "bus-tracking",
+  "version": "1.0.0",
   "dependencies": {
     "@capacitor-community/background-geolocation": "^1.2.26",
     "@capacitor/android": "^8.1.0",

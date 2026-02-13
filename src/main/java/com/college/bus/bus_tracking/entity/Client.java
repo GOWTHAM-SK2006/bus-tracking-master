@@ -37,6 +37,10 @@ public class Client {
 
     private String savedBusStop;
 
+    // Reset password fields
+    private String resetToken;
+    private Long resetTokenExpiry;
+
     public Long getId() {
         return id;
     }
@@ -107,5 +111,21 @@ public class Client {
 
     public void setSavedBusStop(String savedBusStop) {
         this.savedBusStop = savedBusStop;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Long getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(Long resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

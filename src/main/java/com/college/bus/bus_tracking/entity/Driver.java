@@ -1,5 +1,6 @@
 package com.college.bus.bus_tracking.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,10 +15,19 @@ public class Driver {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String username;
+
     private String password;
     private String name;
     private String phone;
+
+    @Column(unique = true)
+    private String email;
+
+    // Reset password fields
+    private String resetToken;
+    private Long resetTokenExpiry;
 
     // Bus details fields
     private String busNumber;
@@ -77,5 +87,29 @@ public class Driver {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Long getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(Long resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

@@ -13,6 +13,9 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
+
     private static final String[] ALLOWED_DOMAINS = { "@sairam.edu.in", "@sairamtap.edu.in" };
 
     public Client registerClient(Client client) {
@@ -47,11 +50,16 @@ public class ClientService {
             throw new RuntimeException("Invalid username/email or password");
         }
 
-        if (!client.get().getPassword().equals(password)) {
-            throw new RuntimeException("Invalid email or password");
+        if (client.get().getPassword().equals(password)) {
+            return client.get();
         }
 
-        return client.get();
+        // Check if it's a BCrypt hash
+        if (passwordEncoder.matches(password, client.get().getPassword())) {
+            return client.get();
+        }
+
+        throw new RuntimeException("Invalid email/username or password");
     }
 
     private boolean isValidEmailDomain(String email) {

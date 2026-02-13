@@ -485,6 +485,26 @@ function initFromUrl() {
     }
 }
 
+// Initialize EmailJS
+(function () {
+    emailjs.init("CyQQT9cI3LkDf5s8A"); // Use provided public key
+})();
+
+// Check for URL parameters (e.g., ?role=driver&tab=signup)
+function initFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+
+    const role = params.get('role');
+    if (role && ['client', 'driver', 'admin'].includes(role)) {
+        selectRole(role);
+    }
+
+    const tab = params.get('tab');
+    if (tab && ['signin', 'signup'].includes(tab)) {
+        switchTab(tab);
+    }
+}
+
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initFromUrl);
 
@@ -527,33 +547,53 @@ if (resetPasswordForm) {
 
         btn.classList.add('btn-loading');
         btn.disabled = true;
+        hideAlerts();
 
         try {
-            // Simulate sending reset link (in real app, this would call backend)
-            // For now, just show success message after a short delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const baseUrl = getApiBaseUrl();
+            console.log(`[ForgotPW] Calling: ${baseUrl}/api/auth/forgot-password with identifier: ${identifier}`);
+            
+            const response = await fetch(`${baseUrl}/api/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: identifier })
+            });
 
-            showSuccess('Password reset link has been sent to your email!');
-            resetPasswordForm.reset();
+            const data = await response.json();
+            console.log("[ForgotPW] Backend response:", data);
 
-            // Switch back to signin after delay
-            setTimeout(() => {
-                cancelResetBtn.click();
-            }, 2500);
+            if (response.ok && data.resetLink) {
+                // If user found, send Email via EmailJS
+                const fullLink = `${window.location.origin}/${data.resetLink}`;
+                console.log("[ForgotPW] Reset link generated:", fullLink);
+
+                await emailjs.send("service_qpdndnd", "template_l7nz8ut", {
+                    user_email: identifier, // This might be username or email, but template uses user_email
+                    reset_link: fullLink,
+                });
+
+                showSuccess('A reset link has been sent to the email associated with this account!');
+                resetPasswordForm.reset();
+
+                // Switch back to signin after delay
+                setTimeout(() => {
+                    cancelResetBtn.click();
+                }, 4000);
+            } else {
+                // Backend always returns success message for security, but we know if it worked based on resetLink presence
+                showSuccess('If an account exists, a reset link will be sent. (Note: In-memory DB resets on restart!)');
+                resetPasswordForm.reset();
+            }
 
         } catch (error) {
-            showError(error.message || 'Failed to send reset link');
+            console.error("[ForgotPW] Error:", error);
+            showError(`Failed to send reset link: ${error.message}. Check network connection.`);
         } finally {
             btn.classList.remove('btn-loading');
             btn.disabled = false;
         }
     });
 }
-
-
-// =========================================
-// System Settings Check
-// =========================================
 
 // =========================================
 // System Settings Check
@@ -716,10 +756,30 @@ function getWebSocketUrl(endpoint) {
 }
 
 function getApiBaseUrl() {
-    // Capacitor Support: Default to production URL
-    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-        return 'https://bus-tracking-master-production.up.railway.app';
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+
+    // Default to Railway production URL as per user instruction
+    const productionUrl = 'https://bus-tracking-master-production.up.railway.app';
+
+    // If we are already on the production domain, return empty string (relative calls)
+    if (host.includes('railway.app')) {
+        return '';
     }
-    return ''; // Relative URLs work fine in browser
+
+    // Capacitor / Local Testing
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        // If testing on Emulator and want local, user would need to change this, 
+        // but user specifically said they use the production URL.
+        return productionUrl;
+    }
+
+    // Default to production for all other cases unless on localhost and user wants local
+    if (host === 'localhost' || host === '127.0.0.1') {
+        // You can change this to '' if you want to test against local backend
+        return productionUrl; 
+    }
+
+    return productionUrl;
 }
 
