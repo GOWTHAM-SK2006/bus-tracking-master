@@ -1311,8 +1311,36 @@ const AlertController = {
 };
 
 // =========================================
-// Application Initialization
+// Network Controller
+// Handles connectivity changes for robust background tracking
 // =========================================
+const NetworkController = {
+    async init() {
+        if (window.Capacitor && window.Capacitor.isPluginAvailable('Network')) {
+            const { Network } = window.Capacitor.Plugins;
+
+            Network.addListener('networkStatusChange', (status) => {
+                console.log('[Network] Status changed:', status);
+
+                if (status.connected) {
+                    LogController.add('Network restored: ' + (status.connectionType || 'online'), 'info');
+                    // If tracking is active but socket is dead, reconnect immediately
+                    if (state.isTracking && (!state.socket || state.socket.readyState !== WebSocket.OPEN)) {
+                        LogController.add('Attempting background reconnection...', 'info');
+                        WebSocketController.connect().catch(e => console.warn('Background network reconnect failed', e));
+                    }
+                } else {
+                    LogController.add('Network lost: Connection suspended', 'warning');
+                    WebSocketController.updateUI('offline');
+                }
+            });
+
+            const status = await Network.getStatus();
+            console.log('[Network] Initial status:', status);
+        }
+    }
+};
+
 // =========================================
 // Application Initialization
 // =========================================
@@ -1377,6 +1405,7 @@ function initApp() {
     LogController.init();
     ProfileController.init();
     SetupController.init();
+    NetworkController.init();
 
     // Initialize state from existing data
     if (driverData) {
