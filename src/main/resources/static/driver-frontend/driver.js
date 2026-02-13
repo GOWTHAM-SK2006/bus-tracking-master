@@ -531,42 +531,49 @@ const GPSController = {
      * @param {Function} onError - Error callback
      * @returns {number|null} Watch ID or null on failure
      */
-    startWatching(onSuccess, onError) {
+    async startWatching(onSuccess, onError) {
         if (window.Capacitor && window.Capacitor.isPluginAvailable('BackgroundGeolocation')) {
             LogController.add('Using Capacitor Background Geolocation', 'info');
             const { BackgroundGeolocation } = window.Capacitor.Plugins;
 
             this.updateStatus('waiting');
 
-            BackgroundGeolocation.addWatcher(
-                {
-                    backgroundMessage: "Bus tracking is active in the background.",
-                    backgroundTitle: "Tracking Active",
-                    requestPermissions: true,
-                    stale: false,
-                    distanceFilter: 0 // Update on every small change
-                },
-                (location, error) => {
-                    if (error) {
-                        this.updateStatus('error');
-                        onError(error);
-                        return;
+            try {
+                // Use await to handle both Promise and direct value returns safely
+                const watcherId = await BackgroundGeolocation.addWatcher(
+                    {
+                        backgroundMessage: "Location tracking active",
+                        backgroundTitle: "Bus Tracking Running",
+                        requestPermissions: true,
+                        stale: false,
+                        distanceFilter: 0 // Update on every small change
+                    },
+                    (location, error) => {
+                        if (error) {
+                            this.updateStatus('error');
+                            onError(error);
+                            return;
+                        }
+                        if (location) {
+                            state.lastPosition = {
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                                accuracy: location.accuracy,
+                                timestamp: location.time
+                            };
+                            this.updateStatus('active');
+                            onSuccess(state.lastPosition);
+                        }
                     }
-                    if (location) {
-                        state.lastPosition = {
-                            latitude: location.latitude,
-                            longitude: location.longitude,
-                            accuracy: location.accuracy,
-                            timestamp: location.time
-                        };
-                        this.updateStatus('active');
-                        onSuccess(state.lastPosition);
-                    }
-                }
-            ).then(id => {
-                state.backgroundWatcherId = id;
-            });
-            return "capacitor-watcher";
+                );
+
+                state.backgroundWatcherId = watcherId;
+                return "capacitor-watcher";
+            } catch (e) {
+                LogController.add('Background Watcher Error: ' + e.message, 'error');
+                console.error(e);
+                // Fallback to standard geolocation if plugin fails
+            }
         }
 
         if (!this.isSupported()) {
@@ -847,99 +854,82 @@ const TrackingController = {
             // Enable auto-reconnection for this tracking session
             WebSocketController.shouldReconnect = true;
 
-            // Step 1: Request GPS permission FIRST (critical for mobile)
-            // Mobile browsers require user interaction to trigger GPS permission
-            LogController.add('Requesting GPS permission...', 'info');
+            // Step 1: Request GPS permission (immediate if already granted)
+            LogController.add('Initiating tracking...', 'info');
             this.updateTrackingUI('starting');
 
-            // Use getCurrentPosition first to trigger the permission prompt
-            await new Promise((resolve, reject) => {
-                if (!GPSController.isSupported()) {
-                    reject(new Error('Geolocation is not supported by this browser'));
-                    return;
+            // Explicit permission request for Android 10+
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                const { Geolocation } = window.Capacitor.Plugins;
+                try {
+                    const perm = await Geolocation.requestPermissions();
+                    if (perm.location !== 'granted') {
+                        LogController.add('Please select "Allow all the time" if prompted', 'warning');
+                    }
+                } catch (e) {
+                    console.warn('Geolocation permission request failed or plugin missing', e);
                 }
+            }
 
-                navigator.geolocation.getCurrentPosition(
+            // Step 2 & 3: Connect WebSocket and Start Watcher in parallel
+            LogController.add('Connecting to service...', 'info');
+
+            // Initiate connections simultaneously
+            const [connectionResult, watcherResult] = await Promise.allSettled([
+                WebSocketController.connect(),
+                GPSController.startWatching(
                     (position) => {
-                        LogController.add('GPS permission granted!', 'success');
-                        state.lastPosition = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy,
-                            timestamp: position.timestamp
-                        };
-                        GPSController.updateStatus('active');
-                        GPSController.updateDisplay();
-                        resolve();
-                    },
-                    (error) => {
-                        GPSController.updateStatus('error');
-                        reject(error);
-                    },
-                    { enableHighAccuracy: true, timeout: 45000, maximumAge: 0 }
-                );
-            });
+                        // Position update logic
+                        if (!state.isTracking) {
+                            state.isTracking = true;
+                            state.gpsPermissionGranted = true;
+                            state.gpsErrorCount = 0;
 
-            // Step 2: Connect WebSocket
-            LogController.add('Connecting to backend...', 'info');
-            await WebSocketController.connect();
+                            WebSocketController.send({
+                                busNumber: state.busNumber,
+                                action: 'GPS_ACTIVE'
+                            });
 
-            // Step 3: Send START action
+                            this.updateTrackingUI('active');
+                            this.startDataTransmission();
+                            LogController.add('GPS tracking active', 'success');
+                        }
+                        this.sendUpdate();
+                    },
+                    (error) => this.handleGPSError(error)
+                )
+            ]);
+
+            if (connectionResult.status === 'rejected') {
+                throw new Error('Server connection failed: ' + connectionResult.reason.message);
+            }
+
+            state.watchId = watcherResult.status === 'fulfilled' ? watcherResult.value : null;
+
+            // Step 4: Send START action - Immediately notify server
             const driverData = JSON.parse(sessionStorage.getItem('driver'));
             const startPayload = {
                 busNumber: state.busNumber,
-                busName: state.busName, // Added busName
+                busName: state.busName,
                 busStop: 'College',
                 action: 'START',
                 driverId: driverData ? driverData.id : null,
                 driverName: driverData ? driverData.name : '',
                 driverPhone: driverData ? driverData.phone : ''
             };
-            WebSocketController.send(startPayload);
-            LogController.add('Bus session started on server', 'success');
 
-            // Step 4: Start continuous GPS watching
-            state.watchId = GPSController.startWatching(
-                (position) => {
-                    if (!state.isTracking) {
-                        // First successful position
-                        state.isTracking = true;
-                        state.gpsPermissionGranted = true;
-                        state.gpsErrorCount = 0;
-
-                        // Send GPS_ACTIVE action to backend
-                        if (WebSocketController.send({
-                            busNumber: state.busNumber,
-                            action: 'GPS_ACTIVE'
-                        })) {
-                            LogController.add('GPS active - backend notified', 'success');
-                            this.updateTrackingUI('active');
-                            this.startDataTransmission();
-                            LogController.add('GPS tracking active', 'success');
-                        } else {
-                            // Wait a bit and try again if connection is just finishing
-                            setTimeout(() => {
-                                WebSocketController.send({
-                                    busNumber: state.busNumber,
-                                    action: 'GPS_ACTIVE'
-                                });
-                                this.startDataTransmission();
-                            }, 2000);
-                        }
-                    } else {
-                        // CONTINUOUS UPDATE: Send data immediately on position change
-                        // This ensures background updates are sent even if the interval timer is throttled
-                        this.sendUpdate();
-                    }
-                },
-                (error) => {
-                    this.handleGPSError(error);
+            if (WebSocketController.send(startPayload)) {
+                LogController.add('Session started immediately', 'success');
+                // Don't wait for first GPS fix to show active IF we already have a location
+                if (state.lastPosition) {
+                    this.updateTrackingUI('active');
+                    this.startDataTransmission();
                 }
-            );
+            }
 
         } catch (error) {
             const errorMsg = error.message || 'Unknown error';
-            LogController.add('Failed to initialize tracking: ' + errorMsg, 'error');
+            LogController.add('Failed to initialize: ' + errorMsg, 'error');
             AlertController.show('Tracking Error', 'Could not start tracking: ' + errorMsg, 'error');
             this.stop();
         }
@@ -989,15 +979,13 @@ const TrackingController = {
     startDataTransmission() {
         if (state.sendInterval) {
             clearInterval(state.sendInterval);
+            state.sendInterval = null;
         }
 
-        // Send immediately
+        // Send immediately - subsequent updates depend on location callback
         this.sendUpdate();
 
-        // Then send at interval
-        state.sendInterval = setInterval(() => {
-            this.sendUpdate();
-        }, CONFIG.UPDATE_INTERVAL);
+        // REMOVED setInterval as per request to rely on location callbacks only
 
         this.updateConnectionIndicator('connected');
     },
