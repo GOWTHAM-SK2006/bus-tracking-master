@@ -563,8 +563,9 @@ if (resetPasswordForm) {
             console.log("[ForgotPW] Backend response:", data);
 
             if (response.ok && data.resetLink) {
-                // If user found, send Email via EmailJS
-                const fullLink = `${window.location.origin}/${data.resetLink}`;
+                // Use the production URL for the reset link so it works everywhere
+                const prodBase = 'https://bus-tracking-master-production.up.railway.app';
+                const fullLink = `${prodBase}/${data.resetLink}`;
                 console.log("[ForgotPW] Reset link generated:", fullLink);
 
                 await emailjs.send("service_qpdndnd", "template_l7nz8ut", {
