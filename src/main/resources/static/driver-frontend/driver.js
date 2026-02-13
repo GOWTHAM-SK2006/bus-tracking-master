@@ -132,7 +132,10 @@ const state = {
 
     // WebSocket state
     socket: null,
-    isConnected: false
+    isConnected: false,
+
+    // Wake Lock (keeps CPU alive while tracking)
+    wakeLock: null
 };
 
 // =========================================
@@ -676,6 +679,43 @@ const GPSController = {
                 console.warn('Could not open settings', e);
             }
         }
+    },
+
+    /**
+     * Acquire a Wake Lock to prevent the CPU from sleeping during tracking.
+     * Uses the Web Wake Lock API (supported in Android WebView 84+).
+     */
+    async acquireWakeLock() {
+        if (!('wakeLock' in navigator)) {
+            console.log('[WakeLock] API not available');
+            return;
+        }
+        try {
+            state.wakeLock = await navigator.wakeLock.request('screen');
+            console.log('[WakeLock] Acquired');
+            LogController.add('Wake lock acquired for background tracking', 'info');
+
+            state.wakeLock.addEventListener('release', () => {
+                console.log('[WakeLock] Released by system');
+            });
+        } catch (e) {
+            console.warn('[WakeLock] Failed to acquire:', e);
+        }
+    },
+
+    /**
+     * Release the Wake Lock when tracking stops.
+     */
+    async releaseWakeLock() {
+        if (state.wakeLock) {
+            try {
+                await state.wakeLock.release();
+                state.wakeLock = null;
+                console.log('[WakeLock] Released');
+            } catch (e) {
+                console.warn('[WakeLock] Release error:', e);
+            }
+        }
     }
 };
 
@@ -889,6 +929,9 @@ const TrackingController = {
             LogController.add('Initiating tracking...', 'info');
             this.updateTrackingUI('starting');
 
+            // Acquire wake lock to prevent CPU sleep
+            await GPSController.acquireWakeLock();
+
             // Explicit permission request for Android 10+
             if (window.Capacitor && window.Capacitor.isNativePlatform()) {
                 const { Geolocation } = window.Capacitor.Plugins;
@@ -905,6 +948,15 @@ const TrackingController = {
                     }
                 } catch (e) {
                     console.warn('Geolocation permission check failed', e);
+                }
+
+                // Request battery optimization exemption (critical for Samsung, Xiaomi, etc.)
+                try {
+                    if (window.Capacitor.Plugins.BackgroundGeolocation) {
+                        LogController.add('Requesting battery optimization exemption...', 'info');
+                    }
+                } catch (e) {
+                    console.warn('Battery optimization request failed', e);
                 }
             }
 
@@ -1006,6 +1058,9 @@ const TrackingController = {
         // Stop data transmission
         this.stopDataTransmission();
 
+        // Release wake lock
+        GPSController.releaseWakeLock();
+
         // Disconnect WebSocket
         WebSocketController.disconnect();
 
@@ -1027,10 +1082,19 @@ const TrackingController = {
             state.sendInterval = null;
         }
 
-        // Send immediately - subsequent updates depend on location callback
+        // Send immediately
         this.sendUpdate();
 
-        // REMOVED setInterval as per request to rely on location callbacks only
+        // CRITICAL: Periodic fallback every 5 seconds.
+        // The background geolocation plugin delivers location natively, but the
+        // JS bridge can sometimes stall when the WebView is deprioritised.
+        // This interval acts as a heartbeat that re-sends the latest cached
+        // position so the server always has fresh data.
+        state.sendInterval = setInterval(() => {
+            if (state.isTracking && state.lastPosition) {
+                this.sendUpdate();
+            }
+        }, 5000);
 
         this.updateConnectionIndicator('connected');
     },
@@ -1427,6 +1491,20 @@ function initApp() {
     if (state.isTracking) {
         SetupController.finishSetup();
     }
+
+    // Re-acquire wake lock when app returns to foreground (system releases it on screen off)
+    document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState === 'visible' && state.isTracking) {
+            console.log('[Visibility] App resumed — re-acquiring wake lock');
+            await GPSController.acquireWakeLock();
+
+            // Also ensure WebSocket is alive
+            if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+                LogController.add('Reconnecting after resume...', 'info');
+                WebSocketController.connect().catch(e => console.warn('Resume reconnect failed', e));
+            }
+        }
+    });
 
     // Warn before page close if tracking
     window.addEventListener('beforeunload', (e) => {

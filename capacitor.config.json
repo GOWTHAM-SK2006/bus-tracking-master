@@ -1,5 +1,13 @@
 {
   "appId": "com.dygon.bustracking",
   "appName": "dygon",
-  "webDir": "src/main/resources/static"
+  "webDir": "src/main/resources/static",
+  "android": {
+    "useLegacyBridge": true
+  },
+  "plugins": {
+    "BackgroundGeolocation": {
+      "distanceFilter": 5
+    }
+  }
 }
