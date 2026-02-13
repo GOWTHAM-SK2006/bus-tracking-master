@@ -690,53 +690,71 @@ const WebSocketController = {
     heartbeatInterval: null,
     HEARTBEAT_RATE: 30000, // 30 seconds keep-alive
 
-    connect() {
-        return new Promise((resolve, reject) => {
-            if (state.socket && state.socket.readyState === WebSocket.OPEN) {
-                resolve();
-                return;
-            }
+    connectingPromise: null,
 
+    connect() {
+        if (this.connectingPromise) {
+            return this.connectingPromise;
+        }
+
+        if (state.socket && state.socket.readyState === WebSocket.OPEN) {
+            return Promise.resolve();
+        }
+
+        this.connectingPromise = new Promise((resolve, reject) => {
             const wsUrl = CONFIG.WS_URL;
             LogController.add('Connecting to: ' + wsUrl, 'info');
             console.log('[WebSocket] Attempting connection to:', wsUrl);
 
             try {
+                // Close existing socket if any (cleanup)
+                if (state.socket) {
+                    state.socket.onopen = null;
+                    state.socket.onclose = null;
+                    state.socket.onerror = null;
+                    state.socket.onmessage = null;
+                    try { state.socket.close(); } catch (e) { }
+                }
+
                 state.socket = new WebSocket(wsUrl);
             } catch (e) {
+                this.connectingPromise = null;
                 LogController.add('WebSocket creation failed: ' + e.message, 'error');
                 reject(e);
                 return;
             }
 
             state.socket.onopen = () => {
+                this.connectingPromise = null;
                 state.isConnected = true;
-                this.reconnectAttempts = 0; // Reset on successful connection
-                this.startHeartbeat(); // Start keep-alive
+                this.reconnectAttempts = 0;
+                this.startHeartbeat();
                 this.updateUI('connected');
                 LogController.add('Connected to backend successfully', 'success');
                 resolve();
             };
 
             state.socket.onclose = (event) => {
+                this.connectingPromise = null;
                 state.isConnected = false;
-                this.stopHeartbeat(); // Stop keep-alive
+                this.stopHeartbeat();
                 this.updateUI('offline');
-                LogController.add(`Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`, 'warning');
 
-                // Auto-reconnect if tracking is active and we should reconnect
+                const reason = event.reason || 'none';
+                LogController.add(`Disconnected (code: ${event.code}, reason: ${reason})`, 'warning');
+
                 if (state.isTracking && this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
                     this.reconnectAttempts++;
-                    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 30000); // Exponential backoff, max 30s
-                    LogController.add(`Reconnecting in ${delay / 1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...`, 'info');
+                    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 30000);
+                    LogController.add(`Retrying in ${delay / 1000}s (${this.reconnectAttempts}/${this.maxReconnectAttempts})`, 'info');
 
+                    if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
                     this.reconnectTimeout = setTimeout(() => {
                         this.connect().then(() => {
-                            // Re-send START action after reconnecting
                             const driverData = JSON.parse(sessionStorage.getItem('driver'));
                             const startPayload = {
                                 busNumber: state.busNumber,
-                                busName: state.busName, // Added busName
+                                busName: state.busName,
                                 busStop: 'College',
                                 action: 'START',
                                 driverId: driverData ? driverData.id : null,
@@ -744,30 +762,29 @@ const WebSocketController = {
                                 driverPhone: driverData ? driverData.phone : ''
                             };
                             this.send(startPayload);
-                            LogController.add('Reconnected and resumed session', 'success');
-                        }).catch(err => {
-                            LogController.add('Reconnection failed: ' + err.message, 'error');
-                        });
+                        }).catch(err => console.error('Auto-reconnect failed', err));
                     }, delay);
                 }
             };
 
             state.socket.onerror = (event) => {
-                const errorMsg = 'Connection to server failed. Retrying...';
-                LogController.add(errorMsg, 'error');
-                console.error('[WebSocket] Connection failed to:', CONFIG.WS_URL, event);
+                this.connectingPromise = null;
+                LogController.add('Connection error occurred', 'error');
+                console.error('[WebSocket] Error:', event);
                 this.updateUI('error');
-                reject(new Error(errorMsg));
+                reject(new Error('WebSocket connection error'));
             };
 
             state.socket.onmessage = (event) => {
-                const msg = JSON.parse(event.data);
-                // Ignore internal PONG reflection if any
-                if (msg.type === 'PING') return;
-
-                LogController.add('Received from server: ' + event.data, 'info');
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'PING') return;
+                    LogController.add('Received from server: ' + event.data, 'info');
+                } catch (e) { }
             };
         });
+
+        return this.connectingPromise;
     },
 
     disconnect() {
@@ -1047,21 +1064,21 @@ const TrackingController = {
         const success = WebSocketController.send(payload);
 
         if (success) {
-            // Update counters
             state.updateCount++;
             state.lastUpdateTime = new Date();
             this.updateCounterDisplay();
         } else {
-            // LOGIC FIX: Reconnect if we have a GPS pulse but socket is dead
-            // This is critical for background stability
-            LogController.add('WebSocket offline, attempting reconnection...', 'warning');
-            WebSocketController.updateUI('error');
+            // Is it actually disconnected or just connecting?
+            const isConnecting = (state.socket && state.socket.readyState === WebSocket.CONNECTING) ||
+                WebSocketController.connectingPromise;
 
-            // Only attempt if not already connecting
-            if (!state.socket || state.socket.readyState !== WebSocket.CONNECTING) {
-                WebSocketController.connect().then(() => {
-                    WebSocketController.send(payload); // Retry once
-                }).catch(e => console.warn('Background reconnect failed', e));
+            if (!isConnecting) {
+                LogController.add('WebSocket offline, attempting reconnection...', 'warning');
+                WebSocketController.updateUI('error');
+                WebSocketController.connect().catch(e => console.warn('Background reconnect failed', e));
+            } else {
+                // Silent if already connecting to avoid spamming the log
+                console.log('[Tracking] Skipping update: Socket is connecting');
             }
         }
     },
