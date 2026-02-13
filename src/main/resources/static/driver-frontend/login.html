@@ -163,6 +163,12 @@
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
+            const port = window.location.port;
+
+            // Capacitor Support: Default to production URL
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                return 'https://bus-tracking-master-production.up.railway.app';
+            }
 
             // File protocol fallback
             if (protocol === 'file:') {
@@ -177,8 +183,8 @@
                 }
             }
 
-            if (window.location.port) {
-                return `${protocol}//${host}:${window.location.port}`;
+            if (port && port !== '80' && port !== '443') {
+                return `${protocol}//${host}:${port}`;
             }
 
             return `${protocol}//${host}`;
