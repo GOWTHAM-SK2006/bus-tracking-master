@@ -662,6 +662,20 @@ const GPSController = {
     updateDisplay() {
         // GPS coordinates no longer displayed in driver UI
         // Data is still captured in state.lastPosition for backend transmission
+    },
+
+    /**
+     * Open App Settings to allow user to disable battery optimization or change permissions
+     */
+    async openSettings() {
+        if (window.Capacitor && window.Capacitor.isPluginAvailable('BackgroundGeolocation')) {
+            const { BackgroundGeolocation } = window.Capacitor.Plugins;
+            try {
+                await BackgroundGeolocation.openSettings();
+            } catch (e) {
+                console.warn('Could not open settings', e);
+            }
+        }
     }
 };
 
@@ -862,12 +876,18 @@ const TrackingController = {
             if (window.Capacitor && window.Capacitor.isNativePlatform()) {
                 const { Geolocation } = window.Capacitor.Plugins;
                 try {
-                    const perm = await Geolocation.requestPermissions();
-                    if (perm.location !== 'granted') {
-                        LogController.add('Please select "Allow all the time" if prompted', 'warning');
+                    const status = await Geolocation.checkPermissions();
+                    LogController.add('Permission status: ' + JSON.stringify(status), 'info');
+
+                    if (status.location !== 'granted') {
+                        const perm = await Geolocation.requestPermissions();
+                        if (perm.location !== 'granted') {
+                            LogController.add('Permission denied: Tracking may fail in background', 'error');
+                            AlertController.show('Permission Required', 'Please set Location to "Allow all the time" in App Settings for background tracking.', 'warning');
+                        }
                     }
                 } catch (e) {
-                    console.warn('Geolocation permission request failed or plugin missing', e);
+                    console.warn('Geolocation permission check failed', e);
                 }
             }
 
@@ -920,6 +940,14 @@ const TrackingController = {
 
             if (WebSocketController.send(startPayload)) {
                 LogController.add('Session started immediately', 'success');
+
+                // CRITICAL: Remind driver about background settings
+                AlertController.show(
+                    'Tracking Background Active',
+                    'To keep tracking while the screen is off:\n1. Select "Allow all the time" in Location settings.\n2. Disable "Battery Optimization" for this app.',
+                    'info'
+                );
+
                 // Don't wait for first GPS fix to show active IF we already have a location
                 if (state.lastPosition) {
                     this.updateTrackingUI('active');
@@ -1024,8 +1052,17 @@ const TrackingController = {
             state.lastUpdateTime = new Date();
             this.updateCounterDisplay();
         } else {
-            LogController.add('Transmission failed: WebSocket not connected', 'error');
+            // LOGIC FIX: Reconnect if we have a GPS pulse but socket is dead
+            // This is critical for background stability
+            LogController.add('WebSocket offline, attempting reconnection...', 'warning');
             WebSocketController.updateUI('error');
+
+            // Only attempt if not already connecting
+            if (!state.socket || state.socket.readyState !== WebSocket.CONNECTING) {
+                WebSocketController.connect().then(() => {
+                    WebSocketController.send(payload); // Retry once
+                }).catch(e => console.warn('Background reconnect failed', e));
+            }
         }
     },
 
