@@ -36,5 +36,6 @@ build/
 node_modules/
 
 ### Capacitor ###
-android/
-ios/
+# Native folders included as requested
+# android/
+# ios/
