@@ -439,7 +439,7 @@ signupForm.addEventListener('submit', async (e) => {
                 break;
         }
 
-        const response = await fetch(endpoint, {
+        const response = await fetch(getApiBaseUrl() + endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -563,7 +563,7 @@ let driverSignupDisabled = false;
 
 async function checkAccountCreation() {
     try {
-        const response = await fetch('/api/admin/settings');
+        const response = await fetch(getApiBaseUrl() + '/api/admin/settings');
         const data = await response.json();
 
         // Store state

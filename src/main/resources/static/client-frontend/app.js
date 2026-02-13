@@ -38,6 +38,36 @@ function getWebSocketUrl(endpoint) {
     return `${protocol}//${host}${endpoint}`;
 }
 
+function getApiBaseUrl() {
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+    const port = window.location.port;
+
+    // Capacitor Support: Default to production URL
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return 'https://bus-tracking-master-production.up.railway.app';
+    }
+
+    // File protocol fallback (local testing)
+    if (window.location.protocol === 'file:') {
+        return 'http://localhost:8080';
+    }
+
+    // VS Code Dev Tunnels
+    if (host.includes('.devtunnels.ms')) {
+        const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+        if (tunnelMatch) {
+            return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+        }
+    }
+
+    if (port && port !== '80' && port !== '443') {
+        return `${protocol}//${host}:${port}`;
+    }
+
+    return `${protocol}//${host}`;
+}
+
 const CONFIG = {
     // API - Dynamically detects Dev Tunnels or localhost
     WS_URL: (() => {
@@ -1065,7 +1095,7 @@ const SearchManager = {
 
         // 3. Remote Search (Bus Stops from Drivers)
         try {
-            const response = await fetch(`/api/bus-stops/search?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`${getApiBaseUrl()}/api/bus-stops/search?query=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.success && data.busStops.length > 0) {
@@ -1190,7 +1220,7 @@ const SearchManager = {
         if (!client) return;
 
         try {
-            const response = await fetch('/api/client/bus-stop/save', {
+            const response = await fetch(getApiBaseUrl() + '/api/client/bus-stop/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
