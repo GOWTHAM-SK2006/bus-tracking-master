@@ -568,7 +568,7 @@ if (resetPasswordForm) {
                 const fullLink = `${prodBase}/${data.resetLink}`;
                 console.log("[ForgotPW] Reset link generated:", fullLink);
 
-                await emailjs.send("service_qpdndnd", "template_l7nz8ut", {
+                await emailjs.send("service_0lkjpbj", "template_l7nz8ut", {
                     user_email: identifier, // This might be username or email, but template uses user_email
                     reset_link: fullLink,
                 });
