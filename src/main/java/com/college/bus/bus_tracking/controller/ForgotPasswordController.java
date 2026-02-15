@@ -77,6 +77,7 @@ public class ForgotPasswordController {
             client.setResetTokenExpiry(expiry);
             clientRepository.save(client);
             response.put("resetLink", "reset-password.html?token=" + token);
+            response.put("userEmail", client.getEmail());
             return ResponseEntity.ok(response);
         }
 
@@ -93,6 +94,7 @@ public class ForgotPasswordController {
             driver.setResetTokenExpiry(expiry);
             driverRepository.save(driver);
             response.put("resetLink", "reset-password.html?token=" + token);
+            response.put("userEmail", driver.getEmail());
             return ResponseEntity.ok(response);
         }
 

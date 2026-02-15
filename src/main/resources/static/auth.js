@@ -549,15 +549,15 @@ document.addEventListener("DOMContentLoaded", initFromUrl);
 // =========================================
 
 if (forgotPasswordBtn) {
-    forgotPasswordBtn.addEventListener('click', () => {
-        switchView('reset');
-    });
+  forgotPasswordBtn.addEventListener('click', () => {
+    switchView('reset');
+  });
 }
 
 if (cancelResetBtn) {
-    cancelResetBtn.addEventListener('click', () => {
-        switchView('signin');
-    });
+  cancelResetBtn.addEventListener('click', () => {
+    switchView('signin');
+  });
 }
 
 if (resetPasswordForm) {
@@ -592,37 +592,48 @@ if (resetPasswordForm) {
       console.log("[ForgotPW] Backend response:", data);
 
       if (response.ok && data.resetLink) {
+        // Use the email returned by the backend (crucial if identifier was a username)
+        const recipientEmail = data.userEmail || identifier;
+
         // Use the production URL for the reset link so it works everywhere
-        const prodBase =
-          "https://bus-tracking-master-production.up.railway.app";
+        const prodBase = "https://bus-tracking-master-production.up.railway.app";
         const fullLink = `${prodBase}/${data.resetLink}`;
         console.log("[ForgotPW] Reset link generated:", fullLink);
+        console.log(`[ForgotPW] Sending email to: ${recipientEmail}`);
 
-        await emailjs.send("service_0lkjpbj", "template_l7nz8ut", {
-          user_email: identifier, // This might be username or email, but template uses user_email
-          reset_link: fullLink,
-        });
+        try {
+          const emailResult = await emailjs.send("service_0lkjpbj", "template_l7nz8ut", {
+            user_email: recipientEmail,
+            reset_link: fullLink,
+          });
+          console.log("[ForgotPW] EmailJS Success:", emailResult);
 
-        showSuccess(
-          "A reset link has been sent to the email associated with this account!",
-        );
-        resetPasswordForm.reset();
+          showSuccess(
+            "A reset link has been sent to the email associated with this account!",
+          );
+          resetPasswordForm.reset();
 
-        // Switch back to signin after delay
-        setTimeout(() => {
-          cancelResetBtn.click();
-        }, 4000);
+          // Switch back to signin after delay
+          setTimeout(() => {
+            cancelResetBtn.click();
+          }, 4000);
+        } catch (emailErr) {
+          console.error("[ForgotPW] EmailJS Send Error:", emailErr);
+          showError(
+            `Email failed to send: ${emailErr.text || emailErr.message || "Unknown error"}. Status: ${emailErr.status || "N/A"}. Please contact admin.`,
+          );
+        }
       } else {
         // Backend always returns success message for security, but we know if it worked based on resetLink presence
         showSuccess(
-          "If an account exists, a reset link will be sent. (Note: In-memory DB resets on restart!)",
+          "If an account exists, a reset link will be sent. (Note: Database resets on restart if using H2!)",
         );
         resetPasswordForm.reset();
       }
     } catch (error) {
-      console.error("[ForgotPW] Error:", error);
+      console.error("[ForgotPW] Fetch Error:", error);
       showError(
-        `Failed to send reset link: ${error.message}. Check network connection.`,
+        `Server error: ${error.message}. Please check your connection and try again.`,
       );
     } finally {
       btn.classList.remove("btn-loading");
@@ -799,26 +810,23 @@ function getApiBaseUrl() {
   const host = window.location.hostname;
   const protocol = window.location.protocol;
 
-  // Default to Railway production URL as per user instruction
-  const productionUrl = "https://bus-tracking-master-production.up.railway.app";
-
-  // If we are already on the production domain, return empty string (relative calls)
-  if (host.includes("railway.app")) {
+  // If we are already on the production domain or a dev tunnel, use relative path
+  if (host.includes("railway.app") || host.includes(".devtunnels.ms")) {
     return "";
   }
 
-  // Capacitor / Local Testing
-  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    // If testing on Emulator and want local, user would need to change this,
-    // but user specifically said they use the production URL.
-    return productionUrl;
-  }
-
-  // Default to production for all other cases unless on localhost and user wants local
+  // Local testing
   if (host === "localhost" || host === "127.0.0.1") {
-    // You can change this to '' if you want to test against local backend
-    return productionUrl;
+    if (window.location.port) {
+      return `${protocol}//${host}:${window.location.port}`;
+    }
+    return ""; // Relative
   }
 
-  return productionUrl;
+  // Capacitor / Native
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    return "https://bus-tracking-master-production.up.railway.app";
+  }
+
+  return "";
 }
