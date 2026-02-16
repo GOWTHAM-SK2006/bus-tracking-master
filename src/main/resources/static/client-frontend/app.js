@@ -1038,24 +1038,16 @@ const SearchManager = {
   debounceTimer: null,
 
   shouldShowBus(bus) {
-    if (!state.searchFilter) return true;
+    if (!state.searchFilter) return false; // Hide all buses until user searches
     const q = state.searchFilter.toLowerCase();
 
-    // Check for direct matches
+    // Match only by bus number, name, or route — not individual stops
     const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(q);
     const matchesName = bus.busName && bus.busName.toLowerCase().includes(q);
     const matchesRoute =
       bus.routeName && bus.routeName.toLowerCase().includes(q);
 
-    // Check stops - explicitly ignore "college" to avoid generic matches
-    const matchesStop =
-      bus.stops &&
-      bus.stops.some(
-        (stop) =>
-          stop.toLowerCase().includes(q) && stop.toLowerCase() !== "college",
-      );
-
-    return matchesNo || matchesName || matchesRoute || matchesStop;
+    return matchesNo || matchesName || matchesRoute;
   },
 
   initWelcomeSearch() {
