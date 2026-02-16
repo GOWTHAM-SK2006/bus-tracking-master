@@ -188,6 +188,7 @@ const DOM = {
 
   // Lists
   busGrid: document.getElementById("busGrid"),
+  busFilterInput: document.getElementById("busFilterInput"),
   totalBuses: document.getElementById("totalBuses"),
   busesEmpty: document.getElementById("busesEmpty"),
 
@@ -1146,6 +1147,9 @@ const SearchManager = {
       // Update filter state immediately
       state.searchFilter = e.target.value.trim();
 
+      // Sync with bus list filter input
+      if (DOM.busFilterInput) DOM.busFilterInput.value = e.target.value;
+
       // Re-apply filter to map markers
       this.refreshFilteredView();
 
@@ -1204,7 +1208,7 @@ const SearchManager = {
     this.debounceTimer = setTimeout(() => {
       const q = query.toLowerCase().trim();
 
-      // Trigger WebSocket search for discovery
+      // Trigger WebSocket search for bus discovery
       if (
         WebSocketManager.socket &&
         WebSocketManager.socket.readyState === WebSocket.OPEN
@@ -1212,12 +1216,6 @@ const SearchManager = {
         WebSocketManager.socket.send(
           JSON.stringify({
             type: "BUS_NUMBER",
-            value: query,
-          }),
-        );
-        WebSocketManager.socket.send(
-          JSON.stringify({
-            type: "BUS_STOP",
             value: query,
           }),
         );
@@ -1230,45 +1228,23 @@ const SearchManager = {
   async performSearch(query, context) {
     const results = [];
 
-    // 1. Local Search (Buses)
+    // Local Search (Buses only - by bus number, name, or route)
     state.buses.forEach((bus, busId) => {
-      const matchesNo = bus.busNo.toLowerCase().includes(query);
-      const matchesName = bus.busName.toLowerCase().includes(query);
-      const matchesStop =
-        bus.stops &&
-        bus.stops.some(
-          (stop) =>
-            stop.toLowerCase().includes(query) &&
-            stop.toLowerCase() !== "college",
-        );
+      const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(query);
+      const matchesName =
+        bus.busName && bus.busName.toLowerCase().includes(query);
+      const matchesRoute =
+        bus.routeName && bus.routeName.toLowerCase().includes(query);
 
-      if (matchesNo || matchesName || matchesStop) {
+      if (matchesNo || matchesName || matchesRoute) {
         results.push({ type: "bus", ...bus });
       }
     });
 
-    // 2. Clear previous results before adding remote ones
-    this.renderResults(results, true, context);
-
-    // 3. Remote Search (Bus Stops from Drivers)
-    try {
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/bus-stops/search?query=${encodeURIComponent(query)}`,
-      );
-      const data = await response.json();
-
-      if (data.success && data.busStops.length > 0) {
-        const stopResults = data.busStops.map((stop) => ({
-          type: "stop",
-          name: stop,
-        }));
-        // Append stops to results
-        this.renderResults([...results, ...stopResults], false, context);
-      } else if (results.length === 0) {
-        this.renderNoResults(context);
-      }
-    } catch (err) {
-      console.error("[Search] Remote search failed:", err);
+    if (results.length > 0) {
+      this.renderResults(results, true, context);
+    } else {
+      this.renderNoResults(context);
     }
   },
 
@@ -1309,76 +1285,30 @@ const SearchManager = {
 
     container.innerHTML = results
       .map((result) => {
-        if (result.type === "bus") {
-          return `
+        return `
                     <div class="dropdown-item" data-type="bus" data-id="${result.busId}">
                         <div class="dropdown-item-header">
                             <span class="dropdown-bus-number">${result.busNo}</span>
                             <span class="dropdown-bus-name">${result.busName}</span>
                         </div>
-                        <div class="dropdown-stops">
-                            ${
-                              result.stops
-                                ? result.stops
-                                    .slice(0, 4)
-                                    .map(
-                                      (stop) =>
-                                        `<span class="dropdown-stop-tag">${stop}</span>`,
-                                    )
-                                    .join("")
-                                : ""
-                            }
-                        </div>
+                        ${result.routeName ? `<div class="dropdown-route">${result.routeName}</div>` : ""}
                     </div>
                 `;
-        } else {
-          return `
-                    <div class="dropdown-item stop-item" data-type="stop" data-name="${result.name}" 
-                         style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4);">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="background: var(--primary-100); color: var(--primary-600); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 0.95rem;">${result.name}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-secondary);">Available Bus Stop</div>
-                            </div>
-                        </div>
-                        <button class="save-stop-btn" data-name="${result.name}" 
-                                style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                            Save Stop
-                        </button>
-                    </div>
-                `;
-        }
       })
       .join("");
 
     // Event listeners for results
     container.querySelectorAll(".dropdown-item").forEach((item) => {
-      if (item.dataset.type === "bus") {
-        item.addEventListener("click", () => {
-          if (context === "welcome") {
-            const bus = state.buses.get(item.dataset.id);
-            if (bus) {
-              DOM.welcomeSearchInput.value = bus.busNo;
-              this.applyWelcomeFilter(bus.busNo);
-            }
-          } else {
-            this.selectBusResult(item.dataset.id);
+      item.addEventListener("click", () => {
+        if (context === "welcome") {
+          const bus = state.buses.get(item.dataset.id);
+          if (bus) {
+            DOM.welcomeSearchInput.value = bus.busName || bus.busNo;
+            this.applyWelcomeFilter(bus.busName || bus.busNo);
           }
-        });
-      }
-    });
-
-    // Event listeners for Save Stop buttons
-    container.querySelectorAll(".save-stop-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.saveBusStop(btn.dataset.name);
+        } else {
+          this.selectBusResult(item.dataset.id);
+        }
       });
     });
 
@@ -1659,6 +1589,17 @@ async function init() {
     SearchManager.initWelcomeSearch(); // Activate welcome prompt
     initMobileMenu();
     initTomTomServices();
+
+    // Wire up bus list filter input
+    if (DOM.busFilterInput) {
+      DOM.busFilterInput.addEventListener("input", (e) => {
+        state.searchFilter = e.target.value.trim();
+        // Sync with header search bar
+        if (DOM.searchInput) DOM.searchInput.value = e.target.value;
+        DOM.searchClear.classList.toggle("hidden", !e.target.value);
+        SearchManager.refreshFilteredView();
+      });
+    }
 
     DOM.panelCloseBtn.addEventListener("click", (e) => {
       console.log("[App] Close Button Clicked! Event:", e);
