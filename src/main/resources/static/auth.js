@@ -523,7 +523,7 @@ function initFromUrl() {
 
 // Initialize EmailJS
 (function () {
-  emailjs.init("CyQQT9cI3LkDf5s8A"); // Use provided public key
+  emailjs.init("zPqcxrs3GglnRajzv"); // Use provided public key
 })();
 
 // Check for URL parameters (e.g., ?role=driver&tab=signup)
@@ -602,7 +602,7 @@ if (resetPasswordForm) {
         console.log(`[ForgotPW] Sending email to: ${recipientEmail}`);
 
         try {
-          const emailResult = await emailjs.send("service_0lkjpbj", "template_l7nz8ut", {
+          const emailResult = await emailjs.send("service_yvlwylr", "template_d2ifraf", {
             user_email: recipientEmail,
             reset_link: fullLink,
           });
