@@ -134,6 +134,11 @@ public class DriverHandler extends TextWebSocketHandler {
                 return;
             }
 
+            // Store busNumber in session for disconnection handling
+            if (busNumber != null) {
+                session.getAttributes().put("BUS_NUMBER", busNumber);
+            }
+
             if (node.has("action") && "GPS_ACTIVE".equals(node.get("action").asText())) {
                 System.out.println("[DriverHandler] Processing GPS_ACTIVE action for bus: " + busNumber);
                 BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
@@ -171,6 +176,30 @@ public class DriverHandler extends TextWebSocketHandler {
         } catch (Exception e) {
             System.err.println("[DriverHandler] ERROR processing message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status)
+            throws Exception {
+        String busNumber = (String) session.getAttributes().get("BUS_NUMBER");
+        if (busNumber != null) {
+            System.out.println("[DriverHandler] Connection closed for bus: " + busNumber);
+
+            // Update memory
+            BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
+            if (bus != null) {
+                bus.setStatus("STOPPED");
+            }
+
+            // Update DB
+            repository.findByBusNumber(busNumber).ifPresent(entity -> {
+                entity.setStatus("STOPPED");
+                repository.save(entity);
+            });
+
+            // Broadcast update
+            userHandler.broadcastUpdate();
         }
     }
 }
