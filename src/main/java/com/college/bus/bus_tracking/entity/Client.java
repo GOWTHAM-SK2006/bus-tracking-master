@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import lombok.Data;
 
 @Entity
@@ -31,8 +30,7 @@ public class Client {
     @Column(nullable = false)
     private Boolean phoneVerified = false;
 
-    @Lob
-    @Column(length = 1000000)
+    @Column(columnDefinition = "TEXT")
     private String profilePicture; // Base64 encoded image
 
     private String savedBusStop;
