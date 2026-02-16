@@ -549,14 +549,14 @@ document.addEventListener("DOMContentLoaded", initFromUrl);
 // =========================================
 
 if (forgotPasswordBtn) {
-  forgotPasswordBtn.addEventListener('click', () => {
-    switchView('reset');
+  forgotPasswordBtn.addEventListener("click", () => {
+    switchView("reset");
   });
 }
 
 if (cancelResetBtn) {
-  cancelResetBtn.addEventListener('click', () => {
-    switchView('signin');
+  cancelResetBtn.addEventListener("click", () => {
+    switchView("signin");
   });
 }
 
@@ -596,16 +596,21 @@ if (resetPasswordForm) {
         const recipientEmail = data.userEmail || identifier;
 
         // Use the production URL for the reset link so it works everywhere
-        const prodBase = "https://bus-tracking-master-production.up.railway.app";
+        const prodBase =
+          "https://bus-tracking-master-production.up.railway.app";
         const fullLink = `${prodBase}/${data.resetLink}`;
         console.log("[ForgotPW] Reset link generated:", fullLink);
         console.log(`[ForgotPW] Sending email to: ${recipientEmail}`);
 
         try {
-          const emailResult = await emailjs.send("service_yvlwylr", "template_d2ifraf", {
-            user_email: recipientEmail,
-            reset_link: fullLink,
-          });
+          const emailResult = await emailjs.send(
+            "service_yvlwylr",
+            "template_d2ifraf",
+            {
+              user_email: recipientEmail,
+              reset_link: fullLink,
+            },
+          );
           console.log("[ForgotPW] EmailJS Success:", emailResult);
 
           showSuccess(
@@ -809,23 +814,34 @@ function getWebSocketUrl(endpoint) {
 function getApiBaseUrl() {
   const host = window.location.hostname;
   const protocol = window.location.protocol;
+  const port = window.location.port;
 
-  // If we are already on the production domain or a dev tunnel, use relative path
-  if (host.includes("railway.app") || host.includes(".devtunnels.ms")) {
+  // Capacitor / Native — must be checked FIRST because Android serves from localhost
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    return "https://bus-tracking-master-production.up.railway.app";
+  }
+
+  // File protocol fallback (local testing)
+  if (protocol === "file:") {
+    return "http://localhost:8080";
+  }
+
+  // If we are already on the production domain, use relative path
+  if (host.includes("railway.app")) {
     return "";
   }
 
-  // Local testing
-  if (host === "localhost" || host === "127.0.0.1") {
-    if (window.location.port) {
-      return `${protocol}//${host}:${window.location.port}`;
+  // VS Code Dev Tunnels
+  if (host.includes(".devtunnels.ms")) {
+    const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+    if (tunnelMatch) {
+      return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
     }
-    return ""; // Relative
   }
 
-  // Capacitor / Native
-  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return "https://bus-tracking-master-production.up.railway.app";
+  // Local testing with port
+  if (port && port !== "80" && port !== "443") {
+    return `${protocol}//${host}:${port}`;
   }
 
   return "";
