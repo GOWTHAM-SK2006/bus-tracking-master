@@ -1058,6 +1058,24 @@ const SearchManager = {
   },
 
   initWelcomeSearch() {
+    // If the user already has a saved bus stop, auto-apply it and skip the modal
+    const clientData = sessionStorage.getItem("client");
+    if (clientData) {
+      try {
+        const client = JSON.parse(clientData);
+        if (client.savedBusStop) {
+          console.log(
+            "[Search] Auto-applying saved bus stop:",
+            client.savedBusStop,
+          );
+          this.applyWelcomeFilter(client.savedBusStop);
+          return; // Skip welcome modal
+        }
+      } catch (e) {
+        console.error("[Search] Failed to parse client data:", e);
+      }
+    }
+
     if (DOM.welcomeSearchModal) {
       DOM.welcomeSearchModal.style.display = "flex";
 
@@ -1143,12 +1161,23 @@ const SearchManager = {
     });
 
     DOM.searchClear.addEventListener("click", () => {
-      DOM.searchInput.value = "";
-      state.searchFilter = ""; // Clear filter
-      this.refreshFilteredView(); // Reset view without re-mapping
+      // Reset to saved bus stop filter if available, otherwise show all
+      const clientData = sessionStorage.getItem("client");
+      let defaultFilter = "";
+      if (clientData) {
+        try {
+          const client = JSON.parse(clientData);
+          if (client.savedBusStop) defaultFilter = client.savedBusStop;
+        } catch (e) {
+          /* ignore */
+        }
+      }
+      DOM.searchInput.value = defaultFilter;
+      state.searchFilter = defaultFilter;
+      this.refreshFilteredView();
 
       DOM.searchDropdown.classList.remove("active");
-      DOM.searchClear.classList.add("hidden");
+      DOM.searchClear.classList.toggle("hidden", !defaultFilter);
       DOM.searchInput.focus();
     });
 
@@ -1390,8 +1419,12 @@ const SearchManager = {
         sessionStorage.setItem("client", JSON.stringify(data.client));
         showToast(`Saved ${stopName} as your original bus stop!`, "success");
         DOM.searchDropdown.classList.remove("active");
-        DOM.searchInput.value = "";
-        DOM.searchClear.classList.add("hidden");
+
+        // Auto-apply saved stop as filter
+        DOM.searchInput.value = stopName;
+        state.searchFilter = stopName;
+        DOM.searchClear.classList.toggle("hidden", !stopName);
+        this.refreshFilteredView();
 
         // Refresh profile display if needed
         if (DOM.usernameDisplay) {
