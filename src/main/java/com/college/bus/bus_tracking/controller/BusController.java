@@ -1,9 +1,7 @@
 package com.college.bus.bus_tracking.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import com.college.bus.bus_tracking.repository.BusRepository;
 import com.college.bus.bus_tracking.store.BusSessionStore;
 import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 import com.college.bus.bus_tracking.model.BusData;
@@ -13,9 +11,6 @@ import java.util.*;
 @RequestMapping("/api/bus")
 @CrossOrigin(origins = "*")
 public class BusController {
-
-    @Autowired
-    private BusRepository busRepository;
 
     /**
      * Get all buses
@@ -115,8 +110,7 @@ public class BusController {
             Map<String, Object> userUpdate = new HashMap<>();
             userUpdate.put("type", "BUS_STATUS_UPDATE");
             userUpdate.put("bus", busData);
-            // UserWebSocketHandler.broadcastToUsers(userUpdate); // TODO: Implement
-            // UserWebSocketHandler
+            // User broadcast not yet implemented
 
             Map<String, Object> adminUpdate = new HashMap<>();
             adminUpdate.put("type", "BUS_STATUS_UPDATE");

@@ -2,7 +2,6 @@ package com.college.bus.bus_tracking.controller;
 
 import com.college.bus.bus_tracking.entity.Client;
 import com.college.bus.bus_tracking.service.ClientService;
-import com.college.bus.bus_tracking.service.SystemSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +17,6 @@ public class ClientController {
 
     @Autowired
     private ClientService clientService;
-
-    @Autowired
-    private SystemSettingsService systemSettingsService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Client client) {

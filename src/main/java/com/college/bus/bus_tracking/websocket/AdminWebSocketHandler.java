@@ -33,6 +33,7 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         System.out.println("[Admin WS] Received: " + payload);
 
         try {
+            @SuppressWarnings("unchecked")
             Map<String, Object> data = objectMapper.readValue(payload, Map.class);
             String type = (String) data.get("type");
 
