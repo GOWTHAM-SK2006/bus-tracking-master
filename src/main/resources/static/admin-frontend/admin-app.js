@@ -1036,11 +1036,81 @@ function updateToggleUI(isEnabled) {
   }
 }
 
+function showConfirmDialog({
+  title,
+  message,
+  icon,
+  iconBg,
+  btnText,
+  btnColor,
+  onConfirm,
+}) {
+  let modal = document.getElementById("confirmModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "confirmModal";
+    modal.innerHTML = `
+      <div style="background:#1e1e2e; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:28px 24px; max-width:380px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:modalPop 0.25s ease;">
+        <div id="confirmIcon" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:28px;"></div>
+        <h3 id="confirmTitle" style="color:#fff; font-size:1.15rem; font-weight:700; margin-bottom:8px;"></h3>
+        <p id="confirmMessage" style="color:#a1a1aa; font-size:0.9rem; line-height:1.5; margin-bottom:24px;"></p>
+        <div style="display:flex; gap:12px;">
+          <button id="confirmCancel" style="flex:1; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#fff; font-weight:600; cursor:pointer; transition:all 0.2s;">Cancel</button>
+          <button id="confirmAction" style="flex:1; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer; transition:all 0.2s;"></button>
+        </div>
+      </div>`;
+    Object.assign(modal.style, {
+      display: "none",
+      position: "fixed",
+      inset: "0",
+      zIndex: "9999",
+      background: "rgba(0,0,0,0.55)",
+      backdropFilter: "blur(4px)",
+      alignItems: "center",
+      justifyContent: "center",
+    });
+    const style = document.createElement("style");
+    style.textContent =
+      "@keyframes modalPop { from { opacity:0; transform:scale(0.9) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } } #confirmCancel:hover { background:rgba(255,255,255,0.1); }";
+    document.head.appendChild(style);
+    document.body.appendChild(modal);
+  }
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmMessage").textContent = message;
+  document.getElementById("confirmIcon").textContent = icon;
+  document.getElementById("confirmIcon").style.background = iconBg;
+  const actionBtn = document.getElementById("confirmAction");
+  actionBtn.textContent = btnText;
+  actionBtn.style.background = btnColor;
+  actionBtn.style.color = "#fff";
+  modal.style.display = "flex";
+  document.getElementById("confirmCancel").onclick = () => {
+    modal.style.display = "none";
+  };
+  actionBtn.onclick = () => {
+    modal.style.display = "none";
+    onConfirm();
+  };
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  };
+}
+
 function adminLogout() {
-  sessionStorage.removeItem("admin");
-  sessionStorage.removeItem("adminEmail");
-  if (WebSocketManager.socket) WebSocketManager.socket.close();
-  window.location.href = "admin-login.html";
+  showConfirmDialog({
+    title: "Logout",
+    message: "Are you sure you want to logout from the admin panel?",
+    icon: "🚪",
+    iconBg: "rgba(251, 146, 60, 0.15)",
+    btnText: "Logout",
+    btnColor: "#f97316",
+    onConfirm: () => {
+      sessionStorage.removeItem("admin");
+      sessionStorage.removeItem("adminEmail");
+      if (WebSocketManager.socket) WebSocketManager.socket.close();
+      window.location.href = "admin-login.html";
+    },
+  });
 }
 
 function exportBusReport() {
