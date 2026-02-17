@@ -5,6 +5,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.college.bus.bus_tracking.store.BusSessionStore;
+import com.college.bus.bus_tracking.model.BusData;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -25,6 +27,23 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         welcome.put("message", "Connected to Admin WebSocket");
         welcome.put("timestamp", System.currentTimeMillis());
         session.sendMessage(new TextMessage(objectMapper.writeValueAsString(welcome)));
+
+        // Send all currently registered buses immediately
+        List<BusData> currentBuses = new ArrayList<>();
+        for (BusData bus : BusSessionStore.BUS_MAP.values()) {
+            if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
+                currentBuses.add(bus);
+            }
+        }
+        if (!currentBuses.isEmpty()) {
+            Map<String, Object> busUpdate = new HashMap<>();
+            busUpdate.put("type", "BUS_UPDATE");
+            busUpdate.put("buses", currentBuses);
+            busUpdate.put("source", "InitialLoad");
+            busUpdate.put("timestamp", System.currentTimeMillis());
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(busUpdate)));
+            System.out.println("[Admin WS] Sent " + currentBuses.size() + " initial buses to admin: " + session.getId());
+        }
     }
 
     @Override

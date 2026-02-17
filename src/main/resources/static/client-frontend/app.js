@@ -91,7 +91,7 @@ const CONFIG = {
 
   WEBSOCKET_ENABLED: true,
   DEMO_MODE: false,
-  UPDATE_INTERVAL: 500, // Faster refresh rate
+  UPDATE_INTERVAL: 2000, // Reduce polling frequency for performance
   STALE_THRESHOLD: 5000, // 5 seconds of no data = Inactive
   RECONNECT_TIMEOUT: 5000,
   RECONNECT_MAX_ATTEMPTS: 10,
@@ -169,7 +169,7 @@ const DOM = {
   // Removed traffic and route toggles
 
   // Tabs
-  tabBtns: document.querySelectorAll(".tab-btn"),
+  tabBtns: document.querySelectorAll(".bottom-nav-btn"),
   tabContents: document.querySelectorAll(".tab-content"),
 
   // Map
@@ -226,6 +226,12 @@ const MapManager = {
       zoom: CONFIG.MAP_ZOOM,
       minZoom: CONFIG.MAP_MIN_ZOOM,
       maxZoom: CONFIG.MAP_MAX_ZOOM,
+      fadeDuration: 0,
+      renderWorldCopies: false,
+      attributionControl: false,
+      touchPitch: false,
+      maxTileCacheSize: 200,
+      refreshExpiredTiles: false,
     });
 
     // Add navigation controls
@@ -1401,7 +1407,7 @@ const TabManager = {
       }
     }
 
-    document.querySelector(".nav-tabs").classList.remove("active"); // Close mobile menu
+    // Bottom nav doesn't need mobile menu toggle
   },
 };
 
@@ -1551,9 +1557,7 @@ function showToast(message, type = "info") {
 // Mobile Menu
 // =========================================
 function initMobileMenu() {
-  DOM.mobileMenuBtn.addEventListener("click", () => {
-    document.querySelector(".nav-tabs").classList.toggle("active");
-  });
+  // Bottom nav bar is always visible, no mobile menu needed
 }
 
 // =========================================

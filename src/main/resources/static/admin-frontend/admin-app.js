@@ -96,7 +96,7 @@ const DOM = {
 
   // Navigation
   get tabBtns() {
-    return document.querySelectorAll(".tab-btn");
+    return document.querySelectorAll(".bottom-nav-btn");
   },
 
   // Panels
@@ -198,7 +198,7 @@ const MobileMenuManager = {
     });
 
     // Close when a tab is clicked
-    const tabs = document.querySelectorAll(".tab-btn");
+    const tabs = document.querySelectorAll(".bottom-nav-btn");
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
         header.classList.remove("menu-open");
@@ -883,6 +883,9 @@ const WebSocketManager = {
         this.reconnectAttempts = 0;
         updateConnectionBadge(true);
         showToast("Connected to system", "success");
+
+        // Fetch all registered buses via REST as fallback
+        this.fetchInitialBuses();
       };
 
       this.socket.onmessage = (event) => {
@@ -918,6 +921,25 @@ const WebSocketManager = {
       const delay = 2000 * this.reconnectAttempts;
       console.log(`[WS] Reconnecting in ${delay}ms...`);
       setTimeout(() => this.connect(), delay);
+    }
+  },
+
+  async fetchInitialBuses() {
+    try {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/bus/all`);
+      if (response.ok) {
+        const buses = await response.json();
+        if (buses && buses.length > 0) {
+          console.log(`[WS] Fetched ${buses.length} initial buses via REST`);
+          BusManager.handleBusData(buses);
+        }
+      }
+    } catch (error) {
+      console.warn(
+        "[WS] Initial bus fetch failed (will rely on WebSocket):",
+        error,
+      );
     }
   },
 };

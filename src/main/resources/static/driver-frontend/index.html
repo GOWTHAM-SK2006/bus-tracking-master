@@ -1,381 +1,554 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Bus Tracking Driver Panel - Fleet Management System">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Bus Tracking Driver Panel - Fleet Management System"
+    />
     <title>Bus Tracking – Driver Panel</title>
 
     <!-- Google Fonts - Professional Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="../logo.png">
-</head>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="../logo.png" />
+  </head>
 
-<body>
+  <body>
     <!-- Top Navigation Bar -->
     <header class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-brand">
-                <img src="../logo.png" alt="DYGON" style="height: 80px; width: auto;">
-            </div>
-
-            <!-- Navigation Tabs -->
-            <nav class="navbar-nav" id="mainNavbarNav" style="display: none;">
-                <button class="nav-tab" data-tab="dashboard">
-                    Dashboard
-                </button>
-                <button class="nav-tab" data-tab="tracking-status">
-                    Tracking Status
-                </button>
-                <button class="nav-tab" data-tab="profile">
-                    Profile
-                </button>
-            </nav>
-
-            <!-- Actions -->
-            <div class="navbar-actions">
-                <!-- Connection Indicator -->
-                <div class="connection-indicator" id="connectionIndicator">
-                    <span class="indicator-dot"></span>
-                    <span class="indicator-text">Offline</span>
-                </div>
-                <button class="btn btn-sm btn-danger" id="logoutBtn">
-                    Logout
-                </button>
-            </div>
+      <div class="navbar-container">
+        <div class="navbar-brand">
+          <img
+            src="../logo.png"
+            alt="DYGON"
+            style="height: 45px; width: auto"
+          />
         </div>
+
+        <!-- Navigation Tabs moved to bottom bar -->
+
+        <!-- Actions -->
+        <div class="navbar-actions">
+          <!-- Connection Indicator -->
+          <div class="connection-indicator" id="connectionIndicator">
+            <span class="indicator-dot"></span>
+            <span class="indicator-text">Offline</span>
+          </div>
+          <button class="btn btn-sm btn-danger" id="logoutBtn">Logout</button>
+        </div>
+      </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="content-container">
+      <div class="content-container">
+        <!-- Setup Panel (Initial View after Login) -->
+        <section class="tab-panel active" id="setup-panel">
+          <div class="page-header">
+            <h1 class="page-title">Session Setup</h1>
+            <p class="page-description">
+              Enter your current details to start tracking
+            </p>
+          </div>
 
-            <!-- Setup Panel (Initial View after Login) -->
-            <section class="tab-panel active" id="setup-panel">
-                <div class="page-header">
-                    <h1 class="page-title">Session Setup</h1>
-                    <p class="page-description">Enter your current details to start tracking</p>
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Driver & Vehicle Configuration</h2>
+            </div>
+            <div class="section-body">
+              <form id="setupForm" class="form">
+                <div class="form-row form-row-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="setupName"
+                      >Full Name <span class="required">*</span></label
+                    >
+                    <input
+                      type="text"
+                      id="setupName"
+                      class="form-input"
+                      placeholder="Enter your name"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="setupPhone"
+                      >Phone Number <span class="required">*</span></label
+                    >
+                    <input
+                      type="tel"
+                      id="setupPhone"
+                      class="form-input"
+                      placeholder="Enter your phone"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Driver & Vehicle Configuration</h2>
-                    </div>
-                    <div class="section-body">
-                        <form id="setupForm" class="form">
-                            <div class="form-row form-row-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="setupName">Full Name <span
-                                            class="required">*</span></label>
-                                    <input type="text" id="setupName" class="form-input" placeholder="Enter your name"
-                                        required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="setupPhone">Phone Number <span
-                                            class="required">*</span></label>
-                                    <input type="tel" id="setupPhone" class="form-input" placeholder="Enter your phone"
-                                        required>
-                                </div>
-                            </div>
+                <hr
+                  style="
+                    margin: var(--space-6) 0;
+                    border: 0;
+                    border-top: 1px solid var(--border-color);
+                  "
+                />
 
-                            <hr style="margin: var(--space-6) 0; border: 0; border-top: 1px solid var(--border-color);">
-
-                            <div class="form-group">
-                                <label class="form-label" for="setupBusNumber">Bus Number <span
-                                        class="required">*</span></label>
-                                <input type="text" id="setupBusNumber" class="form-input" placeholder="e.g. MH12AB1234"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="setupBusName">Bus/Route Name <span
-                                        class="required">*</span></label>
-                                <input type="text" id="setupBusName" class="form-input" placeholder="e.g. Express Route"
-                                    required>
-                            </div>
-
-                            <div class="form-actions" style="margin-top: var(--space-6);">
-                                <button type="submit" class="btn btn-warning btn-lg" style="width: 100%;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polygon points="5 3 19 12 5 21 5 3" />
-                                    </svg>
-                                    Start Tracking Session
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Dashboard Tab -->
-            <section class="tab-panel" id="dashboard-panel">
-                <div class="page-header">
-                    <h1 class="page-title">Dashboard</h1>
-                    <p class="page-description">Overview of tracking status and quick controls</p>
+                <div class="form-group">
+                  <label class="form-label" for="setupBusNumber"
+                    >Bus Number <span class="required">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="setupBusNumber"
+                    class="form-input"
+                    placeholder="e.g. MH12AB1234"
+                    required
+                  />
                 </div>
 
-                <div class="dashboard-grid">
-                    <!-- Quick Status Cards -->
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <span class="status-card-title">GPS Status</span>
-                        </div>
-                        <div class="status-card-body">
-                            <span class="status-value" id="dashGpsStatus">Inactive</span>
-                            <span class="status-label">Current State</span>
-                        </div>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <span class="status-card-title">Tracking</span>
-                        </div>
-                        <div class="status-card-body">
-                            <span class="status-value" id="dashTrackingStatus">Stopped</span>
-                            <span class="status-label">Update Status</span>
-                        </div>
-                    </div>
-
-
-
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <span class="status-card-title">Last Update</span>
-                        </div>
-                        <div class="status-card-body">
-                            <span class="status-value" id="dashLastUpdate">--:--:--</span>
-                            <span class="status-label">Timestamp</span>
-                        </div>
-                    </div>
+                <div class="form-group">
+                  <label class="form-label" for="setupBusName"
+                    >Bus/Route Name <span class="required">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="setupBusName"
+                    class="form-input"
+                    placeholder="e.g. Express Route"
+                    required
+                  />
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Quick Actions</h2>
-                    </div>
-                    <div class="section-body">
-                        <div class="action-buttons">
-                            <button class="btn btn-warning" id="dashStartBtn" disabled>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polygon points="5 3 19 12 5 21 5 3" />
-                                </svg>
-                                Start Tracking
-                            </button>
-                            <button class="btn btn-success" id="dashStopBtn" disabled>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="6" y="6" width="12" height="12" />
-                                </svg>
-                                Stop Tracking
-                            </button>
-                        </div>
-                        <p class="help-text" id="dashHelpText">Please update your profile information to enable
-                            tracking.</p>
-                    </div>
+                <div class="form-actions" style="margin-top: var(--space-6)">
+                  <button
+                    type="submit"
+                    class="btn btn-warning btn-lg"
+                    style="width: 100%"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    Start Tracking Session
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dashboard Tab -->
+        <section class="tab-panel" id="dashboard-panel">
+          <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-description">
+              Overview of tracking status and quick controls
+            </p>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Quick Status Cards -->
+            <div class="status-card">
+              <div class="status-card-header">
+                <span class="status-card-title">GPS Status</span>
+              </div>
+              <div class="status-card-body">
+                <span class="status-value" id="dashGpsStatus">Inactive</span>
+                <span class="status-label">Current State</span>
+              </div>
+            </div>
+
+            <div class="status-card">
+              <div class="status-card-header">
+                <span class="status-card-title">Tracking</span>
+              </div>
+              <div class="status-card-body">
+                <span class="status-value" id="dashTrackingStatus"
+                  >Stopped</span
+                >
+                <span class="status-label">Update Status</span>
+              </div>
+            </div>
+
+            <div class="status-card">
+              <div class="status-card-header">
+                <span class="status-card-title">Last Update</span>
+              </div>
+              <div class="status-card-body">
+                <span class="status-value" id="dashLastUpdate">--:--:--</span>
+                <span class="status-label">Timestamp</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Quick Actions</h2>
+            </div>
+            <div class="section-body">
+              <div class="action-buttons">
+                <button class="btn btn-warning" id="dashStartBtn" disabled>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  Start Tracking
+                </button>
+                <button class="btn btn-success" id="dashStopBtn" disabled>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="6" y="6" width="12" height="12" />
+                  </svg>
+                  Stop Tracking
+                </button>
+              </div>
+              <p class="help-text" id="dashHelpText">
+                Please update your profile information to enable tracking.
+              </p>
+            </div>
+          </div>
+
+          <!-- Driver & Vehicle Information -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Current Information</h2>
+              <button
+                class="btn btn-sm btn-secondary"
+                onclick="NavigationController.switchTab('profile')"
+              >
+                Update in Profile
+              </button>
+            </div>
+            <div class="section-body">
+              <div class="details-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Driver Name</span>
+                  <span class="detail-value" id="dashDriverName">--</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Driver Phone</span>
+                  <span class="detail-value" id="dashDriverPhone">--</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Bus Number</span>
+                  <span class="detail-value" id="dashBusNumber">--</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Bus/Route Name</span>
+                  <span class="detail-value" id="dashBusName">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tracking Status Tab -->
+        <section class="tab-panel" id="tracking-status-panel">
+          <div class="page-header">
+            <h1 class="page-title">Tracking Status</h1>
+            <p class="page-description">
+              Monitor GPS tracking and data transmission status
+            </p>
+          </div>
+
+          <!-- Tracking Controls -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Tracking Controls</h2>
+            </div>
+            <div class="section-body">
+              <div class="control-panel">
+                <div class="control-status">
+                  <div class="status-indicator" id="trackingIndicator">
+                    <span class="indicator-ring"></span>
+                    <span class="indicator-core"></span>
+                  </div>
+                  <div class="status-details">
+                    <span class="status-main" id="trackingStateText"
+                      >Not Started</span
+                    >
+                    <span class="status-sub" id="trackingStateDesc"
+                      >Click Start to begin GPS tracking</span
+                    >
+                  </div>
+                </div>
+                <div class="control-buttons">
+                  <button
+                    class="btn btn-warning btn-lg"
+                    id="startTrackingBtn"
+                    disabled
+                  >
+                    Start Tracking
+                  </button>
+                  <button
+                    class="btn btn-success btn-lg"
+                    id="stopTrackingBtn"
+                    disabled
+                  >
+                    Stop Tracking
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPS Information -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">GPS Information</h2>
+              <span class="badge" id="gpsStatusBadge">Inactive</span>
+            </div>
+            <div class="section-body">
+              <div class="info-table">
+                <div class="info-row">
+                  <span class="info-key">GPS Status</span>
+                  <span class="info-value" id="gpsStatusValue"
+                    >Waiting for activation</span
+                  >
                 </div>
 
-                <!-- Driver & Vehicle Information -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Current Information</h2>
-                        <button class="btn btn-sm btn-secondary"
-                            onclick="NavigationController.switchTab('profile')">Update in Profile</button>
-                    </div>
-                    <div class="section-body">
-                        <div class="details-grid">
-                            <div class="detail-item">
-                                <span class="detail-label">Driver Name</span>
-                                <span class="detail-value" id="dashDriverName">--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Driver Phone</span>
-                                <span class="detail-value" id="dashDriverPhone">--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Bus Number</span>
-                                <span class="detail-value" id="dashBusNumber">--</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Bus/Route Name</span>
-                                <span class="detail-value" id="dashBusName">--</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="info-row">
+                  <span class="info-key">Last Updated</span>
+                  <span class="info-value" id="lastUpdatedValue">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-key">Driver Name</span>
+                  <span class="info-value" id="infoDriverName">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-key">Driver Phone</span>
+                  <span class="info-value" id="infoDriverPhone">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transmission Log -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Transmission Log</h2>
+              <button class="btn btn-sm btn-secondary" id="clearLogBtn">
+                Clear Log
+              </button>
+            </div>
+            <div class="section-body">
+              <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">
+                  <span class="log-time">--:--:--</span>
+                  <span class="log-message"
+                    >System initialized. Ready for tracking.</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Profile Tab -->
+        <section class="tab-panel" id="profile-panel">
+          <div class="page-header">
+            <h1 class="page-title">Profile</h1>
+            <p class="page-description">
+              Manage your personal and vehicle information
+            </p>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Driver Information</h2>
+            </div>
+            <div class="section-body">
+              <form id="profileForm" class="form">
+                <div class="form-row form-row-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="profileName"
+                      >Full Name</label
+                    >
+                    <input
+                      type="text"
+                      id="profileName"
+                      class="form-input"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="profilePhone"
+                      >Phone Number</label
+                    >
+                    <input
+                      type="tel"
+                      id="profilePhone"
+                      class="form-input"
+                      placeholder="Your phone"
+                    />
+                  </div>
                 </div>
 
+                <hr
+                  style="
+                    margin: var(--space-6) 0;
+                    border: 0;
+                    border-top: 1px solid var(--border-color);
+                  "
+                />
 
-            </section>
+                <h3
+                  style="
+                    margin-bottom: var(--space-4);
+                    font-size: var(--text-lg);
+                    font-weight: 600;
+                  "
+                >
+                  Vehicle Details
+                </h3>
 
-
-            <!-- Tracking Status Tab -->
-            <section class="tab-panel" id="tracking-status-panel">
-                <div class="page-header">
-                    <h1 class="page-title">Tracking Status</h1>
-                    <p class="page-description">Monitor GPS tracking and data transmission status</p>
+                <div class="form-group">
+                  <label class="form-label" for="profileBusNumber"
+                    >Bus Number</label
+                  >
+                  <input
+                    type="text"
+                    id="profileBusNumber"
+                    class="form-input"
+                    placeholder="Bus Registration Number"
+                  />
                 </div>
 
-                <!-- Tracking Controls -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Tracking Controls</h2>
-                    </div>
-                    <div class="section-body">
-                        <div class="control-panel">
-                            <div class="control-status">
-                                <div class="status-indicator" id="trackingIndicator">
-                                    <span class="indicator-ring"></span>
-                                    <span class="indicator-core"></span>
-                                </div>
-                                <div class="status-details">
-                                    <span class="status-main" id="trackingStateText">Not Started</span>
-                                    <span class="status-sub" id="trackingStateDesc">Click Start to begin GPS
-                                        tracking</span>
-                                </div>
-                            </div>
-                            <div class="control-buttons">
-                                <button class="btn btn-warning btn-lg" id="startTrackingBtn" disabled>
-                                    Start Tracking
-                                </button>
-                                <button class="btn btn-success btn-lg" id="stopTrackingBtn" disabled>
-                                    Stop Tracking
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                  <label class="form-label" for="profileBusName"
+                    >Bus/Route Name <span class="required">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="profileBusName"
+                    class="form-input"
+                    placeholder="e.g. Express Route"
+                    required
+                  />
                 </div>
 
-                <!-- GPS Information -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">GPS Information</h2>
-                        <span class="badge" id="gpsStatusBadge">Inactive</span>
-                    </div>
-                    <div class="section-body">
-                        <div class="info-table">
-                            <div class="info-row">
-                                <span class="info-key">GPS Status</span>
-                                <span class="info-value" id="gpsStatusValue">Waiting for activation</span>
-                            </div>
-
-                            <div class="info-row">
-                                <span class="info-key">Last Updated</span>
-                                <span class="info-value" id="lastUpdatedValue">--</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-key">Driver Name</span>
-                                <span class="info-value" id="infoDriverName">--</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-key">Driver Phone</span>
-                                <span class="info-value" id="infoDriverPhone">--</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-actions" style="margin-top: var(--space-6)">
+                  <button type="submit" class="btn btn-primary">
+                    Update Profile
+                  </button>
                 </div>
+              </form>
+            </div>
+          </div>
 
-                <!-- Transmission Log -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Transmission Log</h2>
-                        <button class="btn btn-sm btn-secondary" id="clearLogBtn">Clear Log</button>
-                    </div>
-                    <div class="section-body">
-                        <div class="log-container" id="logContainer">
-                            <div class="log-entry log-info">
-                                <span class="log-time">--:--:--</span>
-                                <span class="log-message">System initialized. Ready for tracking.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Profile Tab -->
-            <section class="tab-panel" id="profile-panel">
-                <div class="page-header">
-                    <h1 class="page-title">Profile</h1>
-                    <p class="page-description">Manage your personal and vehicle information</p>
-                </div>
-
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Driver Information</h2>
-                    </div>
-                    <div class="section-body">
-                        <form id="profileForm" class="form">
-                            <div class="form-row form-row-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="profileName">Full Name</label>
-                                    <input type="text" id="profileName" class="form-input" placeholder="Your name">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="profilePhone">Phone Number</label>
-                                    <input type="tel" id="profilePhone" class="form-input" placeholder="Your phone">
-                                </div>
-                            </div>
-
-                            <hr style="margin: var(--space-6) 0; border: 0; border-top: 1px solid var(--border-color);">
-
-                            <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight: 600;">
-                                Vehicle Details</h3>
-
-                            <div class="form-group">
-                                <label class="form-label" for="profileBusNumber">Bus Number</label>
-                                <input type="text" id="profileBusNumber" class="form-input"
-                                    placeholder="Bus Registration Number">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="profileBusName">Bus/Route Name <span
-                                        class="required">*</span></label>
-                                <input type="text" id="profileBusName" class="form-input"
-                                    placeholder="e.g. Express Route" required>
-                            </div>
-
-                            <div class="form-actions" style="margin-top: var(--space-6);">
-                                <button type="submit" class="btn btn-primary">Update Profile</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2 class="section-title">Account Security</h2>
-                    </div>
-                    <div class="section-body">
-                        <p class="help-text">You are logged in as <strong id="profileUsername">--</strong></p>
-                        <div style="display: flex; gap: var(--space-4); margin-top: var(--space-4);">
-                            <button class="btn btn-danger" onclick="logout()">Logout from Account</button>
-                            <button class="btn btn-outline-danger" id="deleteAccountBtn">Delete Account</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div>
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">Account Security</h2>
+            </div>
+            <div class="section-body">
+              <p class="help-text">
+                You are logged in as <strong id="profileUsername">--</strong>
+              </p>
+              <div
+                style="
+                  display: flex;
+                  gap: var(--space-4);
+                  margin-top: var(--space-4);
+                "
+              >
+                <button class="btn btn-danger" onclick="logout()">
+                  Logout from Account
+                </button>
+                <button class="btn btn-outline-danger" id="deleteAccountBtn">
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav" id="bottomNav" style="display: none">
+      <button class="bottom-nav-btn" data-tab="dashboard">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="9" rx="1" />
+          <rect x="14" y="3" width="7" height="5" rx="1" />
+          <rect x="14" y="12" width="7" height="9" rx="1" />
+          <rect x="3" y="16" width="7" height="5" rx="1" />
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="tracking-status">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <span>Tracking</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="profile">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Profile</span>
+      </button>
+    </nav>
 
     <!-- Alert Container -->
     <div class="alert-container" id="alertContainer"></div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-container">
-            <span class="footer-text">Bus Tracking System v1.0</span>
-            <span class="footer-separator">|</span>
-            <span class="footer-text">@2025 All Rights Reserved</span>
-        </div>
+      <div class="footer-container">
+        <span class="footer-text">Bus Tracking System v1.0</span>
+        <span class="footer-separator">|</span>
+        <span class="footer-text">@2025 All Rights Reserved</span>
+      </div>
     </footer>
 
     <!-- JavaScript -->
     <script src="driver.js"></script>
-</body>
-
+  </body>
 </html>

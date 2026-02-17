@@ -487,21 +487,67 @@
 
       let profilePictureBase64 = null;
 
+      // Compress image to reduce base64 size
+      function compressImage(file, maxWidth, quality) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+              const canvas = document.createElement("canvas");
+              let width = img.width;
+              let height = img.height;
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL("image/jpeg", quality));
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
       // Image Preview
       document
         .getElementById("imageUpload")
-        .addEventListener("change", function (e) {
+        .addEventListener("change", async function (e) {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              profilePictureBase64 = event.target.result;
-              const preview = document.getElementById("imagePreview");
-              preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
-            };
-            reader.readAsDataURL(file);
+            // Compress to max 300px width, 0.7 quality (typically <50KB)
+            const compressed = await compressImage(file, 300, 0.7);
+            profilePictureBase64 = compressed;
+            const preview = document.getElementById("imagePreview");
+            preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
           }
         });
+      
+      // Also improve error reporting in updateProfile
+      async function updateProfile(data) {
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/api/client/profile`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientId: client.id, ...data }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            sessionStorage.setItem("client", JSON.stringify(result.client));
+            return true;
+          }
+          showAlert(result.message || "Server rejected the update", "error");
+          return false;
+        } catch (err) {
+          console.error("Profile update error:", err);
+          showAlert("Update failed — check your connection and try again", "error");
+          return false;
+        }
+      }
 
       // Navigation
       const goToStep = (hideId, showId) => {
@@ -650,33 +696,12 @@
         }
       }
 
-      // Step 2 Actions
-      // Step 2 Actions (Removed as per request to skip directly to dashboard)
+      // Step 2 Actions\n      // Step 2 Actions (Removed as per request to skip directly to dashboard)
       /* 
         document.getElementById('savePhoneBtn').addEventListener('click', async () => {
              ... code removed ...
         }); 
         */
-
-      async function updateProfile(data) {
-        try {
-          const res = await fetch(`${getApiBaseUrl()}/api/client/profile`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ clientId: client.id, ...data }),
-          });
-          const result = await res.json();
-          if (result.success) {
-            sessionStorage.setItem("client", JSON.stringify(result.client));
-            return true;
-          }
-          showAlert(result.message, "error");
-          return false;
-        } catch {
-          showAlert("Update failed", "error");
-          return false;
-        }
-      }
 
       function showAlert(msg, type) {
         const container = document.getElementById("alertContainer");

@@ -143,7 +143,7 @@ const state = {
 // =========================================
 const DOM = {
   // Navigation
-  navTabs: document.querySelectorAll(".nav-tab"),
+  navTabs: document.querySelectorAll(".bottom-nav-btn"),
   tabPanels: document.querySelectorAll(".tab-panel"),
   connectionIndicator: document.getElementById("connectionIndicator"),
 
@@ -355,6 +355,9 @@ const SetupController = {
   finishSetup() {
     // Show navigation
     if (DOM.mainNavbarNav) DOM.mainNavbarNav.style.display = "flex";
+    // Also show the bottom nav bar
+    const bottomNav = document.getElementById("bottomNav");
+    if (bottomNav) bottomNav.style.display = "flex";
 
     // Switch to dashboard
     NavigationController.switchTab("dashboard");
@@ -690,22 +693,40 @@ const GPSController = {
       this.updateStatus("waiting");
 
       try {
-        // Use await to handle both Promise and direct value returns safely
+        // requestPermissions: true triggers the native Android permission dialog
         const watcherId = await BackgroundGeolocation.addWatcher(
           {
-            backgroundMessage: "Location tracking active",
-            backgroundTitle: "Bus Tracking Running",
+            backgroundMessage: "Bus location is being tracked",
+            backgroundTitle: "Bus Tracking Active",
             requestPermissions: true,
             stale: false,
-            distanceFilter: 0, // Update on every small change
+            distanceFilter: 0,
           },
           (location, error) => {
             if (error) {
+              console.error("[BG-Geo] Error:", JSON.stringify(error));
+              // Check if this is a permission denied error
+              if (error.code === "NOT_AUTHORIZED") {
+                this.updateStatus("error");
+                onError({
+                  code: 1,
+                  message: "Location permission denied",
+                  PERMISSION_DENIED: 1,
+                });
+                AlertController.show(
+                  "Location Permission Required",
+                  "GPS tracking cannot work without location permission. Please allow location access in your device Settings.",
+                  "error",
+                );
+                return;
+              }
               this.updateStatus("error");
               onError(error);
               return;
             }
             if (location) {
+              // GPS is working — dismiss any GPS off banner
+              dismissGPSBanner();
               state.lastPosition = {
                 latitude: location.latitude,
                 longitude: location.longitude,
@@ -719,11 +740,34 @@ const GPSController = {
         );
 
         state.backgroundWatcherId = watcherId;
+        LogController.add(
+          "Background GPS watcher started (ID: " + watcherId + ")",
+          "success",
+        );
         return "capacitor-watcher";
       } catch (e) {
         LogController.add("Background Watcher Error: " + e.message, "error");
-        console.error(e);
-        // Fallback to standard geolocation if plugin fails
+        console.error("[BG-Geo] addWatcher failed:", e);
+
+        // If the error is permission-related, inform the user
+        if (
+          e.message &&
+          (e.message.includes("permission") || e.message.includes("denied"))
+        ) {
+          AlertController.show(
+            "Location Permission Required",
+            "GPS tracking needs location permission. Please allow location access when prompted and try again.",
+            "error",
+          );
+          onError({
+            code: 1,
+            message: "Permission denied",
+            PERMISSION_DENIED: 1,
+          });
+          return null;
+        }
+        // Fallback to standard geolocation if plugin fails for other reasons
+        LogController.add("Falling back to standard GPS...", "warning");
       }
     }
 
@@ -738,8 +782,10 @@ const GPSController = {
     LogController.add("Requesting GPS permission...", "info");
     this.updateStatus("waiting");
 
+    // This also triggers the browser/Android permission dialog
     return navigator.geolocation.watchPosition(
       (position) => {
+        dismissGPSBanner(); // GPS working, dismiss any banner
         state.lastPosition = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -1097,56 +1143,16 @@ const TrackingController = {
       // Enable auto-reconnection for this tracking session
       WebSocketController.shouldReconnect = true;
 
-      // Step 1: Request GPS permission (immediate if already granted)
-      LogController.add("Initiating tracking...", "info");
+      LogController.add("Starting tracking...", "info");
       this.updateTrackingUI("starting");
 
       // Acquire wake lock to prevent CPU sleep
       await GPSController.acquireWakeLock();
 
-      // Explicit permission request for Android 10+
-      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-        const { Geolocation } = window.Capacitor.Plugins;
-        try {
-          const status = await Geolocation.checkPermissions();
-          LogController.add(
-            "Permission status: " + JSON.stringify(status),
-            "info",
-          );
-
-          if (status.location !== "granted") {
-            const perm = await Geolocation.requestPermissions();
-            if (perm.location !== "granted") {
-              LogController.add(
-                "Permission denied: Tracking may fail in background",
-                "error",
-              );
-              AlertController.show(
-                "Permission Required",
-                'Please set Location to "Allow all the time" in App Settings for background tracking.',
-                "warning",
-              );
-            }
-          }
-        } catch (e) {
-          console.warn("Geolocation permission check failed", e);
-        }
-
-        // Request battery optimization exemption (critical for Samsung, Xiaomi, etc.)
-        try {
-          if (window.Capacitor.Plugins.BackgroundGeolocation) {
-            LogController.add(
-              "Requesting battery optimization exemption...",
-              "info",
-            );
-          }
-        } catch (e) {
-          console.warn("Battery optimization request failed", e);
-        }
-      }
-
-      // Step 2 & 3: Connect WebSocket and Start Watcher in parallel
-      LogController.add("Connecting to service...", "info");
+      // Connect WebSocket and Start GPS Watcher in parallel
+      // BackgroundGeolocation.addWatcher with requestPermissions:true
+      // will trigger the native Android permission dialog automatically
+      LogController.add("Connecting to service & starting GPS...", "info");
 
       // Initiate connections simultaneously
       const [connectionResult, watcherResult] = await Promise.allSettled([
@@ -1154,6 +1160,7 @@ const TrackingController = {
         GPSController.startWatching(
           (position) => {
             // Position update logic
+            dismissGPSBanner(); // GPS is working — dismiss any active GPS-off banner
             if (!state.isTracking) {
               state.isTracking = true;
               state.gpsPermissionGranted = true;
@@ -1352,8 +1359,18 @@ const TrackingController = {
     let title, message;
     let shouldStopTracking = true;
 
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
+    // Normalize error code (BackgroundGeolocation uses string codes)
+    const errorCode =
+      typeof error.code === "number"
+        ? error.code
+        : error.code === "NOT_AUTHORIZED"
+          ? 1
+          : error.code === "POSITION_UNAVAILABLE"
+            ? 2
+            : 0;
+
+    switch (errorCode) {
+      case 1: // PERMISSION_DENIED
         title = "GPS Permission Denied";
         const isSecure =
           window.location.protocol === "https:" ||
@@ -1363,19 +1380,22 @@ const TrackingController = {
             "Browser blocked GPS because the connection is not secure. YOU MUST USE HTTPS.";
         } else {
           message =
-            "Please allow location access in your browser settings to use tracking.";
+            "Please allow location access in your device Settings to use tracking.";
         }
-        shouldStopTracking = true; // Must stop - permission denied
+        shouldStopTracking = true;
+        AlertController.show(title, message, "error");
         break;
-      case error.POSITION_UNAVAILABLE:
-        title = "Location Unavailable";
-        message = "GPS signal lost. Waiting for GPS to reconnect...";
-        shouldStopTracking = false; // Don't stop - GPS might come back
+      case 2: // POSITION_UNAVAILABLE — GPS is OFF
+        title = "GPS is Turned Off";
+        message =
+          "Please turn on your device's Location/GPS to continue tracking.";
+        shouldStopTracking = false;
+        showGPSBanner(title, message);
         break;
-      case error.TIMEOUT:
+      case 3: // TIMEOUT
         title = "GPS Timeout";
         message = "Location request timed out. Retrying...";
-        shouldStopTracking = false; // Don't stop - just a timeout
+        shouldStopTracking = false;
         break;
       default:
         title = "GPS Error";
@@ -1383,13 +1403,7 @@ const TrackingController = {
         shouldStopTracking = false;
     }
 
-    // Only show alert for permission denied (critical error)
-    if (error.code === error.PERMISSION_DENIED) {
-      AlertController.show(title, message, "error");
-    } else {
-      // For other errors, just log (GPS might recover)
-      LogController.add(`${title}: ${message}`, "warning");
-    }
+    LogController.add(`${title}: ${message}`, "warning");
 
     // Send GPS_ERROR action to backend to mark bus as inactive
     state.gpsPermissionGranted = false;
@@ -1623,6 +1637,49 @@ const NetworkController = {
 };
 
 // =========================================
+// GPS Permission & Availability Helpers
+// =========================================
+
+function showGPSBanner(title, message) {
+  let banner = document.getElementById("gpsAlertBanner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "gpsAlertBanner";
+    banner.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white; padding: 14px 20px; text-align: center;
+      font-family: 'Outfit', sans-serif; font-size: 14px;
+      box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      animation: slideDown 0.3s ease-out;
+    `;
+    const style = document.createElement("style");
+    style.textContent =
+      "@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }";
+    document.head.appendChild(style);
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML = `
+    <div style="display:flex; align-items:center; gap:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <strong>${title}</strong>
+    </div>
+    <span>${message}</span>
+  `;
+  banner.style.display = "flex";
+}
+
+function dismissGPSBanner() {
+  const banner = document.getElementById("gpsAlertBanner");
+  if (banner) {
+    banner.style.display = "none";
+  }
+}
+
+// =========================================
 // Application Initialization
 // =========================================
 function initApp() {
@@ -1696,6 +1753,9 @@ function initApp() {
   ProfileController.init();
   SetupController.init();
   NetworkController.init();
+
+  // GPS permission is now requested when user clicks Start Tracking
+  // No aggressive polling on page load
 
   // Initialize state from existing data
   if (driverData) {
