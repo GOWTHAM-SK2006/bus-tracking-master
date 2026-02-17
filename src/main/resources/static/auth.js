@@ -821,9 +821,9 @@ function getApiBaseUrl() {
     return "https://bus-tracking-master-production.up.railway.app";
   }
 
-  // File protocol fallback (local testing)
+  // File protocol fallback - use production URL for Capacitor
   if (protocol === "file:") {
-    return "http://localhost:8080";
+    return "https://bus-tracking-master-production.up.railway.app";
   }
 
   // If we are already on the production domain, use relative path

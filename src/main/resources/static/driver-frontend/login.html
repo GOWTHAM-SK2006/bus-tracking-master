@@ -170,9 +170,9 @@
                 return 'https://bus-tracking-master-production.up.railway.app';
             }
 
-            // File protocol fallback
+            // File protocol fallback - use production URL for Capacitor
             if (protocol === 'file:') {
-                return 'http://localhost:8080';
+                return 'https://bus-tracking-master-production.up.railway.app';
             }
 
             // VS Code Dev Tunnels

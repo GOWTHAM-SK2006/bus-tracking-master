@@ -17,9 +17,9 @@ function getWebSocketUrl(endpoint) {
     return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
   }
 
-  // File protocol fallback (local testing)
+  // File protocol fallback - use production URL for Capacitor
   if (window.location.protocol === "file:") {
-    return `ws://localhost:8080${endpoint}`;
+    return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
   }
 
   // VS Code Dev Tunnels
@@ -48,9 +48,9 @@ function getApiBaseUrl() {
     return "https://bus-tracking-master-production.up.railway.app";
   }
 
-  // File protocol fallback (local testing)
+  // File protocol fallback - use production URL for Capacitor
   if (window.location.protocol === "file:") {
-    return "http://localhost:8080";
+    return "https://bus-tracking-master-production.up.railway.app";
   }
 
   // VS Code Dev Tunnels
