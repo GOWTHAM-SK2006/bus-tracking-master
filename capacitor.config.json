@@ -7,7 +7,11 @@
   },
   "plugins": {
     "BackgroundGeolocation": {
-      "distanceFilter": 5
+      "distanceFilter": 5,
+      "backgroundTitle": "Bus Tracking Active",
+      "backgroundMessage": "Location is being tracked for bus tracking",
+      "requestPermissions": true,
+      "stale": false
     }
   }
 }

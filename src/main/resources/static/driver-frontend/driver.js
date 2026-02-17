@@ -693,14 +693,25 @@ const GPSController = {
       this.updateStatus("waiting");
 
       try {
-        // requestPermissions: true triggers the native Android permission dialog
+        // Enhanced configuration for screen lock support
         const watcherId = await BackgroundGeolocation.addWatcher(
           {
-            backgroundMessage: "Bus location is being tracked",
-            backgroundTitle: "Bus Tracking Active",
+            // Notification for foreground service (required for Android)
+            backgroundMessage: "Bus location is being tracked continuously. Tracking works even when screen is locked.",
+            backgroundTitle: "🚌 Bus Tracking Active",
             requestPermissions: true,
             stale: false,
-            distanceFilter: 0,
+            distanceFilter: 0, // Report all location updates
+            
+            // Enable background mode - crucial for lock screen tracking
+            backgroundMode: true,
+            
+            // Minimum time between updates (milliseconds)
+            interval: 1000,
+            
+            // Continue tracking even when screen is off
+            stopOnTerminate: false,
+            startOnBoot: false,
           },
           (location, error) => {
             if (error) {
@@ -734,6 +745,14 @@ const GPSController = {
                 timestamp: location.time,
               };
               this.updateStatus("active");
+              
+              // Log location update for debugging (shows it's working even when locked)
+              console.log("[BG-Geo] Location update:", {
+                lat: location.latitude.toFixed(6),
+                lng: location.longitude.toFixed(6),
+                time: new Date(location.time).toLocaleTimeString(),
+              });
+              
               onSuccess(state.lastPosition);
             }
           },
@@ -741,9 +760,17 @@ const GPSController = {
 
         state.backgroundWatcherId = watcherId;
         LogController.add(
-          "Background GPS watcher started (ID: " + watcherId + ")",
+          "Background GPS watcher started (ID: " + watcherId + ") - Works with screen locked",
           "success",
         );
+        
+        // Show user notification about lock screen tracking
+        AlertController.show(
+          "Background Tracking Enabled",
+          "Location tracking will continue even when your screen is locked. A notification will remain visible.",
+          "success",
+        );
+        
         return "capacitor-watcher";
       } catch (e) {
         LogController.add("Background Watcher Error: " + e.message, "error");
@@ -881,22 +908,78 @@ const GPSController = {
   /**
    * Acquire a Wake Lock to prevent the CPU from sleeping during tracking.
    * Uses the Web Wake Lock API (supported in Android WebView 84+).
+   * Enhanced for lock screen support.
    */
   async acquireWakeLock() {
     if (!("wakeLock" in navigator)) {
-      console.log("[WakeLock] API not available");
+      console.log("[WakeLock] API not available - using alternative approach");
+      // Even without wake lock API, BackgroundGeolocation plugin handles this
+      LogController.add("Using BackgroundGeolocation for screen-off tracking", "info");
       return;
     }
     try {
+      // Request screen wake lock to keep device awake
       state.wakeLock = await navigator.wakeLock.request("screen");
-      console.log("[WakeLock] Acquired");
-      LogController.add("Wake lock acquired for background tracking", "info");
+      console.log("[WakeLock] Screen wake lock acquired");
+      LogController.add("Wake lock acquired - app will stay active with locked screen", "info");
 
       state.wakeLock.addEventListener("release", () => {
-        console.log("[WakeLock] Released by system");
+        console.log("[WakeLock] Released by system - will reacquire if needed");
+        // The BackgroundGeolocation plugin will continue to work even if wake lock is released
+        LogController.add("Wake lock released - background tracking continues via system service", "info");
       });
     } catch (e) {
       console.warn("[WakeLock] Failed to acquire:", e);
+      LogController.add("Wake lock unavailable - using system background service", "info");
+      // Not critical - BackgroundGeolocation plugin handles background execution
+    }
+  },
+
+  /**
+   * Request to ignore battery optimizations for reliable background tracking
+   * This is important for continuous location updates on locked screens
+   */
+  async requestBatteryOptimizationExemption() {
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    try {
+      LogController.add("Checking battery optimization settings...", "info");
+      
+      // Show user explanation
+      showConfirmDialog({
+        title: "Battery Optimization",
+        message: "For reliable location tracking when the screen is locked, please allow this app to run without battery restrictions. This is essential for continuous bus tracking.",
+        icon: "🔋",
+        iconBg: "rgba(34, 197, 94, 0.15)",
+        btnText: "Open Settings",
+        btnColor: "#22c55e",
+        onConfirm: async () => {
+          try {
+            // Open battery optimization settings
+            if (window.Capacitor.isPluginAvailable("BackgroundGeolocation")) {
+              const { BackgroundGeolocation } = window.Capacitor.Plugins;
+              await BackgroundGeolocation.openSettings();
+              
+              AlertController.show(
+                "Settings Opened",
+                "Please disable battery optimization for Bus Tracking app, then return here.",
+                "info",
+              );
+            }
+          } catch (e) {
+            console.error("[Battery] Could not open settings:", e);
+            AlertController.show(
+              "Manual Setup Required",
+              "Please go to Settings > Apps > Bus Tracking > Battery > Unrestricted to allow background tracking.",
+              "info",
+            );
+          }
+        },
+      });
+    } catch (e) {
+      console.warn("[Battery] Could not check optimization:", e);
     }
   },
 
@@ -1781,18 +1864,88 @@ function initApp() {
   // Re-acquire wake lock when app returns to foreground (system releases it on screen off)
   document.addEventListener("visibilitychange", async () => {
     if (document.visibilityState === "visible" && state.isTracking) {
-      console.log("[Visibility] App resumed — re-acquiring wake lock");
+      console.log("[Visibility] App resumed from background/lock screen — re-acquiring wake lock");
       await GPSController.acquireWakeLock();
+
+      // Re-send latest cached position immediately on resume
+      if (state.lastPosition) {
+        LogController.add("Resumed: Sending cached position immediately", "info");
+        TrackingController.sendUpdate();
+      }
 
       // Also ensure WebSocket is alive
       if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
-        LogController.add("Reconnecting after resume...", "info");
-        WebSocketController.connect().catch((e) =>
-          console.warn("Resume reconnect failed", e),
-        );
+        LogController.add("Reconnecting after resume from lock screen...", "info");
+        WebSocketController.connect()
+          .then(() => {
+            // Re-send START payload to ensure backend knows we're active
+            const driverData = JSON.parse(sessionStorage.getItem("driver"));
+            WebSocketController.send({
+              busNumber: state.busNumber,
+              busName: state.busName,
+              busStop: "College",
+              action: "START",
+              driverId: driverData ? driverData.id : null,
+              driverName: driverData ? driverData.name : "",
+              driverPhone: driverData ? driverData.phone : "",
+            });
+          })
+          .catch((e) =>
+            console.warn("Resume reconnect failed", e),
+          );
       }
+    } else if (document.visibilityState === "hidden" && state.isTracking) {
+      // App is going to background / screen locked
+      console.log("[Visibility] App going to background/lock screen — background service will continue tracking");
+      LogController.add("Screen locked/app in background - GPS tracking continues via background service", "info");
     }
   });
+
+  // Capacitor App State Change handler for native platform lock screen support
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    // Listen for native app state changes (more reliable than visibilitychange on mobile)
+    try {
+      if (window.Capacitor.isPluginAvailable("App")) {
+        const { App } = window.Capacitor.Plugins;
+        App.addListener("appStateChange", async (appState) => {
+          if (appState.isActive && state.isTracking) {
+            // App returned to foreground from lock screen
+            console.log("[Capacitor] App became active — resuming tracking services");
+            await GPSController.acquireWakeLock();
+
+            // Re-send latest position
+            if (state.lastPosition) {
+              TrackingController.sendUpdate();
+            }
+
+            // Reconnect if needed
+            if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+              LogController.add("Reconnecting WebSocket after screen unlock...", "info");
+              WebSocketController.connect().catch((e) =>
+                console.warn("App resume reconnect failed", e),
+              );
+            }
+          } else if (!appState.isActive && state.isTracking) {
+            // App going to background (screen locked, home button, etc.)
+            console.log("[Capacitor] App went to background — background geolocation service continues");
+          }
+        });
+        console.log("[Capacitor] App state change listener registered for lock screen support");
+      }
+    } catch (e) {
+      console.warn("[Capacitor] Could not register app state listener:", e);
+    }
+
+    // First-time battery optimization prompt
+    // Only show once per session
+    const hasShownBatteryPrompt = sessionStorage.getItem("batteryOptPromptShown");
+    if (!hasShownBatteryPrompt) {
+      setTimeout(() => {
+        GPSController.requestBatteryOptimizationExemption();
+        sessionStorage.setItem("batteryOptPromptShown", "true");
+      }, 3000); // Delay to not overwhelm user on app start
+    }
+  }
 
   // Warn before page close if tracking
   window.addEventListener("beforeunload", (e) => {
