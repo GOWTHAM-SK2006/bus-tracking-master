@@ -460,25 +460,27 @@ body {
   }
 
   .navbar-container {
-        flex-direction: row;
-        height: auto;
-        padding: var(--space-2) var(--space-4);
-        gap: var(--space-3);
-    }
+    flex-direction: row;
+    height: auto;
+    padding: var(--space-2) var(--space-4);
+    gap: var(--space-3);
+  }
 
-    .navbar-brand {
-        width: auto;
-        justify-content: flex-start;
-        margin-bottom: 0;
-    }
+  .navbar-brand {
+    width: auto;
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
 
-    .brand-logo-img {
-        height: 40px;
-    }
+  .brand-logo-img {
+    height: 40px;
+  }
 
-    /* Scrollable Tabs - hidden, now using bottom nav */
-    .navbar-nav {
-        display: none !important;
+  /* Scrollable Tabs - hidden, now using bottom nav */
+  .navbar-nav {
+    display: none !important;
+  }
+
   .navbar-actions {
     width: 100%;
     justify-content: space-between;
@@ -1215,11 +1217,12 @@ body {
   }
 
   .navbar-nav {
-        display: none !important;
-    }
+    display: none !important;
+  }
 
-    .navbar-nav.active {
-        display: none !important;
+  .navbar-nav.active {
+    display: none !important;
+  }
 
   .brand-text {
     display: none;

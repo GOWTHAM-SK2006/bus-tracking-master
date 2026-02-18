@@ -68,8 +68,11 @@ public class UserHandler extends TextWebSocketHandler {
 
     public void broadcastUpdate() {
         try {
-            // Filter out buses with invalid (0,0) coordinates before broadcasting
+            // Filter out buses with invalid (0,0) coordinates for client broadcast
             List<BusData> validBuses = new ArrayList<>();
+            // Collect ALL buses (including 0,0) for admin so they see status changes
+            List<BusData> allBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+
             for (BusData bus : BusSessionStore.BUS_MAP.values()) {
                 if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
                     validBuses.add(bus);
@@ -79,35 +82,33 @@ public class UserHandler extends TextWebSocketHandler {
                 }
             }
 
-            if (validBuses.isEmpty()) {
-                // System.out.println("[UserHandler] No valid buses to broadcast");
-                return;
-            }
-
-            String payload = mapper.writeValueAsString(validBuses);
-            TextMessage message = new TextMessage(payload);
-            int clientCount = 0;
-            for (WebSocketSession session : SESSIONS) {
-                if (session.isOpen()) {
-                    session.sendMessage(message);
-                    clientCount++;
+            // Broadcast valid buses to user/student clients
+            if (!validBuses.isEmpty()) {
+                String payload = mapper.writeValueAsString(validBuses);
+                TextMessage message = new TextMessage(payload);
+                int clientCount = 0;
+                for (WebSocketSession session : SESSIONS) {
+                    if (session.isOpen()) {
+                        session.sendMessage(message);
+                        clientCount++;
+                    }
+                }
+                if (clientCount > 0) {
+                    System.out.println(
+                            "[UserHandler] Broadcasted " + validBuses.size() + " buses to " + clientCount
+                                    + " clients");
                 }
             }
-            if (clientCount > 0) {
-                System.out.println(
-                        "[UserHandler] Broadcasted " + validBuses.size() + " buses to " + clientCount + " clients");
-            }
 
-            // Also broadcast a structured update to all connected admins
-            if (!validBuses.isEmpty()) {
-                Map<String, Object> adminUpdate = new HashMap<>();
-                adminUpdate.put("type", "BUS_UPDATE");
-                adminUpdate.put("buses", validBuses);
-                adminUpdate.put("source", "DriverWebSocket");
-                adminUpdate.put("timestamp", System.currentTimeMillis());
+            // Always broadcast to admin so they see ALL status changes immediately
+            // Use allBuses so admin sees buses even before GPS fix (status changes)
+            Map<String, Object> adminUpdate = new HashMap<>();
+            adminUpdate.put("type", "BUS_UPDATE");
+            adminUpdate.put("buses", allBuses);
+            adminUpdate.put("source", "DriverWebSocket");
+            adminUpdate.put("timestamp", System.currentTimeMillis());
 
-                AdminWebSocketHandler.broadcastToAdmins(adminUpdate);
-            }
+            AdminWebSocketHandler.broadcastToAdmins(adminUpdate);
         } catch (Exception e) {
             e.printStackTrace();
         }

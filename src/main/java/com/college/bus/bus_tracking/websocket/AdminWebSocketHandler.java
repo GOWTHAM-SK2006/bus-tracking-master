@@ -28,13 +28,8 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         welcome.put("timestamp", System.currentTimeMillis());
         session.sendMessage(new TextMessage(objectMapper.writeValueAsString(welcome)));
 
-        // Send all currently registered buses immediately
-        List<BusData> currentBuses = new ArrayList<>();
-        for (BusData bus : BusSessionStore.BUS_MAP.values()) {
-            if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
-                currentBuses.add(bus);
-            }
-        }
+        // Send all currently registered buses immediately (including 0,0 so admin sees status)
+        List<BusData> currentBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
         if (!currentBuses.isEmpty()) {
             Map<String, Object> busUpdate = new HashMap<>();
             busUpdate.put("type", "BUS_UPDATE");
@@ -81,7 +76,9 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         for (WebSocketSession session : adminSessions) {
             if (session.isOpen()) {
                 try {
-                    session.sendMessage(new TextMessage(message));
+                    synchronized (session) {
+                        session.sendMessage(new TextMessage(message));
+                    }
                 } catch (Exception e) {
                     System.err.println("[Admin WS] Error sending message: " + e.getMessage());
                 }
@@ -97,7 +94,9 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
             String message = objectMapper.writeValueAsString(data);
             for (WebSocketSession session : adminSessions) {
                 if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(message));
+                    synchronized (session) {
+                        session.sendMessage(new TextMessage(message));
+                    }
                 }
             }
         } catch (Exception e) {

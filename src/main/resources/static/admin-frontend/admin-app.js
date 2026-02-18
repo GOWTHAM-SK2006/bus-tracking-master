@@ -866,6 +866,7 @@ const BusManager = {
 const WebSocketManager = {
   socket: null,
   reconnectAttempts: 0,
+  pollInterval: null,
 
   init() {
     console.log("[WS] Initializing connection...");
@@ -886,6 +887,9 @@ const WebSocketManager = {
 
         // Fetch all registered buses via REST as fallback
         this.fetchInitialBuses();
+
+        // Start periodic polling for real-time sync (every 3 seconds)
+        this.startPolling();
       };
 
       this.socket.onmessage = (event) => {
@@ -903,6 +907,7 @@ const WebSocketManager = {
         console.log("[WS] Closed");
         adminState.isConnected = false;
         updateConnectionBadge(false);
+        this.stopPolling();
         this.attemptReconnect();
       };
 
@@ -912,6 +917,36 @@ const WebSocketManager = {
     } catch (error) {
       console.error("[WS] Error:", error);
       this.attemptReconnect();
+    }
+  },
+
+  startPolling() {
+    this.stopPolling();
+    this.pollInterval = setInterval(() => {
+      this.fetchLatestBuses();
+    }, 3000);
+    console.log("[WS] Polling started (every 3s)");
+  },
+
+  stopPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  },
+
+  async fetchLatestBuses() {
+    try {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/bus/all`);
+      if (response.ok) {
+        const buses = await response.json();
+        if (buses) {
+          BusManager.handleBusData(buses);
+        }
+      }
+    } catch (error) {
+      // Silent fail - WebSocket push is primary, polling is fallback
     }
   },
 
