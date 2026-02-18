@@ -6,6 +6,12 @@
     "useLegacyBridge": true
   },
   "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 0,
+      "backgroundColor": "#000000",
+      "showSpinner": false
+    },
     "BackgroundGeolocation": {
       "distanceFilter": 5,
       "backgroundTitle": "Bus Tracking Active",

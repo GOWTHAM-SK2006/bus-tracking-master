@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:id="@+id/splashRoot">
+
+    <!-- Outer radial glow -->
+    <View
+        android:id="@+id/radialGlow"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_gravity="center"
+        android:background="@drawable/radial_glow"
+        android:alpha="0"
+        android:scaleX="0.2"
+        android:scaleY="0.2" />
+
+    <!-- Inner tight glow -->
+    <View
+        android:id="@+id/innerGlow"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_gravity="center"
+        android:background="@drawable/inner_glow"
+        android:alpha="0"
+        android:scaleX="0.5"
+        android:scaleY="0.5" />
+
+    <!-- Ring pulse 1 -->
+    <View
+        android:id="@+id/ringPulse1"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:background="@drawable/ring_pulse"
+        android:alpha="0"
+        android:scaleX="0.3"
+        android:scaleY="0.3" />
+
+    <!-- Ring pulse 2 (delayed) -->
+    <View
+        android:id="@+id/ringPulse2"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:background="@drawable/ring_pulse"
+        android:alpha="0"
+        android:scaleX="0.3"
+        android:scaleY="0.3" />
+
+    <!-- 8 Light rays for dramatic god-ray effect -->
+    <View
+        android:id="@+id/lightRay1"
+        android:layout_width="3dp"
+        android:layout_height="600dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="0" />
+
+    <View
+        android:id="@+id/lightRay2"
+        android:layout_width="2dp"
+        android:layout_height="500dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="30" />
+
+    <View
+        android:id="@+id/lightRay3"
+        android:layout_width="3dp"
+        android:layout_height="600dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="60" />
+
+    <View
+        android:id="@+id/lightRay4"
+        android:layout_width="2dp"
+        android:layout_height="500dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="90" />
+
+    <View
+        android:id="@+id/lightRay5"
+        android:layout_width="3dp"
+        android:layout_height="600dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="120" />
+
+    <View
+        android:id="@+id/lightRay6"
+        android:layout_width="2dp"
+        android:layout_height="500dp"
+        android:layout_gravity="center"
+        android:background="@drawable/light_ray"
+        android:alpha="0"
+        android:rotation="150" />
+
+    <!-- Particle dots orbiting center -->
+    <View
+        android:id="@+id/particle1"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="-80dp"
+        android:translationY="-80dp" />
+
+    <View
+        android:id="@+id/particle2"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="90dp"
+        android:translationY="-60dp" />
+
+    <View
+        android:id="@+id/particle3"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="70dp"
+        android:translationY="85dp" />
+
+    <View
+        android:id="@+id/particle4"
+        android:layout_width="7dp"
+        android:layout_height="7dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="-95dp"
+        android:translationY="50dp" />
+
+    <View
+        android:id="@+id/particle5"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="20dp"
+        android:translationY="-100dp" />
+
+    <View
+        android:id="@+id/particle6"
+        android:layout_width="9dp"
+        android:layout_height="9dp"
+        android:layout_gravity="center"
+        android:background="@drawable/particle_dot"
+        android:alpha="0"
+        android:translationX="-50dp"
+        android:translationY="95dp" />
+
+    <!-- Flash burst (white light explosion) -->
+    <View
+        android:id="@+id/flashBurst"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_gravity="center"
+        android:background="@drawable/flash_burst"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0" />
+
+    <!-- Shimmer sweep across logo -->
+    <View
+        android:id="@+id/shimmerSweep"
+        android:layout_width="60dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center"
+        android:background="@drawable/shimmer_sweep"
+        android:alpha="0"
+        android:translationX="-200dp"
+        android:rotation="15" />
+
+    <!-- DYGON Logo -->
+    <ImageView
+        android:id="@+id/splashLogo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:src="@drawable/dygon_logo"
+        android:scaleType="fitCenter"
+        android:alpha="0" />
+
+</FrameLayout>
