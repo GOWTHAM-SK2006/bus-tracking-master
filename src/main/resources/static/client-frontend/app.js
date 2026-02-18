@@ -643,6 +643,11 @@ const MapManager = {
   async updatePanel(bus) {
     console.log(`[Map] Updating panel for bus: ${bus.busNo}`, bus);
 
+    // Skip update if panel is not visible
+    if (!DOM.busInfoPanel || !DOM.busInfoPanel.classList.contains("active")) {
+      return;
+    }
+
     // Badge = Bus Number, Title = Bus Name (Standard Layout)
     DOM.panelBusNo.textContent = bus.busNo;
     DOM.panelBusName.textContent = bus.busName || `Bus ${bus.busNo}`;
@@ -691,14 +696,6 @@ const MapManager = {
     if (DOM.panelDriver)
       DOM.panelDriver.textContent = bus.driverName || "Unknown";
     if (DOM.panelPhone) DOM.panelPhone.textContent = bus.driverPhone || "N/A";
-
-    // Remove Stops List (User Request)
-    DOM.panelStops.innerHTML = "";
-    // Hide the stops section container if possible, or just leave empty.
-    // We'll leave it empty for now as it minimalizes DOM code changes.
-    // Or better, put "No stops" or just nothing.
-    // User said "remove route stops insted of that add bus name".
-    // Bus Name is already in Title.
   },
 
   closePanel() {
