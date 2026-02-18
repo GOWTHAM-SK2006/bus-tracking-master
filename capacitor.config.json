@@ -5,6 +5,10 @@
   "android": {
     "useLegacyBridge": true
   },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#000000"
+  },
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": true,
