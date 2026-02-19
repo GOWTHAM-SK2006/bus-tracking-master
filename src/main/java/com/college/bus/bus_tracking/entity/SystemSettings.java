@@ -14,11 +14,19 @@ public class SystemSettings {
     @Column(name = "account_creation_enabled", nullable = false)
     private Boolean accountCreationEnabled = true;
 
+    @Column(name = "driver_sign_in_enabled")
+    private Boolean driverSignInEnabled = true;
+
+    @Column(name = "student_sign_in_enabled")
+    private Boolean studentSignInEnabled = true;
+
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
     public SystemSettings() {
         this.accountCreationEnabled = true;
+        this.driverSignInEnabled = true;
+        this.studentSignInEnabled = true;
         this.lastModified = LocalDateTime.now();
     }
 
@@ -37,6 +45,24 @@ public class SystemSettings {
 
     public void setAccountCreationEnabled(Boolean accountCreationEnabled) {
         this.accountCreationEnabled = accountCreationEnabled;
+        this.lastModified = LocalDateTime.now();
+    }
+
+    public Boolean getDriverSignInEnabled() {
+        return driverSignInEnabled;
+    }
+
+    public void setDriverSignInEnabled(Boolean driverSignInEnabled) {
+        this.driverSignInEnabled = driverSignInEnabled;
+        this.lastModified = LocalDateTime.now();
+    }
+
+    public Boolean getStudentSignInEnabled() {
+        return studentSignInEnabled;
+    }
+
+    public void setStudentSignInEnabled(Boolean studentSignInEnabled) {
+        this.studentSignInEnabled = studentSignInEnabled;
         this.lastModified = LocalDateTime.now();
     }
 

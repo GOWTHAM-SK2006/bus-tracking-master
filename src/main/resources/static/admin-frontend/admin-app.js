@@ -163,7 +163,23 @@ const DOM = {
     return document.getElementById("accountToggleBtn");
   },
   get toggleSlider() {
-    return document.querySelector(".toggle-slider");
+    return document.querySelector("#accountToggleBtn .toggle-slider");
+  },
+
+  // Driver Sign In
+  get driverSignInToggleBtn() {
+    return document.getElementById("driverSignInToggleBtn");
+  },
+  get driverSignInSlider() {
+    return document.getElementById("driverSignInSlider");
+  },
+
+  // Student Sign In
+  get studentSignInToggleBtn() {
+    return document.getElementById("studentSignInToggleBtn");
+  },
+  get studentSignInSlider() {
+    return document.getElementById("studentSignInSlider");
   },
 
   // Toast
@@ -1048,10 +1064,15 @@ function getApiBaseUrl() {
 async function loadAccountCreationState() {
   try {
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/admin/settings`);
+    const response = await fetch(`${baseUrl}/api/admin/settings`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     const data = await response.json();
     if (data.success) {
       updateToggleUI(data.accountCreationEnabled);
+      updateDriverSignInToggleUI(data.driverSignInEnabled !== false);
+      updateStudentSignInToggleUI(data.studentSignInEnabled !== false);
     }
   } catch (error) {
     console.error("[Toggle] Error loading state:", error);
@@ -1082,6 +1103,74 @@ async function toggleAccountCreation() {
 function updateToggleUI(isEnabled) {
   const toggleBtn = DOM.accountToggleBtn;
   const slider = DOM.toggleSlider;
+  if (!toggleBtn || !slider) return;
+
+  if (isEnabled) {
+    toggleBtn.style.background = "#4CAF50";
+    slider.style.left = "26px";
+  } else {
+    toggleBtn.style.background = "#ccc";
+    slider.style.left = "2px";
+  }
+}
+
+async function toggleDriverSignIn() {
+  try {
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/admin/toggle-driver-signin`, {
+      method: "POST",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      updateDriverSignInToggleUI(data.driverSignInEnabled);
+      showToast(data.message, "success");
+    } else {
+      showToast("Failed to toggle", "error");
+    }
+  } catch (error) {
+    console.error("[Toggle] Error:", error);
+    showToast("Error toggling driver sign-in", "error");
+  }
+}
+
+function updateDriverSignInToggleUI(isEnabled) {
+  const toggleBtn = DOM.driverSignInToggleBtn;
+  const slider = DOM.driverSignInSlider;
+  if (!toggleBtn || !slider) return;
+
+  if (isEnabled) {
+    toggleBtn.style.background = "#4CAF50";
+    slider.style.left = "26px";
+  } else {
+    toggleBtn.style.background = "#ccc";
+    slider.style.left = "2px";
+  }
+}
+
+async function toggleStudentSignIn() {
+  try {
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/admin/toggle-student-signin`, {
+      method: "POST",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      updateStudentSignInToggleUI(data.studentSignInEnabled);
+      showToast(data.message, "success");
+    } else {
+      showToast("Failed to toggle", "error");
+    }
+  } catch (error) {
+    console.error("[Toggle] Error:", error);
+    showToast("Error toggling student sign-in", "error");
+  }
+}
+
+function updateStudentSignInToggleUI(isEnabled) {
+  const toggleBtn = DOM.studentSignInToggleBtn;
+  const slider = DOM.studentSignInSlider;
   if (!toggleBtn || !slider) return;
 
   if (isEnabled) {

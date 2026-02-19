@@ -48,6 +48,15 @@ public class DriverController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        // Check if driver sign-in is enabled
+        if (!systemSettingsService.isDriverSignInEnabled()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Driver sign-in is currently disabled. Contact admin for further details.");
+            response.put("disabled", true);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
         try {
             String username = credentials.get("username");
             String password = credentials.get("password");

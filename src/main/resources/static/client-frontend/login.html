@@ -1,233 +1,387 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Client Login - DYGON</title>
 
     <!-- Google Fonts - Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Design System -->
-    <link rel="stylesheet" href="../design-system.css">
+    <link rel="stylesheet" href="../design-system.css" />
 
     <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-        }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-secondary);
+      }
 
-        .auth-container {
-            width: 100%;
-            max-width: 400px;
-            padding: var(--space-4);
-        }
+      .auth-container {
+        width: 100%;
+        max-width: 400px;
+        padding: var(--space-4);
+      }
 
-        .auth-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: var(--space-8);
-            box-shadow: var(--shadow-md);
-        }
+      .auth-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-md);
+      }
 
-        .auth-header {
-            text-align: center;
-            margin-bottom: var(--space-8);
-        }
+      .auth-header {
+        text-align: center;
+        margin-bottom: var(--space-8);
+      }
 
-        .logo {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto var(--space-4);
-            background: var(--primary-600);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
+      .logo {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto var(--space-4);
+        background: var(--primary-600);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
 
-        .auth-title {
-            font-size: var(--text-2xl);
-            font-weight: var(--font-semibold);
-            color: var(--text-primary);
-            margin-bottom: var(--space-2);
-        }
+      .auth-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin-bottom: var(--space-2);
+      }
 
-        .auth-subtitle {
-            font-size: var(--text-sm);
-            color: var(--text-secondary);
-        }
+      .auth-subtitle {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+      }
 
-        .auth-footer {
-            margin-top: var(--space-6);
-            text-align: center;
-            font-size: var(--text-sm);
-            color: var(--text-secondary);
-        }
+      .auth-footer {
+        margin-top: var(--space-6);
+        text-align: center;
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+      }
 
-        .auth-footer a {
-            color: var(--primary-600);
-            text-decoration: none;
-            font-weight: var(--font-medium);
-        }
+      .auth-footer a {
+        color: var(--primary-600);
+        text-decoration: none;
+        font-weight: var(--font-medium);
+      }
 
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
+      .auth-footer a:hover {
+        text-decoration: underline;
+      }
 
-        .btn-full {
-            width: 100%;
-        }
+      .btn-full {
+        width: 100%;
+      }
 
-        .alert-container {
-            margin-bottom: var(--space-4);
-        }
+      .alert-container {
+        margin-bottom: var(--space-4);
+      }
 
-        .back-link {
-            display: block;
-            margin-top: var(--space-4);
-            text-align: center;
-        }
+      .back-link {
+        display: block;
+        margin-top: var(--space-4);
+        text-align: center;
+      }
 
-        .back-link a {
-            font-size: var(--text-sm);
-            color: var(--gray-500);
-            text-decoration: none;
-        }
+      .back-link a {
+        font-size: var(--text-sm);
+        color: var(--gray-500);
+        text-decoration: none;
+      }
 
-        .back-link a:hover {
-            color: var(--gray-700);
-        }
+      .back-link a:hover {
+        color: var(--gray-700);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <img src="logo.png" alt="DYGON"
-                    style="width: 300px; height: 300px; object-fit: contain; margin-bottom: var(--space-4);">
-                <h1 class="auth-title">Students / Staffs Login</h1>
-                <p class="auth-subtitle">Sign in to track buses in real-time</p>
-            </div>
-
-            <div class="alert-container" id="alertContainer"></div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label" for="email">Email address</label>
-                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required
-                        autocomplete="email">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" class="form-input" placeholder="••••••••" required
-                        autocomplete="current-password">
-                    <div style="text-align: right; margin-top: 4px;">
-                        <a href="../forgot-password.html" style="font-size: var(--text-sm); color: var(--primary-600); text-decoration: none;">Forgot password?</a>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg btn-full">Sign in</button>
-            </form>
-
-            <div class="auth-footer">
-                Don't have an account? <a href="signup.html">Sign up</a>
-            </div>
-
-            <div class="back-link">
-                <a href="../index.html">← Back to role selection</a>
-            </div>
+      <div class="auth-card">
+        <div class="auth-header">
+          <img
+            src="logo.png"
+            alt="DYGON"
+            style="
+              width: 300px;
+              height: 300px;
+              object-fit: contain;
+              margin-bottom: var(--space-4);
+            "
+          />
+          <h1 class="auth-title">Students / Staffs Login</h1>
+          <p class="auth-subtitle">Sign in to track buses in real-time</p>
         </div>
+
+        <div class="alert-container" id="alertContainer"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="email">Email address</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="form-input"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+            <div style="text-align: right; margin-top: 4px">
+              <a
+                href="../forgot-password.html"
+                style="
+                  font-size: var(--text-sm);
+                  color: var(--primary-600);
+                  text-decoration: none;
+                "
+                >Forgot password?</a
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-full">
+            Sign in
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+
+        <div class="back-link">
+          <a href="../index.html">← Back to role selection</a>
+        </div>
+      </div>
     </div>
 
     <script>
-        function getApiBaseUrl() {
-            const host = window.location.hostname;
-            const protocol = window.location.protocol;
+      function getApiBaseUrl() {
+        const host = window.location.hostname;
+        const protocol = window.location.protocol;
 
-            // File protocol fallback - use production URL for Capacitor
-            if (protocol === 'file:') {
-                return 'https://bus-tracking-master-production.up.railway.app';
-            }
-
-            // VS Code Dev Tunnels
-            if (host.includes('.devtunnels.ms')) {
-                const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-                if (tunnelMatch) {
-                    return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
-                }
-            }
-
-            if (window.location.port) {
-                return `${protocol}//${host}:${window.location.port}`;
-            }
-
-            return `${protocol}//${host}`;
+        // File protocol fallback - use production URL for Capacitor
+        if (protocol === "file:") {
+          return "https://bus-tracking-master-production.up.railway.app";
         }
 
-        const loginForm = document.getElementById('loginForm');
-        const alertContainer = document.getElementById('alertContainer');
-
-        // Reset button state on page load (handles bfcache/back button)
-        window.addEventListener('pageshow', () => {
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign in';
-            }
-        });
-
-        function showAlert(message, type) {
-            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        // VS Code Dev Tunnels
+        if (host.includes(".devtunnels.ms")) {
+          const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+          if (tunnelMatch) {
+            return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+          }
         }
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
+        if (window.location.port) {
+          return `${protocol}//${host}:${window.location.port}`;
+        }
 
-            submitBtn.textContent = 'Signing in...';
-            submitBtn.disabled = true;
+        return `${protocol}//${host}`;
+      }
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+      const loginForm = document.getElementById("loginForm");
+      const alertContainer = document.getElementById("alertContainer");
+      let signInDisabled = false;
 
+      function showAlert(message, type) {
+        alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      }
+
+      // Check if student sign-in is enabled
+      async function checkSignInStatus() {
+        try {
+          const baseUrl = getApiBaseUrl();
+          const response = await fetch(`${baseUrl}/api/admin/settings`);
+          const data = await response.json();
+
+          if (data.success && data.studentSignInEnabled === false) {
+            // Disable sign-in
+            signInDisabled = true;
+            const btn = loginForm.querySelector("button");
+            btn.disabled = true;
+            btn.textContent = "Sign in is currently disabled. Contact admin";
+            btn.style.backgroundColor = "#fee2e2";
+            btn.style.color = "#dc2626";
+            btn.style.borderColor = "#fecaca";
+            loginForm
+              .querySelectorAll("input")
+              .forEach((input) => (input.disabled = true));
+            showAlert(
+              "Student sign-in is currently disabled. Please contact admin",
+              "error",
+            );
+          } else if (data.success) {
+            // Enable sign-in
+            signInDisabled = false;
+            const btn = loginForm.querySelector("button");
+            btn.disabled = false;
+            btn.textContent = "Sign in";
+            btn.style.backgroundColor = "";
+            btn.style.color = "";
+            btn.style.borderColor = "";
+            loginForm
+              .querySelectorAll("input")
+              .forEach((input) => (input.disabled = false));
+            const alertEl = alertContainer.querySelector(".alert-error");
+            if (alertEl && alertEl.textContent.includes("currently disabled")) {
+              alertContainer.innerHTML = "";
+            }
+          }
+        } catch (error) {
+          console.error("Error checking sign-in status:", error);
+        }
+      }
+
+      // Check on page load
+      checkSignInStatus();
+
+      // Real-time update via WebSocket
+      function initSignInWebSocket() {
+        const baseUrl = getApiBaseUrl();
+        const wsProtocol = baseUrl.startsWith("https") ? "wss" : "ws";
+        const wsUrl = baseUrl.replace(/^http/, wsProtocol) + "/ws/admin";
+
+        console.log("[WS] Connecting for sign-in updates:", wsUrl);
+
+        try {
+          const socket = new WebSocket(wsUrl);
+
+          socket.onmessage = (event) => {
             try {
-                const response = await fetch(`${getApiBaseUrl()}/api/client/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    sessionStorage.setItem('client', JSON.stringify(data.client));
-                    showAlert('Success! Redirecting...', 'success');
-                    const nextPage = data.client.phoneVerified ? 'index.html' : 'profile.html';
-                    setTimeout(() => { window.location.href = nextPage; }, 500);
+              const data = JSON.parse(event.data);
+              if (data.type === "STUDENT_SIGNIN_UPDATE") {
+                console.log(
+                  "[WS] Student sign-in update:",
+                  data.studentSignInEnabled,
+                );
+                if (data.studentSignInEnabled === false) {
+                  signInDisabled = true;
+                  const btn = loginForm.querySelector("button");
+                  btn.disabled = true;
+                  btn.textContent =
+                    "Sign in is currently disabled. Contact admin";
+                  btn.style.backgroundColor = "#fee2e2";
+                  btn.style.color = "#dc2626";
+                  btn.style.borderColor = "#fecaca";
+                  loginForm
+                    .querySelectorAll("input")
+                    .forEach((input) => (input.disabled = true));
+                  showAlert(
+                    "Student sign-in is currently disabled. Please contact admin",
+                    "error",
+                  );
                 } else {
-                    showAlert(data.message || 'Invalid credentials', 'error');
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
+                  signInDisabled = false;
+                  const btn = loginForm.querySelector("button");
+                  btn.disabled = false;
+                  btn.textContent = "Sign in";
+                  btn.style.backgroundColor = "";
+                  btn.style.color = "";
+                  btn.style.borderColor = "";
+                  loginForm
+                    .querySelectorAll("input")
+                    .forEach((input) => (input.disabled = false));
+                  const alertEl = alertContainer.querySelector(".alert-error");
+                  if (
+                    alertEl &&
+                    alertEl.textContent.includes("currently disabled")
+                  ) {
+                    alertContainer.innerHTML = "";
+                  }
                 }
-            } catch (error) {
-                showAlert('Could not connect to server', 'error');
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+              }
+            } catch (e) {
+              console.error("[WS] Parse error:", e);
             }
-        });
-    </script>
-</body>
+          };
 
+          socket.onclose = () => {
+            console.log("[WS] Connection closed, retrying in 5s...");
+            setTimeout(initSignInWebSocket, 5000);
+          };
+        } catch (e) {
+          console.error("[WS] Socket error:", e);
+          setTimeout(initSignInWebSocket, 5000);
+        }
+      }
+
+      initSignInWebSocket();
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (signInDisabled) {
+          showAlert(
+            "Student sign-in is currently disabled. Contact admin for further details.",
+            "error",
+          );
+          return;
+        }
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        submitBtn.textContent = "Signing in...";
+        submitBtn.disabled = true;
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch(`${getApiBaseUrl()}/api/client/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            sessionStorage.setItem("client", JSON.stringify(data.client));
+            showAlert("Success! Redirecting...", "success");
+            const nextPage = data.client.phoneVerified
+              ? "index.html"
+              : "profile.html";
+            setTimeout(() => {
+              window.location.href = nextPage;
+            }, 500);
+          } else {
+            showAlert(data.message || "Invalid credentials", "error");
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+          }
+        } catch (error) {
+          showAlert("Could not connect to server", "error");
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
 </html>

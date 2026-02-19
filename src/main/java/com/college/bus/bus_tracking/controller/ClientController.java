@@ -2,6 +2,7 @@ package com.college.bus.bus_tracking.controller;
 
 import com.college.bus.bus_tracking.entity.Client;
 import com.college.bus.bus_tracking.service.ClientService;
+import com.college.bus.bus_tracking.service.SystemSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,9 @@ public class ClientController {
 
     @Autowired
     private ClientService clientService;
+
+    @Autowired
+    private SystemSettingsService systemSettingsService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Client client) {
@@ -37,6 +41,15 @@ public class ClientController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        // Check if student sign-in is enabled
+        if (!systemSettingsService.isStudentSignInEnabled()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Student sign-in is currently disabled. Contact admin for further details.");
+            response.put("disabled", true);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
         try {
             String identifier = credentials.get("username");
             if (identifier == null) {

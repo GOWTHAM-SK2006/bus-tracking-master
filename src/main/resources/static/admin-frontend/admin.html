@@ -77,6 +77,30 @@
 
         <!-- Admin Actions -->
         <div class="header-actions" id="adminHeaderActions">
+          <!-- Driver Sign In Toggle -->
+          <div class="toggle-container">
+            <span>Driver Sign In</span>
+            <button
+              id="driverSignInToggleBtn"
+              class="toggle-btn"
+              onclick="toggleDriverSignIn()"
+            >
+              <span class="toggle-slider" id="driverSignInSlider"></span>
+            </button>
+          </div>
+
+          <!-- Student Sign In Toggle -->
+          <div class="toggle-container">
+            <span>Student Sign In</span>
+            <button
+              id="studentSignInToggleBtn"
+              class="toggle-btn"
+              onclick="toggleStudentSignIn()"
+            >
+              <span class="toggle-slider" id="studentSignInSlider"></span>
+            </button>
+          </div>
+
           <!-- Account Creation Toggle -->
           <div class="toggle-container">
             <span>Driver Signup</span>
@@ -516,6 +540,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Admin Scripts -->
-    <script src="./admin-app.js"></script>
+    <script src="./admin-app.js?v=3"></script>
   </body>
 </html>

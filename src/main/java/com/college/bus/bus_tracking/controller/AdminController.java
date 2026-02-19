@@ -33,8 +33,15 @@ public class AdminController {
             SystemSettings settings = systemSettingsService.getSettings();
             response.put("success", true);
             response.put("accountCreationEnabled", settings.getAccountCreationEnabled());
+            Boolean driverSignIn = settings.getDriverSignInEnabled();
+            Boolean studentSignIn = settings.getStudentSignInEnabled();
+            response.put("driverSignInEnabled", driverSignIn != null ? driverSignIn : true);
+            response.put("studentSignInEnabled", studentSignIn != null ? studentSignIn : true);
             response.put("lastModified", settings.getLastModified());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok()
+                    .header("Cache-Control", "no-store, no-cache, must-revalidate")
+                    .header("Pragma", "no-cache")
+                    .body(response);
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
@@ -67,6 +74,68 @@ public class AdminController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Error toggling account creation:");
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("error", e.toString());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * Toggle driver sign-in on/off
+     */
+    @PostMapping("/toggle-driver-signin")
+    public ResponseEntity<Map<String, Object>> toggleDriverSignIn() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            SystemSettings settings = systemSettingsService.toggleDriverSignIn();
+
+            boolean enabled = settings.getDriverSignInEnabled() != null ? settings.getDriverSignInEnabled() : true;
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("type", "DRIVER_SIGNIN_UPDATE");
+            update.put("driverSignInEnabled", enabled);
+            update.put("timestamp", System.currentTimeMillis());
+            AdminWebSocketHandler.broadcastSystemUpdate(update);
+
+            response.put("success", true);
+            response.put("driverSignInEnabled", enabled);
+            response.put("message",
+                    "Driver sign-in " + (enabled ? "enabled" : "disabled"));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error toggling driver sign-in:");
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("error", e.toString());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * Toggle student sign-in on/off
+     */
+    @PostMapping("/toggle-student-signin")
+    public ResponseEntity<Map<String, Object>> toggleStudentSignIn() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            SystemSettings settings = systemSettingsService.toggleStudentSignIn();
+
+            boolean enabled = settings.getStudentSignInEnabled() != null ? settings.getStudentSignInEnabled() : true;
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("type", "STUDENT_SIGNIN_UPDATE");
+            update.put("studentSignInEnabled", enabled);
+            update.put("timestamp", System.currentTimeMillis());
+            AdminWebSocketHandler.broadcastSystemUpdate(update);
+
+            response.put("success", true);
+            response.put("studentSignInEnabled", enabled);
+            response.put("message",
+                    "Student sign-in " + (enabled ? "enabled" : "disabled"));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error toggling student sign-in:");
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.toString());
