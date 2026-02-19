@@ -397,6 +397,9 @@
             <button id="uploadPictureBtn" class="btn btn-primary">
               Save Photo
             </button>
+            <button id="removePhotoBtn" class="btn btn-secondary hidden" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2);">
+              Remove Photo
+            </button>
             <button id="skipPictureBtn" class="btn btn-secondary">
               Skip for now
             </button>
@@ -492,6 +495,7 @@
         profilePictureBase64 = client.profilePicture;
         const preview = document.getElementById("imagePreview");
         preview.innerHTML = `<img src="${client.profilePicture}" alt="Profile Photo">`;
+        document.getElementById("removePhotoBtn").classList.remove("hidden");
       }
 
       // Compress image to reduce base64 size
@@ -531,6 +535,7 @@
             profilePictureBase64 = compressed;
             const preview = document.getElementById("imagePreview");
             preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
+            document.getElementById("removePhotoBtn").classList.remove("hidden");
           }
         });
       
@@ -583,6 +588,34 @@
           } else {
             btn.textContent = "Save Photo";
           }
+        });
+
+      // Remove Photo
+      document
+        .getElementById("removePhotoBtn")
+        .addEventListener("click", async () => {
+          showConfirmDialog({
+            title: "Remove Photo",
+            message: "Are you sure you want to remove your profile photo?",
+            icon: "🗑️",
+            iconBg: "rgba(239, 68, 68, 0.15)",
+            btnText: "Remove",
+            btnColor: "#ef4444",
+            onConfirm: async () => {
+              const btn = document.getElementById("removePhotoBtn");
+              btn.innerHTML = '<span class="loader"></span> Removing';
+              if (await updateProfile({ profilePicture: null })) {
+                profilePictureBase64 = null;
+                document.getElementById("imagePreview").innerHTML = '<span class="placeholder-icon">👤</span>';
+                document.getElementById("imageUpload").value = "";
+                btn.classList.add("hidden");
+                btn.textContent = "Remove Photo";
+                showAlert("Profile photo removed", "success");
+              } else {
+                btn.textContent = "Remove Photo";
+              }
+            },
+          });
         });
 
       document
