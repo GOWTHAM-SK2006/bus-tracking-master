@@ -1392,9 +1392,13 @@ const TabManager = {
     });
 
     if (tabName !== "map") {
-      const targetPanel = document.getElementById(`${tabName}View`); // e.g. busesView, stopsView
+      const targetPanel = document.getElementById(`${tabName}View`); // e.g. busesView, profileView
       if (targetPanel) {
         targetPanel.classList.add("active");
+      }
+      // Refresh profile data when switching to profile tab
+      if (tabName === "profile" && typeof ProfileManager !== "undefined") {
+        ProfileManager.loadProfile();
       }
     } else {
       // If switching to map, maybe we want to resize just to be safe,

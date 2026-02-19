@@ -105,11 +105,12 @@ public class ClientController {
             Long clientId = Long.valueOf(profileData.get("clientId").toString());
             String phoneNumber = (String) profileData.get("phoneNumber");
             String profilePicture = (String) profileData.get("profilePicture");
+            String name = (String) profileData.get("name");
             Boolean phoneVerified = profileData.get("phoneVerified") != null
                     ? (Boolean) profileData.get("phoneVerified")
                     : null;
 
-            Client updatedClient = clientService.updateProfile(clientId, phoneNumber, profilePicture, phoneVerified);
+            Client updatedClient = clientService.updateProfile(clientId, phoneNumber, profilePicture, phoneVerified, name);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

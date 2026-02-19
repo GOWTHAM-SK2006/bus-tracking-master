@@ -79,7 +79,7 @@ public class ClientService {
     /**
      * Update client profile with phone number and profile picture
      */
-    public Client updateProfile(Long clientId, String phoneNumber, String profilePicture, Boolean phoneVerified) {
+    public Client updateProfile(Long clientId, String phoneNumber, String profilePicture, Boolean phoneVerified, String name) {
         Optional<Client> clientOptional = clientRepository.findById(clientId);
         if (clientOptional.isEmpty()) {
             throw new RuntimeException("Client not found");
@@ -97,6 +97,10 @@ public class ClientService {
 
         if (phoneVerified != null) {
             client.setPhoneVerified(phoneVerified);
+        }
+
+        if (name != null && !name.trim().isEmpty()) {
+            client.setName(name.trim());
         }
 
         return clientRepository.save(client);

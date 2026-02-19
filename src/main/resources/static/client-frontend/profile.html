@@ -397,11 +397,16 @@
             <button id="uploadPictureBtn" class="btn btn-primary">
               Save Photo
             </button>
-            <button id="removePhotoBtn" class="btn btn-secondary hidden" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2);">
+            <button
+              id="removePhotoBtn"
+              class="btn btn-secondary hidden"
+              style="
+                background: rgba(239, 68, 68, 0.1);
+                color: #fca5a5;
+                border-color: rgba(239, 68, 68, 0.2);
+              "
+            >
               Remove Photo
-            </button>
-            <button id="skipPictureBtn" class="btn btn-secondary">
-              Skip for now
             </button>
             <button
               id="deleteAccountBtn"
@@ -414,6 +419,23 @@
             >
               Delete Account
             </button>
+
+            <div style="text-align: center; margin-top: 20px">
+              <a
+                id="skipPictureBtn"
+                href="javascript:void(0)"
+                style="
+                  color: rgba(255, 255, 255, 0.45);
+                  font-size: 13px;
+                  text-decoration: none;
+                  transition: color 0.2s;
+                  cursor: pointer;
+                "
+                onmouseover="this.style.color = 'rgba(255,255,255,0.7)'"
+                onmouseout="this.style.color = 'rgba(255,255,255,0.45)'"
+                >Skip for now</a
+              >
+            </div>
           </div>
 
           <!-- Step 3: Success -->
@@ -535,10 +557,12 @@
             profilePictureBase64 = compressed;
             const preview = document.getElementById("imagePreview");
             preview.innerHTML = `<img src="${compressed}" alt="Preview">`;
-            document.getElementById("removePhotoBtn").classList.remove("hidden");
+            document
+              .getElementById("removePhotoBtn")
+              .classList.remove("hidden");
           }
         });
-      
+
       // Also improve error reporting in updateProfile
       async function updateProfile(data) {
         try {
@@ -556,7 +580,10 @@
           return false;
         } catch (err) {
           console.error("Profile update error:", err);
-          showAlert("Update failed — check your connection and try again", "error");
+          showAlert(
+            "Update failed — check your connection and try again",
+            "error",
+          );
           return false;
         }
       }
@@ -606,7 +633,8 @@
               btn.innerHTML = '<span class="loader"></span> Removing';
               if (await updateProfile({ profilePicture: null })) {
                 profilePictureBase64 = null;
-                document.getElementById("imagePreview").innerHTML = '<span class="placeholder-icon">👤</span>';
+                document.getElementById("imagePreview").innerHTML =
+                  '<span class="placeholder-icon">👤</span>';
                 document.getElementById("imageUpload").value = "";
                 btn.classList.add("hidden");
                 btn.textContent = "Remove Photo";
