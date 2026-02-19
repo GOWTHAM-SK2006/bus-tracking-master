@@ -487,6 +487,13 @@
 
       let profilePictureBase64 = null;
 
+      // Load existing profile picture from session on page load
+      if (client.profilePicture) {
+        profilePictureBase64 = client.profilePicture;
+        const preview = document.getElementById("imagePreview");
+        preview.innerHTML = `<img src="${client.profilePicture}" alt="Profile Photo">`;
+      }
+
       // Compress image to reduce base64 size
       function compressImage(file, maxWidth, quality) {
         return new Promise((resolve) => {
