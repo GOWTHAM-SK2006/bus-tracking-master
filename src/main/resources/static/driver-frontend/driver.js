@@ -1239,22 +1239,8 @@ const TrackingController = {
     }
 
     try {
-      // Step 1: Check if GPS is enabled before starting
-      const gpsEnabled = await this.checkGPSEnabled();
-      if (!gpsEnabled) {
-        // GPS is off — prompt user to enable it
-        const userEnabledGPS = await this.showGPSEnableDialog();
-        if (!userEnabledGPS) {
-          AlertController.show(
-            "GPS Required",
-            "Location services must be enabled for bus tracking.",
-            "error",
-          );
-          return;
-        }
-        // Give the system a moment to enable GPS after settings change
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-      }
+      // Native Android GPS permission is requested during startWatching automatically.
+      // We rely on the BackgroundGeolocation plugin to handle GPS checks.
 
       // Enable auto-reconnection for this tracking session
       WebSocketController.shouldReconnect = true;
@@ -1560,8 +1546,8 @@ const TrackingController = {
     // GPS HEARTBEAT MONITOR: Detect when GPS is turned off from quick settings.
     // BackgroundGeolocation plugin does NOT fire an error callback when GPS
     // is toggled off externally — it just silently stops sending updates.
-    // This monitor checks every 10s if we've received a GPS update recently.
-    // If no update in 15+ seconds, GPS was likely turned off → stop tracking.
+    // This monitor checks every 5s if we've received a GPS update recently.
+    // If no update in 10+ seconds, GPS was likely turned off → stop tracking.
     if (state.gpsHeartbeatInterval) {
       clearInterval(state.gpsHeartbeatInterval);
     }
@@ -1571,8 +1557,8 @@ const TrackingController = {
       const now = Date.now();
       const timeSinceLastGPS = now - (state.lastGPSTimestamp || 0);
 
-      // If no GPS update for 15 seconds, GPS is likely off
-      if (timeSinceLastGPS > 15000) {
+      // If no GPS update for 10 seconds, GPS is likely off
+      if (timeSinceLastGPS > 10000) {
         console.warn(
           "[GPS Heartbeat] No GPS update for " +
             Math.round(timeSinceLastGPS / 1000) +
@@ -1605,7 +1591,7 @@ const TrackingController = {
           "error",
         );
       }
-    }, 10000);
+    }, 5000);
 
     this.updateConnectionIndicator("connected");
   },
