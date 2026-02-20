@@ -667,15 +667,16 @@ const MapManager = {
       }
     }
 
-    // Show address if available, otherwise show coordinates
-    if (bus.address) {
-      DOM.panelLocation.textContent = bus.address;
-    } else if (
-      bus.latitude !== null &&
-      bus.longitude !== null &&
+    // Show address if available, otherwise show coordinates (treat 0,0 as unavailable)
+    const hasValidCoords =
+      bus.latitude != null &&
+      bus.longitude != null &&
       !isNaN(bus.latitude) &&
-      !isNaN(bus.longitude)
-    ) {
+      !isNaN(bus.longitude) &&
+      (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
+    if (bus.address && hasValidCoords) {
+      DOM.panelLocation.textContent = bus.address;
+    } else if (hasValidCoords) {
       DOM.panelLocation.textContent = `${bus.latitude.toFixed(6)}, ${bus.longitude.toFixed(6)}`;
       // Fetch address in background
       if (window.TomTomServices) {
@@ -872,13 +873,21 @@ const BusTracker = {
 
     state.buses.set(mappedBus.busId, mappedBus);
 
-    if (mappedBus.latitude !== 0 || mappedBus.longitude !== 0) {
-      // Apply filtering: Only show if matches filter
+    const hasValidCoords =
+      mappedBus.latitude != null &&
+      mappedBus.longitude != null &&
+      !isNaN(mappedBus.latitude) &&
+      !isNaN(mappedBus.longitude) &&
+      (Math.abs(mappedBus.latitude) >= 0.0001 ||
+        Math.abs(mappedBus.longitude) >= 0.0001);
+    if (hasValidCoords) {
       if (SearchManager.shouldShowBus(mappedBus)) {
         MapManager.updateBusMarker(mappedBus);
       } else {
         MapManager.removeBusMarker(mappedBus.busId);
       }
+    } else {
+      MapManager.removeBusMarker(mappedBus.busId);
     }
 
     let activeCount = 0;
@@ -1001,16 +1010,24 @@ const BusTracker = {
     DOM.totalBuses.textContent = state.buses.size;
 
     // Update markers and panel for active buses
+    const hasValidCoords = (bus) =>
+      bus.latitude != null &&
+      bus.longitude != null &&
+      !isNaN(bus.latitude) &&
+      !isNaN(bus.longitude) &&
+      (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
     state.buses.forEach((bus) => {
-      // Note: We only draw markers for buses with valid coordinates
-      if (bus.latitude !== 0 || bus.longitude !== 0) {
-        // Apply filtering
+      if (hasValidCoords(bus)) {
         if (SearchManager.shouldShowBus(bus)) {
           MapManager.updateBusMarker(bus);
         } else {
           MapManager.removeBusMarker(bus.busId);
         }
-
+        if (state.selectedBusId === bus.busId) {
+          MapManager.updatePanel(bus);
+        }
+      } else {
+        MapManager.removeBusMarker(bus.busId);
         if (state.selectedBusId === bus.busId) {
           MapManager.updatePanel(bus);
         }
@@ -1122,17 +1139,23 @@ const SearchManager = {
   },
 
   refreshFilteredView() {
-    // Re-apply search filter to markers without re-mapping bus data
+    const hasValidCoords = (b) =>
+      b.latitude != null &&
+      b.longitude != null &&
+      !isNaN(b.latitude) &&
+      !isNaN(b.longitude) &&
+      (Math.abs(b.latitude) >= 0.0001 || Math.abs(b.longitude) >= 0.0001);
     state.buses.forEach((bus) => {
-      if (bus.latitude !== 0 || bus.longitude !== 0) {
+      if (hasValidCoords(bus)) {
         if (this.shouldShowBus(bus)) {
           MapManager.updateBusMarker(bus);
         } else {
           MapManager.removeBusMarker(bus.busId);
         }
+      } else {
+        MapManager.removeBusMarker(bus.busId);
       }
     });
-    // Re-render bus card list
     UIManager.renderBusesList();
   },
 
