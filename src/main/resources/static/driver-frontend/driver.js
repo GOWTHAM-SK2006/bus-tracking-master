@@ -1455,7 +1455,10 @@ const TrackingController = {
             Allow <span style="color:#4dd0e1; font-weight:700;">BusTracking</span> to access this device's location?
           </h3>
           <div style="display:flex; flex-direction:column; gap:0; border-top:1px solid rgba(255,255,255,0.1);">
-            <button id="gpsAllow" style="padding:16px; border:none; border-bottom:1px solid rgba(255,255,255,0.1); background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
+            <button id="gpsAllowAlways" style="padding:16px; border:none; border-bottom:1px solid rgba(255,255,255,0.1); background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
+              ALLOW ALL THE TIME
+            </button>
+            <button id="gpsAllowWhileUsing" style="padding:16px; border:none; border-bottom:1px solid rgba(255,255,255,0.1); background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
               ALLOW ONLY WHILE USING THE APP
             </button>
             <button id="gpsDeny" style="padding:16px; border:none; background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
@@ -1484,7 +1487,7 @@ const TrackingController = {
             from { opacity:0; transform:scale(0.9) translateY(10px); }
             to { opacity:1; transform:scale(1) translateY(0); }
           }
-          #gpsAllow:active, #gpsDeny:active {
+          #gpsAllowAlways:active, #gpsAllowWhileUsing:active, #gpsDeny:active {
             background: rgba(255,255,255,0.1);
           }
         `;
@@ -1493,9 +1496,8 @@ const TrackingController = {
 
       document.body.appendChild(modal);
 
-      document.getElementById("gpsAllow").onclick = async () => {
-        modal.remove();
-        // Open device location settings if on native platform
+      // Helper to open device location settings
+      const openSettings = async () => {
         if (
           window.Capacitor &&
           window.Capacitor.isNativePlatform() &&
@@ -1508,6 +1510,17 @@ const TrackingController = {
             console.warn("[GPS Dialog] Could not open settings:", e);
           }
         }
+      };
+
+      document.getElementById("gpsAllowAlways").onclick = async () => {
+        modal.remove();
+        await openSettings();
+        resolve(true);
+      };
+
+      document.getElementById("gpsAllowWhileUsing").onclick = async () => {
+        modal.remove();
+        await openSettings();
         resolve(true);
       };
 
