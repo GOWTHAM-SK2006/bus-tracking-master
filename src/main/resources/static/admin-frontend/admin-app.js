@@ -975,10 +975,12 @@ const WebSocketManager = {
     }
   },
 
-  async fetchInitialBuses() {
+  async fetchInitialBuses(forceReload = false) {
     try {
       const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/api/bus/all`);
+      const url =
+        `${baseUrl}/api/bus/all` + (forceReload ? `?t=${Date.now()}` : "");
+      const response = await fetch(url, { cache: "reload" });
       if (response.ok) {
         const buses = await response.json();
         if (buses && buses.length > 0) {
@@ -1024,6 +1026,17 @@ function showToast(message, type = "success") {
 
   DOM.toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
+  // If a bus/account was deleted, force reload buses
+  if (message && message.toLowerCase().includes("deleted")) {
+    setTimeout(() => {
+      if (
+        WebSocketManager &&
+        typeof WebSocketManager.fetchInitialBuses === "function"
+      ) {
+        WebSocketManager.fetchInitialBuses(true);
+      }
+    }, 1000);
+  }
 }
 
 // =========================================

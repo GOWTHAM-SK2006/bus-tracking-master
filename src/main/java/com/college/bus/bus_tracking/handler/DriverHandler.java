@@ -186,16 +186,16 @@ public class DriverHandler extends TextWebSocketHandler {
         if (busNumber != null) {
             System.out.println("[DriverHandler] Connection closed for bus: " + busNumber);
 
-            // Update memory
-            BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
-            if (bus != null) {
-                bus.setStatus("STOPPED");
+            // Remove from memory
+            if (BusSessionStore.BUS_MAP.containsKey(busNumber)) {
+                BusSessionStore.BUS_MAP.remove(busNumber);
+                System.out.println("[DriverHandler] Removed bus from memory on disconnect: " + busNumber);
             }
 
-            // Update DB
+            // Remove from DB
             repository.findByBusNumber(busNumber).ifPresent(entity -> {
-                entity.setStatus("STOPPED");
-                repository.save(entity);
+                repository.delete(entity);
+                System.out.println("[DriverHandler] Deleted bus entity from DB on disconnect: " + busNumber);
             });
 
             // Broadcast update
