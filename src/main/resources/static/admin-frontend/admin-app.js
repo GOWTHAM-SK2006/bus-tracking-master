@@ -768,36 +768,48 @@ const BusManager = {
   handleBusData(buses) {
     if (!buses) return;
 
-    const mappedBuses = buses.map((bus) => ({
-      busId: String(bus.busNumber || bus.busId),
-      busNo: bus.busNumber || bus.busNo,
-      busName: "College Bus " + (bus.busNumber || bus.busNo),
-      // Robust route name detection matching client
-      routeName:
-        bus.busName ||
-        bus.route ||
-        bus.busRoute ||
-        bus.routePath ||
-        `Route ${bus.busNumber || bus.busNo}`,
-      latitude: bus.latitude,
-      longitude: bus.longitude,
-      status: bus.status,
-      gpsOn:
+    // Build a set of current bus IDs from the server update
+    const currentBusIds = new Set();
+
+    const mappedBuses = buses.map((bus) => {
+      const hasValidCoords =
+        bus.latitude != null &&
+        bus.longitude != null &&
+        (Math.abs(bus.latitude) > 0.0001 || Math.abs(bus.longitude) > 0.0001);
+
+      const statusRunning =
         bus.status &&
         (bus.status.toUpperCase() === "RUNNING" ||
-          bus.status.toUpperCase() === "GPS_ACTIVE"),
-      // Use static route logic for parity, though currently just stored
-      stops:
-        ROUTE_DEFINITIONS[bus.busNumber || bus.busNo] ||
-        (bus.busStop ? [bus.busStop] : bus.stops || []),
-      driverName: bus.driverName || "Unknown",
-      driverPhone: bus.driverPhone || "N/A",
-      address: bus.address, // Preserve if available
-      lastUpdate: bus.lastUpdate || new Date().toISOString(),
-    }));
+          bus.status.toUpperCase() === "GPS_ACTIVE");
+
+      return {
+        busId: String(bus.busNumber || bus.busId),
+        busNo: bus.busNumber || bus.busNo,
+        busName: "College Bus " + (bus.busNumber || bus.busNo),
+        routeName:
+          bus.busName ||
+          bus.route ||
+          bus.busRoute ||
+          bus.routePath ||
+          `Route ${bus.busNumber || bus.busNo}`,
+        latitude: bus.latitude,
+        longitude: bus.longitude,
+        status: bus.status,
+        // Only mark as GPS on if status is RUNNING AND coordinates are valid (not 0,0)
+        gpsOn: statusRunning && hasValidCoords,
+        stops:
+          ROUTE_DEFINITIONS[bus.busNumber || bus.busNo] ||
+          (bus.busStop ? [bus.busStop] : bus.stops || []),
+        driverName: bus.driverName || "Unknown",
+        driverPhone: bus.driverPhone || "N/A",
+        address: bus.address,
+        lastUpdate: bus.lastUpdate || new Date().toISOString(),
+      };
+    });
 
     let activeCount = 0;
     mappedBuses.forEach((bus) => {
+      currentBusIds.add(bus.busId);
       adminState.buses.set(bus.busId, bus);
       if (bus.gpsOn) activeCount++;
       MapManager.updateBusMarker(bus);
@@ -806,8 +818,26 @@ const BusManager = {
       DashboardManager.handleBusUpdate(bus);
     });
 
+    // Remove buses that are no longer reported by the server (disconnected/stopped)
+    for (const [busId] of adminState.buses) {
+      if (!currentBusIds.has(busId)) {
+        console.log(`[BusManager] Removing disconnected bus: ${busId}`);
+        adminState.buses.delete(busId);
+        // Remove marker from map
+        const marker = MapManager.markers.get(busId);
+        if (marker) {
+          marker.remove();
+          MapManager.markers.delete(busId);
+        }
+        // Close info panel if this bus was selected
+        if (adminState.selectedBusId === busId) {
+          MapManager.closeInfoPanel();
+        }
+      }
+    }
+
     DOM.activeBusCount.textContent = activeCount;
-    if (DOM.totalBuses) DOM.totalBuses.textContent = mappedBuses.length;
+    if (DOM.totalBuses) DOM.totalBuses.textContent = adminState.buses.size;
 
     this.renderBusesTable();
 
