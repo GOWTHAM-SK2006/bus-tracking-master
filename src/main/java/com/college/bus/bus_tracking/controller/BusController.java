@@ -24,9 +24,6 @@ public class BusController {
             // Debug log
             System.out.println("[BusController] Returning " + buses.size() + " buses from memory");
 
-            // Broadcast to all connected clients
-            broadcastBusDataUpdates(buses);
-
             return ResponseEntity.ok(buses);
         } catch (Exception e) {
             e.printStackTrace();

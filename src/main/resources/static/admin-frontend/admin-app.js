@@ -882,7 +882,6 @@ const BusManager = {
 const WebSocketManager = {
   socket: null,
   reconnectAttempts: 0,
-  pollInterval: null,
 
   init() {
     console.log("[WS] Initializing connection...");
@@ -901,17 +900,18 @@ const WebSocketManager = {
         updateConnectionBadge(true);
         showToast("Connected to system", "success");
 
-        // Fetch all registered buses via REST as fallback
+        // Fetch all registered buses via REST once for initial load
         this.fetchInitialBuses();
-
-        // Start periodic polling for real-time sync (every 3 seconds)
-        this.startPolling();
       };
 
       this.socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type === "BUS_UPDATE") {
+          console.log("[WS] Message received, type:", data.type);
+          if (data.type === "BUS_UPDATE" && data.buses) {
+            console.log(
+              `[WS] BUS_UPDATE received: ${data.buses.length} buses (source: ${data.source || "unknown"})`,
+            );
             BusManager.handleBusData(data.buses);
           }
         } catch (error) {
@@ -923,7 +923,6 @@ const WebSocketManager = {
         console.log("[WS] Closed");
         adminState.isConnected = false;
         updateConnectionBadge(false);
-        this.stopPolling();
         this.attemptReconnect();
       };
 
@@ -936,35 +935,7 @@ const WebSocketManager = {
     }
   },
 
-  startPolling() {
-    this.stopPolling();
-    this.pollInterval = setInterval(() => {
-      this.fetchLatestBuses();
-    }, 3000);
-    console.log("[WS] Polling started (every 3s)");
-  },
-
-  stopPolling() {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
-    }
-  },
-
-  async fetchLatestBuses() {
-    try {
-      const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/api/bus/all`);
-      if (response.ok) {
-        const buses = await response.json();
-        if (buses) {
-          BusManager.handleBusData(buses);
-        }
-      }
-    } catch (error) {
-      // Silent fail - WebSocket push is primary, polling is fallback
-    }
-  },
+  // Polling removed — real-time updates are handled entirely via WebSocket push
 
   attemptReconnect() {
     if (this.reconnectAttempts < CONFIG.RECONNECT_MAX_ATTEMPTS) {
