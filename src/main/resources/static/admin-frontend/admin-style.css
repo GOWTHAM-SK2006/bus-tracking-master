@@ -60,7 +60,8 @@ body {
   top: 0;
   z-index: 2000;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  height: 64px;
+  height: calc(64px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .header-container {
@@ -432,7 +433,7 @@ body {
 .admin-main {
   width: 100%;
   padding: 0;
-  height: calc(100vh - 64px - 60px);
+  height: calc(100vh - 64px - env(safe-area-inset-top, 0px) - 60px);
   position: relative;
 }
 

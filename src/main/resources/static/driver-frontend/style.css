@@ -163,7 +163,8 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-  height: var(--navbar-height);
+  height: calc(var(--navbar-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
@@ -373,7 +374,7 @@ body {
    Main Content
    ========================================= */
 .main-content {
-  padding-top: calc(var(--navbar-height) + var(--space-6));
+  padding-top: calc(var(--navbar-height) + env(safe-area-inset-top, 0px) + var(--space-6));
   padding-bottom: calc(var(--footer-height) + var(--space-6) + 60px);
   min-height: 100vh;
 }

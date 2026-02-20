@@ -1239,6 +1239,23 @@ const TrackingController = {
     }
 
     try {
+      // Step 1: Check if GPS is enabled before starting
+      const gpsEnabled = await this.checkGPSEnabled();
+      if (!gpsEnabled) {
+        // GPS is off — prompt user to enable it
+        const userEnabledGPS = await this.showGPSEnableDialog();
+        if (!userEnabledGPS) {
+          AlertController.show(
+            "GPS Required",
+            "Location services must be enabled for bus tracking.",
+            "error",
+          );
+          return;
+        }
+        // Give the system a moment to enable GPS after settings change
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
       // Enable auto-reconnection for this tracking session
       WebSocketController.shouldReconnect = true;
 
@@ -1370,6 +1387,136 @@ const TrackingController = {
     LogController.add("GPS tracking stopped", "success");
   },
 
+  /**
+   * Check if GPS/Location services are enabled on the device.
+   * Returns true if GPS is on, false if off or unavailable.
+   */
+  async checkGPSEnabled() {
+    // On Capacitor native platform, try to get a quick location fix
+    if (
+      window.Capacitor &&
+      window.Capacitor.isNativePlatform() &&
+      window.Capacitor.isPluginAvailable("Geolocation")
+    ) {
+      try {
+        const { Geolocation } = window.Capacitor.Plugins;
+        await Geolocation.getCurrentPosition({ timeout: 5000 });
+        return true; // GPS is on — got a position
+      } catch (e) {
+        console.log("[GPS Check] GPS may be off:", e.message);
+        return false;
+      }
+    }
+
+    // Fallback to standard Web Geolocation API
+    return new Promise((resolve) => {
+      if (!("geolocation" in navigator)) {
+        resolve(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        () => resolve(true), // GPS is on
+        (error) => {
+          // POSITION_UNAVAILABLE (code 2) = GPS is off
+          // PERMISSION_DENIED (code 1) = permission not granted yet (we'll handle later)
+          if (error.code === 2) {
+            resolve(false);
+          } else {
+            // Permission denied or timeout — treat as "might be on, let the system handle it"
+            resolve(true);
+          }
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+      );
+    });
+  },
+
+  /**
+   * Show a GPS enable dialog asking the user to turn on location services.
+   * Returns a Promise that resolves to true if user clicked Allow, false if Deny.
+   */
+  showGPSEnableDialog() {
+    return new Promise((resolve) => {
+      let modal = document.getElementById("gpsEnableModal");
+      if (modal) modal.remove();
+
+      modal = document.createElement("div");
+      modal.id = "gpsEnableModal";
+      modal.innerHTML = `
+        <div style="background:#2d2d3d; border-radius:20px; padding:32px 24px 20px; max-width:340px; width:85%; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.5); animation:gpsModalPop 0.25s ease;">
+          <div style="width:48px; height:48px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4dd0e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <h3 style="color:#ffffff; font-size:1.05rem; font-weight:600; line-height:1.4; margin-bottom:24px;">
+            Allow <span style="color:#4dd0e1; font-weight:700;">BusTracking</span> to access this device's location?
+          </h3>
+          <div style="display:flex; flex-direction:column; gap:0; border-top:1px solid rgba(255,255,255,0.1);">
+            <button id="gpsAllow" style="padding:16px; border:none; border-bottom:1px solid rgba(255,255,255,0.1); background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
+              ALLOW ONLY WHILE USING THE APP
+            </button>
+            <button id="gpsDeny" style="padding:16px; border:none; background:transparent; color:#4dd0e1; font-size:0.9rem; font-weight:600; cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;">
+              DENY
+            </button>
+          </div>
+        </div>`;
+
+      Object.assign(modal.style, {
+        display: "flex",
+        position: "fixed",
+        inset: "0",
+        zIndex: "9999",
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(4px)",
+        alignItems: "center",
+        justifyContent: "center",
+      });
+
+      // Add animation keyframe
+      if (!document.getElementById("gpsModalStyle")) {
+        const style = document.createElement("style");
+        style.id = "gpsModalStyle";
+        style.textContent = `
+          @keyframes gpsModalPop {
+            from { opacity:0; transform:scale(0.9) translateY(10px); }
+            to { opacity:1; transform:scale(1) translateY(0); }
+          }
+          #gpsAllow:active, #gpsDeny:active {
+            background: rgba(255,255,255,0.1);
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(modal);
+
+      document.getElementById("gpsAllow").onclick = async () => {
+        modal.remove();
+        // Open device location settings if on native platform
+        if (
+          window.Capacitor &&
+          window.Capacitor.isNativePlatform() &&
+          window.Capacitor.isPluginAvailable("BackgroundGeolocation")
+        ) {
+          try {
+            const { BackgroundGeolocation } = window.Capacitor.Plugins;
+            await BackgroundGeolocation.openSettings();
+          } catch (e) {
+            console.warn("[GPS Dialog] Could not open settings:", e);
+          }
+        }
+        resolve(true);
+      };
+
+      document.getElementById("gpsDeny").onclick = () => {
+        modal.remove();
+        resolve(false);
+      };
+    });
+  },
   /**
    * Start interval-based data transmission
    */

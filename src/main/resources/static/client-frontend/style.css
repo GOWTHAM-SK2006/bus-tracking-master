@@ -103,6 +103,7 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
+  padding-top: env(safe-area-inset-top, 0px);
   background: var(--bg-white);
   box-shadow: var(--shadow-sm);
 }
@@ -438,13 +439,13 @@ body {
    Main Content
    ========================================= */
 .main-content {
-  padding-top: var(--header-height);
+  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
   min-height: 100vh;
 }
 
 .tab-content {
   display: none;
-  height: calc(100vh - var(--header-height));
+  height: calc(100vh - var(--header-height) - env(safe-area-inset-top, 0px));
 }
 
 .tab-content.active {
