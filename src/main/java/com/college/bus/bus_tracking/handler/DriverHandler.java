@@ -11,6 +11,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class DriverHandler extends TextWebSocketHandler {
 
@@ -21,6 +26,23 @@ public class DriverHandler extends TextWebSocketHandler {
     public DriverHandler(BusRepository repository, UserHandler userHandler) {
         this.repository = repository;
         this.userHandler = userHandler;
+    }
+
+    /**
+     * Broadcast current bus list to all connected admin panels.
+     */
+    private void broadcastToAdmins() {
+        try {
+            List<BusData> currentBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+            Map<String, Object> update = new HashMap<>();
+            update.put("type", "BUS_UPDATE");
+            update.put("buses", currentBuses);
+            update.put("source", "DriverHandler");
+            update.put("timestamp", System.currentTimeMillis());
+            AdminWebSocketHandler.broadcastToAdmins(update);
+        } catch (Exception e) {
+            System.err.println("[DriverHandler] Failed to broadcast to admins: " + e.getMessage());
+        }
     }
 
     @Override
@@ -131,6 +153,7 @@ public class DriverHandler extends TextWebSocketHandler {
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
+                broadcastToAdmins();
                 return;
             }
 
@@ -150,6 +173,7 @@ public class DriverHandler extends TextWebSocketHandler {
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
+                broadcastToAdmins();
                 return;
             }
 
@@ -173,6 +197,7 @@ public class DriverHandler extends TextWebSocketHandler {
                     repository.save(e);
                 });
                 userHandler.broadcastUpdate();
+                broadcastToAdmins();
             } else {
                 System.err.println("[DriverHandler] Warning: Update received for unknown bus in memory: " + busNumber);
             }
@@ -205,6 +230,7 @@ public class DriverHandler extends TextWebSocketHandler {
 
             // Broadcast update so admin/student see the status change
             userHandler.broadcastUpdate();
+            broadcastToAdmins();
         }
     }
 }

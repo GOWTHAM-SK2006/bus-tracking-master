@@ -1645,11 +1645,11 @@ const TrackingController = {
         AlertController.show(title, message, "error");
         break;
       case 2: // POSITION_UNAVAILABLE — GPS is OFF
-        title = "GPS is Turned Off";
+        title = "GPS Turned Off";
         message =
-          "Please turn on your device's Location/GPS to continue tracking.";
-        shouldStopTracking = false;
-        showGPSBanner(title, message);
+          "Location services were disabled. Tracking has been stopped. Please turn on GPS and restart tracking.";
+        shouldStopTracking = true; // STOP tracking so bus shows as inactive
+        AlertController.show(title, message, "error");
         break;
       case 3: // TIMEOUT
         title = "GPS Timeout";
@@ -1682,9 +1682,8 @@ const TrackingController = {
       LogController.add("GPS error reported to backend", "info");
     }
 
-    // Only stop tracking if permission was denied
     if (shouldStopTracking) {
-      this.stop();
+      this.stop(); // Fully stop tracking — bus becomes inactive on admin
     } else {
       // Keep tracking active but update UI to show GPS is unavailable
       GPSController.updateStatus("error");
