@@ -201,4 +201,46 @@ public class AdminController {
         response.put("activeBuses", BusSessionStore.BUS_MAP.keySet());
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Sync BUS_MAP with database - removes in-memory entries for buses
+     * that no longer exist in the database (e.g. deleted driver accounts).
+     */
+    @PostMapping("/sync-buses")
+    public ResponseEntity<Map<String, Object>> syncBuses() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            java.util.List<String> removed = new java.util.ArrayList<>();
+
+            for (String busNumber : new java.util.ArrayList<>(BusSessionStore.BUS_MAP.keySet())) {
+                boolean existsInDb = busRepository.findByBusNumber(busNumber).isPresent();
+                if (!existsInDb) {
+                    BusSessionStore.BUS_MAP.remove(busNumber);
+                    removed.add(busNumber);
+                    System.out.println("[Admin] Sync: removed stale bus from memory: " + busNumber);
+                }
+            }
+
+            // Broadcast updated bus list to all admins
+            if (!removed.isEmpty()) {
+                java.util.List<com.college.bus.bus_tracking.model.BusData> currentBuses = new java.util.ArrayList<>(
+                        BusSessionStore.BUS_MAP.values());
+                Map<String, Object> update = new HashMap<>();
+                update.put("type", "BUS_UPDATE");
+                update.put("buses", currentBuses);
+                update.put("source", "AdminSync");
+                update.put("timestamp", System.currentTimeMillis());
+                AdminWebSocketHandler.broadcastToAdmins(update);
+            }
+
+            response.put("success", true);
+            response.put("removedBuses", removed);
+            response.put("remainingBuses", BusSessionStore.BUS_MAP.size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
 }

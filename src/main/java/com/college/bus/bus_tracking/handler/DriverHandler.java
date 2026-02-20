@@ -161,12 +161,15 @@ public class DriverHandler extends TextWebSocketHandler {
                 System.out.println("[DriverHandler] Update for " + busNumber + ": " + lat + ", " + lng);
                 bus.setLatitude(lat);
                 bus.setLongitude(lng);
+                // Receiving GPS coordinates means the driver is actively tracking
+                bus.setStatus("RUNNING");
 
                 // Update in memory first for speed
                 // Async update DB
                 repository.findByBusNumber(busNumber).ifPresent(e -> {
                     e.setLatitude(bus.getLatitude());
                     e.setLongitude(bus.getLongitude());
+                    e.setStatus("RUNNING");
                     repository.save(e);
                 });
                 userHandler.broadcastUpdate();

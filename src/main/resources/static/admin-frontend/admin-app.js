@@ -930,8 +930,8 @@ const WebSocketManager = {
         updateConnectionBadge(true);
         showToast("Connected to system", "success");
 
-        // Fetch all registered buses via REST once for initial load
-        this.fetchInitialBuses();
+        // Sync BUS_MAP with DB first (removes deleted accounts), then fetch initial buses
+        this.syncAndFetchBuses();
       };
 
       this.socket.onmessage = (event) => {
@@ -965,7 +965,18 @@ const WebSocketManager = {
     }
   },
 
-  // Polling removed — real-time updates are handled entirely via WebSocket push
+  async syncAndFetchBuses() {
+    try {
+      const baseUrl = getApiBaseUrl();
+      // Sync: remove stale BUS_MAP entries for deleted accounts
+      await fetch(`${baseUrl}/api/admin/sync-buses`, { method: "POST" });
+      console.log("[WS] Bus sync completed");
+    } catch (error) {
+      console.warn("[WS] Sync failed (non-critical):", error);
+    }
+    // Now fetch the clean initial bus list
+    this.fetchInitialBuses();
+  },
 
   attemptReconnect() {
     if (this.reconnectAttempts < CONFIG.RECONNECT_MAX_ATTEMPTS) {
