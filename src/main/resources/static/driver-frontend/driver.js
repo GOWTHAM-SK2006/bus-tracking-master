@@ -1277,6 +1277,7 @@ const TrackingController = {
           (position) => {
             // Position update logic
             dismissGPSBanner(); // GPS is working — dismiss any active GPS-off banner
+            state.lastGPSTimestamp = Date.now(); // Track for heartbeat monitor
             if (!state.isTracking) {
               state.isTracking = true;
               state.gpsPermissionGranted = true;
@@ -1542,6 +1543,9 @@ const TrackingController = {
     // Send immediately
     this.sendUpdate();
 
+    // Track when we last received a GPS position
+    state.lastGPSTimestamp = Date.now();
+
     // CRITICAL: Periodic fallback every 5 seconds.
     // The background geolocation plugin delivers location natively, but the
     // JS bridge can sometimes stall when the WebView is deprioritised.
@@ -1553,6 +1557,56 @@ const TrackingController = {
       }
     }, 5000);
 
+    // GPS HEARTBEAT MONITOR: Detect when GPS is turned off from quick settings.
+    // BackgroundGeolocation plugin does NOT fire an error callback when GPS
+    // is toggled off externally — it just silently stops sending updates.
+    // This monitor checks every 10s if we've received a GPS update recently.
+    // If no update in 15+ seconds, GPS was likely turned off → stop tracking.
+    if (state.gpsHeartbeatInterval) {
+      clearInterval(state.gpsHeartbeatInterval);
+    }
+    state.gpsHeartbeatInterval = setInterval(() => {
+      if (!state.isTracking) return;
+
+      const now = Date.now();
+      const timeSinceLastGPS = now - (state.lastGPSTimestamp || 0);
+
+      // If no GPS update for 15 seconds, GPS is likely off
+      if (timeSinceLastGPS > 15000) {
+        console.warn(
+          "[GPS Heartbeat] No GPS update for " +
+            Math.round(timeSinceLastGPS / 1000) +
+            "s — GPS appears to be off",
+        );
+        LogController.add(
+          "GPS signal lost — location services may be disabled",
+          "warning",
+        );
+
+        // Send GPS_ERROR to backend to mark bus as inactive
+        if (
+          state.socket &&
+          state.socket.readyState === WebSocket.OPEN
+        ) {
+          WebSocketController.send({
+            busNumber: state.busNumber,
+            action: "GPS_ERROR",
+            errorCode: "GPS_OFF_DETECTED",
+            errorMessage: "GPS turned off externally",
+          });
+        }
+
+        // Stop tracking fully
+        this.stop();
+
+        AlertController.show(
+          "GPS Turned Off",
+          "Location services were disabled. Tracking has been stopped. Please turn on GPS and restart tracking.",
+          "error",
+        );
+      }
+    }, 10000);
+
     this.updateConnectionIndicator("connected");
   },
 
@@ -1563,6 +1617,12 @@ const TrackingController = {
     if (state.sendInterval) {
       clearInterval(state.sendInterval);
       state.sendInterval = null;
+    }
+
+    // Clear GPS heartbeat monitor
+    if (state.gpsHeartbeatInterval) {
+      clearInterval(state.gpsHeartbeatInterval);
+      state.gpsHeartbeatInterval = null;
     }
 
     this.updateConnectionIndicator("offline");
