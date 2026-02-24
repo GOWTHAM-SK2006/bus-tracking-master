@@ -783,9 +783,9 @@ const BusManager = {
           bus.status.toUpperCase() === "GPS_ACTIVE");
 
       return {
-        busId: String(bus.busNumber || bus.busId),
+        busId: String(bus.busNumber || bus.busId || bus.busNo),
         busNo: bus.busNumber || bus.busNo,
-        busName: "College Bus " + (bus.busNumber || bus.busNo),
+        busName: bus.busName || bus.busNumber || bus.busNo,
         routeName:
           bus.busName ||
           bus.route ||

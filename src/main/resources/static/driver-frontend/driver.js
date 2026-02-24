@@ -1239,8 +1239,64 @@ const TrackingController = {
     }
 
     try {
-      // Native Android GPS permission is requested during startWatching automatically.
-      // We rely on the BackgroundGeolocation plugin to handle GPS checks.
+      // ── Step 1: Request native Android location permission ──
+      // This triggers the system dialog: "Allow App to access this device's location?"
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        let permissionGranted = false;
+
+        // Try @capacitor/geolocation plugin first (shows the native Android dialog)
+        if (window.Capacitor.isPluginAvailable("Geolocation")) {
+          try {
+            const { Geolocation } = window.Capacitor.Plugins;
+
+            // Check current permission status
+            const permStatus = await Geolocation.checkPermissions();
+            console.log("[Permission] Current status:", JSON.stringify(permStatus));
+
+            if (permStatus.location === "granted" || permStatus.coarseLocation === "granted") {
+              // Permission already granted — skip dialog
+              permissionGranted = true;
+              LogController.add("Location permission already granted", "success");
+            } else {
+              // Permission not granted — request it (shows the native Android popup)
+              LogController.add("Requesting location permission...", "info");
+              const result = await Geolocation.requestPermissions({ permissions: ["location", "coarseLocation"] });
+              console.log("[Permission] Request result:", JSON.stringify(result));
+
+              if (result.location === "granted" || result.coarseLocation === "granted") {
+                permissionGranted = true;
+                LogController.add("Location permission granted", "success");
+              } else {
+                // User denied the permission
+                LogController.add("Location permission denied by user", "error");
+                AlertController.show(
+                  "Permission Required",
+                  "Location permission is required for GPS tracking. Please allow location access and try again.",
+                  "error",
+                );
+                this.updateTrackingUI("stopped");
+                return;
+              }
+            }
+          } catch (e) {
+            console.error("[Permission] Geolocation plugin error:", e);
+            // Don't block — BackgroundGeolocation will also request permission
+          }
+        }
+
+        // If Capacitor Geolocation plugin didn't handle it, try a quick position check
+        // to trigger any remaining system prompts (e.g. "Turn on GPS" system dialog)
+        if (!permissionGranted && window.Capacitor.isPluginAvailable("Geolocation")) {
+          try {
+            const { Geolocation } = window.Capacitor.Plugins;
+            await Geolocation.getCurrentPosition({ timeout: 5000 });
+            permissionGranted = true;
+          } catch (e) {
+            console.warn("[Permission] getCurrentPosition failed:", e.message);
+            // Continue anyway — BackgroundGeolocation will handle it
+          }
+        }
+      }
 
       // Enable auto-reconnection for this tracking session
       WebSocketController.shouldReconnect = true;
@@ -1547,51 +1603,11 @@ const TrackingController = {
     // BackgroundGeolocation plugin does NOT fire an error callback when GPS
     // is toggled off externally — it just silently stops sending updates.
     // This monitor checks every 5s if we've received a GPS update recently.
-    // If no update in 10+ seconds, GPS was likely turned off → stop tracking.
+    // NOTE: Auto-stop logic removed to prevent tracking from turning off on weak GPS signal.
     if (state.gpsHeartbeatInterval) {
       clearInterval(state.gpsHeartbeatInterval);
     }
-    state.gpsHeartbeatInterval = setInterval(() => {
-      if (!state.isTracking) return;
-
-      const now = Date.now();
-      const timeSinceLastGPS = now - (state.lastGPSTimestamp || 0);
-
-      // If no GPS update for 10 seconds, GPS is likely off
-      if (timeSinceLastGPS > 10000) {
-        console.warn(
-          "[GPS Heartbeat] No GPS update for " +
-            Math.round(timeSinceLastGPS / 1000) +
-            "s — GPS appears to be off",
-        );
-        LogController.add(
-          "GPS signal lost — location services may be disabled",
-          "warning",
-        );
-
-        // Send GPS_ERROR to backend to mark bus as inactive
-        if (
-          state.socket &&
-          state.socket.readyState === WebSocket.OPEN
-        ) {
-          WebSocketController.send({
-            busNumber: state.busNumber,
-            action: "GPS_ERROR",
-            errorCode: "GPS_OFF_DETECTED",
-            errorMessage: "GPS turned off externally",
-          });
-        }
-
-        // Stop tracking fully
-        this.stop();
-
-        AlertController.show(
-          "GPS Turned Off",
-          "Location services were disabled. Tracking has been stopped. Please turn on GPS and restart tracking.",
-          "error",
-        );
-      }
-    }, 5000);
+    // Heartbeat logic removed so that weak GPS does not turn off tracking automatically.
 
     this.updateConnectionIndicator("connected");
   },
