@@ -1615,8 +1615,8 @@ const TrackingController = {
       const now = Date.now();
       const timeSinceLastGPS = now - (state.lastGPSTimestamp || 0);
 
-      // If no GPS update for 15 seconds, GPS is likely off
-      if (timeSinceLastGPS > 15000) {
+      // If no GPS update for 10 seconds, GPS is likely off
+      if (timeSinceLastGPS > 10000) {
         console.warn(
           "[GPS Heartbeat] No GPS update for " +
             Math.round(timeSinceLastGPS / 1000) +
