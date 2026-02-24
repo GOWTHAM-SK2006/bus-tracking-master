@@ -17,6 +17,9 @@
     "backgroundColor": "#000000"
   },
   "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
     "SplashScreen": {
       "launchAutoHide": true,
       "launchShowDuration": 0,
