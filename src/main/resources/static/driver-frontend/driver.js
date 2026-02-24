@@ -1603,11 +1603,82 @@ const TrackingController = {
     // BackgroundGeolocation plugin does NOT fire an error callback when GPS
     // is toggled off externally — it just silently stops sending updates.
     // This monitor checks every 5s if we've received a GPS update recently.
-    // NOTE: Auto-stop logic removed to prevent tracking from turning off on weak GPS signal.
+    // NOTE: Does NOT stop tracking — just warns the user so GPS auto-recovers when turned back on.
     if (state.gpsHeartbeatInterval) {
       clearInterval(state.gpsHeartbeatInterval);
     }
-    // Heartbeat logic removed so that weak GPS does not turn off tracking automatically.
+    state.gpsDetectedOff = false; // Track if we already showed the GPS off warning
+    state.gpsHeartbeatInterval = setInterval(() => {
+      if (!state.isTracking) return;
+
+      const now = Date.now();
+      const timeSinceLastGPS = now - (state.lastGPSTimestamp || 0);
+
+      // If no GPS update for 15 seconds, GPS is likely off
+      if (timeSinceLastGPS > 15000) {
+        if (!state.gpsDetectedOff) {
+          state.gpsDetectedOff = true;
+          console.warn(
+            "[GPS Heartbeat] No GPS update for " +
+              Math.round(timeSinceLastGPS / 1000) +
+              "s — GPS appears to be off",
+          );
+
+          // Update GPS status UI to show inactive
+          GPSController.updateStatus("error");
+
+          LogController.add(
+            "GPS signal lost — location services may be disabled",
+            "warning",
+          );
+
+          // Notify backend that GPS is off (marks bus as inactive for students)
+          if (
+            state.socket &&
+            state.socket.readyState === WebSocket.OPEN
+          ) {
+            WebSocketController.send({
+              busNumber: state.busNumber,
+              action: "GPS_ERROR",
+              errorCode: "GPS_OFF_DETECTED",
+              errorMessage: "GPS turned off externally",
+            });
+          }
+
+          // Show persistent alert to driver
+          AlertController.show(
+            "GPS Turned Off",
+            "Location services are disabled. Please turn on GPS from your device settings. Tracking will resume automatically when GPS is back on.",
+            "error",
+          );
+        }
+      } else {
+        // GPS is back on — auto-recover
+        if (state.gpsDetectedOff) {
+          state.gpsDetectedOff = false;
+          GPSController.updateStatus("active");
+          LogController.add("GPS signal restored", "success");
+          dismissGPSBanner();
+
+          // Notify backend that GPS is active again
+          if (
+            state.socket &&
+            state.socket.readyState === WebSocket.OPEN
+          ) {
+            WebSocketController.send({
+              busNumber: state.busNumber,
+              action: "GPS_ACTIVE",
+            });
+          }
+
+          AlertController.show(
+            "GPS Restored",
+            "Location services are back on. Tracking has resumed.",
+            "success",
+          );
+        }
+      }
+    }, 5000);
 
     this.updateConnectionIndicator("connected");
   },
