@@ -3,7 +3,14 @@
   "appName": "dygon",
   "webDir": "src/main/resources/static",
   "android": {
-    "useLegacyBridge": true
+    "useLegacyBridge": true,
+    "allowMixedContent": true
+  },
+  "server": {
+    "allowNavigation": [
+      "bus-tracking-master-production.up.railway.app",
+      "*.railway.app"
+    ]
   },
   "ios": {
     "contentInset": "always",
