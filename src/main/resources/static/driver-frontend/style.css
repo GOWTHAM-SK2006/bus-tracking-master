@@ -458,6 +458,7 @@ body {
   .navbar {
     height: auto;
     padding: var(--space-2) 0;
+    padding-top: calc(env(safe-area-inset-top, 28px) + var(--space-2));
   }
 
   .navbar-container {
@@ -491,7 +492,7 @@ body {
 
   /* Content spacing */
   .main-content {
-    padding-top: 180px; /* Adjust based on new header height */
+    padding-top: calc(180px + env(safe-area-inset-top, 28px));
   }
 
   /* Grids */
