@@ -36,6 +36,9 @@ public class ClientService {
             throw new RuntimeException("Email already registered");
         }
 
+        // Hash password before saving
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
+
         return clientRepository.save(client);
     }
 
@@ -79,7 +82,8 @@ public class ClientService {
     /**
      * Update client profile with phone number and profile picture
      */
-    public Client updateProfile(Long clientId, String phoneNumber, String profilePicture, Boolean phoneVerified, String name) {
+    public Client updateProfile(Long clientId, String phoneNumber, String profilePicture, Boolean phoneVerified,
+            String name) {
         Optional<Client> clientOptional = clientRepository.findById(clientId);
         if (clientOptional.isEmpty()) {
             throw new RuntimeException("Client not found");
@@ -135,7 +139,7 @@ public class ClientService {
         }
 
         Client client = clientOpt.get();
-        client.setPassword(newPassword);
+        client.setPassword(passwordEncoder.encode(newPassword));
         clientRepository.save(client);
     }
 

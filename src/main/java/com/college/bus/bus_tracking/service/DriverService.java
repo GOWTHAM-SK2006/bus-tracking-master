@@ -48,6 +48,9 @@ public class DriverService {
             }
         }
 
+        // Hash password before saving
+        driver.setPassword(passwordEncoder.encode(driver.getPassword()));
+
         return driverRepository.save(driver);
     }
 
@@ -104,7 +107,7 @@ public class DriverService {
         }
 
         Driver driver = driverOpt.get();
-        driver.setPassword(newPassword);
+        driver.setPassword(passwordEncoder.encode(newPassword));
         driverRepository.save(driver);
     }
 
