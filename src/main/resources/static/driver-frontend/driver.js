@@ -1788,7 +1788,7 @@ const TrackingController = {
    */
   handleGPSError(error) {
     let title, message;
-    let shouldStopTracking = true;
+    let shouldStopTracking = false; // NEVER auto-stop tracking
 
     // Normalize error code (BackgroundGeolocation uses string codes)
     const errorCode =
@@ -1813,15 +1813,15 @@ const TrackingController = {
           message =
             "Please allow location access in your device Settings to use tracking.";
         }
-        shouldStopTracking = true;
+        shouldStopTracking = false; // Keep tracking alive, wait for permission
         AlertController.show(title, message, "error");
         break;
       case 2: // POSITION_UNAVAILABLE — GPS is OFF
         title = "GPS Turned Off";
         message =
-          "Location services were disabled. Tracking has been stopped. Please turn on GPS and restart tracking.";
-        shouldStopTracking = true; // STOP tracking so bus shows as inactive
-        AlertController.show(title, message, "error");
+          "Location services were disabled. Waiting for GPS to come back...";
+        shouldStopTracking = false; // Keep tracking alive, wait for GPS to return
+        AlertController.show(title, message, "warning");
         break;
       case 3: // TIMEOUT
         title = "GPS Timeout";
@@ -1855,11 +1855,12 @@ const TrackingController = {
     }
 
     if (shouldStopTracking) {
-      this.stop(); // Fully stop tracking — bus becomes inactive on admin
+      this.stop(); // Only if explicitly needed (currently never)
     } else {
-      // Keep tracking active but update UI to show GPS is unavailable
+      // Keep tracking active — wait for GPS to come back silently
       GPSController.updateStatus("error");
       this.updateTrackingUI("error");
+      LogController.add("Waiting for GPS signal to return...", "info");
     }
   },
 
