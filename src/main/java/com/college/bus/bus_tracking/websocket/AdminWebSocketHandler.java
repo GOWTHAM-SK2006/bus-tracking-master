@@ -28,7 +28,8 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         welcome.put("timestamp", System.currentTimeMillis());
         session.sendMessage(new TextMessage(objectMapper.writeValueAsString(welcome)));
 
-        // Send all currently registered buses immediately (including 0,0 so admin sees status)
+        // Send all currently registered buses immediately (including 0,0 so admin sees
+        // status)
         List<BusData> currentBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
         if (!currentBuses.isEmpty()) {
             Map<String, Object> busUpdate = new HashMap<>();
@@ -37,7 +38,8 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
             busUpdate.put("source", "InitialLoad");
             busUpdate.put("timestamp", System.currentTimeMillis());
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(busUpdate)));
-            System.out.println("[Admin WS] Sent " + currentBuses.size() + " initial buses to admin: " + session.getId());
+            System.out
+                    .println("[Admin WS] Sent " + currentBuses.size() + " initial buses to admin: " + session.getId());
         }
     }
 
@@ -50,6 +52,19 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
             @SuppressWarnings("unchecked")
             Map<String, Object> data = objectMapper.readValue(payload, Map.class);
             String type = (String) data.get("type");
+
+            // Handle PING heartbeat — respond with PONG
+            if ("PING".equals(type)) {
+                Map<String, Object> pong = new HashMap<>();
+                pong.put("type", "PONG");
+                pong.put("timestamp", System.currentTimeMillis());
+                synchronized (session) {
+                    if (session.isOpen()) {
+                        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(pong)));
+                    }
+                }
+                return;
+            }
 
             if ("APPROVE_REQUEST".equals(type)) {
                 Integer requestId = ((Number) data.get("requestId")).intValue();

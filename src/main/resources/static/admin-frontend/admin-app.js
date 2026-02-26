@@ -402,7 +402,7 @@ var MapManager = {
     const currentPos = marker.getLngLat();
     const distance = Math.sqrt(
       Math.pow((currentPos.lng - longitude) * 111320, 2) +
-        Math.pow((currentPos.lat - latitude) * 110540, 2),
+      Math.pow((currentPos.lat - latitude) * 110540, 2),
     );
 
     if (distance > 5) {
@@ -912,6 +912,8 @@ const BusManager = {
 const WebSocketManager = {
   socket: null,
   reconnectAttempts: 0,
+  heartbeatInterval: null,
+  HEARTBEAT_RATE: 20000, // 20 seconds keep-alive
 
   init() {
     console.log("[WS] Initializing connection...");
@@ -928,6 +930,7 @@ const WebSocketManager = {
         adminState.isConnected = true;
         this.reconnectAttempts = 0;
         updateConnectionBadge(true);
+        this.startHeartbeat();
         showToast("Connected to system", "success");
 
         // Sync BUS_MAP with DB first (removes deleted accounts), then fetch initial buses
@@ -952,7 +955,8 @@ const WebSocketManager = {
       this.socket.onclose = () => {
         console.log("[WS] Closed");
         adminState.isConnected = false;
-        updateConnectionBadge(false);
+        this.stopHeartbeat();
+        updateConnectionBadge(false, "Reconnecting...");
         this.attemptReconnect();
       };
 
@@ -984,6 +988,24 @@ const WebSocketManager = {
       const delay = 2000 * this.reconnectAttempts;
       console.log(`[WS] Reconnecting in ${delay}ms...`);
       setTimeout(() => this.connect(), delay);
+    } else {
+      updateConnectionBadge(false);
+    }
+  },
+
+  startHeartbeat() {
+    this.stopHeartbeat();
+    this.heartbeatInterval = setInterval(() => {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: "PING" }));
+      }
+    }, this.HEARTBEAT_RATE);
+  },
+
+  stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
     }
   },
 
@@ -1012,7 +1034,7 @@ const WebSocketManager = {
 // =========================================
 // Utility Functions
 // =========================================
-function updateConnectionBadge(isConnected) {
+function updateConnectionBadge(isConnected, customText) {
   const badge = DOM.connectionBadge;
   const dot = badge.querySelector(".badge-dot");
   const text = badge.querySelector(".badge-text");
@@ -1022,9 +1044,9 @@ function updateConnectionBadge(isConnected) {
     text.textContent = "Connected";
     dot.style.animation = "pulse 2s infinite";
   } else {
-    badge.style.background = "var(--danger)";
-    text.textContent = "Disconnected";
-    dot.style.animation = "none";
+    badge.style.background = customText ? "var(--warning, #f59e0b)" : "var(--danger)";
+    text.textContent = customText || "Disconnected";
+    dot.style.animation = customText ? "pulse 1s infinite" : "none";
   }
 }
 
@@ -1353,8 +1375,8 @@ function generateBusPDF(buses, title) {
                 </thead>
                 <tbody>
                     ${buses
-                      .map(
-                        (bus) => `
+      .map(
+        (bus) => `
                         <tr>
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>${bus.busNo}</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${bus.routeName}</td>
@@ -1369,8 +1391,8 @@ function generateBusPDF(buses, title) {
                             <td style="padding: 10px; border: 1px solid #ddd;">${new Date(bus.lastUpdate).toLocaleString()}</td>
                         </tr>
                     `,
-                      )
-                      .join("")}
+      )
+      .join("")}
                 </tbody>
             </table>
             

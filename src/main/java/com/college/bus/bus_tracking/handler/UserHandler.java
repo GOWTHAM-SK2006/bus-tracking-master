@@ -37,6 +37,20 @@ public class UserHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         JsonNode node = mapper.readTree(message.getPayload());
         String type = node.path("type").asText("");
+
+        // Handle PING heartbeat — respond with PONG
+        if ("PING".equals(type)) {
+            java.util.Map<String, Object> pong = new java.util.HashMap<>();
+            pong.put("type", "PONG");
+            pong.put("timestamp", System.currentTimeMillis());
+            synchronized (session) {
+                if (session.isOpen()) {
+                    session.sendMessage(new TextMessage(mapper.writeValueAsString(pong)));
+                }
+            }
+            return;
+        }
+
         String value = node.path("value").asText("");
 
         List<BusData> result = new ArrayList<>();

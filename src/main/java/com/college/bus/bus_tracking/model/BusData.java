@@ -12,6 +12,7 @@ public class BusData {
     private String status;
     private String driverName;
     private String driverPhone;
+    private long lastHeartbeatTime;
 
     public BusData() {
     }
@@ -29,6 +30,7 @@ public class BusData {
         this.status = status;
         this.driverName = driverName;
         this.driverPhone = driverPhone;
+        this.lastHeartbeatTime = System.currentTimeMillis();
     }
 
     public Long getBusId() {
@@ -109,5 +111,13 @@ public class BusData {
 
     public void setDriverPhone(String driverPhone) {
         this.driverPhone = driverPhone;
+    }
+
+    public long getLastHeartbeatTime() {
+        return lastHeartbeatTime;
+    }
+
+    public void setLastHeartbeatTime(long lastHeartbeatTime) {
+        this.lastHeartbeatTime = lastHeartbeatTime;
     }
 }

@@ -456,7 +456,7 @@ const MapManager = {
     const stopsHtml =
       bus.stops && bus.stops.length > 0
         ? bus.stops.slice(0, 3).join(" → ") +
-          (bus.stops.length > 3 ? "..." : "")
+        (bus.stops.length > 3 ? "..." : "")
         : "No stops";
 
     return `
@@ -543,7 +543,7 @@ const MapManager = {
     const busData = marker
       ? marker.busData
       : state.buses.get(id) ||
-        Array.from(state.buses.values()).find((b) => String(b.busId) === id);
+      Array.from(state.buses.values()).find((b) => String(b.busId) === id);
 
     if (!busData) {
       console.error(
@@ -738,6 +738,8 @@ const MapManager = {
 const WebSocketManager = {
   socket: null,
   updateInterval: null,
+  heartbeatInterval: null,
+  HEARTBEAT_RATE: 20000, // 20 seconds keep-alive
 
   connect() {
     if (CONFIG.DEMO_MODE) {
@@ -771,11 +773,21 @@ const WebSocketManager = {
 
     this.socket.onclose = () => {
       console.log("[WS] Disconnected");
-      this.updateConnectionUI("disconnected");
       state.isConnected = false;
       this.stopPolling();
-      // Simple reconnect
-      setTimeout(() => this.connect(), 5000);
+      this.stopHeartbeat();
+
+      // Reconnect with exponential backoff
+      if (state.reconnectAttempts < CONFIG.RECONNECT_MAX_ATTEMPTS) {
+        state.reconnectAttempts++;
+        const delay = Math.min(2000 * Math.pow(2, state.reconnectAttempts - 1), 30000);
+        this.updateConnectionUI("reconnecting");
+        console.log(`[WS] Reconnecting in ${delay / 1000}s (${state.reconnectAttempts}/${CONFIG.RECONNECT_MAX_ATTEMPTS})`);
+        setTimeout(() => this.connect(), delay);
+      } else {
+        this.updateConnectionUI("disconnected");
+        console.log("[WS] Max reconnect attempts reached");
+      }
     };
 
     this.socket.onerror = (error) => {
@@ -797,12 +809,29 @@ const WebSocketManager = {
       this.requestUpdate();
     }, CONFIG.UPDATE_INTERVAL);
     this.requestUpdate(); // Initial request
+    this.startHeartbeat(); // Start heartbeat to keep connection alive
   },
 
   stopPolling() {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
+    }
+  },
+
+  startHeartbeat() {
+    this.stopHeartbeat();
+    this.heartbeatInterval = setInterval(() => {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: "PING" }));
+      }
+    }, this.HEARTBEAT_RATE);
+  },
+
+  stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
     }
   },
 
@@ -840,6 +869,10 @@ const WebSocketManager = {
       case "connected":
         text.textContent = "Live";
         break;
+      case "reconnecting":
+        text.textContent = "Reconnecting...";
+        badge.className = "connection-badge reconnecting";
+        break;
       case "error":
         text.textContent = "Error";
         badge.className = "connection-badge disconnected";
@@ -870,6 +903,21 @@ const BusTracker = {
       stops: busData.busStop ? [busData.busStop] : busData.stops || [],
       lastUpdate: new Date().toISOString(),
     };
+
+    // 30-second grace period: track when bus was last seen active
+    const existing = state.buses.get(mappedBus.busId);
+    if (mappedBus.gpsOn) {
+      mappedBus.lastSeenActive = Date.now();
+    } else if (existing && existing.lastSeenActive) {
+      // Bus is reported inactive but was active recently
+      const elapsed = Date.now() - existing.lastSeenActive;
+      if (elapsed < 30000) {
+        // Within grace period — keep showing as active to prevent flicker
+        mappedBus.gpsOn = true;
+        mappedBus.status = existing.status; // preserve RUNNING
+      }
+      mappedBus.lastSeenActive = existing.lastSeenActive;
+    }
 
     state.buses.set(mappedBus.busId, mappedBus);
 

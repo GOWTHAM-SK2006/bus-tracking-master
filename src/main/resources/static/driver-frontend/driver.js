@@ -762,8 +762,8 @@ const GPSController = {
         state.backgroundWatcherId = watcherId;
         LogController.add(
           "Background GPS watcher started (ID: " +
-            watcherId +
-            ") - Works with screen locked",
+          watcherId +
+          ") - Works with screen locked",
           "success",
         );
 
@@ -1024,7 +1024,7 @@ const WebSocketController = {
   shouldReconnect: true,
   reconnectTimeout: null,
   heartbeatInterval: null,
-  HEARTBEAT_RATE: 30000, // 30 seconds keep-alive
+  HEARTBEAT_RATE: 20000, // 20 seconds keep-alive (mobile-friendly)
 
   connectingPromise: null,
 
@@ -1051,7 +1051,7 @@ const WebSocketController = {
           state.socket.onmessage = null;
           try {
             state.socket.close();
-          } catch (e) {}
+          } catch (e) { }
         }
 
         state.socket = new WebSocket(wsUrl);
@@ -1083,6 +1083,9 @@ const WebSocketController = {
           `Disconnected (code: ${event.code}, reason: ${reason})`,
           "warning",
         );
+
+        // Show reconnecting state immediately
+        this.updateUI("reconnecting");
 
         if (
           state.isTracking &&
@@ -1133,7 +1136,7 @@ const WebSocketController = {
           const msg = JSON.parse(event.data);
           if (msg.type === "PING") return;
           LogController.add("Received from server: " + event.data, "info");
-        } catch (e) {}
+        } catch (e) { }
       };
     });
 
@@ -1166,12 +1169,16 @@ const WebSocketController = {
     const indicator = DOM.connectionIndicator;
     const text = indicator.querySelector(".indicator-text");
 
-    indicator.classList.remove("connected", "error");
+    indicator.classList.remove("connected", "error", "reconnecting");
 
     switch (status) {
       case "connected":
         indicator.classList.add("connected");
         text.textContent = "Online";
+        break;
+      case "reconnecting":
+        indicator.classList.add("reconnecting");
+        text.textContent = "Reconnecting...";
         break;
       case "error":
         indicator.classList.add("error");
@@ -1186,8 +1193,8 @@ const WebSocketController = {
     this.stopHeartbeat();
     this.heartbeatInterval = setInterval(() => {
       if (state.socket && state.socket.readyState === WebSocket.OPEN) {
-        // Send light-weight PING to keep connection alive
-        state.socket.send(JSON.stringify({ type: "PING" }));
+        // Include busNumber so server can track per-bus heartbeat
+        state.socket.send(JSON.stringify({ type: "PING", busNumber: state.busNumber }));
         console.log("[WebSocket] Sent PING");
       }
     }, this.HEARTBEAT_RATE);
@@ -1619,8 +1626,8 @@ const TrackingController = {
       if (timeSinceLastGPS > 10000) {
         console.warn(
           "[GPS Heartbeat] No GPS update for " +
-            Math.round(timeSinceLastGPS / 1000) +
-            "s — GPS appears to be off",
+          Math.round(timeSinceLastGPS / 1000) +
+          "s — GPS appears to be off",
         );
 
         // Update UI to show GPS inactive (but don't stop tracking)
