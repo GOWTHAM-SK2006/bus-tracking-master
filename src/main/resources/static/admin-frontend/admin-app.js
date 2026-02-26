@@ -68,7 +68,7 @@ const CONFIG = {
   MAP_MIN_ZOOM: 10,
   MAP_MAX_ZOOM: 18,
   RECONNECT_TIMEOUT: 5000,
-  RECONNECT_MAX_ATTEMPTS: 10,
+  RECONNECT_MAX_ATTEMPTS: Infinity, // Never stop retrying
 };
 
 // =========================================
@@ -940,6 +940,10 @@ const WebSocketManager = {
       this.socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          if (data.type === "PONG") {
+            console.log("[WS] Heartbeat PONG received");
+            return;
+          }
           console.log("[WS] Message received, type:", data.type);
           if (data.type === "BUS_UPDATE" && data.buses) {
             console.log(
@@ -985,7 +989,7 @@ const WebSocketManager = {
   attemptReconnect() {
     if (this.reconnectAttempts < CONFIG.RECONNECT_MAX_ATTEMPTS) {
       this.reconnectAttempts++;
-      const delay = 2000 * this.reconnectAttempts;
+      const delay = Math.min(2000 * this.reconnectAttempts, 20000); // Cap at 20s
       console.log(`[WS] Reconnecting in ${delay}ms...`);
       setTimeout(() => this.connect(), delay);
     } else {
@@ -1049,6 +1053,22 @@ function updateConnectionBadge(isConnected, customText) {
     dot.style.animation = customText ? "pulse 1s infinite" : "none";
   }
 }
+
+// =========================================
+// Network Change Listener
+// =========================================
+window.addEventListener("online", () => {
+  console.log("[Network] Back online — forcing WebSocket reconnect");
+  WebSocketManager.reconnectAttempts = 0;
+  if (!adminState.isConnected) {
+    WebSocketManager.connect();
+  }
+});
+
+window.addEventListener("offline", () => {
+  console.log("[Network] Offline detected");
+  updateConnectionBadge(false, "Reconnecting...");
+});
 
 function showToast(message, type = "success") {
   const toast = document.createElement("div");

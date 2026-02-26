@@ -94,7 +94,7 @@ const CONFIG = {
   UPDATE_INTERVAL: 2000, // Reduce polling frequency for performance
   STALE_THRESHOLD: 5000, // 5 seconds of no data = Inactive
   RECONNECT_TIMEOUT: 5000,
-  RECONNECT_MAX_ATTEMPTS: 10,
+  RECONNECT_MAX_ATTEMPTS: Infinity, // Never stop retrying — WhatsApp-style
 };
 
 // =========================================
@@ -763,11 +763,14 @@ const WebSocketManager = {
 
     this.socket.onmessage = (event) => {
       try {
-        // console.log('[WS] Raw message:', event.data);
         const data = JSON.parse(event.data);
+        if (data.type === "PONG") {
+          console.log("[WS] Heartbeat PONG received");
+          return;
+        }
         this.handleMessage(data);
-      } catch (e) {
-        console.error("[WS] Error processing message:", e, "Data:", event.data);
+      } catch (error) {
+        console.error("[WS] Parse error:", error);
       }
     };
 
@@ -780,7 +783,7 @@ const WebSocketManager = {
       // Reconnect with exponential backoff
       if (state.reconnectAttempts < CONFIG.RECONNECT_MAX_ATTEMPTS) {
         state.reconnectAttempts++;
-        const delay = Math.min(2000 * Math.pow(2, state.reconnectAttempts - 1), 30000);
+        const delay = Math.min(2000 * Math.pow(2, state.reconnectAttempts - 1), 20000); // Cap at 20s
         this.updateConnectionUI("reconnecting");
         console.log(`[WS] Reconnecting in ${delay / 1000}s (${state.reconnectAttempts}/${CONFIG.RECONNECT_MAX_ATTEMPTS})`);
         setTimeout(() => this.connect(), delay);
@@ -882,6 +885,22 @@ const WebSocketManager = {
     }
   },
 };
+
+// =========================================
+// Network Change Listener — instant reconnect on network recovery
+// =========================================
+window.addEventListener("online", () => {
+  console.log("[Network] Back online — forcing WebSocket reconnect");
+  state.reconnectAttempts = 0; // Reset backoff so reconnect is instant
+  if (!state.isConnected) {
+    WebSocketManager.connect();
+  }
+});
+
+window.addEventListener("offline", () => {
+  console.log("[Network] Offline detected");
+  WebSocketManager.updateConnectionUI("reconnecting");
+});
 
 // =========================================
 // Bus Tracker

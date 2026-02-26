@@ -1020,7 +1020,7 @@ const GPSController = {
 // =========================================
 const WebSocketController = {
   reconnectAttempts: 0,
-  maxReconnectAttempts: 10,
+  maxReconnectAttempts: Infinity, // Never stop retrying — WhatsApp-style
   shouldReconnect: true,
   reconnectTimeout: null,
   heartbeatInterval: null,
@@ -1094,8 +1094,8 @@ const WebSocketController = {
         ) {
           this.reconnectAttempts++;
           const delay = Math.min(
-            1000 * Math.pow(2, this.reconnectAttempts - 1),
-            30000,
+            2000 * Math.pow(2, this.reconnectAttempts - 1),
+            20000, // Cap at 20 seconds
           );
           LogController.add(
             `Retrying in ${delay / 1000}s (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
@@ -1134,6 +1134,10 @@ const WebSocketController = {
       state.socket.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
+          if (msg.type === "PONG") {
+            console.log("[WebSocket] Heartbeat PONG received");
+            return;
+          }
           if (msg.type === "PING") return;
           LogController.add("Received from server: " + event.data, "info");
         } catch (e) { }
