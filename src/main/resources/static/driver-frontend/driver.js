@@ -2147,6 +2147,22 @@ function initApp() {
   // Initial log
   LogController.add("System initialized. Ready for tracking.", "info");
 
+  // Auto-skip setup: go directly to dashboard and auto-submit setup data
+  if (driverData) {
+    const driver = JSON.parse(driverData);
+    if (driver.name && driver.phone && driver.busNumber && driver.busName) {
+      // Auto-fill setup fields and submit silently
+      if (DOM.setupName) DOM.setupName.value = driver.name;
+      if (DOM.setupPhone) DOM.setupPhone.value = driver.phone;
+      if (DOM.setupBusNumber) DOM.setupBusNumber.value = driver.busNumber;
+      if (DOM.setupBusName) DOM.setupBusName.value = driver.busName;
+      SetupController.handleSetup();
+    } else {
+      // Driver data incomplete, still go to dashboard
+      SetupController.finishSetup();
+    }
+  }
+
   // Check if tracking is already active (on refresh)
   if (state.isTracking) {
     SetupController.finishSetup();
