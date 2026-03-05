@@ -159,8 +159,6 @@ const DOM = {
   // Dashboard details (new)
   dashDriverName: document.getElementById("dashDriverName"),
   dashDriverPhone: document.getElementById("dashDriverPhone"),
-  dashBusNumber: document.getElementById("dashBusNumber"),
-  dashBusName: document.getElementById("dashBusName"),
 
   // Setup elements (new)
   setupForm: document.getElementById("setupForm"),
@@ -422,9 +420,11 @@ const ProfileController = {
       DOM.dashDriverName.textContent = driver.name || "--";
     if (DOM.dashDriverPhone)
       DOM.dashDriverPhone.textContent = driver.phone || "--";
-    if (DOM.dashBusNumber)
-      DOM.dashBusNumber.textContent = driver.busNumber || "--";
-    if (DOM.dashBusName) DOM.dashBusName.textContent = driver.busName || "--";
+
+    // Render bus info entries list
+    if (typeof BusInfoManager !== 'undefined') {
+      BusInfoManager.renderEntries();
+    }
 
     this.updateDashboardButtons();
   },
@@ -582,6 +582,299 @@ const ProfileController = {
   },
 };
 
+// =========================================
+// Bus Info Manager
+// Manages multiple bus configurations with select/add/delete
+// =========================================
+const BusInfoManager = {
+  STORAGE_KEY: 'busInfoEntries',
+  SELECTED_KEY: 'busInfoSelectedIndex',
+
+  /**
+   * Get all saved entries from localStorage
+   * @returns {Array} Array of {busNumber, busName}
+   */
+  getEntries() {
+    try {
+      const data = localStorage.getItem(this.STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('[BusInfoManager] Error reading entries:', e);
+      return [];
+    }
+  },
+
+  /**
+   * Get selected index
+   * @returns {number}
+   */
+  getSelectedIndex() {
+    const idx = parseInt(localStorage.getItem(this.SELECTED_KEY), 10);
+    return isNaN(idx) ? -1 : idx;
+  },
+
+  /**
+   * Save entries to localStorage
+   */
+  _saveEntries(entries) {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+  },
+
+  /**
+   * Initialize - migrate existing driver bus info as first entry if no entries exist
+   */
+  init() {
+    const entries = this.getEntries();
+    if (entries.length === 0) {
+      // Migrate current driver bus info as first entry
+      const driverData = sessionStorage.getItem('driver');
+      if (driverData) {
+        const driver = JSON.parse(driverData);
+        if (driver.busNumber && driver.busName) {
+          entries.push({
+            busNumber: driver.busNumber,
+            busName: driver.busName,
+          });
+          this._saveEntries(entries);
+          localStorage.setItem(this.SELECTED_KEY, '0');
+        }
+      }
+    }
+    this.renderEntries();
+  },
+
+  /**
+   * Open the Add Bus Config modal
+   */
+  openAddModal() {
+    const modal = document.getElementById('busInfoModal');
+    if (!modal) return;
+
+    // Pre-fill driver info (read-only)
+    const driverData = sessionStorage.getItem('driver');
+    if (driverData) {
+      const driver = JSON.parse(driverData);
+      const nameInput = document.getElementById('modalDriverName');
+      const phoneInput = document.getElementById('modalDriverPhone');
+      if (nameInput) nameInput.value = driver.name || '';
+      if (phoneInput) phoneInput.value = driver.phone || '';
+    }
+
+    // Clear editable fields
+    const busNumInput = document.getElementById('modalBusNumber');
+    const busNameInput = document.getElementById('modalBusName');
+    if (busNumInput) busNumInput.value = '';
+    if (busNameInput) busNameInput.value = '';
+
+    modal.style.display = 'flex';
+  },
+
+  /**
+   * Close the Add Bus Config modal
+   */
+  closeAddModal() {
+    const modal = document.getElementById('busInfoModal');
+    if (modal) modal.style.display = 'none';
+  },
+
+  /**
+   * Save a new entry from the modal form
+   */
+  saveEntry() {
+    const busNumber = (document.getElementById('modalBusNumber')?.value || '').trim();
+    const busName = (document.getElementById('modalBusName')?.value || '').trim();
+
+    if (!busNumber || !busName) {
+      AlertController.show('Validation Error', 'Please fill in both Bus Number and Bus/Route Name.', 'error');
+      return;
+    }
+
+    const entries = this.getEntries();
+
+    // Check for duplicate bus number
+    const duplicate = entries.find(e => e.busNumber === busNumber);
+    if (duplicate) {
+      AlertController.show('Duplicate', 'A configuration with bus number "' + busNumber + '" already exists.', 'error');
+      return;
+    }
+
+    entries.push({ busNumber, busName });
+    this._saveEntries(entries);
+
+    // Auto-select if this is the first entry
+    if (entries.length === 1) {
+      this.selectEntry(0);
+    }
+
+    this.closeAddModal();
+    this.renderEntries();
+    AlertController.show('Success', 'Bus configuration "' + busName + '" added successfully!', 'success');
+  },
+
+  /**
+   * Delete an entry by index
+   */
+  deleteEntry(index) {
+    const entries = this.getEntries();
+    if (index < 0 || index >= entries.length) return;
+
+    const entry = entries[index];
+    const selectedIdx = this.getSelectedIndex();
+
+    showConfirmDialog({
+      title: 'Delete Configuration',
+      message: 'Remove bus "' + entry.busName + ' (' + entry.busNumber + ')"? This cannot be undone.',
+      icon: '🗑️',
+      iconBg: 'rgba(239, 68, 68, 0.15)',
+      btnText: 'Delete',
+      btnColor: '#ef4444',
+      onConfirm: () => {
+        entries.splice(index, 1);
+        this._saveEntries(entries);
+
+        // Update selected index
+        if (selectedIdx === index) {
+          // Selected entry was deleted — select first entry if available
+          if (entries.length > 0) {
+            this.selectEntry(0);
+          } else {
+            localStorage.removeItem(this.SELECTED_KEY);
+            state.busNumber = '';
+            state.busName = '';
+            state.isConfigured = false;
+            ProfileController.updateDashboardButtons();
+          }
+        } else if (selectedIdx > index) {
+          // Shift selected index down
+          localStorage.setItem(this.SELECTED_KEY, String(selectedIdx - 1));
+        }
+
+        this.renderEntries();
+        AlertController.show('Deleted', 'Bus configuration removed.', 'success');
+      },
+    });
+  },
+
+  /**
+   * Select an entry by index — updates state, profile, and propagates via WebSocket
+   */
+  async selectEntry(index) {
+    const entries = this.getEntries();
+    if (index < 0 || index >= entries.length) return;
+
+    const entry = entries[index];
+    localStorage.setItem(this.SELECTED_KEY, String(index));
+
+    // Update app state
+    state.busNumber = entry.busNumber;
+    state.busName = entry.busName;
+    state.isConfigured = true;
+
+    // Update driver in sessionStorage
+    const driverData = sessionStorage.getItem('driver');
+    if (driverData) {
+      const driver = JSON.parse(driverData);
+      driver.busNumber = entry.busNumber;
+      driver.busName = entry.busName;
+      sessionStorage.setItem('driver', JSON.stringify(driver));
+
+      // Persist to backend via profile API
+      try {
+        const baseUrl = getApiBaseUrl();
+        const response = await fetch(`${baseUrl}/api/driver/${driver.id}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: driver.name,
+            phone: driver.phone,
+            busNumber: entry.busNumber,
+            busName: entry.busName,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          sessionStorage.setItem('driver', JSON.stringify(data.driver));
+        }
+      } catch (e) {
+        console.error('[BusInfoManager] Profile update error:', e);
+      }
+
+      // If tracking is active, send a new START payload to update admin/student panels
+      if (state.isTracking && state.socket && state.socket.readyState === WebSocket.OPEN) {
+        WebSocketController.send({
+          busNumber: entry.busNumber,
+          busName: entry.busName,
+          busStop: 'College',
+          action: 'START',
+          driverId: driver.id,
+          driverName: driver.name || '',
+          driverPhone: driver.phone || '',
+        });
+        LogController.add('Switched to bus "' + entry.busName + '" — admin/student updated', 'success');
+      }
+    }
+
+    // Update profile form fields
+    if (DOM.profileBusNumber) DOM.profileBusNumber.value = entry.busNumber;
+    if (DOM.profileBusName) DOM.profileBusName.value = entry.busName;
+
+    // Re-render and update buttons
+    this.renderEntries();
+    ProfileController.updateDashboardButtons();
+  },
+
+  /**
+   * Render all entries in the dashboard list
+   */
+  renderEntries() {
+    const container = document.getElementById('busInfoEntriesList');
+    if (!container) return;
+
+    const entries = this.getEntries();
+    const selectedIdx = this.getSelectedIndex();
+
+    if (entries.length === 0) {
+      container.innerHTML = `
+        <div class="bus-info-empty-state">
+          <p style="color:var(--text-muted);font-size:0.85rem;">No bus configurations added yet. Click <strong>+ Add</strong> to create one.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = entries.map((entry, i) => {
+      const isSelected = i === selectedIdx;
+      return `
+        <div class="bus-info-entry ${isSelected ? 'selected' : ''}">
+          <div class="bus-info-entry-details">
+            <div class="bus-info-entry-row">
+              <div class="bus-info-entry-field">
+                <span class="bus-info-entry-label">Bus Number</span>
+                <span class="bus-info-entry-value">${entry.busNumber}</span>
+              </div>
+              <div class="bus-info-entry-field">
+                <span class="bus-info-entry-label">Bus/Route Name</span>
+                <span class="bus-info-entry-value">${entry.busName}</span>
+              </div>
+            </div>
+          </div>
+          <div class="bus-info-entry-actions">
+            <button class="bus-info-select-btn ${isSelected ? 'active' : ''}" onclick="BusInfoManager.selectEntry(${i})">
+              ${isSelected ? '✓ Selected' : 'Select'}
+            </button>
+            <button class="bus-info-delete-btn" onclick="BusInfoManager.deleteEntry(${i})" title="Delete">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+};
+
 /**
  * Confirmation dialog utility
  */
@@ -698,7 +991,7 @@ const GPSController = {
           {
             // Notification for foreground service (required for Android)
             backgroundMessage:
-              "Bus location is being tracked continuously. Tracking works even when screen is locked.",
+              "Bus location is being tracked continuously.",
             backgroundTitle: "🚌 Bus Tracking Active",
             requestPermissions: true,
             stale: false,
@@ -2127,17 +2420,27 @@ function initApp() {
   ProfileController.init();
   SetupController.init();
   NetworkController.init();
+  BusInfoManager.init();
 
   // GPS permission is now requested when user clicks Start Tracking
   // No aggressive polling on page load
 
   // Initialize state from existing data
-  if (driverData) {
-    const driver = JSON.parse(driverData);
-    if (driver.busNumber) {
-      state.busNumber = driver.busNumber;
-      state.busName = driver.busName || driver.busNumber;
+  // Initialize state from saved bus info selection (or fallback to driver data)
+  {
+    const entries = BusInfoManager.getEntries();
+    const selectedIdx = BusInfoManager.getSelectedIndex();
+    if (entries.length > 0 && selectedIdx >= 0 && selectedIdx < entries.length) {
+      state.busNumber = entries[selectedIdx].busNumber;
+      state.busName = entries[selectedIdx].busName;
       state.isConfigured = true;
+    } else if (driverData) {
+      const driver = JSON.parse(driverData);
+      if (driver.busNumber) {
+        state.busNumber = driver.busNumber;
+        state.busName = driver.busName || driver.busNumber;
+        state.isConfigured = true;
+      }
     }
   }
 

@@ -236,15 +236,31 @@
           <div class="section-card">
             <div class="section-header">
               <h2 class="section-title">Current Information</h2>
-              <button
-                class="btn btn-sm btn-secondary"
-                onclick="NavigationController.switchTab('profile')"
-              >
-                Update in Profile
-              </button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button
+                  class="btn btn-sm btn-secondary"
+                  onclick="NavigationController.switchTab('profile')"
+                >
+                  Update in Profile
+                </button>
+                <button
+                  class="btn btn-sm btn-primary"
+                  id="addBusInfoBtn"
+                  onclick="BusInfoManager.openAddModal()"
+                  title="Add Bus Configuration"
+                  style="display:flex;align-items:center;gap:4px;"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add
+                </button>
+              </div>
             </div>
             <div class="section-body">
-              <div class="details-grid">
+              <!-- Driver identity (fixed) -->
+              <div class="details-grid" style="margin-bottom:16px;">
                 <div class="detail-item">
                   <span class="detail-label">Driver Name</span>
                   <span class="detail-value" id="dashDriverName">--</span>
@@ -253,14 +269,63 @@
                   <span class="detail-label">Driver Phone</span>
                   <span class="detail-value" id="dashDriverPhone">--</span>
                 </div>
-                <div class="detail-item">
-                  <span class="detail-label">Bus Number</span>
-                  <span class="detail-value" id="dashBusNumber">--</span>
+              </div>
+
+              <!-- Bus info entries list -->
+              <div id="busInfoEntriesList" class="bus-info-entries-list">
+                <!-- Populated dynamically by BusInfoManager -->
+                <div class="bus-info-empty-state">
+                  <p style="color:var(--text-muted);font-size:0.85rem;">No bus configurations added yet. Click <strong>+ Add</strong> to create one.</p>
                 </div>
-                <div class="detail-item">
-                  <span class="detail-label">Bus/Route Name</span>
-                  <span class="detail-value" id="dashBusName">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Bus Info Modal -->
+          <div class="bus-info-modal-overlay" id="busInfoModal" style="display:none;">
+            <div class="bus-info-modal">
+              <div class="bus-info-modal-header">
+                <h3>Add Bus Configuration</h3>
+                <button class="bus-info-modal-close" onclick="BusInfoManager.closeAddModal()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="bus-info-modal-body">
+                <!-- Fixed driver info -->
+                <div class="form-group">
+                  <label class="form-label">Driver Name</label>
+                  <input type="text" id="modalDriverName" class="form-input" readonly
+                    style="background:var(--bg-secondary,#f3f4f6);cursor:not-allowed;" />
                 </div>
+                <div class="form-group">
+                  <label class="form-label">Driver Phone</label>
+                  <input type="tel" id="modalDriverPhone" class="form-input" readonly
+                    style="background:var(--bg-secondary,#f3f4f6);cursor:not-allowed;" />
+                </div>
+
+                <hr style="margin:16px 0;border:0;border-top:1px solid var(--border-color,#e5e7eb);" />
+
+                <!-- Editable bus info -->
+                <div class="form-group">
+                  <label class="form-label" for="modalBusNumber">Bus Number <span class="required">*</span></label>
+                  <input type="text" id="modalBusNumber" class="form-input" placeholder="e.g. 149" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="modalBusName">Bus/Route Name <span class="required">*</span></label>
+                  <input type="text" id="modalBusName" class="form-input" placeholder="e.g. Tiruttani" required />
+                </div>
+              </div>
+              <div class="bus-info-modal-footer">
+                <button class="btn btn-secondary" onclick="BusInfoManager.closeAddModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="BusInfoManager.saveEntry()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Save
+                </button>
               </div>
             </div>
           </div>

@@ -1294,3 +1294,216 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
+
+/* =========================================
+   Bus Info Entries & Modal
+   ========================================= */
+
+/* Entries List */
+.bus-info-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bus-info-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+}
+
+.bus-info-entry:hover {
+  border-color: var(--primary-200);
+  background: var(--primary-50);
+}
+
+.bus-info-entry.selected {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.bus-info-entry-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bus-info-entry-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.bus-info-entry-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bus-info-entry-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.bus-info-entry-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bus-info-entry-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.bus-info-select-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.bus-info-select-btn:hover {
+  border-color: var(--primary-400);
+  color: var(--primary-600);
+  background: var(--primary-50);
+}
+
+.bus-info-select-btn.active {
+  background: var(--primary-600);
+  color: white;
+  border-color: var(--primary-600);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.bus-info-delete-btn {
+  padding: 5px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-disabled);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-info-delete-btn:hover {
+  background: var(--danger-50);
+  color: var(--danger-500);
+}
+
+.bus-info-empty-state {
+  text-align: center;
+  padding: 20px 16px;
+}
+
+/* Modal Overlay */
+.bus-info-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bus-info-modal {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 440px;
+  width: 100%;
+  animation: modalSlideUp 0.25s ease;
+  overflow: hidden;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.bus-info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.bus-info-modal-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bus-info-modal-close {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+.bus-info-modal-close:hover {
+  background: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.bus-info-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bus-info-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-muted);
+}
+
+/* Responsive adjustments for mobile section headers with multiple buttons */
+@media (max-width: 768px) {
+  .section-header .btn + .btn,
+  .section-header div[style*="display:flex"] {
+    flex-wrap: wrap;
+  }
+}
