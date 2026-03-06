@@ -1841,8 +1841,11 @@ const TrackingController = {
     // Release wake lock
     GPSController.releaseWakeLock();
 
-    // Disconnect WebSocket
-    WebSocketController.disconnect();
+    // Disconnect WebSocket after a short delay so the STOP message
+    // reaches the server and it can broadcast the status change to admins
+    setTimeout(() => {
+      WebSocketController.disconnect();
+    }, 500);
 
     // Update state
     state.isTracking = false;
