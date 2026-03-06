@@ -1152,7 +1152,9 @@ const WebSocketManager = {
   socket: null,
   reconnectAttempts: 0,
   heartbeatInterval: null,
+  pollingInterval: null,
   HEARTBEAT_RATE: 20000, // 20 seconds keep-alive
+  POLLING_RATE: 5000,    // 5 seconds status polling
 
   init() {
     console.log("[WS] Initializing connection...");
@@ -1174,6 +1176,9 @@ const WebSocketManager = {
 
         // Sync BUS_MAP with DB first (removes deleted accounts), then fetch initial buses
         this.syncAndFetchBuses();
+
+        // Start polling for bus status updates (reliable fallback for missed WS broadcasts)
+        this.startPolling();
       };
 
       this.socket.onmessage = (event) => {
@@ -1204,6 +1209,7 @@ const WebSocketManager = {
         console.log("[WS] Closed");
         adminState.isConnected = false;
         this.stopHeartbeat();
+        this.stopPolling();
         updateConnectionBadge(false, "Reconnecting...");
         this.attemptReconnect();
       };
@@ -1254,6 +1260,20 @@ const WebSocketManager = {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
+    }
+  },
+
+  startPolling() {
+    this.stopPolling();
+    this.pollingInterval = setInterval(() => {
+      this.fetchInitialBuses();
+    }, this.POLLING_RATE);
+  },
+
+  stopPolling() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   },
 
