@@ -1094,6 +1094,12 @@ const BusManager = {
   },
 
   renderBusesTable() {
+    // If there's an active search filter, re-apply it instead of showing all buses
+    const filterInput = DOM.busFilterInput;
+    if (filterInput && filterInput.value.trim()) {
+      this.filterBuses(filterInput.value);
+      return;
+    }
     const buses = Array.from(adminState.buses.values());
     this.renderTableRows(buses);
   },
