@@ -1180,6 +1180,7 @@ const SearchManager = {
       DOM.welcomeSearchForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const query = DOM.welcomeSearchInput.value.trim();
+        this.saveBusStop(query); // Save to profile which triggers list refresh
         this.applyWelcomeFilter(query);
       });
 
