@@ -647,55 +647,61 @@ const BusInfoManager = {
     // Render immediately with local data for fast UI
     this.renderEntries();
 
-    // 2. Sync with Admin configurations from backend
+    // 2. Sync with backend - fetch only buses assigned to THIS driver
     try {
-      const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : '';
-      const response = await fetch(`${baseUrl}/api/bus/all`);
-      if (response.ok) {
-        const serverBuses = await response.json();
-        let changed = false;
+      const driverData2 = sessionStorage.getItem('driver');
+      if (driverData2) {
+        const driver2 = JSON.parse(driverData2);
+        if (driver2.id) {
+          const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : '';
+          const response = await fetch(`${baseUrl}/api/bus/driver/${driver2.id}`);
+          if (response.ok) {
+            const serverBuses = await response.json();
+            let changed = false;
 
-        // Extract valid bus configs from server (typically INACTIVE admin configs, or active ones)
-        // Some might be active from other drivers, but we just want the unique configs.
-        const serverConfigMap = new Map();
-        serverBuses.forEach(b => {
-          if (b.busNumber || b.busNo) {
-             const no = b.busNumber || b.busNo;
-             const name = b.busName || b.routeName || `Route ${no}`;
-             serverConfigMap.set(no, name);
-          }
-        });
+            // Extract valid bus configs assigned to this driver from server
+            const serverConfigMap = new Map();
+            serverBuses.forEach(b => {
+              if (b.busNumber || b.busNo) {
+                const no = b.busNumber || b.busNo;
+                const name = b.busName || b.routeName || `Route ${no}`;
+                const id = b.id || null;
+                serverConfigMap.set(no, { busName: name, id: id });
+              }
+            });
 
-        // A. Remove local entries that no longer exist on server (unless driver owned)
-        const oldLength = entries.length;
-        entries = entries.filter(entry => {
-          if (entry.isDriverOwned) return true;
-          return serverConfigMap.has(entry.busNumber);
-        });
-        if (entries.length !== oldLength) changed = true;
+            // A. Remove local entries that no longer exist on server (unless driver owned and not on server)
+            const oldLength = entries.length;
+            entries = entries.filter(entry => {
+              if (entry.isDriverOwned && !serverConfigMap.has(entry.busNumber)) return true;
+              return serverConfigMap.has(entry.busNumber);
+            });
+            if (entries.length !== oldLength) changed = true;
 
-        // B. Add new admin configs that aren't in local storage
-        serverConfigMap.forEach((busName, busNumber) => {
-          if (!entries.find(e => e.busNumber === busNumber)) {
-            entries.push({ busNumber, busName, isAdminAdded: true });
-            changed = true;
-          }
-        });
+            // B. Add new server configs that aren't in local storage
+            serverConfigMap.forEach((info, busNumber) => {
+              if (!entries.find(e => e.busNumber === busNumber)) {
+                entries.push({ busNumber, busName: info.busName, id: info.id, isDriverOwned: true });
+                changed = true;
+              }
+            });
 
-        if (changed) {
-          this._saveEntries(entries);
-          this.renderEntries();
-          
-          // Verify selected index is still valid, reset if not
-          const selectedIdx = this.getSelectedIndex();
-          if (selectedIdx >= entries.length) {
-            localStorage.setItem(this.SELECTED_KEY, '0');
-            this.renderEntries();
+            if (changed) {
+              this._saveEntries(entries);
+              this.renderEntries();
+              
+              // Verify selected index is still valid, reset if not
+              const selectedIdx = this.getSelectedIndex();
+              if (selectedIdx >= entries.length) {
+                localStorage.setItem(this.SELECTED_KEY, '0');
+                this.renderEntries();
+              }
+            }
           }
         }
       }
     } catch (e) {
-      console.warn('[BusInfoManager] Failed to sync admin bus configs:', e);
+      console.warn('[BusInfoManager] Failed to sync driver bus configs:', e);
     }
   },
 
