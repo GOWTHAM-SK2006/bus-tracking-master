@@ -92,12 +92,50 @@ public class DriverService {
         }
 
         Driver driver = driverOpt.get();
+        String oldBusNumber = driver.getBusNumber();
         driver.setName(name);
         driver.setPhone(phone);
         driver.setBusNumber(busNumber);
         driver.setBusName(busName);
+        Driver savedDriver = driverRepository.save(driver);
 
-        return driverRepository.save(driver);
+        // Update all BusEntity records assigned to this driver
+        java.util.List<com.college.bus.bus_tracking.entity.BusEntity> driverBuses = busRepository.findAllByDriverId(id);
+        for (com.college.bus.bus_tracking.entity.BusEntity busEntity : driverBuses) {
+            busEntity.setDriverName(name);
+            busEntity.setDriverPhone(phone);
+            // Update the bus name if this is the currently selected bus
+            if (busEntity.getBusNumber() != null && busEntity.getBusNumber().equals(busNumber)) {
+                busEntity.setBusName(busName);
+            }
+            busRepository.save(busEntity);
+
+            // Also update in-memory BUS_MAP
+            com.college.bus.bus_tracking.model.BusData liveData = BusSessionStore.BUS_MAP.get(busEntity.getBusNumber());
+            if (liveData != null) {
+                liveData.setDriverName(name);
+                liveData.setDriverPhone(phone);
+                if (busEntity.getBusNumber().equals(busNumber)) {
+                    liveData.setBusName(busName);
+                }
+            }
+        }
+
+        // Broadcast updated bus list to admins and students
+        try {
+            java.util.List<com.college.bus.bus_tracking.model.BusData> allBuses = new java.util.ArrayList<>(BusSessionStore.BUS_MAP.values());
+            java.util.Map<String, Object> update = new java.util.HashMap<>();
+            update.put("type", "BUS_UPDATE");
+            update.put("buses", allBuses);
+            update.put("source", "DriverProfileUpdate");
+            update.put("timestamp", System.currentTimeMillis());
+            com.college.bus.bus_tracking.websocket.AdminWebSocketHandler.broadcastToAdmins(update);
+            userHandler.broadcastUpdate();
+        } catch (Exception e) {
+            System.err.println("[DriverService] Failed to broadcast profile update: " + e.getMessage());
+        }
+
+        return savedDriver;
     }
 
     public void updatePassword(String username, String newPassword) {
