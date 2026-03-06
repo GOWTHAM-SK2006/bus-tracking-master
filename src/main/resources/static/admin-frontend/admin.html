@@ -331,12 +331,23 @@
 
       <section class="floating-panel" id="busesView">
         <div class="panel-container">
-          <div class="list-header">
-            <h2>Registered Buses</h2>
-            <span class="list-count"><span id="totalBuses">0</span> buses</span>
-            <button class="close-panel-btn" onclick="toggleBusesPanel(false)">
-              ×
-            </button>
+          <div class="list-header" style="align-items: center;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <h2>Registered Buses</h2>
+              <span class="list-count"><span id="totalBuses">0</span> buses</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn btn-sm btn-primary" onclick="AdminBusManager.openAddModal()" style="display:flex; align-items:center; gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Bus
+              </button>
+              <button class="close-panel-btn" onclick="toggleBusesPanel(false)">
+                ×
+              </button>
+            </div>
           </div>
           <!-- Search within list -->
           <div class="local-search">
@@ -444,6 +455,87 @@
           &times;
         </button>
         <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- Modal for Adding Bus Config -->
+    <div class="modal" id="addBusModal" style="display:none; align-items:center; justify-content:center;">
+      <div class="modal-content" style="max-width:400px; padding:24px; border-radius:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0; font-size:1.25rem;">Add Bus Configuration</h3>
+          <button class="modal-close" onclick="AdminBusManager.closeAddModal()" style="position:static; margin:0; padding:4px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" for="adminBusNumber">Bus Number <span class="required">*</span></label>
+          <input type="text" id="adminBusNumber" class="form-input" placeholder="e.g. 149" required style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--border-color); border-radius:6px;" />
+        </div>
+        <div class="form-group" style="margin-bottom:24px;">
+          <label class="form-label" for="adminBusName">Bus/Route Name <span class="required">*</span></label>
+          <input type="text" id="adminBusName" class="form-input" placeholder="e.g. Tiruttani" required style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--border-color); border-radius:6px;" />
+        </div>
+        <button class="btn btn-primary" onclick="AdminBusManager.saveBus()" style="width:100%; padding:12px; font-weight:600;">Save Bus Configuration</button>
+      </div>
+    </div>
+
+    <!-- Admin Driver Bus Info Panel Modal -->
+    <div class="modal" id="adminDriverBusModal" style="display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+      <div class="modal-content" style="max-width:500px; width:90%; padding:24px; border-radius:12px; background:#fff; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.15); max-height:85vh; display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="margin:0; font-size:1.5rem; color:var(--text-dark);">Driver Info</h2>
+          <button class="modal-close" onclick="AdminBusManager.closeDriverInfoModal()" style="position:static; margin:0; padding:4px; font-size:24px; color:var(--text-secondary); background:transparent; border:none; cursor:pointer;">
+            &times;
+          </button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border-light);">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Driver Name</div>
+            <div id="infoDriverName" style="font-weight:600; color:var(--text-dark); font-size:1.1rem;">--</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Driver Phone</div>
+            <div id="infoDriverPhone" style="font-weight:600; color:var(--text-dark); font-size:1.1rem;">--</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h3 style="margin:0; font-size:1.1rem; color:var(--secondary);">Assigned Buses</h3>
+          <button class="btn btn-sm btn-primary" onclick="AdminBusManager.toggleDriverAddBusForm()" style="display:flex; align-items:center; gap:4px; padding:6px 12px; font-size:0.85rem; border-radius:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add
+          </button>
+        </div>
+
+        <!-- Add Bus Form inside Modal -->
+        <div id="driverAddBusForm" style="display:none; background:var(--bg-gray); padding:16px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-light);">
+          <div style="display:flex; gap:12px; margin-bottom:12px;">
+            <div style="flex:1;">
+              <label style="display:block; font-size:0.8rem; margin-bottom:4px; color:var(--text-secondary);">Bus Number</label>
+              <input type="text" id="driverAddBusNumber" class="form-input" placeholder="e.g. 149" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;" />
+            </div>
+            <div style="flex:2;">
+              <label style="display:block; font-size:0.8rem; margin-bottom:4px; color:var(--text-secondary);">Route Name</label>
+              <input type="text" id="driverAddBusName" class="form-input" placeholder="e.g. Tiruttani" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-sm" onclick="AdminBusManager.toggleDriverAddBusForm()" style="background:#fff; border:1px solid #ddd; color:var(--text-secondary);">Cancel</button>
+            <button class="btn btn-sm btn-primary" onclick="AdminBusManager.saveDriverBus()">Save</button>
+          </div>
+        </div>
+
+        <!-- Bus List Container -->
+        <div id="driverBusListContainer" style="overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:10px;">
+          <!-- Dynamically populated via JS mirroring driver info cards -->
+        </div>
       </div>
     </div>
 

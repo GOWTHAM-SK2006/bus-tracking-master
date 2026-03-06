@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class DriverHandler extends TextWebSocketHandler {
@@ -29,9 +30,39 @@ public class DriverHandler extends TextWebSocketHandler {
     private static final long GRACE_PERIOD_MS = 30_000; // 30 seconds before marking inactive
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    // Store all active driver sessions
+    public static final List<WebSocketSession> DRIVER_SESSIONS = new CopyOnWriteArrayList<>();
+
     public DriverHandler(BusRepository repository, UserHandler userHandler) {
         this.repository = repository;
         this.userHandler = userHandler;
+    }
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        DRIVER_SESSIONS.add(session);
+        System.out.println("[DriverHandler] New driver connected. Total drivers: " + DRIVER_SESSIONS.size());
+    }
+
+    public static void broadcastToDrivers(Object message) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String payload = mapper.writeValueAsString(message);
+            TextMessage textMessage = new TextMessage(payload);
+            for (WebSocketSession session : DRIVER_SESSIONS) {
+                if (session.isOpen()) {
+                    synchronized (session) {
+                        try {
+                            session.sendMessage(textMessage);
+                        } catch (Exception e) {
+                            System.err.println("[DriverHandler] Error sending to driver session: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[DriverHandler] Error serializing message for drivers: " + e.getMessage());
+        }
     }
 
     /**
@@ -239,6 +270,7 @@ public class DriverHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status)
             throws Exception {
+        DRIVER_SESSIONS.remove(session);
         String busNumber = (String) session.getAttributes().get("BUS_NUMBER");
         if (busNumber != null) {
             System.out.println("[DriverHandler] Connection closed for bus: " + busNumber

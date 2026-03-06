@@ -621,12 +621,14 @@ const BusInfoManager = {
   },
 
   /**
-   * Initialize - migrate existing driver bus info as first entry if no entries exist
+   * Initialize - migrate existing driver bus info as first entry if no entries exist,
+   * then fetch admin-configured buses from the server and sync with local storage.
    */
-  init() {
-    const entries = this.getEntries();
+  async init() {
+    let entries = this.getEntries();
+    
+    // 1. Initial Migration (runs once if empty)
     if (entries.length === 0) {
-      // Migrate current driver bus info as first entry
       const driverData = sessionStorage.getItem('driver');
       if (driverData) {
         const driver = JSON.parse(driverData);
@@ -634,13 +636,67 @@ const BusInfoManager = {
           entries.push({
             busNumber: driver.busNumber,
             busName: driver.busName,
+            isDriverOwned: true // Flag to prevent deletion by admin sync if not matching
           });
           this._saveEntries(entries);
           localStorage.setItem(this.SELECTED_KEY, '0');
         }
       }
     }
+
+    // Render immediately with local data for fast UI
     this.renderEntries();
+
+    // 2. Sync with Admin configurations from backend
+    try {
+      const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : '';
+      const response = await fetch(`${baseUrl}/api/bus/all`);
+      if (response.ok) {
+        const serverBuses = await response.json();
+        let changed = false;
+
+        // Extract valid bus configs from server (typically INACTIVE admin configs, or active ones)
+        // Some might be active from other drivers, but we just want the unique configs.
+        const serverConfigMap = new Map();
+        serverBuses.forEach(b => {
+          if (b.busNumber || b.busNo) {
+             const no = b.busNumber || b.busNo;
+             const name = b.busName || b.routeName || `Route ${no}`;
+             serverConfigMap.set(no, name);
+          }
+        });
+
+        // A. Remove local entries that no longer exist on server (unless driver owned)
+        const oldLength = entries.length;
+        entries = entries.filter(entry => {
+          if (entry.isDriverOwned) return true;
+          return serverConfigMap.has(entry.busNumber);
+        });
+        if (entries.length !== oldLength) changed = true;
+
+        // B. Add new admin configs that aren't in local storage
+        serverConfigMap.forEach((busName, busNumber) => {
+          if (!entries.find(e => e.busNumber === busNumber)) {
+            entries.push({ busNumber, busName, isAdminAdded: true });
+            changed = true;
+          }
+        });
+
+        if (changed) {
+          this._saveEntries(entries);
+          this.renderEntries();
+          
+          // Verify selected index is still valid, reset if not
+          const selectedIdx = this.getSelectedIndex();
+          if (selectedIdx >= entries.length) {
+            localStorage.setItem(this.SELECTED_KEY, '0');
+            this.renderEntries();
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[BusInfoManager] Failed to sync admin bus configs:', e);
+    }
   },
 
   /**
@@ -680,7 +736,7 @@ const BusInfoManager = {
   /**
    * Save a new entry from the modal form
    */
-  saveEntry() {
+  async saveEntry() {
     const busNumber = (document.getElementById('modalBusNumber')?.value || '').trim();
     const busName = (document.getElementById('modalBusName')?.value || '').trim();
 
@@ -698,23 +754,54 @@ const BusInfoManager = {
       return;
     }
 
-    entries.push({ busNumber, busName });
-    this._saveEntries(entries);
-
-    // Auto-select if this is the first entry
-    if (entries.length === 1) {
-      this.selectEntry(0);
+    const driverData = sessionStorage.getItem('driver');
+    if (!driverData) {
+      // Offline / Unregistered - just save locally
+      entries.push({ busNumber, busName, isDriverOwned: true });
+      this._saveEntries(entries);
+      if (entries.length === 1) this.selectEntry(0);
+      this.closeAddModal();
+      this.renderEntries();
+      AlertController.show('Local Success', 'Bus configuration "' + busName + '" added locally!', 'success');
+      return;
     }
 
-    this.closeAddModal();
-    this.renderEntries();
-    AlertController.show('Success', 'Bus configuration "' + busName + '" added successfully!', 'success');
+    const driver = JSON.parse(driverData);
+    
+    try {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/bus/driver/${driver.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ busNumber, busName }),
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        entries.push({ busNumber, busName, isDriverOwned: true, id: data.bus.id });
+        this._saveEntries(entries);
+
+        // Auto-select if this is the first entry
+        if (entries.length === 1) {
+          this.selectEntry(0);
+        }
+
+        this.closeAddModal();
+        this.renderEntries();
+        AlertController.show('Success', 'Bus configuration "' + busName + '" synced successfully!', 'success');
+      } else {
+        AlertController.show('Error', data.message || 'Failed to add bus configuration.', 'error');
+      }
+    } catch(err) {
+      console.error("[BusInfoManager] Error saving entry:", err);
+      AlertController.show('Error', 'Failed to connect to backend.', 'error');
+    }
   },
 
   /**
    * Delete an entry by index
    */
-  deleteEntry(index) {
+  async deleteEntry(index) {
     const entries = this.getEntries();
     if (index < 0 || index >= entries.length) return;
 
@@ -728,7 +815,22 @@ const BusInfoManager = {
       iconBg: 'rgba(239, 68, 68, 0.15)',
       btnText: 'Delete',
       btnColor: '#ef4444',
-      onConfirm: () => {
+      onConfirm: async () => {
+        
+        // Notify Backend
+        try {
+          // If we don't have entry.id, fallback to bus number delete
+          const baseUrl = getApiBaseUrl();
+          const route = entry.id ? `/api/bus/id/${entry.id}` : `/api/bus/config/${encodeURIComponent(entry.busNumber)}`;
+          const response = await fetch(`${baseUrl}${route}`, { method: "DELETE" });
+          const data = await response.json();
+          if (!data.success && !data.message.includes("Not found")) {
+            console.warn("Backend failed to delete", data);
+          }
+        } catch(e) {
+          console.error("Backend delete sync failed", e);
+        }
+
         entries.splice(index, 1);
         this._saveEntries(entries);
 
@@ -1433,6 +1535,16 @@ const WebSocketController = {
           }
           if (msg.type === "PING") return;
           LogController.add("Received from server: " + event.data, "info");
+          
+          if (msg.type === "BUS_CONFIG_ADDED" || msg.type === "BUS_CONFIG_DELETED") {
+             const driverData = sessionStorage.getItem('driver');
+             if (driverData) {
+               const currentDriverId = JSON.parse(driverData).id;
+               if (msg.driverId === currentDriverId) {
+                  BusInfoManager.init(); // Re-sync local storage with server
+               }
+             }
+          }
         } catch (e) { }
       };
     });

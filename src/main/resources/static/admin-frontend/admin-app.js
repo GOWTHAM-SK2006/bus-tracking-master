@@ -756,6 +756,244 @@ const DashboardManager = {
 };
 
 // =========================================
+// Admin Bus Configuration Manager
+// =========================================
+const AdminBusManager = {
+  openAddModal() {
+    const modal = document.getElementById("addBusModal");
+    if (modal) {
+      document.getElementById("adminBusNumber").value = "";
+      document.getElementById("adminBusName").value = "";
+      modal.style.display = "flex";
+    }
+  },
+
+  closeAddModal() {
+    const modal = document.getElementById("addBusModal");
+    if (modal) {
+      modal.style.display = "none";
+    }
+  },
+
+  async saveBus() {
+    const busNumber = document.getElementById("adminBusNumber").value.trim();
+    const busName = document.getElementById("adminBusName").value.trim();
+
+    if (!busNumber || !busName) {
+      showToast("Please enter both Bus Number and Route Name.", "error");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/bus/config`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ busNumber, busName }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        showToast(`Bus ${busName} added successfully!`, "success");
+        this.closeAddModal();
+        // The WebSocket broadcast will automatically update the table,
+        // but we can also force a fetch if needed:
+        WebSocketManager.syncAndFetchBuses();
+      } else {
+        showToast(data.message || "Failed to add bus.", "error");
+      }
+    } catch (error) {
+      console.error("[AdminBusManager] Error adding bus:", error);
+      showToast("Failed to connect to server.", "error");
+    }
+  },
+
+  deleteBus(busNumber, busName) {
+    showConfirmDialog({
+      title: "Delete Bus Configuration",
+      message: `Are you sure you want to delete bus "${busName}" (${busNumber})? This will remove it from the system and drivers will no longer see it.`,
+      icon: "🗑️",
+      iconBg: "rgba(239, 68, 68, 0.15)",
+      btnText: "Delete Bus",
+      btnColor: "#ef4444",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`${getApiBaseUrl()}/api/bus/config/${encodeURIComponent(busNumber)}`, {
+            method: "DELETE"
+          });
+          const data = await response.json();
+          if (data.success) {
+            showToast(`Bus ${busNumber} deleted successfully.`, "success");
+            // WebSocket will update the table automatically, or:
+            WebSocketManager.syncAndFetchBuses();
+          } else {
+            showToast(data.message || "Failed to delete bus.", "error");
+          }
+        } catch (error) {
+          console.error("[AdminBusManager] Error deleting bus:", error);
+          showToast("Failed to connect to server.", "error");
+        }
+      }
+    });
+  },
+
+  // --- Driver Info Modal Logic ---
+  
+  openDriverInfoModal(driverId, driverName, driverPhone) {
+    if (!driverId || driverId === 'undefined' || driverId === 'null') {
+      showToast("No driver associated with this bus.", "warning");
+      return;
+    }
+    
+    this.currentDriverId = driverId;
+    document.getElementById("infoDriverName").textContent = driverName || "Unknown";
+    document.getElementById("infoDriverPhone").textContent = driverPhone || "N/A";
+    
+    document.getElementById("adminDriverBusModal").style.display = "flex";
+    
+    // Hide form by default
+    document.getElementById("driverAddBusForm").style.display = "none";
+    
+    // Fetch buses for this driver
+    this.fetchDriverBuses(driverId);
+  },
+
+  closeDriverInfoModal() {
+    this.currentDriverId = null;
+    document.getElementById("adminDriverBusModal").style.display = "none";
+  },
+
+  toggleDriverAddBusForm() {
+    const form = document.getElementById("driverAddBusForm");
+    if (form.style.display === "none") {
+      form.style.display = "block";
+      document.getElementById("driverAddBusNumber").value = "";
+      document.getElementById("driverAddBusName").value = "";
+    } else {
+      form.style.display = "none";
+    }
+  },
+
+  async fetchDriverBuses(driverId) {
+    const container = document.getElementById("driverBusListContainer");
+    container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading buses...</div>`;
+    
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/bus/driver/${driverId}`);
+      const buses = await response.json();
+      
+      if (response.ok) {
+        this.renderDriverBuses(buses);
+      } else {
+        container.innerHTML = `<div style="text-align:center; color:var(--danger); padding:20px;">Failed to load buses</div>`;
+      }
+    } catch (e) {
+      console.error("Error fetching driver buses:", e);
+      container.innerHTML = `<div style="text-align:center; color:var(--danger); padding:20px;">Network error</div>`;
+    }
+  },
+
+  renderDriverBuses(buses) {
+    const container = document.getElementById("driverBusListContainer");
+    
+    if (!buses || buses.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; color:var(--text-secondary); padding:30px; background:var(--bg-gray); border-radius:8px;">
+           <div style="font-size:2rem; margin-bottom:8px;">🚌</div>
+           No buses assigned to this driver yet.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = buses.map(bus => {
+      const isRunning = bus.status === 'RUNNING' || bus.status === 'GPS_ACTIVE';
+      const statusColor = isRunning ? "var(--success)" : "var(--text-secondary)";
+      
+      return `
+        <div style="background:#fff; border:1px solid var(--border-light); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="background:var(--bg-gray); width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-weight:700;">
+              ${bus.busNumber}
+            </div>
+            <div>
+              <div style="font-weight:600; color:var(--text-dark);">${bus.busName || `Bus ${bus.busNumber}`}</div>
+              <div style="font-size:0.75rem; color:${statusColor}; font-weight:500; display:flex; align-items:center; gap:4px; margin-top:2px;">
+                <span style="width:6px; height:6px; background:${statusColor}; border-radius:50%; display:inline-block;"></span>
+                ${isRunning ? 'Active' : 'Offline'}
+              </div>
+            </div>
+          </div>
+          <button onclick="AdminBusManager.deleteDriverBus(${bus.id})" style="background:transparent; border:none; color:var(--danger); cursor:pointer; padding:8px; border-radius:6px; transition:background 0.2s;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+    }).join("");
+  },
+
+  async saveDriverBus() {
+    const driverId = this.currentDriverId;
+    if (!driverId) return;
+
+    const busNumber = document.getElementById("driverAddBusNumber").value.trim();
+    const busName = document.getElementById("driverAddBusName").value.trim();
+
+    if (!busNumber || !busName) {
+      showToast("Please enter both Bus Number and Route Name.", "error");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/bus/driver/${driverId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ busNumber, busName }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        showToast(`Bus added successfully!`, "success");
+        document.getElementById("driverAddBusNumber").value = "";
+        document.getElementById("driverAddBusName").value = "";
+        this.fetchDriverBuses(driverId); // Refresh internal list
+        // WebSocket broadcast will update the main table behind the modal
+      } else {
+        showToast(data.message || "Failed to add bus.", "error");
+      }
+    } catch (error) {
+      console.error("[AdminBusManager] Error adding driver bus:", error);
+      showToast("Failed to connect to server.", "error");
+    }
+  },
+
+  async deleteDriverBus(busId) {
+    if (!confirm("Are you sure you want to delete this bus?")) return;
+
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/bus/id/${busId}`, {
+        method: "DELETE"
+      });
+      const data = await response.json();
+      if (data.success) {
+        showToast("Bus deleted.", "success");
+        if (this.currentDriverId) {
+          this.fetchDriverBuses(this.currentDriverId); // Refresh internal list
+        }
+      } else {
+        showToast(data.message || "Failed to delete bus.", "error");
+      }
+    } catch (error) {
+      console.error("[AdminBusManager] Error deleting driver bus:", error);
+      showToast("Error deleting bus.", "error");
+    }
+  }
+};
+
+// =========================================
 // Bus Manager
 // =========================================
 const BusManager = {
@@ -800,6 +1038,7 @@ const BusManager = {
         stops:
           ROUTE_DEFINITIONS[bus.busNumber || bus.busNo] ||
           (bus.busStop ? [bus.busStop] : bus.stops || []),
+        driverId: bus.driverId,
         driverName: bus.driverName || "Unknown",
         driverPhone: bus.driverPhone || "N/A",
         address: bus.address,
@@ -885,7 +1124,7 @@ const BusManager = {
     DOM.busesTableBody.innerHTML = buses
       .map(
         (bus) => `
-            <tr onclick="PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')" style="cursor: pointer;">
+            <tr onclick="PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')" style="cursor: pointer;">
                 <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
                 <td data-label="Driver">${bus.driverName}</td>
                 <td data-label="Route">${bus.routeName}</td>
@@ -894,10 +1133,15 @@ const BusManager = {
                         ${bus.gpsOn ? "Active" : "Offline"}
                     </span>
                 </td>
-                <td data-label="Action">
-                    <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;">
+                <td data-label="Action" style="display:flex; gap:8px;">
+                    <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right:4px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
                         Locate
                     </button>
+                    ${!bus.gpsOn ? `
+                    <button class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 12px; background:#ef4444; color:white; border:none;" onclick="event.stopPropagation(); AdminBusManager.deleteBus('${bus.busNo}', '${bus.routeName.replace(/'/g, "\\'")}')">
+                        Delete
+                    </button>
+                    ` : ''}
                 </td>
             </tr>
         `,
@@ -950,6 +1194,11 @@ const WebSocketManager = {
               `[WS] BUS_UPDATE received: ${data.buses.length} buses (source: ${data.source || "unknown"})`,
             );
             BusManager.handleBusData(data.buses);
+          } else if (data.type === "BUS_CONFIG_ADDED" || data.type === "BUS_CONFIG_DELETED") {
+             // If the driver info panel is open for this driver, refresh it
+             if (AdminBusManager && AdminBusManager.currentDriverId === data.driverId) {
+                 AdminBusManager.fetchDriverBuses(data.driverId);
+             }
           }
         } catch (error) {
           console.error("[WS] Parse error:", error);

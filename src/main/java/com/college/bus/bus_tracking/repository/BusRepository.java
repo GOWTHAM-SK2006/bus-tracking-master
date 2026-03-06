@@ -10,7 +10,9 @@ import com.college.bus.bus_tracking.entity.BusEntity;
 public interface BusRepository extends JpaRepository<BusEntity, Long> {
     Optional<BusEntity> findByDriverId(Long driverId);
 
+    List<BusEntity> findAllByDriverId(Long driverId);
+
     Optional<BusEntity> findByBusNumber(String busNumber);
-    
+
     List<BusEntity> findByStatus(String status);
 }
