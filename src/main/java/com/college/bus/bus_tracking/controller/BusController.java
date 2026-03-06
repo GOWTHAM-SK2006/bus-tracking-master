@@ -308,7 +308,28 @@ public class BusController {
     public ResponseEntity<?> getBusesByDriver(@PathVariable Long driverId) {
         try {
             List<BusEntity> buses = busRepository.findAllByDriverId(driverId);
-            return ResponseEntity.ok(buses);
+            
+            // Cross-reference with live BUS_MAP to get real-time tracking status
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (BusEntity bus : buses) {
+                Map<String, Object> busMap = new HashMap<>();
+                busMap.put("id", bus.getId());
+                busMap.put("busNumber", bus.getBusNumber());
+                busMap.put("busName", bus.getBusName());
+                busMap.put("driverId", bus.getDriverId());
+                
+                // Check real-time status from BUS_MAP
+                BusData liveData = BusSessionStore.BUS_MAP.get(bus.getBusNumber());
+                if (liveData != null && liveData.getStatus() != null) {
+                    busMap.put("status", liveData.getStatus());
+                } else {
+                    busMap.put("status", bus.getStatus() != null ? bus.getStatus() : "INACTIVE");
+                }
+                
+                result.add(busMap);
+            }
+            
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("success", false, "message", e.getMessage()));
         }
