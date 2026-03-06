@@ -1133,15 +1133,10 @@ const BusManager = {
                         ${bus.gpsOn ? "Active" : "Offline"}
                     </span>
                 </td>
-                <td data-label="Action" style="display:flex; gap:8px;">
-                    <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right:4px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+                <td data-label="Action">
+                    <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
                         Locate
                     </button>
-                    ${!bus.gpsOn ? `
-                    <button class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 12px; background:#ef4444; color:white; border:none;" onclick="event.stopPropagation(); AdminBusManager.deleteBus('${bus.busNo}', '${bus.routeName.replace(/'/g, "\\'")}')">
-                        Delete
-                    </button>
-                    ` : ''}
                 </td>
             </tr>
         `,
