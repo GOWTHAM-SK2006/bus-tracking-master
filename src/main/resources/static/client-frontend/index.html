@@ -485,25 +485,29 @@
                   "
                   >My Bus</label
                 >
-                <input
-                  type="text"
-                  id="profileBusRoute"
-                  placeholder="Your preferred bus route"
-                  style="
-                    width: 100%;
-                    padding: 12px 14px;
-                    border: 1px solid var(--border-light);
-                    border-radius: 10px;
-                    font-size: 15px;
-                    background: var(--bg-white);
-                    color: var(--text-primary);
-                    outline: none;
-                    transition: border-color 0.2s;
-                    font-family: inherit;
-                  "
-                  onfocus="this.style.borderColor = 'var(--primary)'"
-                  onblur="this.style.borderColor = 'var(--border-light)'"
-                />
+                <div class="bus-autocomplete-wrapper">
+                  <input
+                    type="text"
+                    id="profileBusRoute"
+                    placeholder="Search your preferred bus route..."
+                    autocomplete="off"
+                    style="
+                      width: 100%;
+                      padding: 12px 14px;
+                      border: 1px solid var(--border-light);
+                      border-radius: 10px;
+                      font-size: 15px;
+                      background: var(--bg-white);
+                      color: var(--text-primary);
+                      outline: none;
+                      transition: border-color 0.2s;
+                      font-family: inherit;
+                    "
+                    onfocus="this.style.borderColor = 'var(--primary)'"
+                    onblur="this.style.borderColor = 'var(--border-light)'"
+                  />
+                  <div id="profileBusDropdown" class="bus-autocomplete-dropdown"></div>
+                </div>
               </div>
 
               <!-- Save Button -->
@@ -877,6 +881,68 @@
           transform: scale(1) translateY(0);
         }
       }
+
+      /* Bus Autocomplete Styles */
+      .bus-autocomplete-wrapper {
+        position: relative;
+        width: 100%;
+      }
+      .bus-autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        margin-top: 4px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+      .bus-autocomplete-item {
+        padding: 10px 14px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid var(--bg-secondary);
+        transition: background-color 0.2s;
+      }
+      .bus-autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      .bus-autocomplete-item:hover {
+        background-color: var(--bg-secondary);
+      }
+      .bus-autocomplete-no {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+      }
+      .bus-autocomplete-name {
+        color: var(--text-muted);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .bus-autocomplete-status {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-top: 4px;
+        align-self: flex-start;
+      }
+      .status-active-badge {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+      }
+      .status-inactive-badge {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+      }
       #confirmCancel:hover {
         background: rgba(255, 255, 255, 0.1);
       }
@@ -1023,6 +1089,85 @@
           document
             .getElementById("profilePhotoInput")
             .addEventListener("change", (e) => this.handlePhotoChange(e));
+          this.initBusAutocomplete();
+        },
+
+        initBusAutocomplete() {
+          const input = document.getElementById("profileBusRoute");
+          const dropdown = document.getElementById("profileBusDropdown");
+          
+          let debounceTimeout;
+
+          const fetchAndShowBuses = async (query = "") => {
+            try {
+              const res = await fetch(`${getApiBaseUrl()}/api/bus/all`);
+              if (!res.ok) throw new Error("Failed to fetch buses");
+              const buses = await res.json();
+              
+              const q = query.toLowerCase().trim();
+              const filtered = buses.filter(b => 
+                (b.busNumber && b.busNumber.toLowerCase().includes(q)) ||
+                (b.busName && b.busName.toLowerCase().includes(q)) ||
+                (b.route && b.route.toLowerCase().includes(q))
+              );
+
+              if (filtered.length === 0) {
+                dropdown.innerHTML = `<div style="padding: 10px 14px; color: var(--text-muted); font-size: 13px; text-align: center;">No buses found</div>`;
+                dropdown.style.display = "block";
+                return;
+              }
+
+              dropdown.innerHTML = filtered.map(b => {
+                const isActive = b.status && (b.status.toUpperCase() === 'RUNNING' || b.status.toUpperCase() === 'GPS_ACTIVE');
+                const badgeClass = isActive ? 'status-active-badge' : 'status-inactive-badge';
+                const statusText = isActive ? 'Active' : 'Offline';
+                
+                return `
+                  <div class="bus-autocomplete-item" data-bus="${b.busNumber}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                      <div>
+                        <div class="bus-autocomplete-no">${b.busNumber}</div>
+                        <div class="bus-autocomplete-name">${b.busName || ''}</div>
+                      </div>
+                      <span class="bus-autocomplete-status ${badgeClass}">${statusText}</span>
+                    </div>
+                  </div>
+                `;
+              }).join("");
+              
+              dropdown.style.display = "block";
+
+              // Add click listeners to items
+              dropdown.querySelectorAll(".bus-autocomplete-item").forEach(item => {
+                item.addEventListener("click", () => {
+                  input.value = item.dataset.bus;
+                  dropdown.style.display = "none";
+                  // Save state
+                  this.selectedBusRoute = item.dataset.bus;
+                });
+              });
+            } catch (err) {
+              console.error("[Autocomplete] Error fetching buses:", err);
+            }
+          };
+
+          input.addEventListener("input", (e) => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+              fetchAndShowBuses(e.target.value);
+            }, 300);
+          });
+
+          input.addEventListener("focus", () => {
+            fetchAndShowBuses(input.value);
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener("click", (e) => {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+               dropdown.style.display = "none";
+            }
+          });
         },
 
         loadProfile() {
@@ -1116,6 +1261,16 @@
                window.BusTrackApp.SearchManager.saveBusStop(busRoute);
                c.savedBusStop = busRoute;
                sessionStorage.setItem("client", JSON.stringify(c));
+               
+               // Apply filter and switch Map immediately for better UX
+               window.BusTrackApp.state.searchFilter = busRoute;
+               const searchInput = document.getElementById("searchInput");
+               if(searchInput) searchInput.value = busRoute;
+               const searchClear = document.getElementById("searchClear");
+               if (searchClear) searchClear.classList.remove("hidden");
+               
+               window.BusTrackApp.SearchManager.refreshFilteredView();
+               window.BusTrackApp.TabManager.switchTab("map");
             }
 
             const res = await fetch(`${getApiBaseUrl()}/api/client/profile`, {
