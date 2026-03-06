@@ -1123,7 +1123,7 @@
                 const statusText = isActive ? 'Active' : 'Offline';
                 
                 return `
-                  <div class="bus-autocomplete-item" data-bus="${b.busNumber}">
+                  <div class="bus-autocomplete-item" data-bus="${b.busNumber}" data-busname="${b.busName || b.busNumber}">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                       <div>
                         <div class="bus-autocomplete-no">${b.busNumber}</div>
@@ -1140,10 +1140,10 @@
               // Add click listeners to items
               dropdown.querySelectorAll(".bus-autocomplete-item").forEach(item => {
                 item.addEventListener("click", () => {
-                  input.value = item.dataset.bus;
+                  input.value = item.dataset.busname;
                   dropdown.style.display = "none";
                   // Save state
-                  this.selectedBusRoute = item.dataset.bus;
+                  this.selectedBusRoute = item.dataset.busname;
                 });
               });
             } catch (err) {
