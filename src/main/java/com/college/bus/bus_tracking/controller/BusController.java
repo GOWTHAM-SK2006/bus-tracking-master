@@ -28,16 +28,50 @@ public class BusController {
     private UserHandler userHandler;
 
     /**
-     * Get all buses
+     * Get all buses - merges database records with live in-memory tracking data
      */
     @GetMapping("/all")
     public ResponseEntity<List<BusData>> getAllBuses() {
         try {
-            // Return real bus data from memory store
-            List<BusData> buses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+            // Start with all buses from the database (the source of truth for registered buses)
+            List<BusEntity> dbBuses = busRepository.findAll();
+            Map<String, BusData> mergedMap = new LinkedHashMap<>();
 
-            // Debug log
-            System.out.println("[BusController] Returning " + buses.size() + " buses from memory");
+            // First, add all DB buses with their stored info
+            for (BusEntity entity : dbBuses) {
+                String busNumber = entity.getBusNumber();
+                
+                // Check if there's live data in BUS_MAP
+                BusData liveData = BusSessionStore.BUS_MAP.get(busNumber);
+                if (liveData != null) {
+                    // Use live data (has real-time coordinates, status etc.)
+                    mergedMap.put(busNumber, liveData);
+                } else {
+                    // No live data - create BusData from DB entity with INACTIVE status
+                    BusData dbData = new BusData(
+                            entity.getId(),
+                            entity.getBusNumber(),
+                            entity.getDriverId(),
+                            entity.getBusName(),
+                            entity.getBusStop(),
+                            entity.getLatitude(),
+                            entity.getLongitude(),
+                            "INACTIVE",
+                            entity.getDriverName(),
+                            entity.getDriverPhone());
+                    mergedMap.put(busNumber, dbData);
+                }
+            }
+
+            // Also include any BUS_MAP entries not in DB (edge case: actively tracking but not saved)
+            for (Map.Entry<String, BusData> entry : BusSessionStore.BUS_MAP.entrySet()) {
+                if (!mergedMap.containsKey(entry.getKey())) {
+                    mergedMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            List<BusData> buses = new ArrayList<>(mergedMap.values());
+            System.out.println("[BusController] Returning " + buses.size() + " buses (DB: " + dbBuses.size() + ", Live: " + BusSessionStore.BUS_MAP.size() + ")");
 
             return ResponseEntity.ok(buses);
         } catch (Exception e) {
