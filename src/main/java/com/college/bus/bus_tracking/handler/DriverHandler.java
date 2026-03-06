@@ -198,6 +198,7 @@ public class DriverHandler extends TextWebSocketHandler {
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
+                broadcastToAdmins();
                 return;
             }
 

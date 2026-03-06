@@ -1654,6 +1654,9 @@ const TrackingController = {
       return;
     }
 
+    // Clear stop guard — user explicitly wants to start
+    state.stopRequested = false;
+
     try {
       // ── Step 1: Request native Android location permission ──
       // This triggers the system dialog: "Allow App to access this device's location?"
@@ -1736,7 +1739,7 @@ const TrackingController = {
             // Position update logic
             dismissGPSBanner(); // GPS is working — dismiss any active GPS-off banner
             state.lastGPSTimestamp = Date.now(); // Track for heartbeat monitor
-            if (!state.isTracking) {
+            if (!state.isTracking && !state.stopRequested) {
               state.isTracking = true;
               state.gpsPermissionGranted = true;
               state.gpsErrorCount = 0;
@@ -1814,6 +1817,10 @@ const TrackingController = {
     }
 
     LogController.add("Stopping GPS tracking...", "info");
+
+    // Set stop guard FIRST — prevents GPS callbacks from re-enabling tracking
+    state.stopRequested = true;
+    WebSocketController.shouldReconnect = false;
 
     // Send STOP action to backend
     if (state.isTracking) {
