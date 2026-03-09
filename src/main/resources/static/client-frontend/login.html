@@ -364,6 +364,7 @@
 
           if (response.ok && data.success) {
             sessionStorage.setItem("client", JSON.stringify(data.client));
+            sessionStorage.setItem("showBusLoading", "true");
             showAlert("Success! Redirecting...", "success");
             const nextPage = data.client.phoneVerified
               ? "index.html"
