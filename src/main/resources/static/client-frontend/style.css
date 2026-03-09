@@ -419,8 +419,10 @@ body {
    ========================================= */
 .bus-info-panel {
     position: fixed;
-    bottom: var(--spacing-lg); right: var(--spacing-lg);
+    bottom: 70px; right: var(--spacing-lg);
     width: 340px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
     background: rgba(255,255,255,0.92);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
