@@ -453,56 +453,6 @@
         </div>
       </div>
 
-      <!-- Feedback Modal -->
-      <div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:16px;max-width:440px;width:90%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:85vh;overflow-y:auto;">
-          <button onclick="closeFeedbackModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;line-height:1;">&times;</button>
-          <h3 style="margin:0 0 4px;font-size:1.25rem;font-weight:700;color:#1e293b;">Report an Issue</h3>
-          <p style="margin:0 0 20px;font-size:0.85rem;color:#64748b;">Help us improve your bus experience</p>
-          <form id="feedbackForm" onsubmit="submitFeedback(event)">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-              <div>
-                <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Bus Number</label>
-                <input type="text" id="fbBusNumber" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
-              </div>
-              <div>
-                <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Route</label>
-                <input type="text" id="fbRouteName" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-              <div>
-                <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Your Name</label>
-                <input type="text" id="fbStudentName" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
-              </div>
-              <div>
-                <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Your Email</label>
-                <input type="text" id="fbStudentEmail" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
-              </div>
-            </div>
-            <div style="margin-bottom:14px;">
-              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Issue Type</label>
-              <select id="fbIssueType" required style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#fff;color:#334155;cursor:pointer;box-sizing:border-box;">
-                <option value="" disabled selected>Select an issue type</option>
-                <option value="Driver behavior">Driver behavior</option>
-                <option value="Bus late">Bus late</option>
-                <option value="Bus full">Bus full</option>
-                <option value="Unsafe driving">Unsafe driving</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div style="margin-bottom:20px;">
-              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Message</label>
-              <textarea id="fbMessage" rows="3" required placeholder="Describe the issue in detail..." style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;"></textarea>
-            </div>
-            <div style="display:flex;gap:10px;">
-              <button type="button" onclick="closeFeedbackModal()" style="flex:1;padding:10px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">Cancel</button>
-              <button type="submit" id="fbSubmitBtn" style="flex:1;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">Submit Feedback</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
       <!-- Dummy Map Tab (to keep tab logic working for now) -->
       <section
         class="tab-content active"
@@ -1722,6 +1672,56 @@
       // Initialize profile when page loads
       ProfileManager.init();
     </script>
+
+    <!-- Feedback Modal (outside all layout containers for proper pointer-events) -->
+    <div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;pointer-events:auto;">
+      <div style="background:#fff;border-radius:16px;max-width:440px;width:90%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:85vh;overflow-y:auto;">
+        <button onclick="closeFeedbackModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;line-height:1;">&times;</button>
+        <h3 style="margin:0 0 4px;font-size:1.25rem;font-weight:700;color:#1e293b;">Report an Issue</h3>
+        <p style="margin:0 0 20px;font-size:0.85rem;color:#64748b;">Help us improve your bus experience</p>
+        <form id="feedbackForm" onsubmit="submitFeedback(event)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Bus Number</label>
+              <input type="text" id="fbBusNumber" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Route</label>
+              <input type="text" id="fbRouteName" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Your Name</label>
+              <input type="text" id="fbStudentName" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Your Email</label>
+              <input type="text" id="fbStudentEmail" readonly style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#f8fafc;color:#334155;box-sizing:border-box;" />
+            </div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Issue Type</label>
+            <select id="fbIssueType" required style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;background:#fff;color:#334155;cursor:pointer;box-sizing:border-box;">
+              <option value="" disabled selected>Select an issue type</option>
+              <option value="Driver behavior">Driver behavior</option>
+              <option value="Bus late">Bus late</option>
+              <option value="Bus full">Bus full</option>
+              <option value="Unsafe driving">Unsafe driving</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:0.75rem;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Message</label>
+            <textarea id="fbMessage" rows="3" required placeholder="Describe the issue in detail..." style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button type="button" onclick="closeFeedbackModal()" style="flex:1;padding:10px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">Cancel</button>
+            <button type="submit" id="fbSubmitBtn" style="flex:1;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">Submit Feedback</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Feedback Functions -->
     <script>
