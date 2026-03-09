@@ -1,6 +1,4 @@
-// =========================================
-// Global Error & Status Handling (Debug)
-// =========================================
+
 window.onerror = function (msg, url, lineNo, columnNo, error) {
   const errorMsg = `[CRITICAL ERROR] ${msg} at line ${lineNo}`;
   console.error(errorMsg, error);
@@ -78,7 +76,8 @@ const adminState = {
   buses: new Map(),
   selectedBusId: null,
   isConnected: false,
-  activePanel: null, // 'buses' or 'export' or null
+  isConnected: false,
+  activePanel: null, // 'buses' or 'export' or 'routes' or 'route-details' or null
   isInitialized: false,
 };
 
@@ -145,6 +144,32 @@ const DOM = {
   },
   get panelPhone() {
     return document.getElementById("panelPhone");
+  },
+
+  // Routes
+  get routesPanel() {
+    return document.getElementById("routesView");
+  },
+  get routeDetailsPanel() {
+    return document.getElementById("routeDetailsView");
+  },
+  get routesListContainer() {
+    return document.getElementById("routesListContainer");
+  },
+  get routeBusesTableBody() {
+    return document.getElementById("routeBusesTableBody");
+  },
+  get totalRoutes() {
+    return document.getElementById("totalRoutes");
+  },
+  get routeDetailsTitle() {
+    return document.getElementById("routeDetailsTitle");
+  },
+  get routeDetailsCount() {
+    return document.getElementById("routeDetailsCount");
+  },
+  get routeDetailsBackBtn() {
+    return document.getElementById("routeDetailsBackBtn");
   },
 
   // Buses Table
@@ -239,10 +264,17 @@ const PanelManager = {
           this.togglePanel("dashboard");
         } else if (target === "buses") {
           this.togglePanel("buses");
+        } else if (target === "routes") {
+          this.togglePanel("routes");
         } else if (target === "export") {
           this.togglePanel("export");
         }
       });
+    });
+
+    // Back button in route details
+    DOM.routeDetailsBackBtn?.addEventListener("click", () => {
+      this.togglePanel("routes");
     });
 
     DOM.closePanelBtns.forEach((btn) => {
@@ -268,6 +300,13 @@ const PanelManager = {
     } else if (panelName === "buses" && DOM.busesPanel) {
       DOM.busesPanel.classList.add("visible");
       this.updateActiveTab("buses");
+    } else if (panelName === "routes" && DOM.routesPanel) {
+      DOM.routesPanel.classList.add("visible");
+      this.updateActiveTab("routes");
+      RouteManager.renderRoutes();
+    } else if (panelName === "route-details" && DOM.routeDetailsPanel) {
+      DOM.routeDetailsPanel.classList.add("visible");
+      this.updateActiveTab("routes");
     } else if (panelName === "export" && DOM.exportPanel) {
       DOM.exportPanel.classList.add("visible");
       this.updateActiveTab("export");
@@ -280,9 +319,13 @@ const PanelManager = {
     const bp = DOM.busesPanel;
     const ep = DOM.exportPanel;
     const dp = DOM.dashboardPanel;
+    const rp = DOM.routesPanel;
+    const rdp = DOM.routeDetailsPanel;
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
     if (dp) dp.classList.remove("visible");
+    if (rp) rp.classList.remove("visible");
+    if (rdp) rdp.classList.remove("visible");
 
     // Also close the right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
@@ -790,7 +833,7 @@ const AdminBusManager = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ busNumber, busName }),
       });
-      
+
       const data = await response.json();
       if (data.success) {
         showToast(`Bus ${busName} added successfully!`, "success");
@@ -837,22 +880,22 @@ const AdminBusManager = {
   },
 
   // --- Driver Info Modal Logic ---
-  
+
   openDriverInfoModal(driverId, driverName, driverPhone) {
     if (!driverId || driverId === 'undefined' || driverId === 'null') {
       showToast("No driver associated with this bus.", "warning");
       return;
     }
-    
+
     this.currentDriverId = driverId;
     document.getElementById("infoDriverName").textContent = driverName || "Unknown";
     document.getElementById("infoDriverPhone").textContent = driverPhone || "N/A";
-    
+
     document.getElementById("adminDriverBusModal").style.display = "flex";
-    
+
     // Hide form by default
     document.getElementById("driverAddBusForm").style.display = "none";
-    
+
     // Fetch buses for this driver
     this.fetchDriverBuses(driverId);
   },
@@ -876,11 +919,11 @@ const AdminBusManager = {
   async fetchDriverBuses(driverId) {
     const container = document.getElementById("driverBusListContainer");
     container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading buses...</div>`;
-    
+
     try {
       const response = await fetch(`${getApiBaseUrl()}/api/bus/driver/${driverId}`);
       const buses = await response.json();
-      
+
       if (response.ok) {
         this.renderDriverBuses(buses);
       } else {
@@ -894,7 +937,7 @@ const AdminBusManager = {
 
   renderDriverBuses(buses) {
     const container = document.getElementById("driverBusListContainer");
-    
+
     if (!buses || buses.length === 0) {
       container.innerHTML = `
         <div style="text-align:center; color:var(--text-secondary); padding:30px; background:var(--bg-gray); border-radius:8px;">
@@ -908,7 +951,7 @@ const AdminBusManager = {
     container.innerHTML = buses.map(bus => {
       const isRunning = bus.status === 'RUNNING' || bus.status === 'GPS_ACTIVE';
       const statusColor = isRunning ? "var(--success)" : "var(--text-secondary)";
-      
+
       return `
         <div style="background:#fff; border:1px solid var(--border-light); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
           <div style="display:flex; align-items:center; gap:12px;">
@@ -953,7 +996,7 @@ const AdminBusManager = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ busNumber, busName }),
       });
-      
+
       const data = await response.json();
       if (data.success) {
         showToast(`Bus added successfully!`, "success");
@@ -1152,6 +1195,98 @@ const BusManager = {
 };
 
 // =========================================
+// Route Manager
+// =========================================
+const RouteManager = {
+  renderRoutes() {
+    const buses = Array.from(adminState.buses.values());
+    const routesMap = new Map();
+
+    buses.forEach(bus => {
+      const routeName = bus.routeName || "Unknown Route";
+      if (!routesMap.has(routeName)) {
+        routesMap.set(routeName, {
+          name: routeName,
+          busCount: 0,
+          buses: []
+        });
+      }
+      const routeData = routesMap.get(routeName);
+      routeData.busCount++;
+      routeData.buses.push(bus);
+    });
+
+    const routes = Array.from(routesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+    if (DOM.totalRoutes) DOM.totalRoutes.textContent = routes.length;
+
+    if (routes.length === 0) {
+      DOM.routesListContainer.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #999; background: rgba(0,0,0,0.02); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📍</div>
+          No routes available
+        </div>`;
+      return;
+    }
+
+    DOM.routesListContainer.innerHTML = routes.map(route => `
+      <div class="route-item" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\'")}')" 
+           style="background: white; padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 40px; height: 40px; background: rgba(30, 64, 175, 0.1); color: var(--secondary, #1e40af); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+            🗺️
+          </div>
+          <div>
+            <div style="font-weight: 700; color: #1f2937; font-size: 1.05rem;">${route.name}</div>
+            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Service Route</div>
+          </div>
+        </div>
+        <div style="background: rgba(30, 64, 175, 0.08); color: var(--secondary, #1e40af); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700;">
+          ${route.busCount} ${route.busCount === 1 ? 'bus' : 'buses'}
+        </div>
+      </div>
+    `).join("");
+  },
+
+  showRouteDetails(routeName) {
+    const buses = Array.from(adminState.buses.values()).filter(bus => (bus.routeName || "Unknown Route") === routeName);
+
+    if (DOM.routeDetailsTitle) DOM.routeDetailsTitle.textContent = routeName;
+    if (DOM.routeDetailsCount) DOM.routeDetailsCount.textContent = `${buses.length} ${buses.length === 1 ? 'bus' : 'buses'}`;
+
+    DOM.routeBusesTableBody.innerHTML = buses.map(bus => `
+      <tr onclick="PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')" style="cursor: pointer;">
+        <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
+        <td data-label="Driver">${bus.driverName}</td>
+        <td data-label="Route">${bus.routeName}</td>
+        <td data-label="Status">
+          <span class="status-badge ${bus.gpsOn ? "active" : "inactive"}">
+            ${bus.gpsOn ? "Active" : "Offline"}
+          </span>
+        </td>
+        <td data-label="Action">
+          <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+            Locate
+          </button>
+        </td>
+      </tr>
+    `).join("");
+
+    PanelManager.togglePanel("route-details");
+  }
+};
+
+function toggleRoutesPanel(show) {
+  if (show === false) PanelManager.closeAllPanels();
+  else PanelManager.togglePanel("routes");
+}
+
+function toggleRouteDetailsPanel(show) {
+  if (show === false) PanelManager.togglePanel("routes");
+  else PanelManager.togglePanel("route-details");
+}
+
+// =========================================
 // WebSocket Manager
 // =========================================
 const WebSocketManager = {
@@ -1201,10 +1336,10 @@ const WebSocketManager = {
             );
             BusManager.handleBusData(data.buses);
           } else if (data.type === "BUS_CONFIG_ADDED" || data.type === "BUS_CONFIG_DELETED") {
-             // If the driver info panel is open for this driver, refresh it
-             if (AdminBusManager && AdminBusManager.currentDriverId === data.driverId) {
-                 AdminBusManager.fetchDriverBuses(data.driverId);
-             }
+            // If the driver info panel is open for this driver, refresh it
+            if (AdminBusManager && AdminBusManager.currentDriverId === data.driverId) {
+              AdminBusManager.fetchDriverBuses(data.driverId);
+            }
           }
         } catch (error) {
           console.error("[WS] Parse error:", error);
