@@ -268,6 +268,8 @@ const PanelManager = {
           this.togglePanel("routes");
         } else if (target === "export") {
           this.togglePanel("export");
+        } else if (target === "feedback") {
+          this.togglePanel("feedback");
         }
       });
     });
@@ -310,6 +312,13 @@ const PanelManager = {
     } else if (panelName === "export" && DOM.exportPanel) {
       DOM.exportPanel.classList.add("visible");
       this.updateActiveTab("export");
+    } else if (panelName === "feedback") {
+      const fp = document.getElementById("feedbackView");
+      if (fp) {
+        fp.classList.add("visible");
+        this.updateActiveTab("feedback");
+        FeedbackManager.loadFeedback();
+      }
     }
 
     adminState.activePanel = panelName;
@@ -321,11 +330,13 @@ const PanelManager = {
     const dp = DOM.dashboardPanel;
     const rp = DOM.routesPanel;
     const rdp = DOM.routeDetailsPanel;
+    const fp = document.getElementById("feedbackView");
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
     if (dp) dp.classList.remove("visible");
     if (rp) rp.classList.remove("visible");
     if (rdp) rdp.classList.remove("visible");
+    if (fp) fp.classList.remove("visible");
 
     // Also close the right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
@@ -1918,3 +1929,132 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateDebugStatus("CRITICAL FAILURE: " + criticalErr.message, "error");
   }
 });
+
+// =========================================
+// Feedback Manager
+// =========================================
+const FeedbackManager = {
+  allFeedback: [],
+  currentFeedbackId: null,
+
+  async loadFeedback() {
+    try {
+      const resp = await fetch(getApiBaseUrl() + '/api/feedback');
+      const data = await resp.json();
+      if (data.success) {
+        this.allFeedback = data.feedback || [];
+        document.getElementById('totalFeedback').textContent = this.allFeedback.length;
+        this.applyFilter();
+      }
+    } catch (e) {
+      console.error('[Feedback] Load error:', e);
+    }
+  },
+
+  applyFilter() {
+    const filter = document.getElementById('feedbackFilter').value;
+    let list = this.allFeedback;
+    if (filter !== 'all') {
+      list = list.filter(f => f.status === filter);
+    }
+    this.renderTable(list);
+  },
+
+  renderTable(list) {
+    const tbody = document.getElementById('feedbackTableBody');
+    if (!tbody) return;
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8;">No feedback reports found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(f => {
+      const statusColor = f.status === 'resolved' ? '#10b981' : '#f59e0b';
+      const statusBg = f.status === 'resolved' ? '#ecfdf5' : '#fef3c7';
+      const time = f.createdAt ? new Date(f.createdAt).toLocaleString() : '--';
+      return `<tr style="cursor:pointer;" onclick="FeedbackManager.openDetail(${f.id})">
+        <td style="font-weight:600;">${f.busNumber || '--'}</td>
+        <td>${f.routeName || '--'}</td>
+        <td>${f.studentName || '--'}</td>
+        <td><span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:0.75rem;font-weight:600;">${f.issueType || '--'}</span></td>
+        <td><span style="padding:3px 10px;background:${statusBg};color:${statusColor};border-radius:20px;font-size:0.75rem;font-weight:600;text-transform:capitalize;">${f.status}</span></td>
+        <td style="font-size:0.8rem;color:#64748b;">${time}</td>
+      </tr>`;
+    }).join('');
+  },
+
+  openDetail(id) {
+    const f = this.allFeedback.find(fb => fb.id === id);
+    if (!f) return;
+    this.currentFeedbackId = id;
+    document.getElementById('fdBusNumber').textContent = f.busNumber || '--';
+    document.getElementById('fdRouteName').textContent = f.routeName || '--';
+    document.getElementById('fdStudentName').textContent = f.studentName || '--';
+    document.getElementById('fdStudentEmail').textContent = f.studentEmail || '--';
+    document.getElementById('fdIssueType').textContent = f.issueType || '--';
+    document.getElementById('fdMessage').textContent = f.message || '--';
+    document.getElementById('fdCreatedAt').textContent = f.createdAt ? new Date(f.createdAt).toLocaleString() : '--';
+    const resolveBtn = document.getElementById('fdResolveBtn');
+    if (f.status === 'resolved') {
+      resolveBtn.style.background = '#94a3b8';
+      resolveBtn.textContent = '\u2713 Already Resolved';
+      resolveBtn.disabled = true;
+    } else {
+      resolveBtn.style.background = '#10b981';
+      resolveBtn.textContent = '\u2713 Mark as Resolved';
+      resolveBtn.disabled = false;
+    }
+    document.getElementById('feedbackDetailModal').style.display = 'flex';
+  },
+
+  closeDetail() {
+    document.getElementById('feedbackDetailModal').style.display = 'none';
+    this.currentFeedbackId = null;
+  },
+
+  async resolveCurrentFeedback() {
+    if (!this.currentFeedbackId) return;
+    try {
+      const resp = await fetch(getApiBaseUrl() + '/api/feedback/' + this.currentFeedbackId + '/resolve', { method: 'PUT' });
+      const data = await resp.json();
+      if (data.success) {
+        this.closeDetail();
+        this.loadFeedback();
+      } else {
+        alert(data.message || 'Failed to resolve');
+      }
+    } catch (e) {
+      alert('Could not connect to server');
+    }
+  },
+
+  async deleteCurrentFeedback() {
+    if (!this.currentFeedbackId) return;
+    if (!confirm('Are you sure you want to delete this feedback?')) return;
+    try {
+      const resp = await fetch(getApiBaseUrl() + '/api/feedback/' + this.currentFeedbackId, { method: 'DELETE' });
+      const data = await resp.json();
+      if (data.success) {
+        this.closeDetail();
+        this.loadFeedback();
+      } else {
+        alert(data.message || 'Failed to delete');
+      }
+    } catch (e) {
+      alert('Could not connect to server');
+    }
+  }
+};
+
+function toggleFeedbackPanel(show) {
+  const panel = document.getElementById('feedbackView');
+  if (panel) {
+    if (show) {
+      panel.classList.add('visible');
+      FeedbackManager.loadFeedback();
+    } else {
+      panel.classList.remove('visible');
+      adminState.activePanel = null;
+      PanelManager.updateActiveTab('map');
+    }
+  }
+}
