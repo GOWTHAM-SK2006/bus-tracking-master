@@ -1278,6 +1278,44 @@
     <!-- App JS -->
     <script src="./services.js"></script>
     <script src="./app.js"></script>
+
+    <!-- Guest User Restrictions -->
+    <script>
+      (function applyGuestRestrictions() {
+        const isGuest = sessionStorage.getItem("isGuest") === "true";
+        if (!isGuest) return;
+
+        document.addEventListener("DOMContentLoaded", () => {
+          // Hide restricted nav buttons (Buses, Profile)
+          document.querySelectorAll(".bottom-nav-btn").forEach((btn) => {
+            const tab = btn.dataset.tab;
+            if (tab === "buses" || tab === "profile") {
+              btn.style.display = "none";
+            }
+          });
+
+          // Hide feedback button if present
+          const feedbackBtn = document.getElementById("feedbackBtn") ||
+            document.querySelector('[onclick*="openFeedbackModal"]') ||
+            document.querySelector('[data-action="feedback"]');
+          if (feedbackBtn) feedbackBtn.style.display = "none";
+
+          // Hide the search bar / bus stop save functionality
+          const searchInput = document.getElementById("searchInput");
+          if (searchInput) searchInput.placeholder = "Guest Mode — Live Map Only";
+
+          // Override username display
+          const usernameDisplay = document.getElementById("usernameDisplay");
+          if (usernameDisplay) usernameDisplay.textContent = "Guest";
+
+          // Hide driver info in bus panel
+          const panelDriver = document.getElementById("panelDriver");
+          const panelPhone = document.getElementById("panelPhone");
+          if (panelDriver) panelDriver.parentElement.style.display = "none";
+          if (panelPhone) panelPhone.parentElement.style.display = "none";
+        });
+      })();
+    </script>
     <script>
       function showConfirmDialog({
         title,

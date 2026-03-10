@@ -543,3 +543,147 @@ body::after {
     .form-input { font-size: 16px !important; padding: 12px; }
     .btn { min-height: 48px; }
 }
+
+/* =========================================
+   Guest Login Link & Modal
+   ========================================= */
+
+.guest-login-link {
+    text-align: right;
+    margin-top: var(--space-3);
+}
+
+.guest-login-link a {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.guest-login-link a:hover {
+    color: var(--primary-600);
+}
+
+.guest-login-link a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--primary-500);
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.guest-login-link a:hover::after {
+    transform: scaleX(1);
+}
+
+/* Guest Modal Overlay */
+.guest-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+}
+
+.guest-modal-overlay.active {
+    display: flex;
+    animation: guestOverlayIn 0.25s ease-out;
+}
+
+@keyframes guestOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.guest-modal {
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8);
+    width: 90%;
+    max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+    animation: guestModalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes guestModalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.guest-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: var(--space-5);
+    text-align: center;
+}
+
+.guest-modal-body {
+    margin-bottom: var(--space-6);
+}
+
+.guest-modal-body .form-input {
+    text-align: center;
+    font-size: 1.3rem;
+    letter-spacing: 0.3em;
+    font-weight: 600;
+}
+
+.guest-modal-hint {
+    font-size: 0.8rem;
+    color: var(--error);
+    margin-top: var(--space-2);
+    text-align: center;
+    min-height: 1.2em;
+}
+
+.guest-modal-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.guest-btn-enter {
+    flex: 1;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--brand-pink-600) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+}
+
+.guest-btn-enter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+}
+
+.guest-btn-cancel {
+    flex: 1;
+    padding: 12px;
+    background: var(--gray-100);
+    color: var(--text-secondary);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.guest-btn-cancel:hover {
+    background: var(--gray-200);
+    color: var(--text-primary);
+}

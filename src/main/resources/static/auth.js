@@ -846,3 +846,101 @@ function getApiBaseUrl() {
 
   return "";
 }
+
+// =========================================
+// Guest Login Modal
+// =========================================
+
+function openGuestModal() {
+  const modal = document.getElementById("guestModal");
+  const input = document.getElementById("guestAccessCode");
+  const errorMsg = document.getElementById("guestErrorMsg");
+  modal.classList.add("active");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+  if (errorMsg) errorMsg.textContent = "";
+}
+
+function closeGuestModal() {
+  const modal = document.getElementById("guestModal");
+  modal.classList.remove("active");
+}
+
+async function submitGuestCode() {
+  const input = document.getElementById("guestAccessCode");
+  const errorMsg = document.getElementById("guestErrorMsg");
+  const btn = document.getElementById("guestEnterBtn");
+  const code = input ? input.value.trim() : "";
+
+  if (!code) {
+    errorMsg.textContent = "Please enter the access code";
+    return;
+  }
+
+  if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+    errorMsg.textContent = "Code must be 6 digits";
+    return;
+  }
+
+  btn.classList.add("btn-loading");
+  btn.disabled = true;
+  errorMsg.textContent = "";
+
+  try {
+    const response = await fetch(getApiBaseUrl() + "/api/guest/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Store guest session
+      sessionStorage.setItem(
+        "client",
+        JSON.stringify({
+          id: 0,
+          name: "Guest",
+          email: "guest@dygon.me",
+          role: "guest",
+          isGuest: true,
+        })
+      );
+      sessionStorage.setItem("isGuest", "true");
+      window.location.href = "client-frontend/index.html";
+    } else {
+      errorMsg.textContent = data.message || "Invalid access code";
+    }
+  } catch (error) {
+    errorMsg.textContent = "Connection error. Please try again.";
+    console.error("[GuestLogin] Error:", error);
+  } finally {
+    btn.classList.remove("btn-loading");
+    btn.disabled = false;
+  }
+}
+
+// Allow Enter key in guest code input
+document.addEventListener("DOMContentLoaded", () => {
+  const guestInput = document.getElementById("guestAccessCode");
+  if (guestInput) {
+    guestInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitGuestCode();
+      }
+    });
+  }
+});
+
+// Close guest modal on overlay click
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("guestModal");
+  if (e.target === modal) {
+    closeGuestModal();
+  }
+});
+

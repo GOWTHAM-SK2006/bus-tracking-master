@@ -2058,3 +2058,117 @@ function toggleFeedbackPanel(show) {
     }
   }
 }
+
+// =========================================
+// Guest Access Code Management
+// =========================================
+
+let guestTimerInterval = null;
+
+function getAdminApiBaseUrl() {
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port;
+
+  if (host.includes("railway.app")) return "";
+  if (host.includes(".devtunnels.ms")) {
+    const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+    if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+  }
+  if (port && port !== "80" && port !== "443") return `${protocol}//${host}:${port}`;
+  return "";
+}
+
+async function loadGuestCode() {
+  try {
+    const response = await fetch(getAdminApiBaseUrl() + "/api/guest/code");
+    const data = await response.json();
+    if (data.success) {
+      updateGuestCodeUI(data.code, data.expiresAt);
+    }
+  } catch (error) {
+    console.error("[GuestAccess] Failed to load guest code:", error);
+  }
+}
+
+async function regenerateGuestCode() {
+  const btn = document.getElementById("guestRegenerateBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = "0.6";
+  }
+
+  try {
+    const response = await fetch(getAdminApiBaseUrl() + "/api/guest/regenerate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    if (data.success) {
+      updateGuestCodeUI(data.code, data.expiresAt);
+      showAdminToast("Guest code regenerated", "success");
+    } else {
+      showAdminToast("Failed to regenerate code", "error");
+    }
+  } catch (error) {
+    console.error("[GuestAccess] Regeneration failed:", error);
+    showAdminToast("Connection error", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+    }
+  }
+}
+
+function updateGuestCodeUI(code, expiresAtStr) {
+  const codeEl = document.getElementById("guestCodeDisplay");
+  const timerEl = document.getElementById("guestCodeTimer");
+
+  if (codeEl) codeEl.textContent = code;
+
+  // Start countdown timer
+  if (guestTimerInterval) clearInterval(guestTimerInterval);
+
+  const expiresAt = new Date(expiresAtStr);
+
+  function updateTimer() {
+    const now = new Date();
+    const diff = expiresAt.getTime() - now.getTime();
+
+    if (diff <= 0) {
+      if (timerEl) timerEl.textContent = "Expired";
+      clearInterval(guestTimerInterval);
+      // Auto-reload after expiry
+      setTimeout(loadGuestCode, 2000);
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (timerEl) timerEl.textContent = `${hours}h ${minutes}m`;
+  }
+
+  updateTimer();
+  guestTimerInterval = setInterval(updateTimer, 60000); // Update every minute
+}
+
+function showAdminToast(message, type) {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type || "info"}`;
+  toast.textContent = message;
+  toast.style.cssText = "padding:12px 20px;background:" +
+    (type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6") +
+    ";color:white;border-radius:10px;font-size:0.85rem;font-weight:500;box-shadow:0 4px 15px rgba(0,0,0,0.15);animation:slideUp 0.3s ease-out;margin-bottom:8px;";
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// Load guest code on page init
+document.addEventListener("DOMContentLoaded", () => {
+  loadGuestCode();
+});
+

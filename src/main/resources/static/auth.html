@@ -429,8 +429,40 @@
               >
             </p>
           </div>
+
+          <!-- Guest Login Link -->
+          <div class="guest-login-link" id="guestLoginLink">
+            <a href="#" onclick="openGuestModal(); return false;">Guest Login</a>
+          </div>
         </div>
       </main>
+    </div>
+
+    <!-- Guest Access Modal -->
+    <div class="guest-modal-overlay" id="guestModal">
+      <div class="guest-modal">
+        <h3 class="guest-modal-title">Guest Access</h3>
+        <div class="guest-modal-body">
+          <label class="form-label" for="guestAccessCode">Access Code</label>
+          <input
+            type="text"
+            id="guestAccessCode"
+            class="form-input"
+            placeholder="Enter 6-digit code"
+            maxlength="6"
+            autocomplete="off"
+          />
+          <p class="guest-modal-hint" id="guestErrorMsg"></p>
+        </div>
+        <div class="guest-modal-actions">
+          <button class="btn guest-btn-enter" id="guestEnterBtn" onclick="submitGuestCode()">
+            <span class="btn-text">Enter</span>
+          </button>
+          <button class="btn guest-btn-cancel" onclick="closeGuestModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- EmailJS SDK -->
