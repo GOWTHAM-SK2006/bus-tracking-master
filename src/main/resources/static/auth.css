@@ -10,7 +10,8 @@ body {
     display: flex;
     font-family: var(--font-sans);
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* Animated Aurora Background */
@@ -234,7 +235,8 @@ body::after {
     padding: 3rem var(--space-8);
     position: relative;
     min-height: 100vh;
-    overflow-y: auto;
+    /* Allow natural body scrolling */
+    overflow-y: visible;
     backdrop-filter: blur(5px);
 }
 
@@ -524,7 +526,7 @@ body::after {
     .mobile-header { display: block; }
     .auth-panel {
         padding: var(--space-4);
-        justify-content: center;
+        justify-content: flex-start;
         background: linear-gradient(135deg, rgba(15,12,41,0.95), rgba(48,43,99,0.9), rgba(36,36,62,0.95));
     }
     .auth-card {
