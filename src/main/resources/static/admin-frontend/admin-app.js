@@ -184,26 +184,80 @@ const DOM = {
 
   // Account Creation
   get accountToggleBtn() {
-    return document.getElementById("accountToggleBtn");
+    return (
+      document.getElementById("accountToggleBtn") ||
+      document.getElementById("mobileAccountToggleBtn")
+    );
   },
   get toggleSlider() {
-    return document.querySelector("#accountToggleBtn .toggle-slider");
+    const desktop = document.querySelector("#accountToggleBtn .toggle-slider");
+    const mobile = document.querySelector(
+      "#mobileAccountToggleBtn .toggle-slider",
+    );
+    return desktop || mobile;
+  },
+  get allAccountToggleBtns() {
+    return [
+      document.getElementById("accountToggleBtn"),
+      document.getElementById("mobileAccountToggleBtn"),
+    ].filter((el) => el);
+  },
+  get allAccountToggleSliders() {
+    const desktop = document.querySelector("#accountToggleBtn .toggle-slider");
+    const mobile = document.querySelector(
+      "#mobileAccountToggleBtn .toggle-slider",
+    );
+    return [desktop, mobile].filter((el) => el);
   },
 
   // Driver Sign In
   get driverSignInToggleBtn() {
-    return document.getElementById("driverSignInToggleBtn");
+    return (
+      document.getElementById("driverSignInToggleBtn") ||
+      document.getElementById("mobileDriverSignInToggleBtn")
+    );
   },
   get driverSignInSlider() {
-    return document.getElementById("driverSignInSlider");
+    return (
+      document.getElementById("driverSignInSlider") ||
+      document.getElementById("mobileDriverSignInSlider")
+    );
+  },
+  get allDriverSignInToggleBtns() {
+    return [
+      document.getElementById("driverSignInToggleBtn"),
+      document.getElementById("mobileDriverSignInToggleBtn"),
+    ].filter((el) => el);
+  },
+  get allDriverSignInSliders() {
+    const desktopSlider = document.getElementById("driverSignInSlider");
+    const mobileSlider = document.getElementById("mobileDriverSignInSlider");
+    return [desktopSlider, mobileSlider].filter((el) => el);
   },
 
   // Student Sign In
   get studentSignInToggleBtn() {
-    return document.getElementById("studentSignInToggleBtn");
+    return (
+      document.getElementById("studentSignInToggleBtn") ||
+      document.getElementById("mobileStudentSignInToggleBtn")
+    );
   },
   get studentSignInSlider() {
-    return document.getElementById("studentSignInSlider");
+    return (
+      document.getElementById("studentSignInSlider") ||
+      document.getElementById("mobileStudentSignInSlider")
+    );
+  },
+  get allStudentSignInToggleBtns() {
+    return [
+      document.getElementById("studentSignInToggleBtn"),
+      document.getElementById("mobileStudentSignInToggleBtn"),
+    ].filter((el) => el);
+  },
+  get allStudentSignInSliders() {
+    const desktopSlider = document.getElementById("studentSignInSlider");
+    const mobileSlider = document.getElementById("mobileStudentSignInSlider");
+    return [desktopSlider, mobileSlider].filter((el) => el);
   },
 
   // Toast
@@ -211,6 +265,19 @@ const DOM = {
     return document.getElementById("toastContainer");
   },
 };
+
+// =========================================
+// Helper: Close Mobile Menu
+// =========================================
+function closeMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  const header = document.querySelector(".admin-header");
+  const btn = document.getElementById("mobileMenuBtn");
+  
+  if (menu) menu.classList.remove("open");
+  if (header) header.classList.remove("menu-open");
+  if (btn) btn.classList.remove("active");
+}
 
 // =========================================
 // Mobile Menu Manager
@@ -1628,104 +1695,122 @@ async function loadAccountCreationState() {
 async function toggleAccountCreation() {
   try {
     const baseUrl = getApiBaseUrl();
+    console.log("[Toggle] Toggling account creation, API Base URL:", baseUrl);
     const response = await fetch(
       `${baseUrl}/api/admin/toggle-account-creation`,
       { method: "POST" },
     );
     const data = await response.json();
+    console.log("[Toggle] Account creation response:", data);
 
     if (data.success) {
       updateToggleUI(data.accountCreationEnabled);
       showToast(data.message, "success");
+      console.log("[Toggle] Account creation UI updated");
+      closeMobileMenu();
     } else {
       showToast("Failed to toggle", "error");
     }
   } catch (error) {
     console.error("[Toggle] Error:", error);
+    updateDebugStatus("Account toggle failed: " + error.message, "error");
     showToast("Error toggling account creation", "error");
   }
 }
 
 function updateToggleUI(isEnabled) {
-  const toggleBtn = DOM.accountToggleBtn;
-  const slider = DOM.toggleSlider;
-  if (!toggleBtn || !slider) return;
-
-  if (isEnabled) {
-    toggleBtn.style.background = "#4CAF50";
-    slider.style.left = "26px";
-  } else {
-    toggleBtn.style.background = "#ccc";
-    slider.style.left = "2px";
-  }
+  // Update all account toggle buttons (desktop + mobile)
+  DOM.allAccountToggleBtns.forEach((btn) => {
+    if (btn) {
+      btn.style.background = isEnabled ? "#4CAF50" : "#ccc";
+    }
+  });
+  // Update all sliders
+  DOM.allAccountToggleSliders.forEach((slider) => {
+    if (slider) {
+      slider.style.left = isEnabled ? "26px" : "2px";
+    }
+  });
 }
 
 async function toggleDriverSignIn() {
   try {
     const baseUrl = getApiBaseUrl();
+    console.log("[Toggle] Toggling driver sign-in, API Base URL:", baseUrl);
     const response = await fetch(`${baseUrl}/api/admin/toggle-driver-signin`, {
       method: "POST",
     });
     const data = await response.json();
+    console.log("[Toggle] Driver sign-in response:", data);
 
     if (data.success) {
       updateDriverSignInToggleUI(data.driverSignInEnabled);
       showToast(data.message, "success");
+      console.log("[Toggle] Driver sign-in UI updated");
+      closeMobileMenu();
     } else {
       showToast("Failed to toggle", "error");
     }
   } catch (error) {
     console.error("[Toggle] Error:", error);
+    updateDebugStatus("Driver toggle failed: " + error.message, "error");
     showToast("Error toggling driver sign-in", "error");
   }
 }
 
 function updateDriverSignInToggleUI(isEnabled) {
-  const toggleBtn = DOM.driverSignInToggleBtn;
-  const slider = DOM.driverSignInSlider;
-  if (!toggleBtn || !slider) return;
-
-  if (isEnabled) {
-    toggleBtn.style.background = "#4CAF50";
-    slider.style.left = "26px";
-  } else {
-    toggleBtn.style.background = "#ccc";
-    slider.style.left = "2px";
-  }
+  // Update all driver sign-in toggle buttons (desktop + mobile)
+  DOM.allDriverSignInToggleBtns.forEach((btn) => {
+    if (btn) {
+      btn.style.background = isEnabled ? "#4CAF50" : "#ccc";
+    }
+  });
+  // Update all sliders
+  DOM.allDriverSignInSliders.forEach((slider) => {
+    if (slider) {
+      slider.style.left = isEnabled ? "26px" : "2px";
+    }
+  });
 }
 
 async function toggleStudentSignIn() {
   try {
     const baseUrl = getApiBaseUrl();
+    console.log("[Toggle] Toggling student sign-in, API Base URL:", baseUrl);
     const response = await fetch(`${baseUrl}/api/admin/toggle-student-signin`, {
       method: "POST",
     });
     const data = await response.json();
+    console.log("[Toggle] Student sign-in response:", data);
 
     if (data.success) {
       updateStudentSignInToggleUI(data.studentSignInEnabled);
       showToast(data.message, "success");
+      console.log("[Toggle] Student sign-in UI updated");
+      closeMobileMenu();
     } else {
       showToast("Failed to toggle", "error");
     }
   } catch (error) {
     console.error("[Toggle] Error:", error);
+    updateDebugStatus("Student toggle failed: " + error.message, "error");
     showToast("Error toggling student sign-in", "error");
   }
 }
 
 function updateStudentSignInToggleUI(isEnabled) {
-  const toggleBtn = DOM.studentSignInToggleBtn;
-  const slider = DOM.studentSignInSlider;
-  if (!toggleBtn || !slider) return;
-
-  if (isEnabled) {
-    toggleBtn.style.background = "#4CAF50";
-    slider.style.left = "26px";
-  } else {
-    toggleBtn.style.background = "#ccc";
-    slider.style.left = "2px";
-  }
+  // Update all student sign-in toggle buttons (desktop + mobile)
+  DOM.allStudentSignInToggleBtns.forEach((btn) => {
+    if (btn) {
+      btn.style.background = isEnabled ? "#4CAF50" : "#ccc";
+    }
+  });
+  // Update all sliders
+  DOM.allStudentSignInSliders.forEach((slider) => {
+    if (slider) {
+      slider.style.left = isEnabled ? "26px" : "2px";
+    }
+  });
 }
 
 function showConfirmDialog({
@@ -1789,6 +1874,7 @@ function showConfirmDialog({
 }
 
 function adminLogout() {
+  console.log("[Logout] Initiating logout process");
   showConfirmDialog({
     title: "Logout",
     message: "Are you sure you want to logout from the admin panel?",
@@ -1797,28 +1883,28 @@ function adminLogout() {
     btnText: "Logout",
     btnColor: "#f97316",
     onConfirm: () => {
-      sessionStorage.removeItem("admin");
-      sessionStorage.removeItem("adminEmail");
-      if (WebSocketManager.socket) WebSocketManager.socket.close();
-      window.location.href = "admin-login.html";
-    },
-  });
-}
+      try {
+        console.log("[Logout] Clearing session data");
+        sessionStorage.removeItem("admin");
+        sessionStorage.removeItem("adminEmail");
 
-function exportBusReport() {
-  const buses = Array.from(adminState.buses.values());
-  if (buses.length === 0) {
-    showToast("No buses to export", "error");
-    return;
-  }
-  generateBusPDF(buses, "Total Registered Buses Report");
-}
+        if (WebSocketManager.socket) {
+          console.log("[Logout] Closing WebSocket connection");
+          WebSocketManager.socket.close();
+        }
 
-function exportActiveBusesPDF() {
-  const buses = Array.from(adminState.buses.values()).filter((b) => b.gpsOn);
-  if (buses.length === 0) {
-    showToast("No active buses to export", "error");
-    return;
+        console.log("[Logout] Closing mobile menu");
+        closeMobileMenu();
+        
+        console.log("[Logout] Redirecting to login page");
+        updateDebugStatus("Logging out...", "success");
+        
+        setTimeout(() => {
+          window.location.href = "admin-login.html";
+        }, 300);
+      } catch (error) {
+        console.error("[Logout] Error during logout:", error);
+        updateDebugStatus("Logout error: " + error.message, "error");
   }
   generateBusPDF(buses, "Active Buses Real-time Report");
 }
