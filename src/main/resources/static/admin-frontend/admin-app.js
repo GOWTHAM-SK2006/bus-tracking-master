@@ -2152,6 +2152,11 @@ function getAdminApiBaseUrl() {
   const protocol = window.location.protocol;
   const port = window.location.port;
 
+  // Capacitor Support: Default to production URL for native platforms
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    return "https://bus-tracking-master-production.up.railway.app";
+  }
+
   if (host.includes("railway.app")) return "";
   if (host.includes(".devtunnels.ms")) {
     const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
@@ -2165,13 +2170,26 @@ function getAdminApiBaseUrl() {
 
 async function loadGuestCode() {
   try {
-    const response = await fetch(getAdminApiBaseUrl() + "/api/guest/code");
+    const apiUrl = getAdminApiBaseUrl() + "/api/guest/code";
+    console.log("[GuestAccess] Loading from:", apiUrl);
+
+    const response = await fetch(apiUrl);
+    console.log("[GuestAccess] Response status:", response.status);
+
     const data = await response.json();
+    console.log("[GuestAccess] Response data:", data);
+
     if (data.success) {
       updateGuestCodeUI(data.code, data.expiresAt);
+      console.log("[GuestAccess] Code loaded successfully:", data.code);
+      updateDebugStatus("Guest code loaded: " + data.code, "success");
+    } else {
+      console.error("[GuestAccess] API returned failure:", data);
+      updateDebugStatus("Guest code failed to load", "error");
     }
   } catch (error) {
     console.error("[GuestAccess] Failed to load guest code:", error);
+    updateDebugStatus("Guest code error: " + error.message, "error");
   }
 }
 

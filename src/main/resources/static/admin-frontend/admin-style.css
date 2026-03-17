@@ -65,8 +65,8 @@ body {
   top: 0;
   z-index: 2000;
   box-shadow: 0 1px 20px rgba(0, 0, 0, 0.05);
-  height: calc(64px + env(safe-area-inset-top, 0px));
-  padding-top: env(safe-area-inset-top, 0px);
+  height: 64px;
+  padding-top: 0;
   transition: all 0.3s;
 }
 
@@ -77,14 +77,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .logo {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   cursor: pointer;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logo-svg {
@@ -1954,19 +1957,26 @@ body {
   /* Adjust header height and padding */
   .admin-header {
     height: 64px;
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: 0;
   }
 
   .header-container {
     height: 64px;
-    padding: 0 12px;
+    padding: 0 10px;
     gap: 8px;
+    width: 100%;
   }
 
   /* Logo sizing for mobile */
+  .logo {
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
   .logo-img {
     height: 40px;
     width: auto;
+    object-fit: contain;
   }
 
   /* Hide bottom navigation tabs - use mobile menu instead */
@@ -1981,7 +1991,7 @@ body {
 
   /* Adjust main content for mobile header */
   .admin-main {
-    height: calc(100vh - 64px - env(safe-area-inset-top, 0px));
+    height: calc(100vh - 64px);
     padding-bottom: 0;
   }
 
@@ -2038,6 +2048,11 @@ body {
     left: 12px;
     right: 12px;
     width: auto;
+    display: flex !important;
+    flex-direction: column;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1000;
   }
 
   /* Mobile table layout */
@@ -2127,20 +2142,29 @@ body {
 @media (max-width: 768px) and (orientation: landscape) {
   .admin-header {
     height: 56px;
+    padding-top: 0;
   }
 
   .header-container {
     height: 56px;
     padding: 0 10px;
+    gap: 8px;
+  }
+
+  .logo {
+    min-width: 70px;
+    flex-shrink: 0;
   }
 
   .logo-img {
     height: 36px;
+    object-fit: contain;
   }
 
   .mobile-menu-btn {
     width: 40px;
     height: 40px;
+    flex-shrink: 0;
   }
 
   .mobile-menu-btn svg {
@@ -2149,7 +2173,7 @@ body {
   }
 
   .admin-main {
-    height: calc(100vh - 56px - env(safe-area-inset-top, 0px));
+    height: calc(100vh - 56px);
   }
 
   .mobile-menu {
@@ -2179,6 +2203,9 @@ body {
     left: 10px;
     right: 10px;
     padding: 10px 14px;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .guest-widget-body {
