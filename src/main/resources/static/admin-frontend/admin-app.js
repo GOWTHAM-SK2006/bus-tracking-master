@@ -2062,6 +2062,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     WebSocketManager.init();
     await loadAccountCreationState();
 
+    // 6. Open default dashboard panel
+    updateDebugStatus("Step 6/6: Loading Dashboard...");
+    PanelManager.togglePanel("dashboard");
+
     adminState.isInitialized = true;
     updateDebugStatus("System: Operational", "success");
 
