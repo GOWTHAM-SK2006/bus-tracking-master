@@ -219,29 +219,31 @@ const DOM = {
 const MobileMenuManager = {
   init() {
     const btn = document.getElementById("mobileMenuBtn");
+    const menu = document.getElementById("mobileMenu");
     const header = document.querySelector(".admin-header");
-    if (!btn || !header) return;
+    
+    if (!btn || !menu) return;
 
     // Toggle menu
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      menu.classList.toggle("open");
       header.classList.toggle("menu-open");
     });
 
     // Close when clicking outside
     document.addEventListener("click", (e) => {
-      if (
-        header.classList.contains("menu-open") &&
-        !header.contains(e.target)
-      ) {
+      if (menu.classList.contains("open") && !header.contains(e.target)) {
+        menu.classList.remove("open");
         header.classList.remove("menu-open");
       }
     });
 
-    // Close when a tab is clicked
-    const tabs = document.querySelectorAll(".bottom-nav-btn");
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
+    // Close when a menu item is clicked
+    const menuItems = menu.querySelectorAll(".mobile-menu-item");
+    menuItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        menu.classList.remove("open");
         header.classList.remove("menu-open");
       });
     });
@@ -357,6 +359,30 @@ const PanelManager = {
     });
   },
 };
+
+// =========================================
+// Mobile Menu Tab Click Handler
+// =========================================
+function mobileMenuTabClick(tabName) {
+  // Close the mobile menu
+  const menu = document.getElementById("mobileMenu");
+  const header = document.querySelector(".admin-header");
+  if (menu) menu.classList.remove("open");
+  if (header) header.classList.remove("menu-open");
+  
+  // Toggle the panel
+  PanelManager.togglePanel(tabName);
+  
+  // Update active tab in mobile menu
+  const menuItems = document.querySelectorAll(".mobile-menu-item");
+  menuItems.forEach((item) => {
+    if (item.dataset.tab === tabName) {
+      item.classList.add("active");
+    } else {
+      item.classList.remove("active");
+    }
+  });
+}
 
 // =========================================
 // Map Manager
