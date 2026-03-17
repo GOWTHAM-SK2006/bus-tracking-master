@@ -1692,7 +1692,11 @@ async function loadAccountCreationState() {
   }
 }
 
-async function toggleAccountCreation() {
+async function toggleAccountCreation(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   try {
     const baseUrl = getApiBaseUrl();
     console.log("[Toggle] Toggling account creation, API Base URL:", baseUrl);
@@ -1707,7 +1711,7 @@ async function toggleAccountCreation() {
       updateToggleUI(data.accountCreationEnabled);
       showToast(data.message, "success");
       console.log("[Toggle] Account creation UI updated");
-      closeMobileMenu();
+      // Don't auto-close menu - let user close it manually
     } else {
       showToast("Failed to toggle", "error");
     }
@@ -1733,7 +1737,11 @@ function updateToggleUI(isEnabled) {
   });
 }
 
-async function toggleDriverSignIn() {
+async function toggleDriverSignIn(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   try {
     const baseUrl = getApiBaseUrl();
     console.log("[Toggle] Toggling driver sign-in, API Base URL:", baseUrl);
@@ -1747,7 +1755,7 @@ async function toggleDriverSignIn() {
       updateDriverSignInToggleUI(data.driverSignInEnabled);
       showToast(data.message, "success");
       console.log("[Toggle] Driver sign-in UI updated");
-      closeMobileMenu();
+      // Don't auto-close menu - let user close it manually
     } else {
       showToast("Failed to toggle", "error");
     }
@@ -1773,7 +1781,11 @@ function updateDriverSignInToggleUI(isEnabled) {
   });
 }
 
-async function toggleStudentSignIn() {
+async function toggleStudentSignIn(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   try {
     const baseUrl = getApiBaseUrl();
     console.log("[Toggle] Toggling student sign-in, API Base URL:", baseUrl);
@@ -1787,7 +1799,7 @@ async function toggleStudentSignIn() {
       updateStudentSignInToggleUI(data.studentSignInEnabled);
       showToast(data.message, "success");
       console.log("[Toggle] Student sign-in UI updated");
-      closeMobileMenu();
+      // Don't auto-close menu - let user close it manually
     } else {
       showToast("Failed to toggle", "error");
     }

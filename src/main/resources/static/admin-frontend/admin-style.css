@@ -2300,6 +2300,7 @@ body {
   max-height: calc(100vh - 70px);
   overflow-y: auto;
   animation: mobileMenuSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
 @keyframes mobileMenuSlide {
@@ -2315,6 +2316,7 @@ body {
 
 .mobile-menu.open {
   display: block;
+  pointer-events: auto;
 }
 
 .mobile-menu-content {
@@ -2322,6 +2324,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  pointer-events: auto;
 }
 
 .mobile-menu-section {
@@ -2395,6 +2398,7 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid rgba(226, 232, 240, 0.4);
   gap: 12px;
+  pointer-events: auto;
 }
 
 .mobile-menu-toggle span {

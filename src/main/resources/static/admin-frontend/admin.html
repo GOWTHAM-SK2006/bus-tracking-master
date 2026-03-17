@@ -85,7 +85,7 @@
               id="driverSignInToggleBtn"
               class="toggle-btn"
               type="button"
-              onclick="event.preventDefault(); event.stopPropagation(); toggleDriverSignIn();"
+              onclick="toggleDriverSignIn(event)"
             >
               <span class="toggle-slider" id="driverSignInSlider"></span>
             </button>
@@ -98,7 +98,7 @@
               id="studentSignInToggleBtn"
               class="toggle-btn"
               type="button"
-              onclick="event.preventDefault(); event.stopPropagation(); toggleStudentSignIn();"
+              onclick="toggleStudentSignIn(event)"
             >
               <span class="toggle-slider" id="studentSignInSlider"></span>
             </button>
@@ -111,13 +111,22 @@
               id="accountToggleBtn"
               class="toggle-btn"
               type="button"
-              onclick="event.preventDefault(); event.stopPropagation(); toggleAccountCreation();"
+              onclick="toggleAccountCreation(event)"
             >
               <span class="toggle-slider"></span>
             </button>
           </div>
 
-          <button id="adminLogoutBtn" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();" title="Logout">
+          <button
+            id="adminLogoutBtn"
+            type="button"
+            onclick="
+              event.preventDefault();
+              event.stopPropagation();
+              adminLogout();
+            "
+            title="Logout"
+          >
             <svg
               width="18"
               height="18"
@@ -288,7 +297,7 @@
                 id="mobileDriverSignInToggleBtn"
                 class="toggle-btn"
                 type="button"
-                onclick="event.preventDefault(); event.stopPropagation(); toggleDriverSignIn();"
+                onclick="toggleDriverSignIn(event)"
               >
                 <span
                   class="toggle-slider"
@@ -304,7 +313,7 @@
                 id="mobileStudentSignInToggleBtn"
                 class="toggle-btn"
                 type="button"
-                onclick="event.preventDefault(); event.stopPropagation(); toggleStudentSignIn();"
+                onclick="toggleStudentSignIn(event)"
               >
                 <span
                   class="toggle-slider"
@@ -320,7 +329,7 @@
                 id="mobileAccountToggleBtn"
                 class="toggle-btn"
                 type="button"
-                onclick="event.preventDefault(); event.stopPropagation(); toggleAccountCreation();"
+                onclick="toggleAccountCreation(event)"
               >
                 <span class="toggle-slider"></span>
               </button>
@@ -332,7 +341,15 @@
 
           <!-- Logout Section -->
           <div class="mobile-menu-section">
-            <button class="mobile-menu-logout" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();">
+            <button
+              class="mobile-menu-logout"
+              type="button"
+              onclick="
+                event.preventDefault();
+                event.stopPropagation();
+                adminLogout();
+              "
+            >
               <svg
                 width="20"
                 height="20"
