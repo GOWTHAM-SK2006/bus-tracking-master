@@ -273,7 +273,7 @@ function closeMobileMenu() {
   const menu = document.getElementById("mobileMenu");
   const header = document.querySelector(".admin-header");
   const btn = document.getElementById("mobileMenuBtn");
-  
+
   if (menu) menu.classList.remove("open");
   if (header) header.classList.remove("menu-open");
   if (btn) btn.classList.remove("active");
@@ -1895,10 +1895,10 @@ function adminLogout() {
 
         console.log("[Logout] Closing mobile menu");
         closeMobileMenu();
-        
+
         console.log("[Logout] Redirecting to login page");
         updateDebugStatus("Logging out...", "success");
-        
+
         setTimeout(() => {
           window.location.href = "admin-login.html";
         }, 300);
