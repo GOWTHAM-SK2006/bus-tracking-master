@@ -1905,6 +1905,17 @@ function adminLogout() {
       } catch (error) {
         console.error("[Logout] Error during logout:", error);
         updateDebugStatus("Logout error: " + error.message, "error");
+        window.location.href = "admin-login.html";
+      }
+    },
+  });
+}
+
+function exportActiveBusesPDF() {
+  const buses = Array.from(adminState.buses.values()).filter((b) => b.gpsOn);
+  if (buses.length === 0) {
+    showToast("No active buses to export", "error");
+    return;
   }
   generateBusPDF(buses, "Active Buses Real-time Report");
 }
