@@ -1,4 +1,3 @@
-
 window.onerror = function (msg, url, lineNo, columnNo, error) {
   const errorMsg = `[CRITICAL ERROR] ${msg} at line ${lineNo}`;
   console.error(errorMsg, error);
@@ -221,7 +220,7 @@ const MobileMenuManager = {
     const btn = document.getElementById("mobileMenuBtn");
     const menu = document.getElementById("mobileMenu");
     const header = document.querySelector(".admin-header");
-    
+
     if (!btn || !menu) return;
 
     // Toggle menu
@@ -369,10 +368,10 @@ function mobileMenuTabClick(tabName) {
   const header = document.querySelector(".admin-header");
   if (menu) menu.classList.remove("open");
   if (header) header.classList.remove("menu-open");
-  
+
   // Toggle the panel
   PanelManager.togglePanel(tabName);
-  
+
   // Update active tab in mobile menu
   const menuItems = document.querySelectorAll(".mobile-menu-item");
   menuItems.forEach((item) => {
@@ -482,7 +481,7 @@ var MapManager = {
     const currentPos = marker.getLngLat();
     const distance = Math.sqrt(
       Math.pow((currentPos.lng - longitude) * 111320, 2) +
-      Math.pow((currentPos.lat - latitude) * 110540, 2),
+        Math.pow((currentPos.lat - latitude) * 110540, 2),
     );
 
     if (distance > 5) {
@@ -897,9 +896,12 @@ const AdminBusManager = {
       btnColor: "#ef4444",
       onConfirm: async () => {
         try {
-          const response = await fetch(`${getApiBaseUrl()}/api/bus/config/${encodeURIComponent(busNumber)}`, {
-            method: "DELETE"
-          });
+          const response = await fetch(
+            `${getApiBaseUrl()}/api/bus/config/${encodeURIComponent(busNumber)}`,
+            {
+              method: "DELETE",
+            },
+          );
           const data = await response.json();
           if (data.success) {
             showToast(`Bus ${busNumber} deleted successfully.`, "success");
@@ -912,21 +914,23 @@ const AdminBusManager = {
           console.error("[AdminBusManager] Error deleting bus:", error);
           showToast("Failed to connect to server.", "error");
         }
-      }
+      },
     });
   },
 
   // --- Driver Info Modal Logic ---
 
   openDriverInfoModal(driverId, driverName, driverPhone) {
-    if (!driverId || driverId === 'undefined' || driverId === 'null') {
+    if (!driverId || driverId === "undefined" || driverId === "null") {
       showToast("No driver associated with this bus.", "warning");
       return;
     }
 
     this.currentDriverId = driverId;
-    document.getElementById("infoDriverName").textContent = driverName || "Unknown";
-    document.getElementById("infoDriverPhone").textContent = driverPhone || "N/A";
+    document.getElementById("infoDriverName").textContent =
+      driverName || "Unknown";
+    document.getElementById("infoDriverPhone").textContent =
+      driverPhone || "N/A";
 
     document.getElementById("adminDriverBusModal").style.display = "flex";
 
@@ -958,7 +962,9 @@ const AdminBusManager = {
     container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading buses...</div>`;
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/bus/driver/${driverId}`);
+      const response = await fetch(
+        `${getApiBaseUrl()}/api/bus/driver/${driverId}`,
+      );
       const buses = await response.json();
 
       if (response.ok) {
@@ -985,11 +991,15 @@ const AdminBusManager = {
       return;
     }
 
-    container.innerHTML = buses.map(bus => {
-      const isRunning = bus.status === 'RUNNING' || bus.status === 'GPS_ACTIVE';
-      const statusColor = isRunning ? "var(--success)" : "var(--text-secondary)";
+    container.innerHTML = buses
+      .map((bus) => {
+        const isRunning =
+          bus.status === "RUNNING" || bus.status === "GPS_ACTIVE";
+        const statusColor = isRunning
+          ? "var(--success)"
+          : "var(--text-secondary)";
 
-      return `
+        return `
         <div style="background:#fff; border:1px solid var(--border-light); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
           <div style="display:flex; align-items:center; gap:12px;">
             <div style="background:var(--bg-gray); width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-weight:700;">
@@ -999,7 +1009,7 @@ const AdminBusManager = {
               <div style="font-weight:600; color:var(--text-dark);">${bus.busName || `Bus ${bus.busNumber}`}</div>
               <div style="font-size:0.75rem; color:${statusColor}; font-weight:500; display:flex; align-items:center; gap:4px; margin-top:2px;">
                 <span style="width:6px; height:6px; background:${statusColor}; border-radius:50%; display:inline-block;"></span>
-                ${isRunning ? 'Active' : 'Offline'}
+                ${isRunning ? "Active" : "Offline"}
               </div>
             </div>
           </div>
@@ -1012,14 +1022,17 @@ const AdminBusManager = {
           </button>
         </div>
       `;
-    }).join("");
+      })
+      .join("");
   },
 
   async saveDriverBus() {
     const driverId = this.currentDriverId;
     if (!driverId) return;
 
-    const busNumber = document.getElementById("driverAddBusNumber").value.trim();
+    const busNumber = document
+      .getElementById("driverAddBusNumber")
+      .value.trim();
     const busName = document.getElementById("driverAddBusName").value.trim();
 
     if (!busNumber || !busName) {
@@ -1028,11 +1041,14 @@ const AdminBusManager = {
     }
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/bus/driver/${driverId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ busNumber, busName }),
-      });
+      const response = await fetch(
+        `${getApiBaseUrl()}/api/bus/driver/${driverId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ busNumber, busName }),
+        },
+      );
 
       const data = await response.json();
       if (data.success) {
@@ -1055,7 +1071,7 @@ const AdminBusManager = {
 
     try {
       const response = await fetch(`${getApiBaseUrl()}/api/bus/id/${busId}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
       const data = await response.json();
       if (data.success) {
@@ -1070,7 +1086,7 @@ const AdminBusManager = {
       console.error("[AdminBusManager] Error deleting driver bus:", error);
       showToast("Error deleting bus.", "error");
     }
-  }
+  },
 };
 
 // =========================================
@@ -1239,13 +1255,13 @@ const RouteManager = {
     const buses = Array.from(adminState.buses.values());
     const routesMap = new Map();
 
-    buses.forEach(bus => {
+    buses.forEach((bus) => {
       const routeName = bus.routeName || "Unknown Route";
       if (!routesMap.has(routeName)) {
         routesMap.set(routeName, {
           name: routeName,
           busCount: 0,
-          buses: []
+          buses: [],
         });
       }
       const routeData = routesMap.get(routeName);
@@ -1253,7 +1269,9 @@ const RouteManager = {
       routeData.buses.push(bus);
     });
 
-    const routes = Array.from(routesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    const routes = Array.from(routesMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
 
     if (DOM.totalRoutes) DOM.totalRoutes.textContent = routes.length;
 
@@ -1266,7 +1284,9 @@ const RouteManager = {
       return;
     }
 
-    DOM.routesListContainer.innerHTML = routes.map(route => `
+    DOM.routesListContainer.innerHTML = routes
+      .map(
+        (route) => `
       <div class="route-item" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\'")}')" 
            style="background: white; padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
         <div style="display: flex; align-items: center; gap: 14px;">
@@ -1279,19 +1299,26 @@ const RouteManager = {
           </div>
         </div>
         <div style="background: rgba(30, 64, 175, 0.08); color: var(--secondary, #1e40af); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700;">
-          ${route.busCount} ${route.busCount === 1 ? 'bus' : 'buses'}
+          ${route.busCount} ${route.busCount === 1 ? "bus" : "buses"}
         </div>
       </div>
-    `).join("");
+    `,
+      )
+      .join("");
   },
 
   showRouteDetails(routeName) {
-    const buses = Array.from(adminState.buses.values()).filter(bus => (bus.routeName || "Unknown Route") === routeName);
+    const buses = Array.from(adminState.buses.values()).filter(
+      (bus) => (bus.routeName || "Unknown Route") === routeName,
+    );
 
     if (DOM.routeDetailsTitle) DOM.routeDetailsTitle.textContent = routeName;
-    if (DOM.routeDetailsCount) DOM.routeDetailsCount.textContent = `${buses.length} ${buses.length === 1 ? 'bus' : 'buses'}`;
+    if (DOM.routeDetailsCount)
+      DOM.routeDetailsCount.textContent = `${buses.length} ${buses.length === 1 ? "bus" : "buses"}`;
 
-    DOM.routeBusesTableBody.innerHTML = buses.map(bus => `
+    DOM.routeBusesTableBody.innerHTML = buses
+      .map(
+        (bus) => `
       <tr onclick="PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')" style="cursor: pointer;">
         <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
         <td data-label="Driver">${bus.driverName}</td>
@@ -1307,10 +1334,12 @@ const RouteManager = {
           </button>
         </td>
       </tr>
-    `).join("");
+    `,
+      )
+      .join("");
 
     PanelManager.togglePanel("route-details");
-  }
+  },
 };
 
 function toggleRoutesPanel(show) {
@@ -1332,7 +1361,7 @@ const WebSocketManager = {
   heartbeatInterval: null,
   pollingInterval: null,
   HEARTBEAT_RATE: 20000, // 20 seconds keep-alive
-  POLLING_RATE: 5000,    // 5 seconds status polling
+  POLLING_RATE: 5000, // 5 seconds status polling
 
   init() {
     console.log("[WS] Initializing connection...");
@@ -1372,9 +1401,15 @@ const WebSocketManager = {
               `[WS] BUS_UPDATE received: ${data.buses.length} buses (source: ${data.source || "unknown"})`,
             );
             BusManager.handleBusData(data.buses);
-          } else if (data.type === "BUS_CONFIG_ADDED" || data.type === "BUS_CONFIG_DELETED") {
+          } else if (
+            data.type === "BUS_CONFIG_ADDED" ||
+            data.type === "BUS_CONFIG_DELETED"
+          ) {
             // If the driver info panel is open for this driver, refresh it
-            if (AdminBusManager && AdminBusManager.currentDriverId === data.driverId) {
+            if (
+              AdminBusManager &&
+              AdminBusManager.currentDriverId === data.driverId
+            ) {
               AdminBusManager.fetchDriverBuses(data.driverId);
             }
           }
@@ -1490,7 +1525,9 @@ function updateConnectionBadge(isConnected, customText) {
     text.textContent = "Connected";
     dot.style.animation = "pulse 2s infinite";
   } else {
-    badge.style.background = customText ? "var(--warning, #f59e0b)" : "var(--danger)";
+    badge.style.background = customText
+      ? "var(--warning, #f59e0b)"
+      : "var(--danger)";
     text.textContent = customText || "Disconnected";
     dot.style.animation = customText ? "pulse 1s infinite" : "none";
   }
@@ -1837,8 +1874,8 @@ function generateBusPDF(buses, title) {
                 </thead>
                 <tbody>
                     ${buses
-      .map(
-        (bus) => `
+                      .map(
+                        (bus) => `
                         <tr>
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>${bus.busNo}</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${bus.routeName}</td>
@@ -1853,8 +1890,8 @@ function generateBusPDF(buses, title) {
                             <td style="padding: 10px; border: 1px solid #ddd;">${new Date(bus.lastUpdate).toLocaleString()}</td>
                         </tr>
                     `,
-      )
-      .join("")}
+                      )
+                      .join("")}
                 </tbody>
             </table>
             
@@ -1965,122 +2002,141 @@ const FeedbackManager = {
 
   async loadFeedback() {
     try {
-      const resp = await fetch(getApiBaseUrl() + '/api/feedback');
+      const resp = await fetch(getApiBaseUrl() + "/api/feedback");
       const data = await resp.json();
       if (data.success) {
         this.allFeedback = data.feedback || [];
-        document.getElementById('totalFeedback').textContent = this.allFeedback.length;
+        document.getElementById("totalFeedback").textContent =
+          this.allFeedback.length;
         this.applyFilter();
       }
     } catch (e) {
-      console.error('[Feedback] Load error:', e);
+      console.error("[Feedback] Load error:", e);
     }
   },
 
   applyFilter() {
-    const filter = document.getElementById('feedbackFilter').value;
+    const filter = document.getElementById("feedbackFilter").value;
     let list = this.allFeedback;
-    if (filter !== 'all') {
-      list = list.filter(f => f.status === filter);
+    if (filter !== "all") {
+      list = list.filter((f) => f.status === filter);
     }
     this.renderTable(list);
   },
 
   renderTable(list) {
-    const tbody = document.getElementById('feedbackTableBody');
+    const tbody = document.getElementById("feedbackTableBody");
     if (!tbody) return;
     if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8;">No feedback reports found</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8;">No feedback reports found</td></tr>';
       return;
     }
-    tbody.innerHTML = list.map(f => {
-      const statusColor = f.status === 'resolved' ? '#10b981' : '#f59e0b';
-      const statusBg = f.status === 'resolved' ? '#ecfdf5' : '#fef3c7';
-      const time = f.createdAt ? new Date(f.createdAt).toLocaleString() : '--';
-      return `<tr style="cursor:pointer;" onclick="FeedbackManager.openDetail(${f.id})">
-        <td style="font-weight:600;">${f.busNumber || '--'}</td>
-        <td>${f.routeName || '--'}</td>
-        <td>${f.studentName || '--'}</td>
-        <td><span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:0.75rem;font-weight:600;">${f.issueType || '--'}</span></td>
+    tbody.innerHTML = list
+      .map((f) => {
+        const statusColor = f.status === "resolved" ? "#10b981" : "#f59e0b";
+        const statusBg = f.status === "resolved" ? "#ecfdf5" : "#fef3c7";
+        const time = f.createdAt
+          ? new Date(f.createdAt).toLocaleString()
+          : "--";
+        return `<tr style="cursor:pointer;" onclick="FeedbackManager.openDetail(${f.id})">
+        <td style="font-weight:600;">${f.busNumber || "--"}</td>
+        <td>${f.routeName || "--"}</td>
+        <td>${f.studentName || "--"}</td>
+        <td><span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:0.75rem;font-weight:600;">${f.issueType || "--"}</span></td>
         <td><span style="padding:3px 10px;background:${statusBg};color:${statusColor};border-radius:20px;font-size:0.75rem;font-weight:600;text-transform:capitalize;">${f.status}</span></td>
         <td style="font-size:0.8rem;color:#64748b;">${time}</td>
       </tr>`;
-    }).join('');
+      })
+      .join("");
   },
 
   openDetail(id) {
-    const f = this.allFeedback.find(fb => fb.id === id);
+    const f = this.allFeedback.find((fb) => fb.id === id);
     if (!f) return;
     this.currentFeedbackId = id;
-    document.getElementById('fdBusNumber').textContent = f.busNumber || '--';
-    document.getElementById('fdRouteName').textContent = f.routeName || '--';
-    document.getElementById('fdStudentName').textContent = f.studentName || '--';
-    document.getElementById('fdStudentEmail').textContent = f.studentEmail || '--';
-    document.getElementById('fdIssueType').textContent = f.issueType || '--';
-    document.getElementById('fdMessage').textContent = f.message || '--';
-    document.getElementById('fdCreatedAt').textContent = f.createdAt ? new Date(f.createdAt).toLocaleString() : '--';
-    const resolveBtn = document.getElementById('fdResolveBtn');
-    if (f.status === 'resolved') {
-      resolveBtn.style.background = '#94a3b8';
-      resolveBtn.textContent = '\u2713 Already Resolved';
+    document.getElementById("fdBusNumber").textContent = f.busNumber || "--";
+    document.getElementById("fdRouteName").textContent = f.routeName || "--";
+    document.getElementById("fdStudentName").textContent =
+      f.studentName || "--";
+    document.getElementById("fdStudentEmail").textContent =
+      f.studentEmail || "--";
+    document.getElementById("fdIssueType").textContent = f.issueType || "--";
+    document.getElementById("fdMessage").textContent = f.message || "--";
+    document.getElementById("fdCreatedAt").textContent = f.createdAt
+      ? new Date(f.createdAt).toLocaleString()
+      : "--";
+    const resolveBtn = document.getElementById("fdResolveBtn");
+    if (f.status === "resolved") {
+      resolveBtn.style.background = "#94a3b8";
+      resolveBtn.textContent = "\u2713 Already Resolved";
       resolveBtn.disabled = true;
     } else {
-      resolveBtn.style.background = '#10b981';
-      resolveBtn.textContent = '\u2713 Mark as Resolved';
+      resolveBtn.style.background = "#10b981";
+      resolveBtn.textContent = "\u2713 Mark as Resolved";
       resolveBtn.disabled = false;
     }
-    document.getElementById('feedbackDetailModal').style.display = 'flex';
+    document.getElementById("feedbackDetailModal").style.display = "flex";
   },
 
   closeDetail() {
-    document.getElementById('feedbackDetailModal').style.display = 'none';
+    document.getElementById("feedbackDetailModal").style.display = "none";
     this.currentFeedbackId = null;
   },
 
   async resolveCurrentFeedback() {
     if (!this.currentFeedbackId) return;
     try {
-      const resp = await fetch(getApiBaseUrl() + '/api/feedback/' + this.currentFeedbackId + '/resolve', { method: 'PUT' });
+      const resp = await fetch(
+        getApiBaseUrl() +
+          "/api/feedback/" +
+          this.currentFeedbackId +
+          "/resolve",
+        { method: "PUT" },
+      );
       const data = await resp.json();
       if (data.success) {
         this.closeDetail();
         this.loadFeedback();
       } else {
-        alert(data.message || 'Failed to resolve');
+        alert(data.message || "Failed to resolve");
       }
     } catch (e) {
-      alert('Could not connect to server');
+      alert("Could not connect to server");
     }
   },
 
   async deleteCurrentFeedback() {
     if (!this.currentFeedbackId) return;
-    if (!confirm('Are you sure you want to delete this feedback?')) return;
+    if (!confirm("Are you sure you want to delete this feedback?")) return;
     try {
-      const resp = await fetch(getApiBaseUrl() + '/api/feedback/' + this.currentFeedbackId, { method: 'DELETE' });
+      const resp = await fetch(
+        getApiBaseUrl() + "/api/feedback/" + this.currentFeedbackId,
+        { method: "DELETE" },
+      );
       const data = await resp.json();
       if (data.success) {
         this.closeDetail();
         this.loadFeedback();
       } else {
-        alert(data.message || 'Failed to delete');
+        alert(data.message || "Failed to delete");
       }
     } catch (e) {
-      alert('Could not connect to server');
+      alert("Could not connect to server");
     }
-  }
+  },
 };
 
 function toggleFeedbackPanel(show) {
-  const panel = document.getElementById('feedbackView');
+  const panel = document.getElementById("feedbackView");
   if (panel) {
     if (show) {
-      panel.classList.add('visible');
+      panel.classList.add("visible");
       FeedbackManager.loadFeedback();
     } else {
-      panel.classList.remove('visible');
+      panel.classList.remove("visible");
       adminState.activePanel = null;
-      PanelManager.updateActiveTab('map');
+      PanelManager.updateActiveTab("map");
     }
   }
 }
@@ -2099,9 +2155,11 @@ function getAdminApiBaseUrl() {
   if (host.includes("railway.app")) return "";
   if (host.includes(".devtunnels.ms")) {
     const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-    if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+    if (tunnelMatch)
+      return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
   }
-  if (port && port !== "80" && port !== "443") return `${protocol}//${host}:${port}`;
+  if (port && port !== "80" && port !== "443")
+    return `${protocol}//${host}:${port}`;
   return "";
 }
 
@@ -2125,10 +2183,13 @@ async function regenerateGuestCode() {
   }
 
   try {
-    const response = await fetch(getAdminApiBaseUrl() + "/api/guest/regenerate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = await fetch(
+      getAdminApiBaseUrl() + "/api/guest/regenerate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
     const data = await response.json();
     if (data.success) {
       updateGuestCodeUI(data.code, data.expiresAt);
@@ -2186,15 +2247,22 @@ function showAdminToast(message, type) {
   const toast = document.createElement("div");
   toast.className = `toast toast-${type || "info"}`;
   toast.textContent = message;
-  toast.style.cssText = "padding:12px 20px;background:" +
-    (type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6") +
+  toast.style.cssText =
+    "padding:12px 20px;background:" +
+    (type === "success"
+      ? "#10b981"
+      : type === "error"
+        ? "#ef4444"
+        : "#3b82f6") +
     ";color:white;border-radius:10px;font-size:0.85rem;font-weight:500;box-shadow:0 4px 15px rgba(0,0,0,0.15);animation:slideUp 0.3s ease-out;margin-bottom:8px;";
   container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 3000);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 // Load guest code on page init
 document.addEventListener("DOMContentLoaded", () => {
   loadGuestCode();
 });
-

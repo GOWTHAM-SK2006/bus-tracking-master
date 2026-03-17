@@ -1,804 +1,1531 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="description" content="DYGON Admin - Manage drivers and buses" />
+    <title>DYGON Admin Panel</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="DYGON Admin - Manage drivers and buses" />
-  <title>DYGON Admin Panel</title>
+    <!-- MapTiler SDK CSS -->
+    <link
+      href="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.css"
+      rel="stylesheet"
+    />
 
-  <!-- MapTiler SDK CSS -->
-  <link href="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Custom Styles (cache-busted so latest UI loads) -->
+    <link rel="stylesheet" href="./admin-style.css?v=3" />
+    <link rel="icon" href="../logo.png" />
+  </head>
 
-  <!-- Custom Styles (cache-busted so latest UI loads) -->
-  <link rel="stylesheet" href="./admin-style.css?v=3" />
-  <link rel="icon" href="../logo.png" />
-</head>
-
-<body>
-  <script>
-    // Check for admin session
-    const adminSessionStr = sessionStorage.getItem("admin");
-    if (!adminSessionStr) {
-      window.location.href = "admin-login.html";
-    } else {
-      try {
-        const adminSession = JSON.parse(adminSessionStr);
-        // We'll update UI in admin-app.js or on DOMContentLoaded
-        document.addEventListener("DOMContentLoaded", () => {
-          const nameDisplay = document.getElementById("adminNameDisplay");
-          if (nameDisplay)
-            nameDisplay.textContent = adminSession.name || "Admin";
-        });
-      } catch (e) {
-        console.error("Session parse error", e);
+  <body>
+    <script>
+      // Check for admin session
+      const adminSessionStr = sessionStorage.getItem("admin");
+      if (!adminSessionStr) {
         window.location.href = "admin-login.html";
+      } else {
+        try {
+          const adminSession = JSON.parse(adminSessionStr);
+          // We'll update UI in admin-app.js or on DOMContentLoaded
+          document.addEventListener("DOMContentLoaded", () => {
+            const nameDisplay = document.getElementById("adminNameDisplay");
+            if (nameDisplay)
+              nameDisplay.textContent = adminSession.name || "Admin";
+          });
+        } catch (e) {
+          console.error("Session parse error", e);
+          window.location.href = "admin-login.html";
+        }
       }
-    }
-  </script>
+    </script>
 
-  <!-- Header -->
-  <header class="admin-header">
-    <div class="header-container">
-      <!-- Logo -->
-      <div class="logo">
-        <img src="../logo.png" alt="DYGON" class="logo-img" />
-      </div>
-
-      <!-- Mobile Menu Toggle (Hamburger) -->
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-
-      <!-- Admin Actions (Desktop Only) -->
-      <div class="header-actions" id="adminHeaderActions">
-        <!-- Driver Sign In Toggle -->
-        <div class="toggle-container">
-          <span>Driver Sign In</span>
-          <button id="driverSignInToggleBtn" class="toggle-btn" onclick="toggleDriverSignIn()">
-            <span class="toggle-slider" id="driverSignInSlider"></span>
-          </button>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-container">
+        <!-- Logo -->
+        <div class="logo">
+          <img src="../logo.png" alt="DYGON" class="logo-img" />
         </div>
 
-        <!-- Student Sign In Toggle -->
-        <div class="toggle-container">
-          <span>Student Sign In</span>
-          <button id="studentSignInToggleBtn" class="toggle-btn" onclick="toggleStudentSignIn()">
-            <span class="toggle-slider" id="studentSignInSlider"></span>
-          </button>
-        </div>
-
-        <!-- Account Creation Toggle -->
-        <div class="toggle-container">
-          <span>Driver Signup</span>
-          <button id="accountToggleBtn" class="toggle-btn" onclick="toggleAccountCreation()">
-            <span class="toggle-slider"></span>
-          </button>
-        </div>
-
-        <button id="adminLogoutBtn" onclick="adminLogout()" title="Logout">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
+        <!-- Mobile Menu Toggle (Hamburger) -->
+        <button
+          class="mobile-menu-btn"
+          id="mobileMenuBtn"
+          aria-label="Toggle Navigation"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-      </div>
-    </div>
 
-    <!-- Mobile Menu Dropdown -->
-    <div class="mobile-menu" id="mobileMenu">
-      <div class="mobile-menu-content">
-        <!-- Navigation Tabs Section -->
-        <div class="mobile-menu-section">
-          <h3 class="mobile-menu-title">Navigation</h3>
-          <button class="mobile-menu-item" data-tab="dashboard" onclick="mobileMenuTabClick('dashboard')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
-            Dashboard
-          </button>
-          <button class="mobile-menu-item active" data-tab="map" onclick="mobileMenuTabClick('map')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-              <line x1="8" y1="2" x2="8" y2="18" />
-              <line x1="16" y1="6" x2="16" y2="22" />
-            </svg>
-            Live Map
-          </button>
-          <button class="mobile-menu-item" data-tab="buses" onclick="mobileMenuTabClick('buses')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="6" width="18" height="12" rx="2" />
-              <circle cx="7" cy="18" r="2" />
-              <circle cx="17" cy="18" r="2" />
-            </svg>
-            Buses
-          </button>
-          <button class="mobile-menu-item" data-tab="routes" onclick="mobileMenuTabClick('routes')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-              <line x1="9" y1="4" x2="9" y2="19"></line>
-              <line x1="15" y1="5" x2="15" y2="20"></line>
-            </svg>
-            Routes
-          </button>
-          <button class="mobile-menu-item" data-tab="feedback" onclick="mobileMenuTabClick('feedback')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            Feedback
-          </button>
-          <button class="mobile-menu-item" data-tab="export" onclick="mobileMenuTabClick('export')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Export
-          </button>
-          <button class="mobile-menu-item" onclick="window.location.href = 'admin-profile.html'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            Profile
-          </button>
-        </div>
-
-        <!-- Divider -->
-        <div class="mobile-menu-divider"></div>
-
-        <!-- Control Section -->
-        <div class="mobile-menu-section">
-          <h3 class="mobile-menu-title">Controls</h3>
-          
+        <!-- Admin Actions (Desktop Only) -->
+        <div class="header-actions" id="adminHeaderActions">
           <!-- Driver Sign In Toggle -->
-          <div class="mobile-menu-toggle">
+          <div class="toggle-container">
             <span>Driver Sign In</span>
-            <button id="mobileDriverSignInToggleBtn" class="toggle-btn" onclick="toggleDriverSignIn()">
-              <span class="toggle-slider" id="mobileDriverSignInSlider"></span>
+            <button
+              id="driverSignInToggleBtn"
+              class="toggle-btn"
+              onclick="toggleDriverSignIn()"
+            >
+              <span class="toggle-slider" id="driverSignInSlider"></span>
             </button>
           </div>
 
           <!-- Student Sign In Toggle -->
-          <div class="mobile-menu-toggle">
+          <div class="toggle-container">
             <span>Student Sign In</span>
-            <button id="mobileStudentSignInToggleBtn" class="toggle-btn" onclick="toggleStudentSignIn()">
-              <span class="toggle-slider" id="mobileStudentSignInSlider"></span>
+            <button
+              id="studentSignInToggleBtn"
+              class="toggle-btn"
+              onclick="toggleStudentSignIn()"
+            >
+              <span class="toggle-slider" id="studentSignInSlider"></span>
             </button>
           </div>
 
-          <!-- Driver Signup Toggle -->
-          <div class="mobile-menu-toggle">
+          <!-- Account Creation Toggle -->
+          <div class="toggle-container">
             <span>Driver Signup</span>
-            <button id="mobileAccountToggleBtn" class="toggle-btn" onclick="toggleAccountCreation()">
+            <button
+              id="accountToggleBtn"
+              class="toggle-btn"
+              onclick="toggleAccountCreation()"
+            >
               <span class="toggle-slider"></span>
             </button>
           </div>
-        </div>
 
-        <!-- Divider -->
-        <div class="mobile-menu-divider"></div>
-
-        <!-- Logout Section -->
-        <div class="mobile-menu-section">
-          <button class="mobile-menu-logout" onclick="adminLogout()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button id="adminLogoutBtn" onclick="adminLogout()" title="Logout">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            Logout
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Connection Status -->
-    <div class="connection-badge" id="connectionBadge">
-      <span class="badge-dot"></span>
-      <span class="badge-text">Connecting...</span>
-    </div>
-  </header>
+      <!-- Mobile Menu Dropdown -->
+      <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+          <!-- Navigation Tabs Section -->
+          <div class="mobile-menu-section">
+            <h3 class="mobile-menu-title">Navigation</h3>
+            <button
+              class="mobile-menu-item"
+              data-tab="dashboard"
+              onclick="mobileMenuTabClick('dashboard')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              Dashboard
+            </button>
+            <button
+              class="mobile-menu-item active"
+              data-tab="map"
+              onclick="mobileMenuTabClick('map')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" />
+                <line x1="16" y1="6" x2="16" y2="22" />
+              </svg>
+              Live Map
+            </button>
+            <button
+              class="mobile-menu-item"
+              data-tab="buses"
+              onclick="mobileMenuTabClick('buses')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="6" width="18" height="12" rx="2" />
+                <circle cx="7" cy="18" r="2" />
+                <circle cx="17" cy="18" r="2" />
+              </svg>
+              Buses
+            </button>
+            <button
+              class="mobile-menu-item"
+              data-tab="routes"
+              onclick="mobileMenuTabClick('routes')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+                <line x1="9" y1="4" x2="9" y2="19"></line>
+                <line x1="15" y1="5" x2="15" y2="20"></line>
+              </svg>
+              Routes
+            </button>
+            <button
+              class="mobile-menu-item"
+              data-tab="feedback"
+              onclick="mobileMenuTabClick('feedback')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                ></path>
+              </svg>
+              Feedback
+            </button>
+            <button
+              class="mobile-menu-item"
+              data-tab="export"
+              onclick="mobileMenuTabClick('export')"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export
+            </button>
+            <button
+              class="mobile-menu-item"
+              onclick="window.location.href = 'admin-profile.html'"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Profile
+            </button>
+          </div>
 
-  <!-- Admin Main Content (Refactored for Map Layout) -->
-  <main class="admin-main">
-    <!-- Persistent Map Background -->
-    <div class="map-background">
-      <div id="map" class="map-container"></div>
-    </div>
+          <!-- Divider -->
+          <div class="mobile-menu-divider"></div>
 
-    <!-- Active Bus Counter Widget (Bottom Left) -->
-    <div class="bus-counter-widget">
-      <div class="counter-icon">🚌</div>
-      <div class="counter-info">
-        <div class="counter-top">
-          <span class="counter-number" id="activeBusCount">0</span>
-          <span class="counter-status">Active</span>
+          <!-- Control Section -->
+          <div class="mobile-menu-section">
+            <h3 class="mobile-menu-title">Controls</h3>
+
+            <!-- Driver Sign In Toggle -->
+            <div class="mobile-menu-toggle">
+              <span>Driver Sign In</span>
+              <button
+                id="mobileDriverSignInToggleBtn"
+                class="toggle-btn"
+                onclick="toggleDriverSignIn()"
+              >
+                <span
+                  class="toggle-slider"
+                  id="mobileDriverSignInSlider"
+                ></span>
+              </button>
+            </div>
+
+            <!-- Student Sign In Toggle -->
+            <div class="mobile-menu-toggle">
+              <span>Student Sign In</span>
+              <button
+                id="mobileStudentSignInToggleBtn"
+                class="toggle-btn"
+                onclick="toggleStudentSignIn()"
+              >
+                <span
+                  class="toggle-slider"
+                  id="mobileStudentSignInSlider"
+                ></span>
+              </button>
+            </div>
+
+            <!-- Driver Signup Toggle -->
+            <div class="mobile-menu-toggle">
+              <span>Driver Signup</span>
+              <button
+                id="mobileAccountToggleBtn"
+                class="toggle-btn"
+                onclick="toggleAccountCreation()"
+              >
+                <span class="toggle-slider"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="mobile-menu-divider"></div>
+
+          <!-- Logout Section -->
+          <div class="mobile-menu-section">
+            <button class="mobile-menu-logout" onclick="adminLogout()">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Logout
+            </button>
+          </div>
         </div>
-        <span class="counter-label">ACTIVE BUSES</span>
       </div>
-    </div>
 
-    <!-- Guest Access Widget (Above Bus Counter) -->
-    <div class="guest-access-widget" id="guestAccessWidget">
-      <div class="guest-widget-header">
-        <span class="guest-widget-icon">🔑</span>
-        <span class="guest-widget-title">Guest Access</span>
+      <!-- Connection Status -->
+      <div class="connection-badge" id="connectionBadge">
+        <span class="badge-dot"></span>
+        <span class="badge-text">Connecting...</span>
       </div>
-      <div class="guest-widget-body">
-        <div class="guest-code-display">
-          <span class="guest-code-label">Code</span>
-          <span class="guest-code-value" id="guestCodeDisplay">------</span>
-        </div>
-        <div class="guest-code-timer">
-          <span class="guest-timer-label">Expires in</span>
-          <span class="guest-timer-value" id="guestCodeTimer">--h --m</span>
-        </div>
-      </div>
-      <button class="guest-regenerate-btn" id="guestRegenerateBtn" onclick="regenerateGuestCode()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-        Regenerate Code
-      </button>
-    </div>
+    </header>
 
-    <!-- Map Overlays -->
-    <div class="map-overlays" id="mapOverlays">
-      <!-- Selected Bus Panel (Right Side) -->
-      <div class="bus-info-panel" id="busInfoPanel">
-        <button class="panel-close-btn" id="panelCloseBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+    <!-- Admin Main Content (Refactored for Map Layout) -->
+    <main class="admin-main">
+      <!-- Persistent Map Background -->
+      <div class="map-background">
+        <div id="map" class="map-container"></div>
+      </div>
+
+      <!-- Active Bus Counter Widget (Bottom Left) -->
+      <div class="bus-counter-widget">
+        <div class="counter-icon">🚌</div>
+        <div class="counter-info">
+          <div class="counter-top">
+            <span class="counter-number" id="activeBusCount">0</span>
+            <span class="counter-status">Active</span>
+          </div>
+          <span class="counter-label">ACTIVE BUSES</span>
+        </div>
+      </div>
+
+      <!-- Guest Access Widget (Above Bus Counter) -->
+      <div class="guest-access-widget" id="guestAccessWidget">
+        <div class="guest-widget-header">
+          <span class="guest-widget-icon">🔑</span>
+          <span class="guest-widget-title">Guest Access</span>
+        </div>
+        <div class="guest-widget-body">
+          <div class="guest-code-display">
+            <span class="guest-code-label">Code</span>
+            <span class="guest-code-value" id="guestCodeDisplay">------</span>
+          </div>
+          <div class="guest-code-timer">
+            <span class="guest-timer-label">Expires in</span>
+            <span class="guest-timer-value" id="guestCodeTimer">--h --m</span>
+          </div>
+        </div>
+        <button
+          class="guest-regenerate-btn"
+          id="guestRegenerateBtn"
+          onclick="regenerateGuestCode()"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
+          Regenerate Code
         </button>
-        <div class="panel-header">
-          <div class="bus-badge-large" id="panelBusNo">--</div>
-          <div class="bus-details">
-            <div class="bus-name-large" id="panelBusName">Select a bus</div>
-            <div class="bus-route-label" id="panelBusRoute">Route: --</div>
-            <div class="bus-status active">
-              <span class="status-dot"></span>
-              <span>Active</span>
-            </div>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="info-row">
-            <span class="info-value" id="panelLocation">--</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">👤 Driver</span>
-            <span class="info-value" id="panelDriver">--</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">📞 Phone</span>
-            <span class="info-value" id="panelPhone">--</span>
-          </div>
-        </div>
       </div>
-    </div>
 
-    <!-- Dashboard Panel (Floating Overlay) -->
-    <section class="floating-panel" id="dashboardView">
-      <div class="panel-container">
-        <div class="list-header">
-          <h2>Bus Dashboard</h2>
-          <button class="close-panel-btn" onclick="toggleDashboardPanel(false)">
-            ×
-          </button>
-        </div>
-
-        <!-- Bus Selector -->
-        <div class="dashboard-selector">
-          <label for="dashboardBusSearch" class="selector-label">Search Bus:</label>
-          <div class="selector-wrapper">
-            <input type="text" id="dashboardBusSearch" class="form-input selector-input"
-              placeholder="Type bus number or route name..." autocomplete="off" />
-            <svg class="selector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
+      <!-- Map Overlays -->
+      <div class="map-overlays" id="mapOverlays">
+        <!-- Selected Bus Panel (Right Side) -->
+        <div class="bus-info-panel" id="busInfoPanel">
+          <button class="panel-close-btn" id="panelCloseBtn">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-            <div id="dashboardBusDropdown" class="selector-dropdown">
-              <!-- Dropdown items will be populated here -->
-            </div>
-          </div>
-        </div>
-
-        <!-- GPS Data Display -->
-        <div id="dashboardDataContainer" class="dashboard-data-container" style="display: none">
-          <!-- Bus Info Header -->
-          <div class="dash-bus-header">
-            <h3 class="dash-bus-number" id="dashBusNumber">--</h3>
-            <p class="dash-bus-route" id="dashBusRoute">Route: --</p>
-          </div>
-
-          <!-- Status Cards Grid -->
-          <div class="dash-stats-grid">
-            <!-- GPS Status -->
-            <div class="dash-card">
-              <div class="dash-label">GPS Status</div>
-              <div class="dash-value success" id="dashGpsStatus">--</div>
-            </div>
-
-            <!-- Tracking Status -->
-            <div class="dash-card">
-              <div class="dash-label">Tracking</div>
-              <div class="dash-value info" id="dashTrackingStatus">--</div>
-            </div>
-
-            <!-- Updates Sent -->
-            <div class="dash-card">
-              <div class="dash-label">Updates Sent</div>
-              <div class="dash-value warning" id="dashUpdatesSent">0</div>
-            </div>
-
-            <!-- Last Update -->
-            <div class="dash-card">
-              <div class="dash-label">Last Update</div>
-              <div class="dash-value active" id="dashLastUpdate">--</div>
-            </div>
-          </div>
-
-          <!-- GPS Coordinates -->
-          <div class="dash-section">
-            <h4 class="dash-section-title">GPS Coordinates</h4>
-
-            <div class="dash-list">
-              <!-- Latitude -->
-              <div class="dash-list-item">
-                <span class="dash-list-label">Latitude:</span>
-                <span class="dash-list-value monospace" id="dashLatitude">--</span>
-              </div>
-
-              <!-- Longitude -->
-              <div class="dash-list-item">
-                <span class="dash-list-label">Longitude:</span>
-                <span class="dash-list-value monospace" id="dashLongitude">--</span>
-              </div>
-
-              <!-- Accuracy -->
-              <div class="dash-list-item">
-                <span class="dash-list-label">Accuracy:</span>
-                <span class="dash-list-value success" id="dashAccuracy">--</span>
+          </button>
+          <div class="panel-header">
+            <div class="bus-badge-large" id="panelBusNo">--</div>
+            <div class="bus-details">
+              <div class="bus-name-large" id="panelBusName">Select a bus</div>
+              <div class="bus-route-label" id="panelBusRoute">Route: --</div>
+              <div class="bus-status active">
+                <span class="status-dot"></span>
+                <span>Active</span>
               </div>
             </div>
           </div>
-
-          <!-- Driver Info -->
-          <div class="dash-section">
-            <h4 class="dash-section-title">Driver Information</h4>
-
-            <div class="dash-list">
-              <div class="dash-list-item">
-                <span class="dash-list-label">Name:</span>
-                <span class="dash-list-value" id="dashDriverName">--</span>
-              </div>
-              <div class="dash-list-item">
-                <span class="dash-list-label">Phone:</span>
-                <span class="dash-list-value" id="dashDriverPhone">--</span>
-              </div>
+          <div class="panel-body">
+            <div class="info-row">
+              <span class="info-value" id="panelLocation">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">👤 Driver</span>
+              <span class="info-value" id="panelDriver">--</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">📞 Phone</span>
+              <span class="info-value" id="panelPhone">--</span>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <section class="floating-panel" id="busesView">
-      <div class="panel-container">
-        <div class="list-header" style="align-items: center;">
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <h2>Registered Buses</h2>
-            <span class="list-count"><span id="totalBuses">0</span> buses</span>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button class="close-panel-btn" onclick="toggleBusesPanel(false)">
+      <!-- Dashboard Panel (Floating Overlay) -->
+      <section class="floating-panel" id="dashboardView">
+        <div class="panel-container">
+          <div class="list-header">
+            <h2>Bus Dashboard</h2>
+            <button
+              class="close-panel-btn"
+              onclick="toggleDashboardPanel(false)"
+            >
               ×
             </button>
           </div>
-        </div>
-        <!-- Search within list -->
-        <div class="local-search">
-          <input type="text" placeholder="Filter buses..." id="busFilterInput" />
-        </div>
-        <div class="buses-table-container">
-          <table class="buses-table">
-            <thead>
-              <tr>
-                <th>Bus No</th>
-                <th>Driver</th>
-                <th>Route</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="busesTableBody">
-              <!-- Buses will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
-    <!-- Export Panel (Floating Overlay) -->
-    <section class="floating-panel" id="exportView">
-      <div class="panel-container">
-        <div class="list-header">
-          <h2>Reports & Exports</h2>
-          <button class="close-panel-btn" onclick="toggleExportPanel(false)">
-            ×
-          </button>
-        </div>
-
-        <div class="export-options">
-          <div class="export-card">
-            <div class="export-icon">🚌</div>
-            <h3>Export Active Buses</h3>
-            <p>Download a PDF report of currently active buses only.</p>
-            <button class="btn btn-secondary" onclick="exportActiveBusesPDF()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
+          <!-- Bus Selector -->
+          <div class="dashboard-selector">
+            <label for="dashboardBusSearch" class="selector-label"
+              >Search Bus:</label
+            >
+            <div class="selector-wrapper">
+              <input
+                type="text"
+                id="dashboardBusSearch"
+                class="form-input selector-input"
+                placeholder="Type bus number or route name..."
+                autocomplete="off"
+              />
+              <svg
+                class="selector-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
               </svg>
-              Download PDF
-            </button>
-          </div>
-
-          <div class="export-card">
-            <div class="export-icon">🗓️</div>
-            <h3>Export by Date Range</h3>
-            <p>
-              Download a PDF report for buses within a specific date range.
-            </p>
-            <div class="export-dates">
-              <div class="export-date-field">
-                <label>Start Date</label>
-                <input type="date" id="exportStartDate" />
-              </div>
-              <div class="export-date-field">
-                <label>End Date</label>
-                <input type="date" id="exportEndDate" />
+              <div id="dashboardBusDropdown" class="selector-dropdown">
+                <!-- Dropdown items will be populated here -->
               </div>
             </div>
-            <button class="btn btn-secondary" onclick="exportDateRangePDF()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              Download PDF
+          </div>
+
+          <!-- GPS Data Display -->
+          <div
+            id="dashboardDataContainer"
+            class="dashboard-data-container"
+            style="display: none"
+          >
+            <!-- Bus Info Header -->
+            <div class="dash-bus-header">
+              <h3 class="dash-bus-number" id="dashBusNumber">--</h3>
+              <p class="dash-bus-route" id="dashBusRoute">Route: --</p>
+            </div>
+
+            <!-- Status Cards Grid -->
+            <div class="dash-stats-grid">
+              <!-- GPS Status -->
+              <div class="dash-card">
+                <div class="dash-label">GPS Status</div>
+                <div class="dash-value success" id="dashGpsStatus">--</div>
+              </div>
+
+              <!-- Tracking Status -->
+              <div class="dash-card">
+                <div class="dash-label">Tracking</div>
+                <div class="dash-value info" id="dashTrackingStatus">--</div>
+              </div>
+
+              <!-- Updates Sent -->
+              <div class="dash-card">
+                <div class="dash-label">Updates Sent</div>
+                <div class="dash-value warning" id="dashUpdatesSent">0</div>
+              </div>
+
+              <!-- Last Update -->
+              <div class="dash-card">
+                <div class="dash-label">Last Update</div>
+                <div class="dash-value active" id="dashLastUpdate">--</div>
+              </div>
+            </div>
+
+            <!-- GPS Coordinates -->
+            <div class="dash-section">
+              <h4 class="dash-section-title">GPS Coordinates</h4>
+
+              <div class="dash-list">
+                <!-- Latitude -->
+                <div class="dash-list-item">
+                  <span class="dash-list-label">Latitude:</span>
+                  <span class="dash-list-value monospace" id="dashLatitude"
+                    >--</span
+                  >
+                </div>
+
+                <!-- Longitude -->
+                <div class="dash-list-item">
+                  <span class="dash-list-label">Longitude:</span>
+                  <span class="dash-list-value monospace" id="dashLongitude"
+                    >--</span
+                  >
+                </div>
+
+                <!-- Accuracy -->
+                <div class="dash-list-item">
+                  <span class="dash-list-label">Accuracy:</span>
+                  <span class="dash-list-value success" id="dashAccuracy"
+                    >--</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Driver Info -->
+            <div class="dash-section">
+              <h4 class="dash-section-title">Driver Information</h4>
+
+              <div class="dash-list">
+                <div class="dash-list-item">
+                  <span class="dash-list-label">Name:</span>
+                  <span class="dash-list-value" id="dashDriverName">--</span>
+                </div>
+                <div class="dash-list-item">
+                  <span class="dash-list-label">Phone:</span>
+                  <span class="dash-list-value" id="dashDriverPhone">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="floating-panel" id="busesView">
+        <div class="panel-container">
+          <div class="list-header" style="align-items: center">
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <h2>Registered Buses</h2>
+              <span class="list-count"
+                ><span id="totalBuses">0</span> buses</span
+              >
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <button class="close-panel-btn" onclick="toggleBusesPanel(false)">
+                ×
+              </button>
+            </div>
+          </div>
+          <!-- Search within list -->
+          <div class="local-search">
+            <input
+              type="text"
+              placeholder="Filter buses..."
+              id="busFilterInput"
+            />
+          </div>
+          <div class="buses-table-container">
+            <table class="buses-table">
+              <thead>
+                <tr>
+                  <th>Bus No</th>
+                  <th>Driver</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="busesTableBody">
+                <!-- Buses will be populated here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Export Panel (Floating Overlay) -->
+      <section class="floating-panel" id="exportView">
+        <div class="panel-container">
+          <div class="list-header">
+            <h2>Reports & Exports</h2>
+            <button class="close-panel-btn" onclick="toggleExportPanel(false)">
+              ×
+            </button>
+          </div>
+
+          <div class="export-options">
+            <div class="export-card">
+              <div class="export-icon">🚌</div>
+              <h3>Export Active Buses</h3>
+              <p>Download a PDF report of currently active buses only.</p>
+              <button
+                class="btn btn-secondary"
+                onclick="exportActiveBusesPDF()"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+              </button>
+            </div>
+
+            <div class="export-card">
+              <div class="export-icon">🗓️</div>
+              <h3>Export by Date Range</h3>
+              <p>
+                Download a PDF report for buses within a specific date range.
+              </p>
+              <div class="export-dates">
+                <div class="export-date-field">
+                  <label>Start Date</label>
+                  <input type="date" id="exportStartDate" />
+                </div>
+                <div class="export-date-field">
+                  <label>End Date</label>
+                  <input type="date" id="exportEndDate" />
+                </div>
+              </div>
+              <button class="btn btn-secondary" onclick="exportDateRangePDF()">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Routes Panel -->
+      <section class="floating-panel" id="routesView">
+        <div class="panel-container">
+          <div class="list-header">
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <h2>Service Routes</h2>
+              <span class="list-count"
+                ><span id="totalRoutes">0</span> routes</span
+              >
+            </div>
+            <button class="close-panel-btn" onclick="toggleRoutesPanel(false)">
+              ×
+            </button>
+          </div>
+          <div
+            class="routes-list"
+            id="routesListContainer"
+            style="padding: 16px; display: grid; gap: 12px"
+          >
+            <!-- Routes will be populated here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedback Panel -->
+      <section class="floating-panel" id="feedbackView">
+        <div class="panel-container">
+          <div class="list-header" style="align-items: center">
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <h2>Student Feedback</h2>
+              <span class="list-count"
+                ><span id="totalFeedback">0</span> reports</span
+              >
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <select
+                id="feedbackFilter"
+                onchange="FeedbackManager.applyFilter()"
+                style="
+                  padding: 6px 10px;
+                  border: 1px solid var(--border-color);
+                  border-radius: 6px;
+                  font-size: 0.8rem;
+                  background: #fff;
+                "
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="resolved">Resolved</option>
+              </select>
+              <button
+                class="close-panel-btn"
+                onclick="toggleFeedbackPanel(false)"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <div class="buses-table-container">
+            <table class="buses-table">
+              <thead>
+                <tr>
+                  <th>Bus</th>
+                  <th>Route</th>
+                  <th>Student</th>
+                  <th>Issue</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="feedbackTableBody">
+                <!-- Feedback rows populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedback Detail Modal -->
+      <div
+        class="modal"
+        id="feedbackDetailModal"
+        style="
+          display: none;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(4px);
+        "
+      >
+        <div
+          class="modal-content"
+          style="
+            max-width: 500px;
+            width: 90%;
+            padding: 28px;
+            border-radius: 14px;
+            background: #fff;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+          "
+        >
+          <button
+            class="modal-close"
+            onclick="FeedbackManager.closeDetail()"
+            style="
+              position: absolute;
+              top: 14px;
+              right: 14px;
+              background: none;
+              border: none;
+              font-size: 24px;
+              cursor: pointer;
+              color: #94a3b8;
+            "
+          >
+            &times;
+          </button>
+          <h3
+            style="
+              margin: 0 0 20px;
+              font-size: 1.2rem;
+              font-weight: 700;
+              color: #1e293b;
+            "
+          >
+            Feedback Details
+          </h3>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 18px;
+            "
+          >
+            <div>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: #94a3b8;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  margin-bottom: 3px;
+                "
+              >
+                Bus Number
+              </div>
+              <div id="fdBusNumber" style="font-weight: 600; color: #1e293b">
+                --
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: #94a3b8;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  margin-bottom: 3px;
+                "
+              >
+                Route
+              </div>
+              <div id="fdRouteName" style="font-weight: 600; color: #1e293b">
+                --
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: #94a3b8;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  margin-bottom: 3px;
+                "
+              >
+                Student Name
+              </div>
+              <div id="fdStudentName" style="font-weight: 600; color: #1e293b">
+                --
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: #94a3b8;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  margin-bottom: 3px;
+                "
+              >
+                Student Email
+              </div>
+              <div id="fdStudentEmail" style="font-weight: 600; color: #1e293b">
+                --
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom: 14px">
+            <div
+              style="
+                font-size: 0.7rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 3px;
+              "
+            >
+              Issue Type
+            </div>
+            <span
+              id="fdIssueType"
+              style="
+                display: inline-block;
+                padding: 4px 12px;
+                background: #fef3c7;
+                color: #92400e;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+              "
+              >--</span
+            >
+          </div>
+          <div style="margin-bottom: 14px">
+            <div
+              style="
+                font-size: 0.7rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 3px;
+              "
+            >
+              Message
+            </div>
+            <div
+              id="fdMessage"
+              style="
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 0.9rem;
+                color: #334155;
+                line-height: 1.5;
+                white-space: pre-wrap;
+              "
+            >
+              --
+            </div>
+          </div>
+          <div style="margin-bottom: 20px">
+            <div
+              style="
+                font-size: 0.7rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 3px;
+              "
+            >
+              Submitted
+            </div>
+            <div id="fdCreatedAt" style="font-size: 0.85rem; color: #475569">
+              --
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button
+              id="fdResolveBtn"
+              onclick="FeedbackManager.resolveCurrentFeedback()"
+              style="
+                flex: 1;
+                padding: 10px;
+                background: #10b981;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              ✓ Mark as Resolved
+            </button>
+            <button
+              onclick="FeedbackManager.deleteCurrentFeedback()"
+              style="
+                flex: 1;
+                padding: 10px;
+                background: #ef4444;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              ✕ Delete Feedback
             </button>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Routes Panel -->
-    <section class="floating-panel" id="routesView">
-      <div class="panel-container">
-        <div class="list-header">
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <h2>Service Routes</h2>
-            <span class="list-count"><span id="totalRoutes">0</span> routes</span>
+      <!-- Route Details Panel (Filtered Buses) -->
+      <section class="floating-panel" id="routeDetailsView">
+        <div class="panel-container">
+          <div class="list-header" style="align-items: center">
+            <button
+              class="back-btn"
+              id="routeDetailsBackBtn"
+              style="
+                background: none;
+                border: none;
+                color: var(--text-secondary);
+                cursor: pointer;
+                padding: 8px;
+                margin-right: 8px;
+                display: flex;
+                align-items: center;
+              "
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <h2 id="routeDetailsTitle">Route Name</h2>
+              <span class="list-count" id="routeDetailsCount">0 buses</span>
+            </div>
+            <button
+              class="close-panel-btn"
+              onclick="toggleRouteDetailsPanel(false)"
+            >
+              ×
+            </button>
           </div>
-          <button class="close-panel-btn" onclick="toggleRoutesPanel(false)">×</button>
+          <div class="buses-table-container">
+            <table class="buses-table">
+              <thead>
+                <tr>
+                  <th>Bus No</th>
+                  <th>Driver</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="routeBusesTableBody">
+                <!-- Filtered buses will be populated here -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="routes-list" id="routesListContainer" style="padding: 16px; display: grid; gap: 12px;">
-          <!-- Routes will be populated here -->
-        </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- Feedback Panel -->
-    <section class="floating-panel" id="feedbackView">
-      <div class="panel-container">
-        <div class="list-header" style="align-items:center;">
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <h2>Student Feedback</h2>
-            <span class="list-count"><span id="totalFeedback">0</span> reports</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <select id="feedbackFilter" onchange="FeedbackManager.applyFilter()" style="padding:6px 10px;border:1px solid var(--border-color);border-radius:6px;font-size:0.8rem;background:#fff;">
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="resolved">Resolved</option>
-            </select>
-            <button class="close-panel-btn" onclick="toggleFeedbackPanel(false)">×</button>
-          </div>
-        </div>
-        <div class="buses-table-container">
-          <table class="buses-table">
-            <thead>
-              <tr>
-                <th>Bus</th>
-                <th>Route</th>
-                <th>Student</th>
-                <th>Issue</th>
-                <th>Status</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody id="feedbackTableBody">
-              <!-- Feedback rows populated by JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Feedback Detail Modal -->
-    <div class="modal" id="feedbackDetailModal" style="display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
-      <div class="modal-content" style="max-width:500px;width:90%;padding:28px;border-radius:14px;background:#fff;position:relative;box-shadow:0 15px 40px rgba(0,0,0,0.15);">
-        <button class="modal-close" onclick="FeedbackManager.closeDetail()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;">&times;</button>
-        <h3 style="margin:0 0 20px;font-size:1.2rem;font-weight:700;color:#1e293b;">Feedback Details</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-          <div>
-            <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Bus Number</div>
-            <div id="fdBusNumber" style="font-weight:600;color:#1e293b;">--</div>
-          </div>
-          <div>
-            <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Route</div>
-            <div id="fdRouteName" style="font-weight:600;color:#1e293b;">--</div>
-          </div>
-          <div>
-            <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Student Name</div>
-            <div id="fdStudentName" style="font-weight:600;color:#1e293b;">--</div>
-          </div>
-          <div>
-            <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Student Email</div>
-            <div id="fdStudentEmail" style="font-weight:600;color:#1e293b;">--</div>
-          </div>
-        </div>
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Issue Type</div>
-          <span id="fdIssueType" style="display:inline-block;padding:4px 12px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:0.8rem;font-weight:600;">--</span>
-        </div>
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Message</div>
-          <div id="fdMessage" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:0.9rem;color:#334155;line-height:1.5;white-space:pre-wrap;">--</div>
-        </div>
-        <div style="margin-bottom:20px;">
-          <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Submitted</div>
-          <div id="fdCreatedAt" style="font-size:0.85rem;color:#475569;">--</div>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <button id="fdResolveBtn" onclick="FeedbackManager.resolveCurrentFeedback()" style="flex:1;padding:10px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;">✓ Mark as Resolved</button>
-          <button onclick="FeedbackManager.deleteCurrentFeedback()" style="flex:1;padding:10px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;">✕ Delete Feedback</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Route Details Panel (Filtered Buses) -->
-    <section class="floating-panel" id="routeDetailsView">
-      <div class="panel-container">
-        <div class="list-header" style="align-items: center;">
-          <button class="back-btn" id="routeDetailsBackBtn"
-            style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:8px; margin-right:8px; display:flex; align-items:center;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <h2 id="routeDetailsTitle">Route Name</h2>
-            <span class="list-count" id="routeDetailsCount">0 buses</span>
-          </div>
-          <button class="close-panel-btn" onclick="toggleRouteDetailsPanel(false)">×</button>
-        </div>
-        <div class="buses-table-container">
-          <table class="buses-table">
-            <thead>
-              <tr>
-                <th>Bus No</th>
-                <th>Driver</th>
-                <th>Route</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="routeBusesTableBody">
-              <!-- Filtered buses will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal for Request Details -->
-  <div class="modal" id="requestModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeRequestModal()">
-        &times;
-      </button>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-  <!-- Modal for Adding Bus Config -->
-  <div class="modal" id="addBusModal" style="display:none; align-items:center; justify-content:center;">
-    <div class="modal-content" style="max-width:400px; padding:24px; border-radius:12px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; font-size:1.25rem;">Add Bus Configuration</h3>
-        <button class="modal-close" onclick="AdminBusManager.closeAddModal()"
-          style="position:static; margin:0; padding:4px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="form-group" style="margin-bottom:16px;">
-        <label class="form-label" for="adminBusNumber">Bus Number <span class="required">*</span></label>
-        <input type="text" id="adminBusNumber" class="form-input" placeholder="e.g. 149" required
-          style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--border-color); border-radius:6px;" />
-      </div>
-      <div class="form-group" style="margin-bottom:24px;">
-        <label class="form-label" for="adminBusName">Bus/Route Name <span class="required">*</span></label>
-        <input type="text" id="adminBusName" class="form-input" placeholder="e.g. Tiruttani" required
-          style="width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--border-color); border-radius:6px;" />
-      </div>
-      <button class="btn btn-primary" onclick="AdminBusManager.saveBus()"
-        style="width:100%; padding:12px; font-weight:600;">Save Bus Configuration</button>
-    </div>
-  </div>
-
-  <!-- Admin Driver Bus Info Panel Modal -->
-  <div class="modal" id="adminDriverBusModal"
-    style="display:none; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
-    <div class="modal-content"
-      style="max-width:500px; width:90%; padding:24px; border-radius:12px; background:#fff; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.15); max-height:85vh; display:flex; flex-direction:column;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="margin:0; font-size:1.5rem; color:var(--text-dark);">Driver Info</h2>
-        <button class="modal-close" onclick="AdminBusManager.closeDriverInfoModal()"
-          style="position:static; margin:0; padding:4px; font-size:24px; color:var(--text-secondary); background:transparent; border:none; cursor:pointer;">
+    <!-- Modal for Request Details -->
+    <div class="modal" id="requestModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeRequestModal()">
           &times;
         </button>
-      </div>
-
-      <div
-        style="display:flex; justify-content:space-between; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border-light);">
-        <div>
-          <div
-            style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">
-            Driver Name</div>
-          <div id="infoDriverName" style="font-weight:600; color:var(--text-dark); font-size:1.1rem;">--</div>
-        </div>
-        <div style="text-align:right;">
-          <div
-            style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">
-            Driver Phone</div>
-          <div id="infoDriverPhone" style="font-weight:600; color:var(--text-dark); font-size:1.1rem;">--</div>
-        </div>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="margin:0; font-size:1.1rem; color:var(--secondary);">Assigned Buses</h3>
-        <button class="btn btn-sm btn-primary" onclick="AdminBusManager.toggleDriverAddBusForm()"
-          style="display:flex; align-items:center; gap:4px; padding:6px 12px; font-size:0.85rem; border-radius:8px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Add
-        </button>
-      </div>
-
-      <!-- Add Bus Form inside Modal -->
-      <div id="driverAddBusForm"
-        style="display:none; background:var(--bg-gray); padding:16px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-light);">
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:0.8rem; margin-bottom:4px; color:var(--text-secondary);">Bus
-              Number</label>
-            <input type="text" id="driverAddBusNumber" class="form-input" placeholder="e.g. 149"
-              style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;" />
-          </div>
-          <div style="flex:2;">
-            <label style="display:block; font-size:0.8rem; margin-bottom:4px; color:var(--text-secondary);">Route
-              Name</label>
-            <input type="text" id="driverAddBusName" class="form-input" placeholder="e.g. Tiruttani"
-              style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;" />
-          </div>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
-          <button class="btn btn-sm" onclick="AdminBusManager.toggleDriverAddBusForm()"
-            style="background:#fff; border:1px solid #ddd; color:var(--text-secondary);">Cancel</button>
-          <button class="btn btn-sm btn-primary" onclick="AdminBusManager.saveDriverBus()">Save</button>
-        </div>
-      </div>
-
-      <!-- Bus List Container -->
-      <div id="driverBusListContainer" style="overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:10px;">
-        <!-- Dynamically populated via JS mirroring driver info cards -->
+        <div id="modalBody"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
+    <!-- Modal for Adding Bus Config -->
+    <div
+      class="modal"
+      id="addBusModal"
+      style="display: none; align-items: center; justify-content: center"
+    >
+      <div
+        class="modal-content"
+        style="max-width: 400px; padding: 24px; border-radius: 12px"
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="margin: 0; font-size: 1.25rem">Add Bus Configuration</h3>
+          <button
+            class="modal-close"
+            onclick="AdminBusManager.closeAddModal()"
+            style="position: static; margin: 0; padding: 4px"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px">
+          <label class="form-label" for="adminBusNumber"
+            >Bus Number <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="adminBusNumber"
+            class="form-input"
+            placeholder="e.g. 149"
+            required
+            style="
+              width: 100%;
+              box-sizing: border-box;
+              padding: 10px;
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+            "
+          />
+        </div>
+        <div class="form-group" style="margin-bottom: 24px">
+          <label class="form-label" for="adminBusName"
+            >Bus/Route Name <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="adminBusName"
+            class="form-input"
+            placeholder="e.g. Tiruttani"
+            required
+            style="
+              width: 100%;
+              box-sizing: border-box;
+              padding: 10px;
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+            "
+          />
+        </div>
+        <button
+          class="btn btn-primary"
+          onclick="AdminBusManager.saveBus()"
+          style="width: 100%; padding: 12px; font-weight: 600"
+        >
+          Save Bus Configuration
+        </button>
+      </div>
+    </div>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav" id="bottomNav">
-    <button class="bottom-nav-btn" data-tab="dashboard">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7"></rect>
-        <rect x="14" y="3" width="7" height="7"></rect>
-        <rect x="14" y="14" width="7" height="7"></rect>
-        <rect x="3" y="14" width="7" height="7"></rect>
-      </svg>
-      <span>Dashboard</span>
-    </button>
-    <button class="bottom-nav-btn active" data-tab="map">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-        <line x1="8" y1="2" x2="8" y2="18" />
-        <line x1="16" y1="6" x2="16" y2="22" />
-      </svg>
-      <span>Live Map</span>
-    </button>
-    <button class="bottom-nav-btn" data-tab="buses">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="6" width="18" height="12" rx="2" />
-        <circle cx="7" cy="18" r="2" />
-        <circle cx="17" cy="18" r="2" />
-      </svg>
-      <span>Buses</span>
-    </button>
-    <button class="bottom-nav-btn" data-tab="routes">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-        <line x1="9" y1="4" x2="9" y2="19"></line>
-        <line x1="15" y1="5" x2="15" y2="20"></line>
-      </svg>
-      <span>Routes</span>
-    </button>
-    <button class="bottom-nav-btn" data-tab="feedback">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
-      <span>Feedback</span>
-    </button>
-    <button class="bottom-nav-btn" data-tab="export">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
-      <span>Export</span>
-    </button>
-    <button class="bottom-nav-btn" data-tab="profile" onclick="window.location.href = 'admin-profile.html'">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-      <span>Profile</span>
-    </button>
-  </nav>
+    <!-- Admin Driver Bus Info Panel Modal -->
+    <div
+      class="modal"
+      id="adminDriverBusModal"
+      style="
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          max-width: 500px;
+          width: 90%;
+          padding: 24px;
+          border-radius: 12px;
+          background: #fff;
+          position: relative;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+          max-height: 85vh;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-dark)">
+            Driver Info
+          </h2>
+          <button
+            class="modal-close"
+            onclick="AdminBusManager.closeDriverInfoModal()"
+            style="
+              position: static;
+              margin: 0;
+              padding: 4px;
+              font-size: 24px;
+              color: var(--text-secondary);
+              background: transparent;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            &times;
+          </button>
+        </div>
 
-  <!-- MapTiler SDK JS -->
-  <script src="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.umd.js"></script>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+          "
+        >
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 4px;
+              "
+            >
+              Driver Name
+            </div>
+            <div
+              id="infoDriverName"
+              style="
+                font-weight: 600;
+                color: var(--text-dark);
+                font-size: 1.1rem;
+              "
+            >
+              --
+            </div>
+          </div>
+          <div style="text-align: right">
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 4px;
+              "
+            >
+              Driver Phone
+            </div>
+            <div
+              id="infoDriverPhone"
+              style="
+                font-weight: 600;
+                color: var(--text-dark);
+                font-size: 1.1rem;
+              "
+            >
+              --
+            </div>
+          </div>
+        </div>
 
-  <!-- PDF Export Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          "
+        >
+          <h3 style="margin: 0; font-size: 1.1rem; color: var(--secondary)">
+            Assigned Buses
+          </h3>
+          <button
+            class="btn btn-sm btn-primary"
+            onclick="AdminBusManager.toggleDriverAddBusForm()"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              padding: 6px 12px;
+              font-size: 0.85rem;
+              border-radius: 8px;
+            "
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add
+          </button>
+        </div>
 
-  <!-- Admin Scripts -->
-  <script src="./admin-app.js?v=3"></script>
-</body>
+        <!-- Add Bus Form inside Modal -->
+        <div
+          id="driverAddBusForm"
+          style="
+            display: none;
+            background: var(--bg-gray);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-light);
+          "
+        >
+          <div style="display: flex; gap: 12px; margin-bottom: 12px">
+            <div style="flex: 1">
+              <label
+                style="
+                  display: block;
+                  font-size: 0.8rem;
+                  margin-bottom: 4px;
+                  color: var(--text-secondary);
+                "
+                >Bus Number</label
+              >
+              <input
+                type="text"
+                id="driverAddBusNumber"
+                class="form-input"
+                placeholder="e.g. 149"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid #ddd;
+                  border-radius: 6px;
+                "
+              />
+            </div>
+            <div style="flex: 2">
+              <label
+                style="
+                  display: block;
+                  font-size: 0.8rem;
+                  margin-bottom: 4px;
+                  color: var(--text-secondary);
+                "
+                >Route Name</label
+              >
+              <input
+                type="text"
+                id="driverAddBusName"
+                class="form-input"
+                placeholder="e.g. Tiruttani"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid #ddd;
+                  border-radius: 6px;
+                "
+              />
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px">
+            <button
+              class="btn btn-sm"
+              onclick="AdminBusManager.toggleDriverAddBusForm()"
+              style="
+                background: #fff;
+                border: 1px solid #ddd;
+                color: var(--text-secondary);
+              "
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-sm btn-primary"
+              onclick="AdminBusManager.saveDriverBus()"
+            >
+              Save
+            </button>
+          </div>
+        </div>
 
+        <!-- Bus List Container -->
+        <div
+          id="driverBusListContainer"
+          style="
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <!-- Dynamically populated via JS mirroring driver info cards -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="bottom-nav-btn" data-tab="dashboard">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="bottom-nav-btn active" data-tab="map">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+          <line x1="8" y1="2" x2="8" y2="18" />
+          <line x1="16" y1="6" x2="16" y2="22" />
+        </svg>
+        <span>Live Map</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="buses">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <circle cx="7" cy="18" r="2" />
+          <circle cx="17" cy="18" r="2" />
+        </svg>
+        <span>Buses</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="routes">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+          <line x1="9" y1="4" x2="9" y2="19"></line>
+          <line x1="15" y1="5" x2="15" y2="20"></line>
+        </svg>
+        <span>Routes</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="feedback">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+          ></path>
+        </svg>
+        <span>Feedback</span>
+      </button>
+      <button class="bottom-nav-btn" data-tab="export">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export</span>
+      </button>
+      <button
+        class="bottom-nav-btn"
+        data-tab="profile"
+        onclick="window.location.href = 'admin-profile.html'"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+
+    <!-- MapTiler SDK JS -->
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.umd.js"></script>
+
+    <!-- PDF Export Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Admin Scripts -->
+    <script src="./admin-app.js?v=3"></script>
+  </body>
 </html>
