@@ -382,52 +382,55 @@
         <div id="map" class="map-container"></div>
       </div>
 
-      <!-- Active Bus Counter Widget (Bottom Left) -->
-      <div class="bus-counter-widget">
-        <div class="counter-icon">🚌</div>
-        <div class="counter-info">
-          <div class="counter-top">
-            <span class="counter-number" id="activeBusCount">0</span>
-            <span class="counter-status">Active</span>
+      <!-- Bottom Widgets Container -->
+      <div class="bottom-widgets-container">
+        <!-- Guest Access Widget (Left) -->
+        <div class="guest-access-widget" id="guestAccessWidget">
+          <div class="guest-widget-header">
+            <span class="guest-widget-icon">🔑</span>
+            <span class="guest-widget-title">Guest Access</span>
           </div>
-          <span class="counter-label">ACTIVE BUSES</span>
-        </div>
-      </div>
-
-      <!-- Guest Access Widget (Above Bus Counter) -->
-      <div class="guest-access-widget" id="guestAccessWidget">
-        <div class="guest-widget-header">
-          <span class="guest-widget-icon">🔑</span>
-          <span class="guest-widget-title">Guest Access</span>
-        </div>
-        <div class="guest-widget-body">
-          <div class="guest-code-display">
-            <span class="guest-code-label">Code</span>
-            <span class="guest-code-value" id="guestCodeDisplay">------</span>
+          <div class="guest-widget-body">
+            <div class="guest-code-display">
+              <span class="guest-code-label">Code</span>
+              <span class="guest-code-value" id="guestCodeDisplay">------</span>
+            </div>
+            <div class="guest-code-timer">
+              <span class="guest-timer-label">Expires in</span>
+              <span class="guest-timer-value" id="guestCodeTimer">--h --m</span>
+            </div>
           </div>
-          <div class="guest-code-timer">
-            <span class="guest-timer-label">Expires in</span>
-            <span class="guest-timer-value" id="guestCodeTimer">--h --m</span>
-          </div>
-        </div>
-        <button
-          class="guest-regenerate-btn"
-          id="guestRegenerateBtn"
-          onclick="regenerateGuestCode()"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
+          <button
+            class="guest-regenerate-btn"
+            id="guestRegenerateBtn"
+            onclick="regenerateGuestCode()"
           >
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-          </svg>
-          Regenerate Code
-        </button>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Regenerate Code
+          </button>
+        </div>
+
+        <!-- Active Bus Counter Widget (Right) -->
+        <div class="bus-counter-widget">
+          <div class="counter-icon">🚌</div>
+          <div class="counter-info">
+            <div class="counter-top">
+              <span class="counter-number" id="activeBusCount">0</span>
+              <span class="counter-status">Active</span>
+            </div>
+            <span class="counter-label">ACTIVE BUSES</span>
+          </div>
+        </div>
       </div>
 
       <!-- Map Overlays -->

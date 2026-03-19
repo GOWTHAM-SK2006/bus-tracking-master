@@ -361,6 +361,18 @@ body {
 }
 
 /* =========================================
+   Bottom Widgets Container
+   ========================================= */
+.bottom-widgets-container {
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.bottom-widgets-container > * {
+  pointer-events: auto;
+}
+
+/* =========================================
    Guest Access Widget (Admin)
    ========================================= */
 .guest-access-widget {
@@ -2034,9 +2046,27 @@ body {
   }
 
   /* Widgets positioning for mobile */
+  .bottom-widgets-container {
+    position: fixed;
+    bottom: 12px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .bottom-widgets-container > * {
+    pointer-events: auto;
+  }
+
   .bus-counter-widget {
-    bottom: 16px;
-    right: 12px;
+    position: relative;
+    bottom: auto;
+    right: auto;
     left: auto;
     width: auto;
     padding: 6px 8px;
@@ -2044,6 +2074,8 @@ body {
     flex-direction: row;
     justify-content: center;
     min-width: 80px;
+    flex: 0 0 auto;
+    margin: 0;
   }
 
   .counter-icon {
@@ -2073,10 +2105,12 @@ body {
   }
 
   .guest-access-widget {
-    bottom: 16px;
-    left: 12px;
+    position: relative;
+    bottom: auto;
+    left: auto;
     right: auto;
-    width: calc(100% - 130px);
+    width: auto;
+    flex: 1 1 auto;
     min-width: 0; /* Override desktop min-width */
     display: flex !important;
     flex-direction: column;
@@ -2084,6 +2118,7 @@ body {
     opacity: 1 !important;
     z-index: 1000;
     padding: 10px 12px;
+    margin: 0;
   }
 
   .guest-code-value {
@@ -2232,10 +2267,13 @@ body {
   }
 
   .bus-counter-widget {
-    bottom: 12px;
-    right: 10px;
+    position: relative;
+    bottom: auto;
     left: auto;
+    right: auto;
     width: auto;
+    flex: 0 0 auto;
+    margin: 0;
     padding: 8px 10px;
     gap: 6px;
   }
@@ -2259,10 +2297,13 @@ body {
   }
 
   .guest-access-widget {
-    bottom: 12px;
-    left: 10px;
+    position: relative;
+    bottom: auto;
+    left: auto;
     right: auto;
-    width: calc(100% - 165px);
+    width: auto;
+    flex: 1 1 auto;
+    margin: 0;
     padding: 8px 10px;
     display: flex !important;
     visibility: visible !important;
