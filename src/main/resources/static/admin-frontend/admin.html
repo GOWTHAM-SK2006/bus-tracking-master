@@ -149,26 +149,7 @@
           <!-- Navigation Tabs Section -->
           <div class="mobile-menu-section">
             <h3 class="mobile-menu-title">Navigation</h3>
-            <button
-              class="mobile-menu-item"
-              data-tab="dashboard"
-              onclick="mobileMenuTabClick('dashboard')"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
-              Dashboard
-            </button>
+
             <button
               class="mobile-menu-item active"
               data-tab="map"
@@ -475,136 +456,7 @@
         </div>
       </div>
 
-      <!-- Dashboard Panel (Floating Overlay) -->
-      <section class="floating-panel" id="dashboardView">
-        <div class="panel-container">
-          <div class="list-header">
-            <h2>Bus Dashboard</h2>
-            <button
-              class="close-panel-btn"
-              onclick="toggleDashboardPanel(false)"
-            >
-              ×
-            </button>
-          </div>
 
-          <!-- Bus Selector -->
-          <div class="dashboard-selector">
-            <label for="dashboardBusSearch" class="selector-label"
-              >Search Bus:</label
-            >
-            <div class="selector-wrapper">
-              <input
-                type="text"
-                id="dashboardBusSearch"
-                class="form-input selector-input"
-                placeholder="Type bus number or route name..."
-                autocomplete="off"
-              />
-              <svg
-                class="selector-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-              <div id="dashboardBusDropdown" class="selector-dropdown">
-                <!-- Dropdown items will be populated here -->
-              </div>
-            </div>
-          </div>
-
-          <!-- GPS Data Display -->
-          <div
-            id="dashboardDataContainer"
-            class="dashboard-data-container"
-            style="display: none"
-          >
-            <!-- Bus Info Header -->
-            <div class="dash-bus-header">
-              <h3 class="dash-bus-number" id="dashBusNumber">--</h3>
-              <p class="dash-bus-route" id="dashBusRoute">Route: --</p>
-            </div>
-
-            <!-- Status Cards Grid -->
-            <div class="dash-stats-grid">
-              <!-- GPS Status -->
-              <div class="dash-card">
-                <div class="dash-label">GPS Status</div>
-                <div class="dash-value success" id="dashGpsStatus">--</div>
-              </div>
-
-              <!-- Tracking Status -->
-              <div class="dash-card">
-                <div class="dash-label">Tracking</div>
-                <div class="dash-value info" id="dashTrackingStatus">--</div>
-              </div>
-
-              <!-- Updates Sent -->
-              <div class="dash-card">
-                <div class="dash-label">Updates Sent</div>
-                <div class="dash-value warning" id="dashUpdatesSent">0</div>
-              </div>
-
-              <!-- Last Update -->
-              <div class="dash-card">
-                <div class="dash-label">Last Update</div>
-                <div class="dash-value active" id="dashLastUpdate">--</div>
-              </div>
-            </div>
-
-            <!-- GPS Coordinates -->
-            <div class="dash-section">
-              <h4 class="dash-section-title">GPS Coordinates</h4>
-
-              <div class="dash-list">
-                <!-- Latitude -->
-                <div class="dash-list-item">
-                  <span class="dash-list-label">Latitude:</span>
-                  <span class="dash-list-value monospace" id="dashLatitude"
-                    >--</span
-                  >
-                </div>
-
-                <!-- Longitude -->
-                <div class="dash-list-item">
-                  <span class="dash-list-label">Longitude:</span>
-                  <span class="dash-list-value monospace" id="dashLongitude"
-                    >--</span
-                  >
-                </div>
-
-                <!-- Accuracy -->
-                <div class="dash-list-item">
-                  <span class="dash-list-label">Accuracy:</span>
-                  <span class="dash-list-value success" id="dashAccuracy"
-                    >--</span
-                  >
-                </div>
-              </div>
-            </div>
-
-            <!-- Driver Info -->
-            <div class="dash-section">
-              <h4 class="dash-section-title">Driver Information</h4>
-
-              <div class="dash-list">
-                <div class="dash-list-item">
-                  <span class="dash-list-label">Name:</span>
-                  <span class="dash-list-value" id="dashDriverName">--</span>
-                </div>
-                <div class="dash-list-item">
-                  <span class="dash-list-label">Phone:</span>
-                  <span class="dash-list-value" id="dashDriverPhone">--</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="floating-panel" id="busesView">
         <div class="panel-container">
@@ -1434,22 +1286,7 @@
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav" id="bottomNav">
-      <button class="bottom-nav-btn" data-tab="dashboard">
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-        <span>Dashboard</span>
-      </button>
+
       <button class="bottom-nav-btn active" data-tab="map">
         <svg
           width="22"
