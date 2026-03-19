@@ -2039,17 +2039,17 @@ body {
     right: 12px;
     left: auto;
     width: auto;
-    padding: 8px 10px;
-    gap: 6px;
+    padding: 6px 8px;
+    gap: 4px;
     flex-direction: row;
     justify-content: center;
-    min-width: 100px;
+    min-width: 80px;
   }
 
   .counter-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
   }
 
   .counter-info {
@@ -2061,7 +2061,7 @@ body {
   }
 
   .counter-number {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .counter-status {
@@ -2069,14 +2069,14 @@ body {
   }
 
   .counter-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .guest-access-widget {
     bottom: 16px;
     left: 12px;
     right: auto;
-    width: calc(100% - 150px);
+    width: calc(100% - 165px);
     display: flex !important;
     flex-direction: column;
     visibility: visible !important;
@@ -2247,7 +2247,7 @@ body {
     bottom: 12px;
     left: 10px;
     right: auto;
-    width: calc(100% - 150px);
+    width: calc(100% - 165px);
     padding: 8px 10px;
     display: flex !important;
     visibility: visible !important;
