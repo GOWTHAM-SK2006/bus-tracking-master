@@ -2076,13 +2076,28 @@ body {
     bottom: 16px;
     left: 12px;
     right: auto;
-    width: calc(100% - 165px);
+    width: calc(100% - 130px);
+    min-width: 0; /* Override desktop min-width */
     display: flex !important;
     flex-direction: column;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 1000;
     padding: 10px 12px;
+  }
+
+  .guest-code-value {
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .guest-widget-title {
+    font-size: 0.65rem;
+  }
+
+  .guest-regenerate-btn {
+    padding: 6px 8px;
+    font-size: 0.65rem;
   }
 
   /* Mobile table layout */
