@@ -1148,7 +1148,16 @@ const BusManager = {
 // Route Manager
 // =========================================
 const RouteManager = {
-  renderRoutes() {
+  init() {
+    const input = document.getElementById("routeFilterInput");
+    if (input) {
+      input.addEventListener("input", () => {
+        this.renderRoutes(input.value);
+      });
+    }
+  },
+
+  renderRoutes(filterQuery) {
     const buses = Array.from(adminState.buses.values());
     const routesMap = new Map();
 
@@ -1166,9 +1175,17 @@ const RouteManager = {
       routeData.buses.push(bus);
     });
 
-    const routes = Array.from(routesMap.values()).sort((a, b) =>
+    let routes = Array.from(routesMap.values()).sort((a, b) =>
       a.name.localeCompare(b.name),
     );
+
+    // Apply search filter
+    const query = (filterQuery || "").toLowerCase().trim();
+    if (query) {
+      routes = routes.filter((route) =>
+        route.name.toLowerCase().includes(query),
+      );
+    }
 
     if (DOM.totalRoutes) DOM.totalRoutes.textContent = routes.length;
 
@@ -1176,7 +1193,7 @@ const RouteManager = {
       DOM.routesListContainer.innerHTML = `
         <div style="text-align: center; padding: 40px; color: #999; background: rgba(0,0,0,0.02); border-radius: 12px;">
           <div style="font-size: 2rem; margin-bottom: 8px;">📍</div>
-          No routes available
+          ${query ? "No routes matching your search" : "No routes available"}
         </div>`;
       return;
     }
@@ -1184,7 +1201,7 @@ const RouteManager = {
     DOM.routesListContainer.innerHTML = routes
       .map(
         (route) => `
-      <div class="route-item" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\'")}')" 
+      <div class="route-item" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\\\'")}')" 
            style="background: white; padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
         <div style="display: flex; align-items: center; gap: 14px;">
           <div style="width: 40px; height: 40px; background: rgba(30, 64, 175, 0.1); color: var(--secondary, #1e40af); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
@@ -1899,9 +1916,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateDebugStatus("Map Failed (Continuing...)", "error");
     }
 
-    // 3. Bus Manager
+    // 3. Bus Manager & Route Manager
     updateDebugStatus("Step 3/5: Bus Logic...");
     BusManager.init();
+    RouteManager.init();
 
     // 4. WebSocket & Auth
     updateDebugStatus("Step 4/5: Connecting...");
