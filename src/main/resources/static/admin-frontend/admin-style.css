@@ -2053,18 +2053,30 @@ body {
   }
 
   .counter-info {
-    display: none;
+    display: flex;
+  }
+
+  .counter-top {
+    gap: 4px;
   }
 
   .counter-number {
-    font-size: 16px;
+    font-size: 18px;
+  }
+
+  .counter-status {
+    display: none; /* Hide 'Active' text to save space */
+  }
+
+  .counter-label {
+    font-size: 0.65rem;
   }
 
   .guest-access-widget {
     bottom: 16px;
     left: 12px;
     right: auto;
-    width: calc(100% - 130px);
+    width: calc(100% - 150px);
     display: flex !important;
     flex-direction: column;
     visibility: visible !important;
@@ -2220,14 +2232,22 @@ body {
   }
 
   .counter-info {
+    display: flex;
+  }
+  
+  .counter-status {
     display: none;
+  }
+
+  .counter-label {
+    font-size: 0.65rem;
   }
 
   .guest-access-widget {
     bottom: 12px;
     left: 10px;
     right: auto;
-    width: calc(100% - 130px);
+    width: calc(100% - 150px);
     padding: 8px 10px;
     display: flex !important;
     visibility: visible !important;
