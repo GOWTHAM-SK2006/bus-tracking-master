@@ -27,7 +27,7 @@ public class DriverHandler extends TextWebSocketHandler {
     private final BusRepository repository;
     private final UserHandler userHandler;
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final long GRACE_PERIOD_MS = 5_000; // 5 seconds before marking inactive
+    private static final long GRACE_PERIOD_MS = 2_000; // 2 seconds before marking inactive
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     // Store all active driver sessions
