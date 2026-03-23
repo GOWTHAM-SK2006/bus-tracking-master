@@ -1467,6 +1467,65 @@ const TabManager = {
         this.switchTab(tabName);
       });
     });
+
+    // Add swipe-to-close for floating panels
+    const panels = document.querySelectorAll(".floating-panel");
+    panels.forEach((panel) => {
+      let startY = 0;
+      let currentY = 0;
+      let isDragging = false;
+
+      // The scrollable area is usually the child container
+      const scrollable = panel.querySelector(".panel-container") || panel;
+
+      panel.addEventListener("touchstart", (e) => {
+        // Only initiate drag if we are at the top of the scroll view
+        if (scrollable.scrollTop <= 0) {
+          startY = e.touches[0].clientY;
+          isDragging = true;
+          // Temporarily remove transition for instant dragging
+          panel.style.transition = "none";
+        }
+      }, { passive: true });
+
+      panel.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+
+        // If pulling down
+        if (deltaY > 0) {
+          if (e.cancelable) e.preventDefault(); // Stop normal scroll
+          panel.style.transform = `translateY(${deltaY}px)`;
+        } else {
+          panel.style.transform = `translateY(0px)`;
+        }
+      }, { passive: false });
+
+      panel.addEventListener("touchend", (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // Restore CSS transition
+        panel.style.transition = "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)";
+        
+        const deltaY = currentY - startY;
+        if (deltaY > 150) {
+          // Swiped down far enough to close
+          this.switchTab("map");
+          
+          setTimeout(() => {
+            panel.style.transform = "";
+          }, 450);
+        } else {
+          // Snap back to top
+          panel.style.transform = "translateY(0px)";
+          setTimeout(() => {
+            panel.style.transform = "";
+          }, 450);
+        }
+      });
+    });
   },
 
   switchTab(tabName) {
