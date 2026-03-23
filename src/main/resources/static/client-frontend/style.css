@@ -991,7 +991,7 @@ body {
 /* Floating Panel — Full Glass Overlay */
 .floating-panel {
     position: fixed;
-    top: var(--header-height);
+    top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
     left: 0; right: 0;
     bottom: 60px; width: 100%;
     height: auto;
@@ -1094,7 +1094,8 @@ body {
 
 @media (max-width: 768px) {
     .floating-panel {
-        top: var(--header-height); bottom: 60px;
+        top: calc(var(--header-height) + env(safe-area-inset-top, 0px)); 
+        bottom: 60px;
         left: 0; right: 0;
         width: 100%; height: auto;
         border-radius: 24px 24px 0 0;
