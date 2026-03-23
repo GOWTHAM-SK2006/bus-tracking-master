@@ -1879,15 +1879,49 @@ function generateBusPDF(buses, title) {
     jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
   };
 
-  html2pdf()
-    .set(options)
-    .from(element)
-    .save()
-    .then(() => showToast("PDF Exported Successfully", "success"))
-    .catch((err) => {
-      console.error("PDF Export Error:", err);
-      showToast("Failed to export PDF", "error");
-    });
+  const worker = html2pdf().set(options).from(element);
+
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    worker
+      .outputPdf("datauristring")
+      .then((pdfString) => {
+        // Strip out the data:application/pdf;base64, prefix
+        const base64Data = pdfString.split(",")[1] || pdfString.split("base64,")[1];
+        const { Filesystem, Directory } = window.Capacitor.Plugins;
+        const { Share } = window.Capacitor.Plugins;
+
+        Filesystem.writeFile({
+          path: options.filename,
+          data: base64Data,
+          directory: Directory.Cache,
+        })
+          .then((result) => {
+            Share.share({
+              title: title,
+              url: result.uri,
+              dialogTitle: "Share PDF Report",
+            });
+            showToast("PDF Exported Successfully!", "success");
+          })
+          .catch((err) => {
+            console.error("FS Error:", err);
+            showToast("Failed to save PDF locally.", "error");
+          });
+      })
+      .catch((err) => {
+        console.error("HTML2PDF Error:", err);
+        showToast("Failed to generate PDF.", "error");
+      });
+  } else {
+    // Fallback for standard web browsers
+    worker
+      .save()
+      .then(() => showToast("PDF Exported Successfully (Browser)", "success"))
+      .catch((err) => {
+        console.error("PDF Export Error:", err);
+        showToast("Failed to export PDF", "error");
+      });
+  }
 }
 
 function toggleBusesPanel(show) {
