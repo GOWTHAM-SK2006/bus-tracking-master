@@ -539,7 +539,7 @@ var MapManager = {
     const currentPos = marker.getLngLat();
     const distance = Math.sqrt(
       Math.pow((currentPos.lng - longitude) * 111320, 2) +
-        Math.pow((currentPos.lat - latitude) * 110540, 2),
+      Math.pow((currentPos.lat - latitude) * 110540, 2),
     );
 
     if (distance > 5) {
@@ -1781,12 +1781,16 @@ function adminLogout() {
 }
 
 function exportActiveBusesPDF() {
-  const buses = Array.from(adminState.buses.values()).filter((b) => b.gpsOn);
+  let buses = Array.from(adminState.buses.values()).filter((b) => b.gpsOn);
   if (buses.length === 0) {
-    showToast("No active buses to export", "error");
-    return;
+    alert("No active buses currently on trip. Exporting all registered buses instead.");
+    buses = Array.from(adminState.buses.values());
+    if (buses.length === 0) {
+      alert("No buses registered in the system.");
+      return;
+    }
   }
-  generateBusPDF(buses, "Active Buses Real-time Report");
+  generateBusPDF(buses, buses.every(b => !b.gpsOn) ? "All Buses Report (Offline)" : "Active Buses Real-time Report");
 }
 
 function exportDateRangePDF() {
@@ -1840,8 +1844,8 @@ function generateBusPDF(buses, title) {
                 </thead>
                 <tbody>
                     ${buses
-                      .map(
-                        (bus) => `
+      .map(
+        (bus) => `
                         <tr>
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>${bus.busNo}</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${bus.routeName}</td>
@@ -1856,8 +1860,8 @@ function generateBusPDF(buses, title) {
                             <td style="padding: 10px; border: 1px solid #ddd;">${new Date(bus.lastUpdate).toLocaleString()}</td>
                         </tr>
                     `,
-                      )
-                      .join("")}
+      )
+      .join("")}
                 </tbody>
             </table>
             
@@ -2086,9 +2090,9 @@ const FeedbackManager = {
     try {
       const resp = await fetch(
         getApiBaseUrl() +
-          "/api/feedback/" +
-          this.currentFeedbackId +
-          "/resolve",
+        "/api/feedback/" +
+        this.currentFeedbackId +
+        "/resolve",
         { method: "PUT" },
       );
       const data = await resp.json();
