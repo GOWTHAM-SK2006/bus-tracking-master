@@ -27,7 +27,7 @@ public class DriverHandler extends TextWebSocketHandler {
     private final BusRepository repository;
     private final UserHandler userHandler;
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final long GRACE_PERIOD_MS = 30_000; // 30 seconds before marking inactive
+    private static final long GRACE_PERIOD_MS = 5_000; // 5 seconds before marking inactive
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     // Store all active driver sessions
@@ -191,10 +191,10 @@ public class DriverHandler extends TextWebSocketHandler {
                 System.out.println("[DriverHandler] Processing STOP action for bus: " + busNumber);
                 BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
                 if (bus != null) {
-                    bus.setStatus("STOPPED");
+                    bus.setStatus("INACTIVE");
                 }
                 repository.findByBusNumber(busNumber).ifPresent(entity -> {
-                    entity.setStatus("STOPPED");
+                    entity.setStatus("INACTIVE");
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
@@ -206,10 +206,10 @@ public class DriverHandler extends TextWebSocketHandler {
                 System.out.println("[DriverHandler] Processing GPS_ERROR action for bus: " + busNumber);
                 BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
                 if (bus != null) {
-                    bus.setStatus("STOPPED");
+                    bus.setStatus("INACTIVE");
                 }
                 repository.findByBusNumber(busNumber).ifPresent(entity -> {
-                    entity.setStatus("STOPPED");
+                    entity.setStatus("INACTIVE");
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
@@ -275,22 +275,22 @@ public class DriverHandler extends TextWebSocketHandler {
         String busNumber = (String) session.getAttributes().get("BUS_NUMBER");
         if (busNumber != null) {
             System.out.println("[DriverHandler] Connection closed for bus: " + busNumber
-                    + " — waiting " + (GRACE_PERIOD_MS / 1000) + "s grace period before marking STOPPED");
+                    + " — waiting " + (GRACE_PERIOD_MS / 1000) + "s grace period before marking INACTIVE");
 
-            // Schedule a delayed check instead of immediately marking STOPPED.
+            // Schedule a delayed check instead of immediately marking INACTIVE.
             // If the driver reconnects within the grace period and sends a heartbeat,
-            // the lastHeartbeatTime will be fresh and we skip marking STOPPED.
+            // the lastHeartbeatTime will be fresh and we skip marking INACTIVE.
             final long disconnectTime = System.currentTimeMillis();
             scheduler.schedule(() -> {
                 try {
                     BusData bus = BusSessionStore.BUS_MAP.get(busNumber);
                     if (bus != null && bus.getLastHeartbeatTime() <= disconnectTime) {
-                        // No heartbeat received since disconnect → mark STOPPED
-                        bus.setStatus("STOPPED");
-                        System.out.println("[DriverHandler] Grace period expired — marked STOPPED: " + busNumber);
+                        // No heartbeat received since disconnect → mark INACTIVE
+                        bus.setStatus("INACTIVE");
+                        System.out.println("[DriverHandler] Grace period expired — marked INACTIVE: " + busNumber);
 
                         repository.findByBusNumber(busNumber).ifPresent(entity -> {
-                            entity.setStatus("STOPPED");
+                            entity.setStatus("INACTIVE");
                             repository.save(entity);
                         });
 

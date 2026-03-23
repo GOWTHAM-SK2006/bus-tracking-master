@@ -928,13 +928,7 @@ const BusTracker = {
     if (mappedBus.gpsOn) {
       mappedBus.lastSeenActive = Date.now();
     } else if (existing && existing.lastSeenActive) {
-      // Bus is reported inactive but was active recently
-      const elapsed = Date.now() - existing.lastSeenActive;
-      if (elapsed < 30000) {
-        // Within grace period — keep showing as active to prevent flicker
-        mappedBus.gpsOn = true;
-        mappedBus.status = existing.status; // preserve RUNNING
-      }
+      // Just track when it was last active, no more forcing it to RUNNING.
       mappedBus.lastSeenActive = existing.lastSeenActive;
     }
 
