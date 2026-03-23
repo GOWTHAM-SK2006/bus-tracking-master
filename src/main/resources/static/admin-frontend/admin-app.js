@@ -1123,7 +1123,7 @@ const BusManager = {
     DOM.busesTableBody.innerHTML = buses
       .map(
         (bus) => `
-            <tr onclick="PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')" style="cursor: pointer;">
+            <tr>
                 <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
                 <td data-label="Driver">${bus.driverName}</td>
                 <td data-label="Route">${bus.routeName}</td>
@@ -1133,9 +1133,14 @@ const BusManager = {
                     </span>
                 </td>
                 <td data-label="Action">
-                    <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
-                        Locate
-                    </button>
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+                            Locate
+                        </button>
+                        <button class="btn btn-sm" style="padding: 4px 8px; font-size: 12px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')">
+                            Info
+                        </button>
+                    </div>
                 </td>
             </tr>
         `,
@@ -1233,7 +1238,7 @@ const RouteManager = {
     DOM.routeBusesTableBody.innerHTML = buses
       .map(
         (bus) => `
-      <tr onclick="PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')" style="cursor: pointer;">
+      <tr>
         <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
         <td data-label="Driver">${bus.driverName}</td>
         <td data-label="Route">${bus.routeName}</td>
@@ -1243,9 +1248,14 @@ const RouteManager = {
           </span>
         </td>
         <td data-label="Action">
-          <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
-            Locate
-          </button>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+              Locate
+            </button>
+            <button class="btn btn-sm" style="padding: 4px 8px; font-size: 12px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')">
+              Info
+            </button>
+          </div>
         </td>
       </tr>
     `,
