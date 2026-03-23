@@ -17,6 +17,11 @@
     "backgroundColor": "#000000"
   },
   "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "backgroundColor": "#000000",
+      "style": "LIGHT"
+    },
     "CapacitorHttp": {
       "enabled": true
     },

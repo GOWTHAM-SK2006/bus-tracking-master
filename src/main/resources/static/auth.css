@@ -537,8 +537,8 @@ body::after {
 }
 
 @media (max-width: 480px) {
-    .auth-panel { padding: var(--space-4); align-items: stretch; }
-    .auth-card { padding: var(--space-5); border-radius: var(--radius-xl); }
+    .auth-panel { padding: 0; align-items: stretch; }
+    .auth-card { padding: var(--space-6) var(--space-5); border-radius: 0; border: none; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; }
     .role-cards { grid-template-columns: 1fr; gap: var(--space-2); }
     .role-card { flex-direction: row; justify-content: flex-start; padding: var(--space-3); min-height: 50px; }
     .role-icon { margin: 0; }
