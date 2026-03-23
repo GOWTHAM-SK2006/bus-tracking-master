@@ -2557,4 +2557,35 @@ body {
   .header-actions {
     display: none !important;
   }
+
+  /* Bus Info Panel — Show at top on mobile */
+  .map-overlays {
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1500;
+    pointer-events: none;
+  }
+
+  .bus-info-panel {
+    width: 100%;
+    max-height: 45vh;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .bus-info-panel.visible {
+    animation: panelSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes panelSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
