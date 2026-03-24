@@ -422,7 +422,7 @@ const ProfileController = {
       DOM.dashDriverPhone.textContent = driver.phone || "--";
 
     // Render bus info entries list
-    if (typeof BusInfoManager !== 'undefined') {
+    if (typeof BusInfoManager !== "undefined") {
       BusInfoManager.renderEntries();
     }
 
@@ -587,8 +587,8 @@ const ProfileController = {
 // Manages multiple bus configurations with select/add/delete
 // =========================================
 const BusInfoManager = {
-  STORAGE_KEY: 'busInfoEntries',
-  SELECTED_KEY: 'busInfoSelectedIndex',
+  STORAGE_KEY: "busInfoEntries",
+  SELECTED_KEY: "busInfoSelectedIndex",
 
   /**
    * Get all saved entries from localStorage
@@ -599,7 +599,7 @@ const BusInfoManager = {
       const data = localStorage.getItem(this.STORAGE_KEY);
       return data ? JSON.parse(data) : [];
     } catch (e) {
-      console.error('[BusInfoManager] Error reading entries:', e);
+      console.error("[BusInfoManager] Error reading entries:", e);
       return [];
     }
   },
@@ -626,20 +626,20 @@ const BusInfoManager = {
    */
   async init() {
     let entries = this.getEntries();
-    
+
     // 1. Initial Migration (runs once if empty)
     if (entries.length === 0) {
-      const driverData = sessionStorage.getItem('driver');
+      const driverData = sessionStorage.getItem("driver");
       if (driverData) {
         const driver = JSON.parse(driverData);
         if (driver.busNumber && driver.busName) {
           entries.push({
             busNumber: driver.busNumber,
             busName: driver.busName,
-            isDriverOwned: true // Flag to prevent deletion by admin sync if not matching
+            isDriverOwned: true, // Flag to prevent deletion by admin sync if not matching
           });
           this._saveEntries(entries);
-          localStorage.setItem(this.SELECTED_KEY, '0');
+          localStorage.setItem(this.SELECTED_KEY, "0");
         }
       }
     }
@@ -649,19 +649,22 @@ const BusInfoManager = {
 
     // 2. Sync with backend - fetch only buses assigned to THIS driver
     try {
-      const driverData2 = sessionStorage.getItem('driver');
+      const driverData2 = sessionStorage.getItem("driver");
       if (driverData2) {
         const driver2 = JSON.parse(driverData2);
         if (driver2.id) {
-          const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : '';
-          const response = await fetch(`${baseUrl}/api/bus/driver/${driver2.id}`);
+          const baseUrl =
+            typeof getApiBaseUrl === "function" ? getApiBaseUrl() : "";
+          const response = await fetch(
+            `${baseUrl}/api/bus/driver/${driver2.id}`,
+          );
           if (response.ok) {
             const serverBuses = await response.json();
             let changed = false;
 
             // Extract valid bus configs assigned to this driver from server
             const serverConfigMap = new Map();
-            serverBuses.forEach(b => {
+            serverBuses.forEach((b) => {
               if (b.busNumber || b.busNo) {
                 const no = b.busNumber || b.busNo;
                 const name = b.busName || b.routeName || `Route ${no}`;
@@ -672,16 +675,22 @@ const BusInfoManager = {
 
             // A. Remove local entries that no longer exist on server (unless driver owned and not on server)
             const oldLength = entries.length;
-            entries = entries.filter(entry => {
-              if (entry.isDriverOwned && !serverConfigMap.has(entry.busNumber)) return true;
+            entries = entries.filter((entry) => {
+              if (entry.isDriverOwned && !serverConfigMap.has(entry.busNumber))
+                return true;
               return serverConfigMap.has(entry.busNumber);
             });
             if (entries.length !== oldLength) changed = true;
 
             // B. Add new server configs that aren't in local storage
             serverConfigMap.forEach((info, busNumber) => {
-              if (!entries.find(e => e.busNumber === busNumber)) {
-                entries.push({ busNumber, busName: info.busName, id: info.id, isDriverOwned: true });
+              if (!entries.find((e) => e.busNumber === busNumber)) {
+                entries.push({
+                  busNumber,
+                  busName: info.busName,
+                  id: info.id,
+                  isDriverOwned: true,
+                });
                 changed = true;
               }
             });
@@ -689,11 +698,11 @@ const BusInfoManager = {
             if (changed) {
               this._saveEntries(entries);
               this.renderEntries();
-              
+
               // Verify selected index is still valid, reset if not
               const selectedIdx = this.getSelectedIndex();
               if (selectedIdx >= entries.length) {
-                localStorage.setItem(this.SELECTED_KEY, '0');
+                localStorage.setItem(this.SELECTED_KEY, "0");
                 this.renderEntries();
               }
             }
@@ -701,7 +710,7 @@ const BusInfoManager = {
         }
       }
     } catch (e) {
-      console.warn('[BusInfoManager] Failed to sync driver bus configs:', e);
+      console.warn("[BusInfoManager] Failed to sync driver bus configs:", e);
     }
   },
 
@@ -709,58 +718,70 @@ const BusInfoManager = {
    * Open the Add Bus Config modal
    */
   openAddModal() {
-    const modal = document.getElementById('busInfoModal');
+    const modal = document.getElementById("busInfoModal");
     if (!modal) return;
 
     // Pre-fill driver info (read-only)
-    const driverData = sessionStorage.getItem('driver');
+    const driverData = sessionStorage.getItem("driver");
     if (driverData) {
       const driver = JSON.parse(driverData);
-      const nameInput = document.getElementById('modalDriverName');
-      const phoneInput = document.getElementById('modalDriverPhone');
-      if (nameInput) nameInput.value = driver.name || '';
-      if (phoneInput) phoneInput.value = driver.phone || '';
+      const nameInput = document.getElementById("modalDriverName");
+      const phoneInput = document.getElementById("modalDriverPhone");
+      if (nameInput) nameInput.value = driver.name || "";
+      if (phoneInput) phoneInput.value = driver.phone || "";
     }
 
     // Clear editable fields
-    const busNumInput = document.getElementById('modalBusNumber');
-    const busNameInput = document.getElementById('modalBusName');
-    if (busNumInput) busNumInput.value = '';
-    if (busNameInput) busNameInput.value = '';
+    const busNumInput = document.getElementById("modalBusNumber");
+    const busNameInput = document.getElementById("modalBusName");
+    if (busNumInput) busNumInput.value = "";
+    if (busNameInput) busNameInput.value = "";
 
-    modal.style.display = 'flex';
+    modal.style.display = "flex";
   },
 
   /**
    * Close the Add Bus Config modal
    */
   closeAddModal() {
-    const modal = document.getElementById('busInfoModal');
-    if (modal) modal.style.display = 'none';
+    const modal = document.getElementById("busInfoModal");
+    if (modal) modal.style.display = "none";
   },
 
   /**
    * Save a new entry from the modal form
    */
   async saveEntry() {
-    const busNumber = (document.getElementById('modalBusNumber')?.value || '').trim();
-    const busName = (document.getElementById('modalBusName')?.value || '').trim();
+    const busNumber = (
+      document.getElementById("modalBusNumber")?.value || ""
+    ).trim();
+    const busName = (
+      document.getElementById("modalBusName")?.value || ""
+    ).trim();
 
     if (!busNumber || !busName) {
-      AlertController.show('Validation Error', 'Please fill in both Bus Number and Bus/Route Name.', 'error');
+      AlertController.show(
+        "Validation Error",
+        "Please fill in both Bus Number and Bus/Route Name.",
+        "error",
+      );
       return;
     }
 
     const entries = this.getEntries();
 
     // Check for duplicate bus number
-    const duplicate = entries.find(e => e.busNumber === busNumber);
+    const duplicate = entries.find((e) => e.busNumber === busNumber);
     if (duplicate) {
-      AlertController.show('Duplicate', 'A configuration with bus number "' + busNumber + '" already exists.', 'error');
+      AlertController.show(
+        "Duplicate",
+        'A configuration with bus number "' + busNumber + '" already exists.',
+        "error",
+      );
       return;
     }
 
-    const driverData = sessionStorage.getItem('driver');
+    const driverData = sessionStorage.getItem("driver");
     if (!driverData) {
       // Offline / Unregistered - just save locally
       entries.push({ busNumber, busName, isDriverOwned: true });
@@ -768,23 +789,32 @@ const BusInfoManager = {
       if (entries.length === 1) this.selectEntry(0);
       this.closeAddModal();
       this.renderEntries();
-      AlertController.show('Local Success', 'Bus configuration "' + busName + '" added locally!', 'success');
+      AlertController.show(
+        "Local Success",
+        'Bus configuration "' + busName + '" added locally!',
+        "success",
+      );
       return;
     }
 
     const driver = JSON.parse(driverData);
-    
+
     try {
       const baseUrl = getApiBaseUrl();
       const response = await fetch(`${baseUrl}/api/bus/driver/${driver.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ busNumber, busName }),
       });
       const data = await response.json();
-      
+
       if (data.success) {
-        entries.push({ busNumber, busName, isDriverOwned: true, id: data.bus.id });
+        entries.push({
+          busNumber,
+          busName,
+          isDriverOwned: true,
+          id: data.bus.id,
+        });
         this._saveEntries(entries);
 
         // Auto-select if this is the first entry
@@ -794,13 +824,21 @@ const BusInfoManager = {
 
         this.closeAddModal();
         this.renderEntries();
-        AlertController.show('Success', 'Bus configuration "' + busName + '" synced successfully!', 'success');
+        AlertController.show(
+          "Success",
+          'Bus configuration "' + busName + '" synced successfully!',
+          "success",
+        );
       } else {
-        AlertController.show('Error', data.message || 'Failed to add bus configuration.', 'error');
+        AlertController.show(
+          "Error",
+          data.message || "Failed to add bus configuration.",
+          "error",
+        );
       }
-    } catch(err) {
+    } catch (err) {
       console.error("[BusInfoManager] Error saving entry:", err);
-      AlertController.show('Error', 'Failed to connect to backend.', 'error');
+      AlertController.show("Error", "Failed to connect to backend.", "error");
     }
   },
 
@@ -815,25 +853,33 @@ const BusInfoManager = {
     const selectedIdx = this.getSelectedIndex();
 
     showConfirmDialog({
-      title: 'Delete Configuration',
-      message: 'Remove bus "' + entry.busName + ' (' + entry.busNumber + ')"? This cannot be undone.',
-      icon: '🗑️',
-      iconBg: 'rgba(239, 68, 68, 0.15)',
-      btnText: 'Delete',
-      btnColor: '#ef4444',
+      title: "Delete Configuration",
+      message:
+        'Remove bus "' +
+        entry.busName +
+        " (" +
+        entry.busNumber +
+        ')"? This cannot be undone.',
+      icon: "🗑️",
+      iconBg: "rgba(239, 68, 68, 0.15)",
+      btnText: "Delete",
+      btnColor: "#ef4444",
       onConfirm: async () => {
-        
         // Notify Backend
         try {
           // If we don't have entry.id, fallback to bus number delete
           const baseUrl = getApiBaseUrl();
-          const route = entry.id ? `/api/bus/id/${entry.id}` : `/api/bus/config/${encodeURIComponent(entry.busNumber)}`;
-          const response = await fetch(`${baseUrl}${route}`, { method: "DELETE" });
+          const route = entry.id
+            ? `/api/bus/id/${entry.id}`
+            : `/api/bus/config/${encodeURIComponent(entry.busNumber)}`;
+          const response = await fetch(`${baseUrl}${route}`, {
+            method: "DELETE",
+          });
           const data = await response.json();
           if (!data.success && !data.message.includes("Not found")) {
             console.warn("Backend failed to delete", data);
           }
-        } catch(e) {
+        } catch (e) {
           console.error("Backend delete sync failed", e);
         }
 
@@ -847,8 +893,8 @@ const BusInfoManager = {
             this.selectEntry(0);
           } else {
             localStorage.removeItem(this.SELECTED_KEY);
-            state.busNumber = '';
-            state.busName = '';
+            state.busNumber = "";
+            state.busName = "";
             state.isConfigured = false;
             ProfileController.updateDashboardButtons();
           }
@@ -858,7 +904,11 @@ const BusInfoManager = {
         }
 
         this.renderEntries();
-        AlertController.show('Deleted', 'Bus configuration removed.', 'success');
+        AlertController.show(
+          "Deleted",
+          "Bus configuration removed.",
+          "success",
+        );
       },
     });
   },
@@ -879,46 +929,56 @@ const BusInfoManager = {
     state.isConfigured = true;
 
     // Update driver in sessionStorage
-    const driverData = sessionStorage.getItem('driver');
+    const driverData = sessionStorage.getItem("driver");
     if (driverData) {
       const driver = JSON.parse(driverData);
       driver.busNumber = entry.busNumber;
       driver.busName = entry.busName;
-      sessionStorage.setItem('driver', JSON.stringify(driver));
+      sessionStorage.setItem("driver", JSON.stringify(driver));
 
       // Persist to backend via profile API
       try {
         const baseUrl = getApiBaseUrl();
-        const response = await fetch(`${baseUrl}/api/driver/${driver.id}/profile`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: driver.name,
-            phone: driver.phone,
-            busNumber: entry.busNumber,
-            busName: entry.busName,
-          }),
-        });
+        const response = await fetch(
+          `${baseUrl}/api/driver/${driver.id}/profile`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: driver.name,
+              phone: driver.phone,
+              busNumber: entry.busNumber,
+              busName: entry.busName,
+            }),
+          },
+        );
         const data = await response.json();
         if (data.success) {
-          sessionStorage.setItem('driver', JSON.stringify(data.driver));
+          sessionStorage.setItem("driver", JSON.stringify(data.driver));
         }
       } catch (e) {
-        console.error('[BusInfoManager] Profile update error:', e);
+        console.error("[BusInfoManager] Profile update error:", e);
       }
 
       // If tracking is active, send a new START payload to update admin/student panels
-      if (state.isTracking && state.socket && state.socket.readyState === WebSocket.OPEN) {
+      if (
+        state.isTracking &&
+        state.socket &&
+        state.socket.readyState === WebSocket.OPEN
+      ) {
         WebSocketController.send({
           busNumber: entry.busNumber,
           busName: entry.busName,
-          busStop: 'College',
-          action: 'START',
+          busStop: "College",
+          action: "START",
           driverId: driver.id,
-          driverName: driver.name || '',
-          driverPhone: driver.phone || '',
+          driverName: driver.name || "",
+          driverPhone: driver.phone || "",
         });
-        LogController.add('Switched to bus "' + entry.busName + '" — admin/student updated', 'success');
+        LogController.add(
+          'Switched to bus "' + entry.busName + '" — admin/student updated',
+          "success",
+        );
       }
     }
 
@@ -935,7 +995,7 @@ const BusInfoManager = {
    * Render all entries in the dashboard list
    */
   renderEntries() {
-    const container = document.getElementById('busInfoEntriesList');
+    const container = document.getElementById("busInfoEntriesList");
     if (!container) return;
 
     const entries = this.getEntries();
@@ -950,10 +1010,11 @@ const BusInfoManager = {
       return;
     }
 
-    container.innerHTML = entries.map((entry, i) => {
-      const isSelected = i === selectedIdx;
-      return `
-        <div class="bus-info-entry ${isSelected ? 'selected' : ''}">
+    container.innerHTML = entries
+      .map((entry, i) => {
+        const isSelected = i === selectedIdx;
+        return `
+        <div class="bus-info-entry ${isSelected ? "selected" : ""}">
           <div class="bus-info-entry-details">
             <div class="bus-info-entry-row">
               <div class="bus-info-entry-field">
@@ -967,8 +1028,8 @@ const BusInfoManager = {
             </div>
           </div>
           <div class="bus-info-entry-actions">
-            <button class="bus-info-select-btn ${isSelected ? 'active' : ''}" onclick="BusInfoManager.selectEntry(${i})">
-              ${isSelected ? '✓ Selected' : 'Select'}
+            <button class="bus-info-select-btn ${isSelected ? "active" : ""}" onclick="BusInfoManager.selectEntry(${i})">
+              ${isSelected ? "✓ Selected" : "Select"}
             </button>
             <button class="bus-info-delete-btn" onclick="BusInfoManager.deleteEntry(${i})" title="Delete">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -979,7 +1040,8 @@ const BusInfoManager = {
           </div>
         </div>
       `;
-    }).join('');
+      })
+      .join("");
   },
 };
 
@@ -1098,8 +1160,7 @@ const GPSController = {
         const watcherId = await BackgroundGeolocation.addWatcher(
           {
             // Notification for foreground service (required for Android)
-            backgroundMessage:
-              "Bus location is being tracked continuously.",
+            backgroundMessage: "Bus location is being tracked continuously.",
             backgroundTitle: "🚌 Bus Tracking Active",
             requestPermissions: true,
             stale: false,
@@ -1163,8 +1224,8 @@ const GPSController = {
         state.backgroundWatcherId = watcherId;
         LogController.add(
           "Background GPS watcher started (ID: " +
-          watcherId +
-          ") - Works with screen locked",
+            watcherId +
+            ") - Works with screen locked",
           "success",
         );
 
@@ -1452,7 +1513,7 @@ const WebSocketController = {
           state.socket.onmessage = null;
           try {
             state.socket.close();
-          } catch (e) { }
+          } catch (e) {}
         }
 
         state.socket = new WebSocket(wsUrl);
@@ -1541,17 +1602,20 @@ const WebSocketController = {
           }
           if (msg.type === "PING") return;
           LogController.add("Received from server: " + event.data, "info");
-          
-          if (msg.type === "BUS_CONFIG_ADDED" || msg.type === "BUS_CONFIG_DELETED") {
-             const driverData = sessionStorage.getItem('driver');
-             if (driverData) {
-               const currentDriverId = JSON.parse(driverData).id;
-               if (msg.driverId === currentDriverId) {
-                  BusInfoManager.init(); // Re-sync local storage with server
-               }
-             }
+
+          if (
+            msg.type === "BUS_CONFIG_ADDED" ||
+            msg.type === "BUS_CONFIG_DELETED"
+          ) {
+            const driverData = sessionStorage.getItem("driver");
+            if (driverData) {
+              const currentDriverId = JSON.parse(driverData).id;
+              if (msg.driverId === currentDriverId) {
+                BusInfoManager.init(); // Re-sync local storage with server
+              }
+            }
           }
-        } catch (e) { }
+        } catch (e) {}
       };
     });
 
@@ -1609,7 +1673,9 @@ const WebSocketController = {
     this.heartbeatInterval = setInterval(() => {
       if (state.socket && state.socket.readyState === WebSocket.OPEN) {
         // Include busNumber so server can track per-bus heartbeat
-        state.socket.send(JSON.stringify({ type: "PING", busNumber: state.busNumber }));
+        state.socket.send(
+          JSON.stringify({ type: "PING", busNumber: state.busNumber }),
+        );
         console.log("[WebSocket] Sent PING");
       }
     }, this.HEARTBEAT_RATE);
@@ -1676,24 +1742,44 @@ const TrackingController = {
 
             // Check current permission status
             const permStatus = await Geolocation.checkPermissions();
-            console.log("[Permission] Current status:", JSON.stringify(permStatus));
+            console.log(
+              "[Permission] Current status:",
+              JSON.stringify(permStatus),
+            );
 
-            if (permStatus.location === "granted" || permStatus.coarseLocation === "granted") {
+            if (
+              permStatus.location === "granted" ||
+              permStatus.coarseLocation === "granted"
+            ) {
               // Permission already granted — skip dialog
               permissionGranted = true;
-              LogController.add("Location permission already granted", "success");
+              LogController.add(
+                "Location permission already granted",
+                "success",
+              );
             } else {
               // Permission not granted — request it (shows the native Android popup)
               LogController.add("Requesting location permission...", "info");
-              const result = await Geolocation.requestPermissions({ permissions: ["location", "coarseLocation"] });
-              console.log("[Permission] Request result:", JSON.stringify(result));
+              const result = await Geolocation.requestPermissions({
+                permissions: ["location", "coarseLocation"],
+              });
+              console.log(
+                "[Permission] Request result:",
+                JSON.stringify(result),
+              );
 
-              if (result.location === "granted" || result.coarseLocation === "granted") {
+              if (
+                result.location === "granted" ||
+                result.coarseLocation === "granted"
+              ) {
                 permissionGranted = true;
                 LogController.add("Location permission granted", "success");
               } else {
                 // User denied the permission
-                LogController.add("Location permission denied by user", "error");
+                LogController.add(
+                  "Location permission denied by user",
+                  "error",
+                );
                 AlertController.show(
                   "Permission Required",
                   "Location permission is required for GPS tracking. Please allow location access and try again.",
@@ -1711,7 +1797,10 @@ const TrackingController = {
 
         // If Capacitor Geolocation plugin didn't handle it, try a quick position check
         // to trigger any remaining system prompts (e.g. "Turn on GPS" system dialog)
-        if (!permissionGranted && window.Capacitor.isPluginAvailable("Geolocation")) {
+        if (
+          !permissionGranted &&
+          window.Capacitor.isPluginAvailable("Geolocation")
+        ) {
           try {
             const { Geolocation } = window.Capacitor.Plugins;
             await Geolocation.getCurrentPosition({ timeout: 5000 });
@@ -2048,8 +2137,8 @@ const TrackingController = {
       if (timeSinceLastGPS > 30000) {
         console.log(
           "[GPS Heartbeat] No GPS update for " +
-          Math.round(timeSinceLastGPS / 1000) +
-          "s — waiting for GPS to return",
+            Math.round(timeSinceLastGPS / 1000) +
+            "s — waiting for GPS to return",
         );
 
         // Show a gentle one-time prompt on native app only
@@ -2066,7 +2155,9 @@ const TrackingController = {
                 GPSController.updateStatus("active");
                 this.updateTrackingUI("active");
               } catch (e) {
-                console.log("[GPS Heartbeat] GPS still off, will keep retrying silently");
+                console.log(
+                  "[GPS Heartbeat] GPS still off, will keep retrying silently",
+                );
               }
             }
           }
@@ -2558,7 +2649,11 @@ function initApp() {
   {
     const entries = BusInfoManager.getEntries();
     const selectedIdx = BusInfoManager.getSelectedIndex();
-    if (entries.length > 0 && selectedIdx >= 0 && selectedIdx < entries.length) {
+    if (
+      entries.length > 0 &&
+      selectedIdx >= 0 &&
+      selectedIdx < entries.length
+    ) {
       state.busNumber = entries[selectedIdx].busNumber;
       state.busName = entries[selectedIdx].busName;
       state.isConfigured = true;
@@ -2705,8 +2800,18 @@ function initApp() {
     }
   }
 
-  // Warn before page close if tracking
+  // Handle app closure/removal - send STOP action to backend
+  // This ensures tracking status shows as "inactive" when app is closed
+  const handleAppClosing = () => {
+    if (state.isTracking) {
+      console.log("[AppLifecycle] App closing while tracking - sending STOP");
+      TrackingController.stop();
+    }
+  };
+
+  // Web: beforeunload and pagehide events (browser closing)
   window.addEventListener("beforeunload", (e) => {
+    handleAppClosing();
     if (state.isTracking) {
       e.preventDefault();
       e.returnValue =
@@ -2714,6 +2819,51 @@ function initApp() {
       return e.returnValue;
     }
   });
+
+  window.addEventListener("pagehide", () => {
+    console.log("[AppLifecycle] pagehide event triggered");
+    handleAppClosing();
+  });
+
+  // Mobile: Capacitor App pause event (app going to background or being closed)
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    try {
+      if (window.Capacitor.isPluginAvailable("App")) {
+        const { App } = window.Capacitor.Plugins;
+
+        // Listen for app pause (app being closed from recent tasks)
+        App.addListener("appStateChange", async (appState) => {
+          if (!appState.isActive && state.isTracking) {
+            // App is being paused/closed
+            console.log("[AppLifecycle] App paused - checking if closed");
+
+            // Give it 500ms to see if we come back
+            const checkTimeout = setTimeout(() => {
+              if (state.isTracking) {
+                console.log(
+                  "[AppLifecycle] App appears to be closing while tracking",
+                );
+                // Send STOP immediately
+                handleAppClosing();
+              }
+            }, 500);
+
+            // If app comes back to foreground, cancel the check
+            const resumeCheckInterval = setInterval(() => {
+              if (appState.isActive) {
+                clearTimeout(checkTimeout);
+                clearInterval(resumeCheckInterval);
+              }
+            }, 100);
+          }
+        });
+
+        console.log("[AppLifecycle] App lifecycle handlers registered");
+      }
+    } catch (e) {
+      console.warn("[AppLifecycle] Could not register lifecycle handler:", e);
+    }
+  }
 
   console.log("[Driver Panel] Initialization complete");
 }
