@@ -1,9 +1,8 @@
 package com.college.bus.bus_tracking.service;
 
 import com.college.bus.bus_tracking.entity.Client;
-import com.college.bus.bus_tracking.entity.UserSession;
 import com.college.bus.bus_tracking.repository.ClientRepository;
-import com.college.bus.bus_tracking.repository.UserSessionRepository;
+import com.college.bus.bus_tracking.store.SessionStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +13,6 @@ public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
-
-    @Autowired
-    private UserSessionRepository userSessionRepository;
 
     @Autowired
     private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
@@ -75,25 +71,17 @@ public class ClientService {
     }
 
     private void checkAndCreateSession(Long userId, String userType) {
-        // Check if user already has an active session
-        Optional<UserSession> existingSession = userSessionRepository.findByUserIdAndUserType(userId, userType);
-        if (existingSession.isPresent()) {
-            throw new RuntimeException("User is already logged in from another device");
+        // Check if user already has an active session in memory
+        if (SessionStore.hasActiveSession(userId, userType)) {
+            throw new RuntimeException("User is already logged in");
         }
 
-        // Create new session
-        UserSession newSession = UserSession.builder()
-                .userId(userId)
-                .userType(userType)
-                .loginTime(System.currentTimeMillis())
-                .lastActivityTime(System.currentTimeMillis())
-                .build();
-
-        userSessionRepository.save(newSession);
+        // Create new in-memory session
+        SessionStore.createSession(userId, userType);
     }
 
     public void logoutClient(Long clientId) {
-        userSessionRepository.deleteByUserIdAndUserType(clientId, "CLIENT");
+        SessionStore.removeSession(clientId, "CLIENT");
     }
 
     private boolean isValidEmailDomain(String email) {

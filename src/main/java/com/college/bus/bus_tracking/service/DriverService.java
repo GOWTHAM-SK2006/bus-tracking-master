@@ -1,11 +1,10 @@
 package com.college.bus.bus_tracking.service;
 
 import com.college.bus.bus_tracking.entity.Driver;
-import com.college.bus.bus_tracking.entity.UserSession;
 import com.college.bus.bus_tracking.repository.BusRepository;
 import com.college.bus.bus_tracking.repository.DriverRepository;
-import com.college.bus.bus_tracking.repository.UserSessionRepository;
 import com.college.bus.bus_tracking.store.BusSessionStore;
+import com.college.bus.bus_tracking.store.SessionStore;
 import com.college.bus.bus_tracking.handler.UserHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,6 @@ public class DriverService {
 
     @Autowired
     private BusRepository busRepository;
-
-    @Autowired
-    private UserSessionRepository userSessionRepository;
 
     @Autowired
     private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
@@ -82,25 +78,17 @@ public class DriverService {
     }
 
     private void checkAndCreateSession(Long userId, String userType) {
-        // Check if user already has an active session
-        Optional<UserSession> existingSession = userSessionRepository.findByUserIdAndUserType(userId, userType);
-        if (existingSession.isPresent()) {
-            throw new RuntimeException("User is already logged in from another device");
+        // Check if user already has an active session in memory
+        if (SessionStore.hasActiveSession(userId, userType)) {
+            throw new RuntimeException("User is already logged in");
         }
 
-        // Create new session
-        UserSession newSession = UserSession.builder()
-                .userId(userId)
-                .userType(userType)
-                .loginTime(System.currentTimeMillis())
-                .lastActivityTime(System.currentTimeMillis())
-                .build();
-
-        userSessionRepository.save(newSession);
+        // Create new in-memory session
+        SessionStore.createSession(userId, userType);
     }
 
     public void logoutDriver(Long driverId) {
-        userSessionRepository.deleteByUserIdAndUserType(driverId, "DRIVER");
+        SessionStore.removeSession(driverId, "DRIVER");
     }
 
     public Driver updateBusDetails(Long driverId, String busNumber, String busName) {
