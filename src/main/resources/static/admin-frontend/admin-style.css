@@ -1817,6 +1817,17 @@ body {
   animation: panelScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Center content for specific panels like profile */
+#profileView .panel-container {
+  width: auto;
+  height: auto;
+  max-width: 600px;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: var(--spacing-lg);
+}
+
 @keyframes panelScale {
   from {
     opacity: 0;
