@@ -87,18 +87,29 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
     }
 
     public static void broadcastToAdmins(Map<String, Object> data) throws Exception {
+        String messageType = data.get("type") != null ? data.get("type").toString() : "UNKNOWN";
+        System.out.println("[AdminWebSocketHandler] === START broadcastToAdmins() - type: " + messageType + ", adminSessions count: " + adminSessions.size());
+        
         String message = objectMapper.writeValueAsString(data);
+        System.out.println("[AdminWebSocketHandler] Message payload: " + message);
+        
+        int sentCount = 0;
         for (WebSocketSession session : adminSessions) {
             if (session.isOpen()) {
                 try {
                     synchronized (session) {
+                        System.out.println("[AdminWebSocketHandler] Sending " + messageType + " to session: " + session.getId());
                         session.sendMessage(new TextMessage(message));
+                        sentCount++;
                     }
                 } catch (Exception e) {
                     System.err.println("[Admin WS] Error sending message: " + e.getMessage());
                 }
+            } else {
+                System.out.println("[AdminWebSocketHandler] Session not open, skipping: " + session.getId());
             }
         }
+        System.out.println("[AdminWebSocketHandler] === END broadcastToAdmins() - sent to " + sentCount + " open sessions");
     }
 
     /**

@@ -84,6 +84,7 @@ public class DriverHandler extends TextWebSocketHandler {
 
     private void broadcastStartToAdmins(String busNumber, Long driverId, String busName, String driverName, String driverPhone, String busStop) {
         try {
+            System.out.println("[DriverHandler] === START broadcastStartToAdmins() for bus: " + busNumber);
             Map<String, Object> startMessage = new HashMap<>();
             startMessage.put("type", "START");
             startMessage.put("action", "START");
@@ -94,10 +95,13 @@ public class DriverHandler extends TextWebSocketHandler {
             startMessage.put("driverPhone", driverPhone);
             startMessage.put("busStop", busStop);
             startMessage.put("timestamp", System.currentTimeMillis());
+            System.out.println("[DriverHandler] Message object: " + startMessage);
             System.out.println("[DriverHandler] Broadcasting START to admins: " + busNumber + " (Driver: " + driverId + ")");
             AdminWebSocketHandler.broadcastToAdmins(startMessage);
+            System.out.println("[DriverHandler] === END broadcastStartToAdmins() - completed");
         } catch (Exception e) {
             System.err.println("[DriverHandler] Failed to broadcast START to admins: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
