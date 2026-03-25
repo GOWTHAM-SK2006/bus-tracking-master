@@ -980,19 +980,21 @@ const BusInfoManager = {
         // If switching FROM a different bus, send STOP for the previous bus first
         if (previousBusNumber && previousBusNumber !== entry.busNumber) {
           console.log(`[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`);
-          WebSocketController.send({
+          const stopMessage = {
             busNumber: String(previousBusNumber),
             busName: previousBusName,
             action: "STOP",
             driverId: driver.id,
             driverName: driver.name || "",
             driverPhone: driver.phone || "",
-          });
+          };
+          console.log(`[BusInfoManager] Sending STOP:`, stopMessage);
+          WebSocketController.send(stopMessage);
           console.log(`[BusInfoManager] Sent STOP for bus ${previousBusNumber}`);
         }
 
         // Now send START for the newly selected bus (regardless of tracking state)
-        WebSocketController.send({
+        const startMessage = {
           busNumber: String(entry.busNumber),
           busName: entry.busName,
           busStop: "College",
@@ -1000,7 +1002,10 @@ const BusInfoManager = {
           driverId: driver.id,
           driverName: driver.name || "",
           driverPhone: driver.phone || "",
-        });
+        };
+        console.log(`[BusInfoManager] Sending START:`, startMessage);
+        WebSocketController.send(startMessage);
+        console.log(`[BusInfoManager] Sent START for bus ${entry.busNumber}`);
         LogController.add(
           'Switched to bus "' + entry.busName + '" — admin/student updated',
           "success",
