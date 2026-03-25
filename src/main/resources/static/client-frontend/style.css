@@ -489,8 +489,8 @@ body {
   z-index: 500;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 22px;
+  gap: 8px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -507,14 +507,14 @@ body {
 }
 
 .counter-icon {
-  font-size: 2rem;
+  font-size: 1.6rem;
   background: linear-gradient(
     135deg,
     rgba(245, 158, 11, 0.1),
     rgba(245, 158, 11, 0.05)
   );
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -533,7 +533,7 @@ body {
 }
 
 .counter-value {
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 800;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   -webkit-background-clip: text;
