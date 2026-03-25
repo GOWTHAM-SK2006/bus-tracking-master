@@ -178,6 +178,7 @@ public class DriverHandler extends TextWebSocketHandler {
                 }
 
                 userHandler.broadcastUpdate();
+                broadcastToAdmins();
                 return;
             }
 
