@@ -2034,6 +2034,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateDebugStatus("System: Initializing Components...");
 
   try {
+    // Clear any stale bus data from previous sessions before displaying anything
+    adminState.buses.clear();
+    adminState.selectedBusId = null;
+    
     // 0. Mobile Menu
     MobileMenuManager.init();
 

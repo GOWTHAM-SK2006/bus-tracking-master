@@ -1750,6 +1750,11 @@ async function init() {
   console.log("[App] Initializing...");
 
   try {
+    // Clear any stale bus data from previous sessions before displaying anything
+    state.buses.clear();
+    state.stops.clear();
+    state.selectedBusId = null;
+    
     MapManager.init();
     TabManager.init();
     SearchManager.init();
