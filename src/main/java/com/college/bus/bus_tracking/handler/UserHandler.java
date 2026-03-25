@@ -127,4 +127,59 @@ public class UserHandler extends TextWebSocketHandler {
             e.printStackTrace();
         }
     }
+
+    public void broadcastStartToStudents(String busNumber, Long driverId, String busName, String driverName, String driverPhone, String busStop) {
+        try {
+            Map<String, Object> startMessage = new HashMap<>();
+            startMessage.put("type", "START");
+            startMessage.put("action", "START");
+            startMessage.put("busNumber", busNumber);
+            startMessage.put("driverId", driverId);
+            startMessage.put("busName", busName);
+            startMessage.put("driverName", driverName);
+            startMessage.put("driverPhone", driverPhone);
+            startMessage.put("busStop", busStop);
+            startMessage.put("timestamp", System.currentTimeMillis());
+
+            String payload = mapper.writeValueAsString(startMessage);
+            TextMessage message = new TextMessage(payload);
+            int clientCount = 0;
+            for (WebSocketSession session : SESSIONS) {
+                if (session.isOpen()) {
+                    session.sendMessage(message);
+                    clientCount++;
+                }
+            }
+            if (clientCount > 0) {
+                System.out.println("[UserHandler] Broadcasted START to " + clientCount + " students for bus: " + busNumber);
+            }
+        } catch (Exception e) {
+            System.err.println("[UserHandler] Failed to broadcast START to students: " + e.getMessage());
+        }
+    }
+
+    public void broadcastStopToStudents(String busNumber) {
+        try {
+            Map<String, Object> stopMessage = new HashMap<>();
+            stopMessage.put("type", "STOP");
+            stopMessage.put("action", "STOP");
+            stopMessage.put("busNumber", busNumber);
+            stopMessage.put("timestamp", System.currentTimeMillis());
+
+            String payload = mapper.writeValueAsString(stopMessage);
+            TextMessage message = new TextMessage(payload);
+            int clientCount = 0;
+            for (WebSocketSession session : SESSIONS) {
+                if (session.isOpen()) {
+                    session.sendMessage(message);
+                    clientCount++;
+                }
+            }
+            if (clientCount > 0) {
+                System.out.println("[UserHandler] Broadcasted STOP to " + clientCount + " students for bus: " + busNumber);
+            }
+        } catch (Exception e) {
+            System.err.println("[UserHandler] Failed to broadcast STOP to students: " + e.getMessage());
+        }
+    }
 }

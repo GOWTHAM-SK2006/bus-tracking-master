@@ -82,6 +82,39 @@ public class DriverHandler extends TextWebSocketHandler {
         }
     }
 
+    private void broadcastStartToAdmins(String busNumber, Long driverId, String busName, String driverName, String driverPhone, String busStop) {
+        try {
+            Map<String, Object> startMessage = new HashMap<>();
+            startMessage.put("type", "START");
+            startMessage.put("action", "START");
+            startMessage.put("busNumber", busNumber);
+            startMessage.put("driverId", driverId);
+            startMessage.put("busName", busName);
+            startMessage.put("driverName", driverName);
+            startMessage.put("driverPhone", driverPhone);
+            startMessage.put("busStop", busStop);
+            startMessage.put("timestamp", System.currentTimeMillis());
+            System.out.println("[DriverHandler] Broadcasting START to admins: " + busNumber + " (Driver: " + driverId + ")");
+            AdminWebSocketHandler.broadcastToAdmins(startMessage);
+        } catch (Exception e) {
+            System.err.println("[DriverHandler] Failed to broadcast START to admins: " + e.getMessage());
+        }
+    }
+
+    private void broadcastStopToAdmins(String busNumber) {
+        try {
+            Map<String, Object> stopMessage = new HashMap<>();
+            stopMessage.put("type", "STOP");
+            stopMessage.put("action", "STOP");
+            stopMessage.put("busNumber", busNumber);
+            stopMessage.put("timestamp", System.currentTimeMillis());
+            System.out.println("[DriverHandler] Broadcasting STOP to admins: " + busNumber);
+            AdminWebSocketHandler.broadcastToAdmins(stopMessage);
+        } catch (Exception e) {
+            System.err.println("[DriverHandler] Failed to broadcast STOP to admins: " + e.getMessage());
+        }
+    }
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
@@ -178,7 +211,8 @@ public class DriverHandler extends TextWebSocketHandler {
                 }
 
                 userHandler.broadcastUpdate();
-                broadcastToAdmins();
+                userHandler.broadcastStartToStudents(busNumber, driverId, entity.getBusName(), entity.getDriverName(), entity.getDriverPhone(), entity.getBusStop());
+                broadcastStartToAdmins(busNumber, driverId, entity.getBusName(), entity.getDriverName(), entity.getDriverPhone(), entity.getBusStop());
                 return;
             }
 
@@ -199,7 +233,8 @@ public class DriverHandler extends TextWebSocketHandler {
                     repository.save(entity);
                 });
                 userHandler.broadcastUpdate();
-                broadcastToAdmins();
+                userHandler.broadcastStopToStudents(busNumber);
+                broadcastStopToAdmins(busNumber);
                 return;
             }
 
