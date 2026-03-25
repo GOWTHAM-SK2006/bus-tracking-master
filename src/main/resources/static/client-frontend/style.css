@@ -5,15 +5,15 @@
 
 /* CSS Variables */
 :root {
-    /* Primary — Warm Amber */
-    --primary: #f59e0b;
-    --primary-dark: #d97706;
-    --primary-light: #fbbf24;
+    /* Primary — Warm Orange */
+    --primary: #f97316;
+    --primary-dark: #ea580c;
+    --primary-light: #fb923c;
 
-    /* Secondary — Electric Blue */
-    --secondary: #3b82f6;
-    --secondary-dark: #2563eb;
-    --secondary-light: #60a5fa;
+    /* Secondary — Electric Blue (deprecated, use primary instead) */
+    --secondary: #f97316;
+    --secondary-dark: #ea580c;
+    --secondary-light: #fb923c;
 
     /* Success */
     --success: #10b981;
@@ -165,7 +165,7 @@ body {
 
 .bottom-nav-btn.active {
     color: var(--secondary);
-    background: rgba(59,130,246,0.06);
+    background: rgba(249, 115, 22, 0.06);
 }
 
 .bottom-nav-btn.active svg { transform: scale(1.08); }
