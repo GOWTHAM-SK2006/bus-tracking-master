@@ -500,6 +500,17 @@ const ProfileController = {
         state.busName = busName;
         state.isConfigured = true;
 
+        // Update the currently selected bus entry in localStorage with new bus info
+        const selectedIdx = BusInfoManager.getSelectedIndex();
+        if (selectedIdx >= 0) {
+          const entries = BusInfoManager.getEntries();
+          if (entries[selectedIdx]) {
+            entries[selectedIdx].busNumber = busNumber;
+            entries[selectedIdx].busName = busName;
+            BusInfoManager._saveEntries(entries);
+          }
+        }
+
         // Sync UI
         this.loadProfileData();
 
