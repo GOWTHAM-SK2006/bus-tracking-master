@@ -1342,7 +1342,9 @@ const WebSocketManager = {
             console.log(
               `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
             );
-            const busId = String(data.busNumber);
+            const busId = String(data.busNumber); // Convert to string for consistent lookup
+            
+            console.log(`[WS] Looking for bus ID: "${busId}", current buses:`, Array.from(adminState.buses.keys()));
             
             // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
             // Clear Active status from all buses first
@@ -1354,6 +1356,7 @@ const WebSocketManager = {
             
             if (adminState.buses.has(busId)) {
               const bus = adminState.buses.get(busId);
+              console.log(`[WS] Found bus ${busId}, setting as Active`);
               bus.gpsOn = true; // Mark the selected bus as Active
               // Sync any updated driver info that may have changed (e.g., bus name, driver phone)
               if (data.busName) bus.busName = data.busName;

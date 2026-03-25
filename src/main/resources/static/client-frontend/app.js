@@ -775,6 +775,7 @@ const WebSocketManager = {
             `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
           );
           const busId = data.busNumber;
+          console.log(`[WS] Looking for bus ID: "${busId}", current buses:`, Array.from(state.buses.keys()));
           
           // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
           // Clear Active status from all buses first
@@ -786,6 +787,7 @@ const WebSocketManager = {
           
           if (state.buses.has(busId)) {
             const bus = state.buses.get(busId);
+            console.log(`[WS] Found bus ${busId}, setting as Active`);
             bus.gpsOn = true; // Mark the selected bus as Active
             // Sync updated driver info if included
             if (data.busName) bus.busName = data.busName;
@@ -793,6 +795,8 @@ const WebSocketManager = {
             if (data.driverPhone) bus.driverPhone = data.driverPhone;
             state.buses.set(busId, bus);
             MapManager.updateMapDisplay();
+          } else {
+            console.log(`[WS] Bus ${busId} not in cache on student page`);
           }
           return;
         } else if (data.action === "STOP" && data.busNumber) {

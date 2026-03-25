@@ -981,7 +981,7 @@ const BusInfoManager = {
         if (previousBusNumber && previousBusNumber !== entry.busNumber) {
           console.log(`[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`);
           WebSocketController.send({
-            busNumber: previousBusNumber,
+            busNumber: String(previousBusNumber),
             busName: previousBusName,
             action: "STOP",
             driverId: driver.id,
@@ -993,7 +993,7 @@ const BusInfoManager = {
 
         // Now send START for the newly selected bus (regardless of tracking state)
         WebSocketController.send({
-          busNumber: entry.busNumber,
+          busNumber: String(entry.busNumber),
           busName: entry.busName,
           busStop: "College",
           action: "START",
@@ -1004,6 +1004,18 @@ const BusInfoManager = {
         LogController.add(
           'Switched to bus "' + entry.busName + '" — admin/student updated',
           "success",
+        );
+      } else {
+        // WebSocket not available - log warning
+        const wsState = state.socket ? {
+          readyState: state.socket.readyState,
+          CONNECTING: WebSocket.CONNECTING,
+          OPEN: WebSocket.OPEN,
+          CLOSING: WebSocket.CLOSING,
+          CLOSED: WebSocket.CLOSED,
+        } : "no socket";
+        console.warn(
+          `[BusInfoManager] Cannot send bus selection (WebSocket state: ${JSON.stringify(wsState)})`,
         );
       }
     }
