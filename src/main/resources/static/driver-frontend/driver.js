@@ -1013,6 +1013,12 @@ const BusInfoManager = {
     container.innerHTML = entries
       .map((entry, i) => {
         const isSelected = i === selectedIdx;
+        // Only show "Active" if this bus is selected AND tracking is active
+        const showActive = isSelected && state.isTracking;
+        const statusHtml = showActive 
+          ? '<span class="bus-info-status active" style="color:#10b981;font-weight:600;">● Active</span>'
+          : '<span class="bus-info-status inactive" style="color:#94a3b8;font-weight:600;">● Inactive</span>';
+        
         return `
         <div class="bus-info-entry ${isSelected ? "selected" : ""}">
           <div class="bus-info-entry-details">
@@ -1024,6 +1030,9 @@ const BusInfoManager = {
               <div class="bus-info-entry-field">
                 <span class="bus-info-entry-label">Bus/Route Name</span>
                 <span class="bus-info-entry-value">${entry.busName}</span>
+              </div>
+              <div class="bus-info-entry-field" style="margin-left:auto;">
+                ${statusHtml}
               </div>
             </div>
           </div>
