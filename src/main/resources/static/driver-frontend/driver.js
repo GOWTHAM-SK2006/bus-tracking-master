@@ -2946,8 +2946,19 @@ function handleLogoutOnClose() {
     if (!driver.id) return;
 
     const logoutUrl = getApiBaseUrl() + "/api/driver/logout";
-    // Use sendBeacon for reliable delivery even as page unloads
-    navigator.sendBeacon(logoutUrl, JSON.stringify({ driverId: driver.id }));
+    
+    // Use fetch with keepalive to ensure request completes even during page unload
+    // keepalive is more reliable than sendBeacon for JSON requests
+    fetch(logoutUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ driverId: driver.id }),
+      keepalive: true
+    }).catch(() => {
+      // Silently ignore errors - page is closing anyway
+    });
     
     console.log("[Driver] Driver logout request sent on page close");
   } catch (error) {

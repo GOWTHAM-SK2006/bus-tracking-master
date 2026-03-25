@@ -1870,8 +1870,19 @@ function handleLogoutOnClose() {
     if (!client.id) return;
 
     const logoutUrl = getApiBaseUrl() + "/api/client/logout";
-    // Use sendBeacon for reliable delivery even as page unloads
-    navigator.sendBeacon(logoutUrl, JSON.stringify({ clientId: client.id }));
+    
+    // Use fetch with keepalive to ensure request completes even during page unload
+    // keepalive is more reliable than sendBeacon for JSON requests
+    fetch(logoutUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ clientId: client.id }),
+      keepalive: true
+    }).catch(() => {
+      // Silently ignore errors - page is closing anyway
+    });
     
     console.log("[App] Client logout request sent on page close");
   } catch (error) {
