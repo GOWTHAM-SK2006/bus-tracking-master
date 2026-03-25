@@ -7,7 +7,6 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.WindowCompat;
 
 import com.getcapacitor.BridgeActivity;
-import com.getcapacitor.JSObject;
 
 public class MainActivity extends BridgeActivity {
 
@@ -15,7 +14,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -24,7 +23,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         Log.d(TAG, "App onStop called - sending stop tracking notification");
         // Notify JavaScript to send STOP action when app is backgrounded
@@ -32,7 +31,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "App onDestroy called - stopping tracking");
         // Send final STOP message before app is completely destroyed
@@ -62,9 +61,9 @@ public class MainActivity extends BridgeActivity {
      */
     private void executeScript(String script) {
         try {
-            if (this.getWebView() != null) {
-                this.getWebView().post(() -> {
-                    this.getWebView().evaluateJavascript(script, null);
+            if (getBridge() != null && getBridge().getWebView() != null) {
+                getBridge().getWebView().post(() -> {
+                    getBridge().getWebView().evaluateJavascript(script, null);
                 });
             }
         } catch (Exception e) {

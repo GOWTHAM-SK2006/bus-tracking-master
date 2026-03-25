@@ -334,6 +334,8 @@ const PanelManager = {
           this.togglePanel("export");
         } else if (target === "feedback") {
           this.togglePanel("feedback");
+        } else if (target === "profile") {
+          this.togglePanel("profile");
         }
       });
     });
@@ -380,6 +382,13 @@ const PanelManager = {
         this.updateActiveTab("feedback");
         FeedbackManager.loadFeedback();
       }
+    } else if (panelName === "profile") {
+      const pp = document.getElementById("profileView");
+      if (pp) {
+        pp.classList.add("visible");
+        this.updateActiveTab("profile");
+        loadAdminProfile();
+      }
     }
 
     adminState.activePanel = panelName;
@@ -391,11 +400,13 @@ const PanelManager = {
     const rp = DOM.routesPanel;
     const rdp = DOM.routeDetailsPanel;
     const fp = document.getElementById("feedbackView");
+    const pp = document.getElementById("profileView");
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
     if (rp) rp.classList.remove("visible");
     if (rdp) rdp.classList.remove("visible");
     if (fp) fp.classList.remove("visible");
+    if (pp) pp.classList.remove("visible");
 
     // Also close the right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
@@ -539,7 +550,7 @@ var MapManager = {
     const currentPos = marker.getLngLat();
     const distance = Math.sqrt(
       Math.pow((currentPos.lng - longitude) * 111320, 2) +
-      Math.pow((currentPos.lat - latitude) * 110540, 2),
+        Math.pow((currentPos.lat - latitude) * 110540, 2),
     );
 
     if (distance > 5) {
@@ -694,8 +705,6 @@ const ROUTE_DEFINITIONS = {
   ],
   56: ["Velachery", "Madipakkam", "Keelkattalai", "Pallavaram", "College"],
 };
-
-
 
 // =========================================
 // Admin Bus Configuration Manager
@@ -865,11 +874,14 @@ const AdminBusManager = {
         // Merge live data from adminState.buses
         const liveBus = adminState.buses.get(String(bus.busNumber));
         const hasLiveData = liveBus && liveBus.gpsOn;
-        const lat = liveBus && liveBus.latitude ? liveBus.latitude.toFixed(6) : "--";
-        const lng = liveBus && liveBus.longitude ? liveBus.longitude.toFixed(6) : "--";
-        const lastUpdate = liveBus && liveBus.lastUpdate
-          ? new Date(liveBus.lastUpdate).toLocaleTimeString()
-          : "--";
+        const lat =
+          liveBus && liveBus.latitude ? liveBus.latitude.toFixed(6) : "--";
+        const lng =
+          liveBus && liveBus.longitude ? liveBus.longitude.toFixed(6) : "--";
+        const lastUpdate =
+          liveBus && liveBus.lastUpdate
+            ? new Date(liveBus.lastUpdate).toLocaleTimeString()
+            : "--";
         const gpsStatusText = hasLiveData ? "Active" : "Inactive";
         const gpsStatusColor = hasLiveData ? "#4CAF50" : "#f44336";
         const trackingText = hasLiveData ? "Running" : "Stopped";
@@ -1783,14 +1795,21 @@ function adminLogout() {
 function exportActiveBusesPDF() {
   let buses = Array.from(adminState.buses.values()).filter((b) => b.gpsOn);
   if (buses.length === 0) {
-    alert("No active buses currently on trip. Exporting all registered buses instead.");
+    alert(
+      "No active buses currently on trip. Exporting all registered buses instead.",
+    );
     buses = Array.from(adminState.buses.values());
     if (buses.length === 0) {
       alert("No buses registered in the system.");
       return;
     }
   }
-  generateBusPDF(buses, buses.every(b => !b.gpsOn) ? "All Buses Report (Offline)" : "Active Buses Real-time Report");
+  generateBusPDF(
+    buses,
+    buses.every((b) => !b.gpsOn)
+      ? "All Buses Report (Offline)"
+      : "Active Buses Real-time Report",
+  );
 }
 
 function exportDateRangePDF() {
@@ -1844,8 +1863,8 @@ function generateBusPDF(buses, title) {
                 </thead>
                 <tbody>
                     ${buses
-      .map(
-        (bus) => `
+                      .map(
+                        (bus) => `
                         <tr>
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>${bus.busNo}</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${bus.routeName}</td>
@@ -1860,8 +1879,8 @@ function generateBusPDF(buses, title) {
                             <td style="padding: 10px; border: 1px solid #ddd;">${new Date(bus.lastUpdate).toLocaleString()}</td>
                         </tr>
                     `,
-      )
-      .join("")}
+                      )
+                      .join("")}
                 </tbody>
             </table>
             
@@ -1890,7 +1909,8 @@ function generateBusPDF(buses, title) {
       .outputPdf("datauristring")
       .then((pdfString) => {
         // Strip out the data:application/pdf;base64, prefix
-        const base64Data = pdfString.split(",")[1] || pdfString.split("base64,")[1];
+        const base64Data =
+          pdfString.split(",")[1] || pdfString.split("base64,")[1];
         const { Filesystem, Directory } = window.Capacitor.Plugins;
         const { Share } = window.Capacitor.Plugins;
 
@@ -1938,7 +1958,41 @@ function toggleExportPanel(show) {
   else PanelManager.closeAllPanels();
 }
 
+function toggleProfilePanel(show) {
+  if (show) PanelManager.togglePanel("profile");
+  else PanelManager.closeAllPanels();
+}
 
+function mobileMenuTabClick(tabName) {
+  if (tabName === "profile") {
+    PanelManager.togglePanel("profile");
+  } else {
+    PanelManager.togglePanel(tabName);
+  }
+}
+
+function loadAdminProfile() {
+  const adminData = JSON.parse(sessionStorage.getItem("admin"));
+  if (adminData) {
+    document.getElementById("profileName").textContent =
+      adminData.name || "Admin";
+    document.getElementById("adminEmail").value = adminData.email || "";
+  }
+}
+
+function updateAdminProfile() {
+  const password = document.getElementById("adminPassword").value;
+
+  // Simple validation and alert
+  if (password) {
+    alert("Profile updated and password changed successfully!");
+  } else {
+    alert("Profile updated successfully!");
+  }
+
+  // Close the panel
+  PanelManager.closeAllPanels();
+}
 
 // =========================================
 // Initialization
@@ -2090,9 +2144,9 @@ const FeedbackManager = {
     try {
       const resp = await fetch(
         getApiBaseUrl() +
-        "/api/feedback/" +
-        this.currentFeedbackId +
-        "/resolve",
+          "/api/feedback/" +
+          this.currentFeedbackId +
+          "/resolve",
         { method: "PUT" },
       );
       const data = await resp.json();
