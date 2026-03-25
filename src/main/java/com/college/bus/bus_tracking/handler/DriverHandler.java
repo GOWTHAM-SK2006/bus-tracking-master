@@ -123,6 +123,11 @@ public class DriverHandler extends TextWebSocketHandler {
         try {
             JsonNode node = mapper.readTree(payload);
 
+            // Log the action being processed
+            String action = node.has("action") ? node.get("action").asText() : "UNKNOWN";
+            String busNum = node.has("busNumber") ? node.get("busNumber").asText() : "N/A";
+            System.out.println("[DriverHandler] Processing action: " + action + " for bus: " + busNum);
+
             // Handle PING heartbeat — respond with PONG and update lastHeartbeatTime
             if (node.has("type") && "PING".equals(node.get("type").asText())) {
                 String pingBusNumber = node.has("busNumber") ? node.get("busNumber").asText() : null;
