@@ -501,7 +501,6 @@ body {
 }
 
 .bus-counter-widget:hover {
-  transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   background: rgba(255, 255, 255, 0.92);
 }
