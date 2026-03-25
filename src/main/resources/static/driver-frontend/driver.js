@@ -975,12 +975,8 @@ const BusInfoManager = {
         console.error("[BusInfoManager] Profile update error:", e);
       }
 
-      // If tracking is active, handle bus switch
-      if (
-        state.isTracking &&
-        state.socket &&
-        state.socket.readyState === WebSocket.OPEN
-      ) {
+      // Always notify admin/student when bus is switched (whether tracking or not)
+      if (state.socket && state.socket.readyState === WebSocket.OPEN) {
         // If switching FROM a different bus, send STOP for the previous bus first
         if (previousBusNumber && previousBusNumber !== entry.busNumber) {
           console.log(`[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`);
@@ -995,7 +991,7 @@ const BusInfoManager = {
           console.log(`[BusInfoManager] Sent STOP for bus ${previousBusNumber}`);
         }
 
-        // Now send START for the newly selected bus
+        // Now send START for the newly selected bus (regardless of tracking state)
         WebSocketController.send({
           busNumber: entry.busNumber,
           busName: entry.busName,
