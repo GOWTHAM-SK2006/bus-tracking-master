@@ -1014,7 +1014,7 @@ const BusManager = {
     });
   },
 
-  handleBusData(buses) {
+  handleBusData(buses, shouldDeleteOldBuses = false) {
     if (!buses) return;
 
     // Build a set of current bus IDs from the server update
@@ -1065,20 +1065,23 @@ const BusManager = {
       MapManager.updateBusMarker(bus);
     });
 
-    // Remove buses that are no longer reported by the server (disconnected/stopped)
-    for (const [busId] of adminState.buses) {
-      if (!currentBusIds.has(busId)) {
-        console.log(`[BusManager] Removing disconnected bus: ${busId}`);
-        adminState.buses.delete(busId);
-        // Remove marker from map
-        const marker = MapManager.markers.get(busId);
-        if (marker) {
-          marker.remove();
-          MapManager.markers.delete(busId);
-        }
-        // Close info panel if this bus was selected
-        if (adminState.selectedBusId === busId) {
-          MapManager.closeInfoPanel();
+    // Only remove buses if this is a full sync/initial load (shouldDeleteOldBuses = true)
+    // Partial updates from BUS_UPDATE should NOT delete buses
+    if (shouldDeleteOldBuses) {
+      for (const [busId] of adminState.buses) {
+        if (!currentBusIds.has(busId)) {
+          console.log(`[BusManager] Removing bus: ${busId} (full sync)`);
+          adminState.buses.delete(busId);
+          // Remove marker from map
+          const marker = MapManager.markers.get(busId);
+          if (marker) {
+            marker.remove();
+            MapManager.markers.delete(busId);
+          }
+          // Close info panel if this bus was selected
+          if (adminState.selectedBusId === busId) {
+            MapManager.closeInfoPanel();
+          }
         }
       }
     }
@@ -1336,7 +1339,8 @@ const WebSocketManager = {
             console.log(
               `[WS] BUS_UPDATE received: ${data.buses.length} buses (source: ${data.source || "unknown"})`,
             );
-            BusManager.handleBusData(data.buses);
+            // Partial update from WebSocket - don't delete other buses
+            BusManager.handleBusData(data.buses, false);
           } else if (data.action === "START" && data.busNumber) {
             // Driver selected a bus and started tracking - immediately mark it as Active
             console.log(
@@ -1496,7 +1500,8 @@ const WebSocketManager = {
         const buses = await response.json();
         if (buses && buses.length > 0) {
           console.log(`[WS] Fetched ${buses.length} initial buses via REST`);
-          BusManager.handleBusData(buses);
+          // This is a full sync from server - delete old buses
+          BusManager.handleBusData(buses, true);
         }
       }
     } catch (error) {
