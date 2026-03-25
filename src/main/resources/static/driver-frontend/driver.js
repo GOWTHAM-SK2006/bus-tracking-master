@@ -327,8 +327,9 @@ const SetupController = {
         // Sync all UI components
         ProfileController.loadProfileData();
 
-        // Start Tracking automatically
-        await TrackingController.start();
+        // DISABLED: Start Tracking automatically
+        // await TrackingController.start();
+        // Now drivers must manually click "Start Tracking" button
 
         // Transition to Dashboard
         this.finishSetup();
@@ -979,7 +980,9 @@ const BusInfoManager = {
       if (state.socket && state.socket.readyState === WebSocket.OPEN) {
         // If switching FROM a different bus, send STOP for the previous bus first
         if (previousBusNumber && previousBusNumber !== entry.busNumber) {
-          console.log(`[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`);
+          console.log(
+            `[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`,
+          );
           const stopMessage = {
             busNumber: String(previousBusNumber),
             busName: previousBusName,
@@ -990,7 +993,9 @@ const BusInfoManager = {
           };
           console.log(`[BusInfoManager] Sending STOP:`, stopMessage);
           WebSocketController.send(stopMessage);
-          console.log(`[BusInfoManager] Sent STOP for bus ${previousBusNumber}`);
+          console.log(
+            `[BusInfoManager] Sent STOP for bus ${previousBusNumber}`,
+          );
         }
 
         // Now send START for the newly selected bus (regardless of tracking state)
@@ -1012,13 +1017,15 @@ const BusInfoManager = {
         );
       } else {
         // WebSocket not available - log warning
-        const wsState = state.socket ? {
-          readyState: state.socket.readyState,
-          CONNECTING: WebSocket.CONNECTING,
-          OPEN: WebSocket.OPEN,
-          CLOSING: WebSocket.CLOSING,
-          CLOSED: WebSocket.CLOSED,
-        } : "no socket";
+        const wsState = state.socket
+          ? {
+              readyState: state.socket.readyState,
+              CONNECTING: WebSocket.CONNECTING,
+              OPEN: WebSocket.OPEN,
+              CLOSING: WebSocket.CLOSING,
+              CLOSED: WebSocket.CLOSED,
+            }
+          : "no socket";
         console.warn(
           `[BusInfoManager] Cannot send bus selection (WebSocket state: ${JSON.stringify(wsState)})`,
         );
@@ -1058,10 +1065,10 @@ const BusInfoManager = {
         const isSelected = i === selectedIdx;
         // Only show "Active" if this bus is selected AND tracking is active
         const showActive = isSelected && state.isTracking;
-        const statusHtml = showActive 
+        const statusHtml = showActive
           ? '<span class="bus-info-status active" style="color:#10b981;font-weight:600;">● Active</span>'
           : '<span class="bus-info-status inactive" style="color:#94a3b8;font-weight:600;">● Inactive</span>';
-        
+
         return `
         <div class="bus-info-entry ${isSelected ? "selected" : ""}">
           <div class="bus-info-entry-details">
