@@ -1802,30 +1802,26 @@ body {
 .panel-container {
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 12px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.12);
   pointer-events: auto;
-  width: 100%;
-  height: 100%;
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   animation: panelScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Center content for specific panels like profile */
+/* Profile panel - centered rectangle box */
 #profileView .panel-container {
-  width: auto;
+  width: 550px;
   height: auto;
-  max-width: 600px;
-  justify-content: center;
-  align-items: center;
+  max-height: 85vh;
   margin: auto;
-  padding: var(--spacing-lg);
+  border-radius: 16px;
 }
 
 @keyframes panelScale {
@@ -2054,6 +2050,16 @@ body {
     border-radius: 0;
     width: 100%;
     height: 100%;
+  }
+  
+  /* Keep profile panel as centered box on mobile */
+  #profileView .panel-container {
+    width: 85vw;
+    max-width: 500px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 12px;
+    margin: auto;
   }
 
   /* Bus info panel mobile */
@@ -2303,6 +2309,16 @@ body {
     border-radius: 0;
     width: 100%;
     height: 100%;
+  }
+  
+  /* Keep profile panel as centered box on landscape */
+  #profileView .panel-container {
+    width: 85vw;
+    max-width: 500px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 12px;
+    margin: auto;
   }
 
   .bus-counter-widget {

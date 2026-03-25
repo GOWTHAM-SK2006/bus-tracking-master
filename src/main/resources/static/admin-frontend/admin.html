@@ -1323,46 +1323,40 @@
       id="profileView"
     >
       <div class="panel-container">
+        <!-- Header with Close Button -->
         <div
           style="
             width: 100%;
-            max-width: 600px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
           "
         >
-          <div
-            class="list-header"
-            style="
-              width: 100%;
-              align-items: center;
-              margin-bottom: 30px;
-              justify-content: center;
-              position: relative;
-            "
+          <h2 style="margin: 0; font-size: 24px; font-weight: 700">
+            Administrator Profile
+          </h2>
+          <button
+            class="close-panel-btn"
+            onclick="toggleProfilePanel(false)"
+            style="flex-shrink: 0; margin-left: 20px"
           >
-            <h2 style="margin: 0">Administrator Profile</h2>
-            <button
-              class="close-panel-btn"
-              onclick="toggleProfilePanel(false)"
-              style="position: absolute; right: 0"
+            ×
+          </button>
+        </div>
+
+        <!-- Form Content -->
+        <div style="width: 100%">
+          <div style="text-align: center; margin-bottom: 40px">
+            <h1
+              style="font-size: 28px; font-weight: 700; margin: 0"
+              id="profileName"
             >
-              ×
-            </button>
+              Admin
+            </h1>
           </div>
 
-          <div style="width: 100%; max-width: 500px">
-            <div style="text-align: center; margin-bottom: 40px">
-              <h1
-                style="font-size: 28px; font-weight: 700; margin: 0"
-                id="profileName"
-              >
-                Admin
-              </h1>
-            </div>
-
-            <div style="margin-bottom: 25px">
+          <div style="margin-bottom: 25px">
               <label
                 style="
                   display: block;
