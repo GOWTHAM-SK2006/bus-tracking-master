@@ -1373,10 +1373,27 @@ const WebSocketManager = {
                 MapManager.updateInfoPanel(bus);
               }
             } else {
-              // Bus not in cache - fetch fresh data from server
+              // Bus not in cache - create a placeholder with START data and fetch full details
               console.log(
-                `[WS] Bus ${busId} not in cache, fetching fresh data from server`,
+                `[WS] Bus ${busId} not in cache, creating placeholder and fetching fresh data`,
               );
+              // Create a placeholder bus object with info from START message
+              const placeholderBus = {
+                id: data.busNumber ? parseInt(data.busNumber) : null,
+                busNumber: data.busNumber,
+                busName: data.busName || "Unknown Bus",
+                driverId: data.driverId,
+                driverName: data.driverName || "Unknown Driver",
+                driverPhone: data.driverPhone || "",
+                status: "RUNNING",
+                gpsOn: true, // Mark as Active immediately
+                latitude: 0,
+                longitude: 0,
+              };
+              adminState.buses.set(busId, placeholderBus);
+              console.log(`[WS] Created placeholder for bus ${busId}, marking as Active`);
+              BusManager.renderBusesTable();
+              // Fetch fresh full data to get coordinates and other details
               WebSocketManager.fetchInitialBuses();
             }
           } else if (data.action === "STOP" && data.busNumber) {

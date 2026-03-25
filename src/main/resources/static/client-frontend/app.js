@@ -796,7 +796,22 @@ const WebSocketManager = {
             state.buses.set(busId, bus);
             MapManager.updateMapDisplay();
           } else {
-            console.log(`[WS] Bus ${busId} not in cache on student page`);
+            // Bus not in cache - create placeholder with START data
+            console.log(`[WS] Bus ${busId} not in cache on student page, creating placeholder`);
+            const placeholderBus = {
+              busNumber: data.busNumber,
+              busName: data.busName || "Unknown Bus",
+              driverId: data.driverId,
+              driverName: data.driverName || "Unknown Driver",
+              driverPhone: data.driverPhone || "",
+              status: "RUNNING",
+              gpsOn: true, // Mark as Active immediately
+              latitude: 0,
+              longitude: 0,
+            };
+            state.buses.set(busId, placeholderBus);
+            console.log(`[WS] Created placeholder for bus ${busId}, marking as Active on student page`);
+            MapManager.updateMapDisplay();
           }
           return;
         } else if (data.action === "STOP" && data.busNumber) {
