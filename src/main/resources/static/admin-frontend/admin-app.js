@@ -1337,6 +1337,38 @@ const WebSocketManager = {
               `[WS] BUS_UPDATE received: ${data.buses.length} buses (source: ${data.source || "unknown"})`,
             );
             BusManager.handleBusData(data.buses);
+          } else if (data.action === "START" && data.busNumber) {
+            // Driver selected a bus and started tracking - immediately mark it as Active
+            console.log(
+              `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
+            );
+            const busId = String(data.busNumber);
+            if (adminState.buses.has(busId)) {
+              const bus = adminState.buses.get(busId);
+              bus.gpsOn = true; // Mark as Active immediately
+              adminState.buses.set(busId, bus);
+              BusManager.renderBusesTable();
+              // Update info panel if this bus is selected
+              if (adminState.selectedBusId === busId) {
+                MapManager.updateInfoPanel(bus);
+              }
+            }
+          } else if (data.action === "STOP" && data.busNumber) {
+            // Driver stopped tracking - mark bus as Offline
+            console.log(
+              `[WS] Driver stopped tracking bus ${data.busNumber}`,
+            );
+            const busId = String(data.busNumber);
+            if (adminState.buses.has(busId)) {
+              const bus = adminState.buses.get(busId);
+              bus.gpsOn = false; // Mark as Offline
+              adminState.buses.set(busId, bus);
+              BusManager.renderBusesTable();
+              // Update info panel if this bus was selected
+              if (adminState.selectedBusId === busId) {
+                MapManager.updateInfoPanel(bus);
+              }
+            }
           } else if (
             data.type === "BUS_CONFIG_ADDED" ||
             data.type === "BUS_CONFIG_DELETED"

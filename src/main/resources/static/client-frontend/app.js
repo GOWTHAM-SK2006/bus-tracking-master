@@ -768,6 +768,32 @@ const WebSocketManager = {
           console.log("[WS] Heartbeat PONG received");
           return;
         }
+        
+        // Handle driver bus selection START/STOP messages
+        if (data.action === "START" && data.busNumber) {
+          console.log(
+            `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
+          );
+          const busId = data.busNumber;
+          if (state.buses.has(busId)) {
+            const bus = state.buses.get(busId);
+            bus.gpsOn = true; // Mark as Active immediately
+            state.buses.set(busId, bus);
+            MapManager.updateMapDisplay();
+          }
+          return;
+        } else if (data.action === "STOP" && data.busNumber) {
+          console.log(`[WS] Driver stopped tracking bus ${data.busNumber}`);
+          const busId = data.busNumber;
+          if (state.buses.has(busId)) {
+            const bus = state.buses.get(busId);
+            bus.gpsOn = false; // Mark as Offline
+            state.buses.set(busId, bus);
+            MapManager.updateMapDisplay();
+          }
+          return;
+        }
+        
         this.handleMessage(data);
       } catch (error) {
         console.error("[WS] Parse error:", error);
