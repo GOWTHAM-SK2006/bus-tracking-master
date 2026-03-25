@@ -934,6 +934,10 @@ const BusInfoManager = {
     const entry = entries[index];
     localStorage.setItem(this.SELECTED_KEY, String(index));
 
+    // Save the previous bus number BEFORE updating state
+    const previousBusNumber = state.busNumber;
+    const previousBusName = state.busName;
+
     // Update app state
     state.busNumber = entry.busNumber;
     state.busName = entry.busName;
@@ -971,12 +975,27 @@ const BusInfoManager = {
         console.error("[BusInfoManager] Profile update error:", e);
       }
 
-      // If tracking is active, send a new START payload to update admin/student panels
+      // If tracking is active, handle bus switch
       if (
         state.isTracking &&
         state.socket &&
         state.socket.readyState === WebSocket.OPEN
       ) {
+        // If switching FROM a different bus, send STOP for the previous bus first
+        if (previousBusNumber && previousBusNumber !== entry.busNumber) {
+          console.log(`[BusInfoManager] Switching from bus ${previousBusNumber} to ${entry.busNumber}`);
+          WebSocketController.send({
+            busNumber: previousBusNumber,
+            busName: previousBusName,
+            action: "STOP",
+            driverId: driver.id,
+            driverName: driver.name || "",
+            driverPhone: driver.phone || "",
+          });
+          console.log(`[BusInfoManager] Sent STOP for bus ${previousBusNumber}`);
+        }
+
+        // Now send START for the newly selected bus
         WebSocketController.send({
           busNumber: entry.busNumber,
           busName: entry.busName,

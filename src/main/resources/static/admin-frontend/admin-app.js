@@ -1343,31 +1343,56 @@ const WebSocketManager = {
               `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
             );
             const busId = String(data.busNumber);
+            
+            // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
+            // Clear Active status from all buses first
+            adminState.buses.forEach((bus, id) => {
+              if (id !== busId) {
+                bus.gpsOn = false; // Mark all OTHER buses as Offline
+              }
+            });
+            
             if (adminState.buses.has(busId)) {
               const bus = adminState.buses.get(busId);
-              bus.gpsOn = true; // Mark as Active immediately
+              bus.gpsOn = true; // Mark the selected bus as Active
+              // Sync any updated driver info that may have changed (e.g., bus name, driver phone)
+              if (data.busName) bus.busName = data.busName;
+              if (data.driverName) bus.driverName = data.driverName;
+              if (data.driverPhone) bus.driverPhone = data.driverPhone;
               adminState.buses.set(busId, bus);
               BusManager.renderBusesTable();
               // Update info panel if this bus is selected
               if (adminState.selectedBusId === busId) {
                 MapManager.updateInfoPanel(bus);
               }
+            } else {
+              // Bus not in cache - fetch fresh data from server
+              console.log(
+                `[WS] Bus ${busId} not in cache, fetching fresh data from server`,
+              );
+              WebSocketManager.fetchInitialBuses();
             }
           } else if (data.action === "STOP" && data.busNumber) {
             // Driver stopped tracking - mark bus as Offline
-            console.log(
-              `[WS] Driver stopped tracking bus ${data.busNumber}`,
-            );
+            console.log(`[WS] Driver stopped tracking bus ${data.busNumber}`);
             const busId = String(data.busNumber);
             if (adminState.buses.has(busId)) {
               const bus = adminState.buses.get(busId);
               bus.gpsOn = false; // Mark as Offline
+              // Sync any updated driver info if included
+              if (data.busName) bus.busName = data.busName;
+              if (data.driverName) bus.driverName = data.driverName;
+              if (data.driverPhone) bus.driverPhone = data.driverPhone;
               adminState.buses.set(busId, bus);
               BusManager.renderBusesTable();
               // Update info panel if this bus was selected
               if (adminState.selectedBusId === busId) {
                 MapManager.updateInfoPanel(bus);
               }
+            } else {
+              // Bus not in cache - fetch fresh data from server
+              console.log(`[WS] Bus ${busId} not in cache, fetching fresh data from server`);
+              WebSocketManager.fetchInitialBuses();
             }
           } else if (
             data.type === "BUS_CONFIG_ADDED" ||
@@ -2037,7 +2062,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Clear any stale bus data from previous sessions before displaying anything
     adminState.buses.clear();
     adminState.selectedBusId = null;
-    
+
     // 0. Mobile Menu
     MobileMenuManager.init();
 

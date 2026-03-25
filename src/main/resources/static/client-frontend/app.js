@@ -775,9 +775,22 @@ const WebSocketManager = {
             `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
           );
           const busId = data.busNumber;
+          
+          // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
+          // Clear Active status from all buses first
+          state.buses.forEach((bus, id) => {
+            if (id !== busId) {
+              bus.gpsOn = false; // Mark all OTHER buses as Offline
+            }
+          });
+          
           if (state.buses.has(busId)) {
             const bus = state.buses.get(busId);
-            bus.gpsOn = true; // Mark as Active immediately
+            bus.gpsOn = true; // Mark the selected bus as Active
+            // Sync updated driver info if included
+            if (data.busName) bus.busName = data.busName;
+            if (data.driverName) bus.driverName = data.driverName;
+            if (data.driverPhone) bus.driverPhone = data.driverPhone;
             state.buses.set(busId, bus);
             MapManager.updateMapDisplay();
           }
