@@ -2079,6 +2079,25 @@ function updateAdminProfile() {
 // =========================================
 // Initialization
 // =========================================
+// =========================================
+// Logout on App Close
+// =========================================
+/**
+ * Handle logout when user closes the browser/app tab
+ * Clears admin session from sessionStorage
+ */
+function handleAdminLogoutOnClose() {
+  const adminData = sessionStorage.getItem("admin");
+  if (!adminData) return;
+
+  // Clear admin session data
+  sessionStorage.removeItem("admin");
+  sessionStorage.removeItem("currentUser");
+  
+  console.log("[Admin] Admin session cleared on page close");
+}
+
+// Add logout on unload handler after first DOMContentLoaded completes
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[App] Initializing Admin Panel");
   updateDebugStatus("System: Initializing Components...");
@@ -2422,6 +2441,10 @@ function showAdminToast(message, type) {
 }
 
 // Load guest code on page init
+// Logout when user closes browser/tab
+window.addEventListener("beforeunload", handleAdminLogoutOnClose);
+window.addEventListener("unload", handleAdminLogoutOnClose);
+
 document.addEventListener("DOMContentLoaded", () => {
   loadGuestCode();
 });

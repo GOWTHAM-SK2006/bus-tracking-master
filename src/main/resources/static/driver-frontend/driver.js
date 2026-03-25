@@ -2930,6 +2930,39 @@ function initApp() {
 // Start application when DOM is ready
 document.addEventListener("DOMContentLoaded", initApp);
 
+// =========================================
+// Logout on App Close
+// =========================================
+/**
+ * Handle logout when user closes the browser/app tab
+ * This prevents the "already logged in" error on re-login
+ */
+function handleLogoutOnClose() {
+  const driverData = sessionStorage.getItem("driver");
+  if (!driverData) return;
+
+  try {
+    const driver = JSON.parse(driverData);
+    if (!driver.id) return;
+
+    const logoutUrl = getApiBaseUrl() + "/api/driver/logout";
+    // Use sendBeacon for reliable delivery even as page unloads
+    navigator.sendBeacon(logoutUrl, JSON.stringify({ driverId: driver.id }));
+    
+    console.log("[Driver] Driver logout request sent on page close");
+  } catch (error) {
+    console.error("[Driver] Error logging out:", error);
+  }
+
+  // Clear session data
+  sessionStorage.removeItem("driver");
+  sessionStorage.removeItem("driverConfig");
+}
+
+// Logout when user closes browser/tab
+window.addEventListener("beforeunload", handleLogoutOnClose);
+window.addEventListener("unload", handleLogoutOnClose);
+
 // Export for debugging
 window.DriverPanel = {
   CONFIG,

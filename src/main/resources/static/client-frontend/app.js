@@ -1854,6 +1854,39 @@ async function init() {
 
 document.addEventListener("DOMContentLoaded", init);
 
+// =========================================
+// Logout on App Close
+// =========================================
+/**
+ * Handle logout when user closes the browser/app tab
+ * This prevents the "already logged in" error on re-login
+ */
+function handleLogoutOnClose() {
+  const clientData = sessionStorage.getItem("client");
+  if (!clientData) return;
+
+  try {
+    const client = JSON.parse(clientData);
+    if (!client.id) return;
+
+    const logoutUrl = getApiBaseUrl() + "/api/client/logout";
+    // Use sendBeacon for reliable delivery even as page unloads
+    navigator.sendBeacon(logoutUrl, JSON.stringify({ clientId: client.id }));
+    
+    console.log("[App] Client logout request sent on page close");
+  } catch (error) {
+    console.error("[App] Error logging out:", error);
+  }
+
+  // Clear session data
+  sessionStorage.removeItem("client");
+  sessionStorage.removeItem("currentUser");
+}
+
+// Logout when user closes browser/tab
+window.addEventListener("beforeunload", handleLogoutOnClose);
+window.addEventListener("unload", handleLogoutOnClose);
+
 // Export
 window.BusTrackApp = {
   CONFIG,
