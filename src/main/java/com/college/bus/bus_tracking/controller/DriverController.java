@@ -60,8 +60,11 @@ public class DriverController {
         try {
             String username = credentials.get("username");
             String password = credentials.get("password");
+            String deviceId = credentials.get("deviceId");
+            boolean forceLogout = Boolean.parseBoolean(credentials.getOrDefault("forceLogout", "false"));
 
             Driver driver = driverService.loginDriver(username, password);
+            driverService.checkAndCreateSession(driver.getId(), "DRIVER", deviceId, forceLogout);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

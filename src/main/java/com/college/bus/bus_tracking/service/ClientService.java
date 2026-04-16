@@ -56,28 +56,38 @@ public class ClientService {
 
         if (client.get().getPassword().equals(password)) {
             // Valid login - check for existing session
-            checkAndCreateSession(client.get().getId(), "CLIENT");
             return client.get();
         }
 
         // Check if it's a BCrypt hash
         if (passwordEncoder.matches(password, client.get().getPassword())) {
             // Valid login - check for existing session
-            checkAndCreateSession(client.get().getId(), "CLIENT");
             return client.get();
         }
 
         throw new RuntimeException("Invalid email/username or password");
     }
 
-    private void checkAndCreateSession(Long userId, String userType) {
+    public void checkAndCreateSession(Long userId, String userType, String deviceId, boolean force) {
         // Check if user already has an active session in memory
-        if (SessionStore.hasActiveSession(userId, userType)) {
-            throw new RuntimeException("User is already logged in");
+        SessionStore.SessionData existingSession = SessionStore.getSession(userId, userType);
+
+        if (existingSession != null) {
+            // If force is requested, remove the old session
+            if (force) {
+                SessionStore.removeSession(userId, userType);
+            } else {
+                // If deviceId differs, prevent login
+                if (deviceId == null || !deviceId.equals(existingSession.deviceId)) {
+                    throw new RuntimeException("User is already logged in on another device");
+                }
+                // Same device, allow (it effectively refreshes or reuses the session)
+                return;
+            }
         }
 
-        // Create new in-memory session
-        SessionStore.createSession(userId, userType);
+        // Create new in-memory session (either as a new session or replacing the forced one)
+        SessionStore.createSession(userId, userType, deviceId);
     }
 
     public void logoutClient(Long clientId) {

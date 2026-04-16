@@ -16,11 +16,13 @@ public class SessionStore {
         public String userType; // "DRIVER" or "CLIENT"
         public Long loginTime;
         public String sessionToken;
+        public String deviceId;
 
-        public SessionData(Long userId, String userType, String sessionToken) {
+        public SessionData(Long userId, String userType, String sessionToken, String deviceId) {
             this.userId = userId;
             this.userType = userType;
             this.sessionToken = sessionToken;
+            this.deviceId = deviceId;
             this.loginTime = System.currentTimeMillis();
         }
     }
@@ -36,12 +38,20 @@ public class SessionStore {
     /**
      * Create a new session for user
      */
-    public static String createSession(Long userId, String userType) {
+    public static String createSession(Long userId, String userType, String deviceId) {
         String sessionToken = generateSessionToken();
         String key = generateKey(userId, userType);
-        
-        ACTIVE_SESSIONS.put(key, new SessionData(userId, userType, sessionToken));
+
+        ACTIVE_SESSIONS.put(key, new SessionData(userId, userType, sessionToken, deviceId));
         return sessionToken;
+    }
+
+    /**
+     * Get active session for user
+     */
+    public static SessionData getSession(Long userId, String userType) {
+        String key = generateKey(userId, userType);
+        return ACTIVE_SESSIONS.get(key);
     }
 
     /**

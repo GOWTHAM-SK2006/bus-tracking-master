@@ -1,14 +1,22 @@
 package com.college.bus.bus_tracking.service;
 
 import com.college.bus.bus_tracking.entity.Driver;
+import com.college.bus.bus_tracking.entity.BusEntity;
+import com.college.bus.bus_tracking.model.BusData;
 import com.college.bus.bus_tracking.repository.BusRepository;
 import com.college.bus.bus_tracking.repository.DriverRepository;
 import com.college.bus.bus_tracking.store.BusSessionStore;
 import com.college.bus.bus_tracking.store.SessionStore;
 import com.college.bus.bus_tracking.handler.UserHandler;
+import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,7 +29,7 @@ public class DriverService {
     private BusRepository busRepository;
 
     @Autowired
-    private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private UserHandler userHandler;
@@ -63,28 +71,38 @@ public class DriverService {
 
         if (driver.get().getPassword().equals(password)) {
             // Valid login - check for existing session
-            checkAndCreateSession(driver.get().getId(), "DRIVER");
             return driver.get();
         }
 
         // Check if it's a BCrypt hash
         if (passwordEncoder.matches(password, driver.get().getPassword())) {
             // Valid login - check for existing session
-            checkAndCreateSession(driver.get().getId(), "DRIVER");
             return driver.get();
         }
 
         throw new RuntimeException("Invalid username or password");
     }
 
-    private void checkAndCreateSession(Long userId, String userType) {
+    public void checkAndCreateSession(Long userId, String userType, String deviceId, boolean force) {
         // Check if user already has an active session in memory
-        if (SessionStore.hasActiveSession(userId, userType)) {
-            throw new RuntimeException("User is already logged in");
+        SessionStore.SessionData existingSession = SessionStore.getSession(userId, userType);
+
+        if (existingSession != null) {
+            // If force is requested, remove the old session
+            if (force) {
+                SessionStore.removeSession(userId, userType);
+            } else {
+                // If deviceId differs, prevent login
+                if (deviceId == null || !deviceId.equals(existingSession.deviceId)) {
+                    throw new RuntimeException("User is already logged in on another device");
+                }
+                // Same device, allow (it effectively refreshes or reuses the session)
+                return;
+            }
         }
 
-        // Create new in-memory session
-        SessionStore.createSession(userId, userType);
+        // Create new in-memory session (either as a new session or replacing the forced one)
+        SessionStore.createSession(userId, userType, deviceId);
     }
 
     public void logoutDriver(Long driverId) {
@@ -111,7 +129,6 @@ public class DriverService {
         }
 
         Driver driver = driverOpt.get();
-        String oldBusNumber = driver.getBusNumber();
         driver.setName(name);
         driver.setPhone(phone);
         driver.setBusNumber(busNumber);
@@ -119,8 +136,8 @@ public class DriverService {
         Driver savedDriver = driverRepository.save(driver);
 
         // Update all BusEntity records assigned to this driver
-        java.util.List<com.college.bus.bus_tracking.entity.BusEntity> driverBuses = busRepository.findAllByDriverId(id);
-        for (com.college.bus.bus_tracking.entity.BusEntity busEntity : driverBuses) {
+        List<BusEntity> driverBuses = busRepository.findAllByDriverId(id);
+        for (BusEntity busEntity : driverBuses) {
             busEntity.setDriverName(name);
             busEntity.setDriverPhone(phone);
             // Update the bus name if this is the currently selected bus
@@ -130,7 +147,7 @@ public class DriverService {
             busRepository.save(busEntity);
 
             // Also update in-memory BUS_MAP
-            com.college.bus.bus_tracking.model.BusData liveData = BusSessionStore.BUS_MAP.get(busEntity.getBusNumber());
+            BusData liveData = BusSessionStore.BUS_MAP.get(busEntity.getBusNumber());
             if (liveData != null) {
                 liveData.setDriverName(name);
                 liveData.setDriverPhone(phone);
@@ -142,13 +159,13 @@ public class DriverService {
 
         // Broadcast updated bus list to admins and students
         try {
-            java.util.List<com.college.bus.bus_tracking.model.BusData> allBuses = new java.util.ArrayList<>(BusSessionStore.BUS_MAP.values());
-            java.util.Map<String, Object> update = new java.util.HashMap<>();
+            List<BusData> allBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+            Map<String, Object> update = new HashMap<>();
             update.put("type", "BUS_UPDATE");
             update.put("buses", allBuses);
             update.put("source", "DriverProfileUpdate");
             update.put("timestamp", System.currentTimeMillis());
-            com.college.bus.bus_tracking.websocket.AdminWebSocketHandler.broadcastToAdmins(update);
+            AdminWebSocketHandler.broadcastToAdmins(update);
             userHandler.broadcastUpdate();
         } catch (Exception e) {
             System.err.println("[DriverService] Failed to broadcast profile update: " + e.getMessage());
@@ -182,7 +199,6 @@ public class DriverService {
         // 1. Delete driver record
         driverRepository.deleteById(id);
 
-        // 2. Clean up associated bus data if it exists
         // 2. Clean up associated bus data if it exists
         if (busNumber != null && !busNumber.trim().isEmpty()) {
             // Remove from database

@@ -7,6 +7,20 @@
 let currentRole = "client";
 let currentTab = "signin";
 
+/**
+ * Generate or retrieve a persistent unique ID for this device/browser
+ */
+function getDeviceId() {
+  let deviceId = localStorage.getItem("bus_tracking_device_id");
+  if (!deviceId) {
+    // Generate a simple random ID if not exists
+    deviceId =
+      "dev_" + Math.random().toString(36).substring(2, 15) + "_" + Date.now();
+    localStorage.setItem("bus_tracking_device_id", deviceId);
+  }
+  return deviceId;
+}
+
 // DOM Elements
 const roleCards = document.querySelectorAll(".role-card");
 const authTabs = document.querySelectorAll(".auth-tab");
@@ -254,16 +268,50 @@ function togglePassword(inputId, btn) {
 // Alerts
 // =========================================
 
+let alertTimeout;
+
 function showError(message) {
-  errorAlert.textContent = message;
+  errorAlert.innerHTML = message;
   errorAlert.classList.add("show");
   successAlert.classList.remove("show");
+
+  // If specific already-logged-in error, add force logout button
+  if (message.includes("already logged in on another device")) {
+    const forceBtn = document.createElement("button");
+    forceBtn.textContent = "Logout from other devices";
+    forceBtn.className = "btn-inline-link";
+    forceBtn.style.marginLeft = "10px";
+    forceBtn.style.textDecoration = "underline";
+    forceBtn.style.background = "none";
+    forceBtn.style.border = "none";
+    forceBtn.style.color = "inherit";
+    forceBtn.style.cursor = "pointer";
+    forceBtn.style.fontWeight = "bold";
+
+    forceBtn.onclick = () => {
+      // Re-trigger sign in with forceLogout flag
+      const signinBtn = document.getElementById("signinBtn");
+      // Create a hidden input or just set a global flag for the submit handler
+      window.forceNextLogin = true;
+      signinBtn.click();
+    };
+
+    errorAlert.appendChild(forceBtn);
+  }
+
+  // Auto-hide after 5 seconds
+  clearTimeout(alertTimeout);
+  alertTimeout = setTimeout(hideAlerts, 5000);
 }
 
 function showSuccess(message) {
   successAlert.textContent = message;
   successAlert.classList.add("show");
   errorAlert.classList.remove("show");
+
+  // Auto-hide after 5 seconds
+  clearTimeout(alertTimeout);
+  alertTimeout = setTimeout(hideAlerts, 5000);
 }
 
 function hideAlerts() {
@@ -305,18 +353,22 @@ signinForm.addEventListener("submit", async (e) => {
     let endpoint = "";
     let body = {};
 
+    const deviceId = getDeviceId();
+    const forceLogout = window.forceNextLogin === true;
+    window.forceNextLogin = false; // Reset
+
     switch (currentRole) {
       case "client":
         endpoint = "/api/client/login";
-        body = { email: identifier, password };
+        body = { email: identifier, password, deviceId, forceLogout };
         break;
       case "driver":
         endpoint = "/api/driver/login";
-        body = { username: identifier, password };
+        body = { username: identifier, password, deviceId, forceLogout };
         break;
       case "admin":
         endpoint = "/api/admin/login";
-        body = { email: identifier, password };
+        body = { email: identifier, password, deviceId, forceLogout };
         break;
     }
 

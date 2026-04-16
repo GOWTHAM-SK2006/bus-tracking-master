@@ -56,8 +56,11 @@ public class ClientController {
                 identifier = credentials.get("email");
             }
             String password = credentials.get("password");
+            String deviceId = credentials.get("deviceId");
+            boolean forceLogout = Boolean.parseBoolean(credentials.getOrDefault("forceLogout", "false"));
 
             Client client = clientService.loginClient(identifier, password);
+            clientService.checkAndCreateSession(client.getId(), "CLIENT", deviceId, forceLogout);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
