@@ -404,78 +404,97 @@ body {
 .section-body { padding: var(--space-5); }
 
 /* =========================================
-   Buttons — Gradient Depth
+   Buttons — Unified Premium & Prominent
    ========================================= */
 .btn {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    gap: 10px; padding: 10px 24px;
     font-family: inherit; font-size: var(--text-sm);
-    font-weight: 600; line-height: var(--leading-tight);
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg); cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    box-shadow: var(--shadow-sm);
-    position: relative; overflow: hidden;
+    font-weight: 700; border-radius: 12px;
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    border: none; position: relative; overflow: hidden;
+    color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
-.btn svg { width: 18px; height: 18px; position: relative; z-index: 1; }
-.btn span { position: relative; z-index: 1; }
-.btn:focus-visible { outline: 2px solid var(--primary-500); outline-offset: 2px; }
 
 .btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-.btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.btn:active:not(:disabled) { transform: translateY(-1px) scale(0.98); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5); }
 
-.btn-sm { padding: 6px var(--space-3); font-size: var(--text-xs); border-radius: var(--radius-md); }
-.btn-lg { padding: var(--space-3) var(--space-6); font-size: var(--text-base); border-radius: var(--radius-xl); }
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
-    color: var(--text-inverse); border: none;
-    box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+/* Button Sizes */
+.btn-sm { padding: 8px 16px; font-size: 0.75rem; border-radius: 10px; }
+.btn-lg { 
+    padding: 16px 36px; font-size: 1.1rem; 
+    border-radius: 16px; letter-spacing: 0.02em;
+    min-width: 180px;
 }
 
-.btn-primary:hover:not(:disabled) {
-    box-shadow: 0 8px 25px rgba(37,99,235,0.35);
+/* Button Variants — High Contrast */
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.btn-success { background: linear-gradient(135deg, #10b981, #047857); }
+.btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.btn-warning { 
+    background: linear-gradient(135deg, #f97316, #c2410c); 
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
 }
 
-.btn-secondary {
-    background: var(--bg-surface); color: var(--text-secondary);
-    border: 1px solid var(--border-default);
+/* Action Layouts — Centered & Spaced */
+.action-buttons, .control-buttons {
+    display: flex; gap: 16px;
+    justify-content: center;
+    padding: 12px 0; border-radius: 16px;
+    margin-bottom: 20px;
 }
 
-.btn-secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-300); }
+.help-text { text-align: center; font-size: 0.9rem; color: var(--text-muted); width: 100%; margin-top: 10px; }
 
-.btn-danger {
-    background: linear-gradient(135deg, var(--danger-500), var(--danger-600));
-    color: var(--text-inverse); border: none;
-    box-shadow: 0 4px 14px rgba(239,68,68,0.25);
+/* Bus Info Entry Select Button — RIGHT ALIGNED & COMPACT */
+.bus-info-entry-actions {
+    display: flex; align-items: center; gap: 12px;
+    margin-left: auto; /* Aligns to far right */
 }
 
-.btn-danger:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(239,68,68,0.35); }
-
-.btn-success {
-    background: linear-gradient(135deg, var(--success-500), var(--success-600));
-    color: var(--text-inverse); border: none;
-    box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+.bus-info-select-btn {
+    padding: 8px 20px; border-radius: 10px;
+    font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: all 0.3s;
+    background: #f1f5f9; color: #64748b;
+    border: 1.5px solid #e2e8f0;
 }
 
-.btn-success:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(16,185,129,0.35); }
+.bus-info-select-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
 
-.btn-warning {
-    background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
-    color: var(--text-inverse); border: none;
+.bus-info-select-btn.active {
+    background: #fff; color: #ea580c;
+    border-color: #f97316;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+    font-weight: 800;
 }
 
-.btn-warning:hover:not(:disabled) { background: linear-gradient(135deg, var(--warning-600), var(--warning-500)); }
+.bus-info-delete-btn {
+    background: transparent; color: #94a3b8;
+    border: none; cursor: pointer;
+    padding: 8px; border-radius: 8px;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
 
-.action-buttons { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); }
-.help-text { font-size: var(--text-sm); color: var(--text-muted); }
+.bus-info-delete-btn:hover { background: #fee2e2; color: #ef4444; }
+
+.bus-info-entry.selected {
+    border: 2px solid #f97316;
+    background: rgba(249, 115, 22, 0.03);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+}
+
+.bus-info-entry.selected .bus-info-select-btn {
+    background: #f97316; color: white;
+    border-color: #ea580c;
+    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
 
 /* =========================================
    Forms — Premium Inputs
