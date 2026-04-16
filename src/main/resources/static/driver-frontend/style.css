@@ -497,46 +497,46 @@ body {
 }
 
 /* =========================================
-   Forms — Premium Inputs
+   Forms — Modern & Interactive
    ========================================= */
-.form { display: flex; flex-direction: column; gap: var(--space-5); }
-.form-group { display: flex; flex-direction: column; }
+.form { display: flex; flex-direction: column; gap: 24px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
 
 .form-label {
-    font-size: var(--text-sm); font-weight: 600;
-    color: var(--text-primary); margin-bottom: var(--space-2);
+    font-size: 0.95rem; font-weight: 700;
+    color: var(--text-primary); letter-spacing: 0.01em;
 }
 
-.required { color: var(--danger-500); }
+.required { color: var(--danger-500); margin-left: 2px; }
 
 .form-input {
     width: 100%;
-    padding: var(--space-3) var(--space-4);
-    font-family: inherit; font-size: var(--text-base);
+    padding: 14px 18px;
+    font-family: inherit; font-size: 1rem;
     color: var(--text-primary);
-    background: rgba(255,255,255,0.9);
-    border: 1.5px solid var(--border-default);
-    border-radius: var(--radius-md);
-    transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-.form-input::placeholder { color: var(--text-disabled); }
+.form-input::placeholder { color: #94a3b8; }
 
 .form-input:focus {
     outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 4px rgba(59,130,246,0.08), 0 4px 12px rgba(59,130,246,0.06);
+    border-color: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 4px 12px rgba(249, 115, 22, 0.08);
     transform: translateY(-1px);
-    background: white;
 }
 
-.form-input:disabled { background-color: var(--bg-muted); cursor: not-allowed; }
-.form-hint { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-1); }
+.form-input:disabled { background-color: #f8fafc; cursor: not-allowed; border-color: #f1f5f9; }
+.form-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
 .form-actions {
-    display: flex; gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--border-light);
+    display: flex; gap: 16px;
+    justify-content: center;
+    padding-top: 24px;
+    margin-top: 20px;
 }
 
 /* =========================================

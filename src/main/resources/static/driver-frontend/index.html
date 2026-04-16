@@ -454,74 +454,34 @@
               <form id="profileForm" class="form">
                 <div class="form-row form-row-grid">
                   <div class="form-group">
-                    <label class="form-label" for="profileName"
-                      >Full Name</label
-                    >
-                    <input
-                      type="text"
-                      id="profileName"
-                      class="form-input"
-                      placeholder="Your name"
-                    />
+                    <label class="form-label" for="profileName">Full Name</label>
+                    <input type="text" id="profileName" class="form-input" placeholder="Your name" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label" for="profilePhone"
-                      >Phone Number</label
-                    >
-                    <input
-                      type="tel"
-                      id="profilePhone"
-                      class="form-input"
-                      placeholder="Your phone"
-                    />
+                    <label class="form-label" for="profilePhone">Phone Number</label>
+                    <input type="tel" id="profilePhone" class="form-input" placeholder="Your phone" />
                   </div>
                 </div>
 
-                <hr
-                  style="
-                    margin: var(--space-6) 0;
-                    border: 0;
-                    border-top: 1px solid var(--border-color);
-                  "
-                />
+                <div class="section-card" style="margin: 30px -20px -20px -20px; border-radius: 0; border: none; border-top: 1px solid #e2e8f0; background: #fdfdfd;">
+                  <div class="section-header" style="background: transparent;">
+                    <h2 class="section-title">Vehicle Details</h2>
+                  </div>
+                  <div class="section-body">
+                    <div class="form-group">
+                      <label class="form-label" for="profileBusNumber">Bus Number</label>
+                      <input type="text" id="profileBusNumber" class="form-input" placeholder="Bus Registration Number" />
+                    </div>
 
-                <h3
-                  style="
-                    margin-bottom: var(--space-4);
-                    font-size: var(--text-lg);
-                    font-weight: 600;
-                  "
-                >
-                  Vehicle Details
-                </h3>
-
-                <div class="form-group">
-                  <label class="form-label" for="profileBusNumber"
-                    >Bus Number</label
-                  >
-                  <input
-                    type="text"
-                    id="profileBusNumber"
-                    class="form-input"
-                    placeholder="Bus Registration Number"
-                  />
+                    <div class="form-group" style="margin-top: 20px;">
+                      <label class="form-label" for="profileBusName">Bus/Route Name <span class="required">*</span></label>
+                      <input type="text" id="profileBusName" class="form-input" placeholder="e.g. Express Route" required />
+                    </div>
+                  </div>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label" for="profileBusName"
-                    >Bus/Route Name <span class="required">*</span></label
-                  >
-                  <input
-                    type="text"
-                    id="profileBusName"
-                    class="form-input"
-                    placeholder="e.g. Express Route"
-                    required
-                  />
-                </div>
-
-                <div class="form-actions" style="margin-top: var(--space-6)">
-                  <button type="submit" class="btn btn-primary">
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-warning btn-lg">
                     Update Profile
                   </button>
                 </div>
