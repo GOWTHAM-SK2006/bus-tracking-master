@@ -99,6 +99,9 @@ const DOM = {
 
   // Panels
 
+  get dashboardPanel() {
+    return document.getElementById("dashboardPanel");
+  },
   get busesPanel() {
     return document.getElementById("busesView");
   },
@@ -336,6 +339,8 @@ const PanelManager = {
           this.togglePanel("feedback");
         } else if (target === "profile") {
           this.togglePanel("profile");
+        } else if (target === "dashboard") {
+          this.togglePanel("dashboard");
         }
       });
     });
@@ -388,6 +393,13 @@ const PanelManager = {
         pp.classList.add("visible");
         this.updateActiveTab("profile");
         loadAdminProfile();
+      } else if (panelName === "dashboard") {
+        const dp = document.getElementById("dashboardPanel");
+        if (dp) {
+          dp.classList.add("active");
+          this.updateActiveTab("dashboard");
+          this.updateDashboardStats();
+        }
       }
     }
 
@@ -407,6 +419,8 @@ const PanelManager = {
     if (rdp) rdp.classList.remove("visible");
     if (fp) fp.classList.remove("visible");
     if (pp) pp.classList.remove("visible");
+    const dp = document.getElementById("dashboardPanel");
+    if (dp) dp.classList.remove("active");
 
     // Also close the right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
@@ -426,6 +440,29 @@ const PanelManager = {
       }
     });
   },
+
+  updateDashboardStats() {
+    const dashTotalBuses = document.getElementById("dashTotalBuses");
+    const dashActiveBuses = document.getElementById("dashActiveBuses");
+
+    if (dashTotalBuses) dashTotalBuses.textContent = adminState.buses.size;
+
+    let activeCount = 0;
+    adminState.buses.forEach(bus => {
+      if (bus.gpsOn) activeCount++;
+    });
+    if (dashActiveBuses) dashActiveBuses.textContent = activeCount;
+
+    // Update name
+    const adminSessionStr = sessionStorage.getItem("admin");
+    if (adminSessionStr) {
+      try {
+        const adminSession = JSON.parse(adminSessionStr);
+        const nameDisplay = document.getElementById("adminNameDisplayDashboard");
+        if (nameDisplay) nameDisplay.textContent = adminSession.name || "Admin";
+      } catch (e) { }
+    }
+  }
 };
 
 // =========================================
@@ -550,7 +587,7 @@ var MapManager = {
     const currentPos = marker.getLngLat();
     const distance = Math.sqrt(
       Math.pow((currentPos.lng - longitude) * 111320, 2) +
-        Math.pow((currentPos.lat - latitude) * 110540, 2),
+      Math.pow((currentPos.lat - latitude) * 110540, 2),
     );
 
     if (distance > 5) {
@@ -1089,6 +1126,11 @@ const BusManager = {
     DOM.activeBusCount.textContent = activeCount;
     if (DOM.totalBuses) DOM.totalBuses.textContent = adminState.buses.size;
 
+    // Update Dashboard Stats if it's open or about to be
+    if (typeof PanelManager !== 'undefined' && PanelManager.updateDashboardStats) {
+      PanelManager.updateDashboardStats();
+    }
+
     this.renderBusesTable();
 
     if (
@@ -1347,9 +1389,9 @@ const WebSocketManager = {
               `[WS] Driver started tracking bus ${data.busNumber} (${data.busName})`,
             );
             const busId = String(data.busNumber); // Convert to string for consistent lookup
-            
+
             console.log(`[WS] Looking for bus ID: "${busId}", current buses:`, Array.from(adminState.buses.keys()));
-            
+
             // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
             // Clear Active status from all buses first
             adminState.buses.forEach((bus, id) => {
@@ -1357,7 +1399,7 @@ const WebSocketManager = {
                 bus.gpsOn = false; // Mark all OTHER buses as Offline
               }
             });
-            
+
             if (adminState.buses.has(busId)) {
               const bus = adminState.buses.get(busId);
               console.log(`[WS] Found bus ${busId}, setting as Active`);
@@ -1945,8 +1987,8 @@ function generateBusPDF(buses, title) {
                 </thead>
                 <tbody>
                     ${buses
-                      .map(
-                        (bus) => `
+      .map(
+        (bus) => `
                         <tr>
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>${bus.busNo}</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${bus.routeName}</td>
@@ -1961,8 +2003,8 @@ function generateBusPDF(buses, title) {
                             <td style="padding: 10px; border: 1px solid #ddd;">${new Date(bus.lastUpdate).toLocaleString()}</td>
                         </tr>
                     `,
-                      )
-                      .join("")}
+      )
+      .join("")}
                 </tbody>
             </table>
             
@@ -2093,7 +2135,7 @@ function handleAdminLogoutOnClose() {
   // Clear admin session data
   sessionStorage.removeItem("admin");
   sessionStorage.removeItem("currentUser");
-  
+
   console.log("[Admin] Admin session cleared on page close");
 }
 
@@ -2249,9 +2291,9 @@ const FeedbackManager = {
     try {
       const resp = await fetch(
         getApiBaseUrl() +
-          "/api/feedback/" +
-          this.currentFeedbackId +
-          "/resolve",
+        "/api/feedback/" +
+        this.currentFeedbackId +
+        "/resolve",
         { method: "PUT" },
       );
       const data = await resp.json();
