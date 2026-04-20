@@ -24,7 +24,7 @@
 <body>
   <script>
     // Check for admin session
-    const adminSessionStr = sessionStorage.getItem("admin");
+    const adminSessionStr = localStorage.getItem("admin");
     if (!adminSessionStr) {
       window.location.href = "admin-login.html";
     } else {

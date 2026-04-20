@@ -363,8 +363,8 @@
           const data = await response.json();
 
           if (response.ok && data.success) {
-            sessionStorage.setItem("client", JSON.stringify(data.client));
-            sessionStorage.setItem("showBusLoading", "true");
+            localStorage.setItem("client", JSON.stringify(data.client));
+            localStorage.setItem("showBusLoading", "true");
             showAlert("Success! Redirecting...", "success");
             const nextPage = data.client.phoneVerified
               ? "index.html"

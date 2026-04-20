@@ -474,7 +474,7 @@ const PanelManager = {
     if (dashActiveBuses) dashActiveBuses.textContent = activeCount;
 
     // Update name
-    const adminSessionStr = sessionStorage.getItem("admin");
+    const adminSessionStr = localStorage.getItem("admin");
     if (adminSessionStr) {
       try {
         const adminSession = JSON.parse(adminSessionStr);
@@ -1911,8 +1911,8 @@ function adminLogout() {
     onConfirm: () => {
       try {
         console.log("[Logout] Clearing session data");
-        sessionStorage.removeItem("admin");
-        sessionStorage.removeItem("adminEmail");
+        localStorage.removeItem("admin");
+        localStorage.removeItem("adminEmail");
 
         if (WebSocketManager.socket) {
           console.log("[Logout] Closing WebSocket connection");
@@ -2117,7 +2117,7 @@ function mobileMenuTabClick(tabName) {
 }
 
 function loadAdminProfile() {
-  const adminData = JSON.parse(sessionStorage.getItem("admin"));
+  const adminData = JSON.parse(localStorage.getItem("admin"));
   if (adminData) {
     document.getElementById("profileName").textContent =
       adminData.name || "Admin";
@@ -2150,12 +2150,12 @@ function updateAdminProfile() {
  * Clears admin session from sessionStorage
  */
 function handleAdminLogoutOnClose() {
-  const adminData = sessionStorage.getItem("admin");
+  const adminData = localStorage.getItem("admin");
   if (!adminData) return;
 
   // Clear admin session data
-  sessionStorage.removeItem("admin");
-  sessionStorage.removeItem("currentUser");
+  localStorage.removeItem("admin");
+  localStorage.removeItem("currentUser");
 
   console.log("[Admin] Admin session cleared on page close");
 }

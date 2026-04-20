@@ -400,16 +400,16 @@ signinForm.addEventListener("submit", async (e) => {
     // Store session and redirect
     switch (currentRole) {
       case "client":
-        sessionStorage.setItem("client", JSON.stringify(data.client));
+        localStorage.setItem("client", JSON.stringify(data.client));
         window.location.href = "client-frontend/index.html";
         break;
       case "driver":
-        sessionStorage.setItem("driver", JSON.stringify(data.driver));
+        localStorage.setItem("driver", JSON.stringify(data.driver));
         window.location.href = "driver-frontend/index.html";
         break;
       case "admin":
         // Admin login is handled client-side for now as per previous logic
-        sessionStorage.setItem(
+        localStorage.setItem(
           "admin",
           JSON.stringify({
             id: 1,
@@ -951,7 +951,7 @@ async function submitGuestCode() {
 
     if (data.success) {
       // Store guest session
-      sessionStorage.setItem(
+      localStorage.setItem(
         "client",
         JSON.stringify({
           id: 0,
@@ -961,7 +961,7 @@ async function submitGuestCode() {
           isGuest: true,
         })
       );
-      sessionStorage.setItem("isGuest", "true");
+      localStorage.setItem("isGuest", "true");
       window.location.href = "client-frontend/index.html";
     } else {
       errorMsg.textContent = data.message || "Invalid access code";

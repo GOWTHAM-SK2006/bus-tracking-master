@@ -250,7 +250,7 @@ const SetupController = {
   },
 
   loadInitialData() {
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) return;
 
     const driver = JSON.parse(driverData);
@@ -276,7 +276,7 @@ const SetupController = {
       return;
     }
 
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) {
       AlertController.show(
         "Session Error",
@@ -319,7 +319,7 @@ const SetupController = {
 
       if (data.success) {
         // Update local storage and app state
-        sessionStorage.setItem("driver", JSON.stringify(data.driver));
+        localStorage.setItem("driver", JSON.stringify(data.driver));
         state.busNumber = busNumber;
         state.busName = busName;
         state.isConfigured = true;
@@ -398,7 +398,7 @@ const ProfileController = {
    * Load current driver data into profile form
    */
   loadProfileData() {
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) return;
 
     const driver = JSON.parse(driverData);
@@ -458,7 +458,7 @@ const ProfileController = {
    * Update profile details
    */
   async updateProfile() {
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) return;
 
     const driver = JSON.parse(driverData);
@@ -494,7 +494,7 @@ const ProfileController = {
 
       if (data.success) {
         // Update local storage
-        sessionStorage.setItem("driver", JSON.stringify(data.driver));
+        localStorage.setItem("driver", JSON.stringify(data.driver));
 
         // Update app state
         state.busNumber = busNumber;
@@ -542,7 +542,7 @@ const ProfileController = {
    * Delete driver account
    */
   async deleteAccount() {
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) return;
 
     const driver = JSON.parse(driverData);
@@ -571,7 +571,7 @@ const ProfileController = {
               "success",
             );
             setTimeout(() => {
-              sessionStorage.removeItem("driver");
+              localStorage.removeItem("driver");
               window.location.href = "login.html";
             }, 2000);
           } else {
@@ -641,7 +641,7 @@ const BusInfoManager = {
 
     // 1. Initial Migration (runs once if empty)
     if (entries.length === 0) {
-      const driverData = sessionStorage.getItem("driver");
+      const driverData = localStorage.getItem("driver");
       if (driverData) {
         const driver = JSON.parse(driverData);
         if (driver.busNumber && driver.busName) {
@@ -661,7 +661,7 @@ const BusInfoManager = {
 
     // 2. Sync with backend - fetch only buses assigned to THIS driver
     try {
-      const driverData2 = sessionStorage.getItem("driver");
+      const driverData2 = localStorage.getItem("driver");
       if (driverData2) {
         const driver2 = JSON.parse(driverData2);
         if (driver2.id) {
@@ -734,7 +734,7 @@ const BusInfoManager = {
     if (!modal) return;
 
     // Pre-fill driver info (read-only)
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (driverData) {
       const driver = JSON.parse(driverData);
       const nameInput = document.getElementById("modalDriverName");
@@ -793,7 +793,7 @@ const BusInfoManager = {
       return;
     }
 
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (!driverData) {
       // Offline / Unregistered - just save locally
       entries.push({ busNumber, busName, isDriverOwned: true });
@@ -945,12 +945,12 @@ const BusInfoManager = {
     state.isConfigured = true;
 
     // Update driver in sessionStorage
-    const driverData = sessionStorage.getItem("driver");
+    const driverData = localStorage.getItem("driver");
     if (driverData) {
       const driver = JSON.parse(driverData);
       driver.busNumber = entry.busNumber;
       driver.busName = entry.busName;
-      sessionStorage.setItem("driver", JSON.stringify(driver));
+      localStorage.setItem("driver", JSON.stringify(driver));
 
       // Persist to backend via profile API
       try {
@@ -970,7 +970,7 @@ const BusInfoManager = {
         );
         const data = await response.json();
         if (data.success) {
-          sessionStorage.setItem("driver", JSON.stringify(data.driver));
+          localStorage.setItem("driver", JSON.stringify(data.driver));
         }
       } catch (e) {
         console.error("[BusInfoManager] Profile update error:", e);
@@ -1180,7 +1180,7 @@ function logout() {
     btnText: "Logout",
     btnColor: "#f97316",
     onConfirm: () => {
-      sessionStorage.removeItem("driver");
+      localStorage.removeItem("driver");
       window.location.href = "login.html";
     },
   });
@@ -1627,7 +1627,7 @@ const WebSocketController = {
           this.reconnectTimeout = setTimeout(() => {
             this.connect()
               .then(() => {
-                const driverData = JSON.parse(sessionStorage.getItem("driver"));
+                const driverData = JSON.parse(localStorage.getItem("driver"));
                 const startPayload = {
                   busNumber: state.busNumber,
                   busName: state.busName,
@@ -1666,7 +1666,7 @@ const WebSocketController = {
             msg.type === "BUS_CONFIG_ADDED" ||
             msg.type === "BUS_CONFIG_DELETED"
           ) {
-            const driverData = sessionStorage.getItem("driver");
+            const driverData = localStorage.getItem("driver");
             if (driverData) {
               const currentDriverId = JSON.parse(driverData).id;
               if (msg.driverId === currentDriverId) {
@@ -1923,7 +1923,7 @@ const TrackingController = {
         watcherResult.status === "fulfilled" ? watcherResult.value : null;
 
       // Step 4: Send START action - Immediately notify server
-      const driverData = JSON.parse(sessionStorage.getItem("driver"));
+      const driverData = JSON.parse(localStorage.getItem("driver"));
       const startPayload = {
         busNumber: state.busNumber,
         busName: state.busName,
@@ -2631,7 +2631,7 @@ function initApp() {
   console.log("[Driver Panel] Initializing...");
 
   // Check Authentication
-  const driverData = sessionStorage.getItem("driver");
+  const driverData = localStorage.getItem("driver");
   if (!driverData) {
     window.location.href = "login.html";
     return;
@@ -2779,7 +2779,7 @@ function initApp() {
         WebSocketController.connect()
           .then(() => {
             // Re-send START payload to ensure backend knows we're active
-            const driverData = JSON.parse(sessionStorage.getItem("driver"));
+            const driverData = JSON.parse(localStorage.getItem("driver"));
             WebSocketController.send({
               busNumber: state.busNumber,
               busName: state.busName,
@@ -2938,7 +2938,7 @@ document.addEventListener("DOMContentLoaded", initApp);
  * This prevents the "already logged in" error on re-login
  */
 function handleLogoutOnClose() {
-  const driverData = sessionStorage.getItem("driver");
+  const driverData = localStorage.getItem("driver");
   if (!driverData) return;
 
   try {
@@ -2966,8 +2966,8 @@ function handleLogoutOnClose() {
   }
 
   // Clear session data
-  sessionStorage.removeItem("driver");
-  sessionStorage.removeItem("driverConfig");
+  localStorage.removeItem("driver");
+  localStorage.removeItem("driverConfig");
 }
 
 // Logout when user closes browser/tab

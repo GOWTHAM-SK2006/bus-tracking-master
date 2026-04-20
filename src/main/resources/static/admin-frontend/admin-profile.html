@@ -93,7 +93,7 @@
 
 <body>
     <script>
-        const adminSession = sessionStorage.getItem('admin');
+        const adminSession = localStorage.getItem('admin');
         if (!adminSession) {
             window.location.href = 'admin-login.html';
         }
@@ -137,7 +137,7 @@
     </div>
 
     <script>
-        const adminData = JSON.parse(sessionStorage.getItem('admin'));
+        const adminData = JSON.parse(localStorage.getItem('admin'));
         if (adminData) {
             document.getElementById('profileName').textContent = adminData.name || 'Admin';
             document.getElementById('adminEmail').value = adminData.email || '';

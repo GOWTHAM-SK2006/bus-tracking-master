@@ -213,7 +213,7 @@
 
                 if (response.ok && data.success) {
                     // Client login successful
-                    sessionStorage.setItem('client', JSON.stringify(data.client));
+                    localStorage.setItem('client', JSON.stringify(data.client));
                     showAlert('Success! Redirecting...', 'success');
 
                     setTimeout(() => {
@@ -238,7 +238,7 @@
 
                 if (response.ok && data.success) {
                     // Driver login successful
-                    sessionStorage.setItem('driver', JSON.stringify(data.driver));
+                    localStorage.setItem('driver', JSON.stringify(data.driver));
                     showAlert('Success! Redirecting...', 'success');
 
                     setTimeout(() => {
@@ -262,7 +262,7 @@
 
                 if (response.ok && data.success) {
                     // Admin login successful
-                    sessionStorage.setItem('admin', JSON.stringify(data.admin));
+                    localStorage.setItem('admin', JSON.stringify(data.admin));
                     showAlert('Success! Redirecting...', 'success');
 
                     setTimeout(() => {

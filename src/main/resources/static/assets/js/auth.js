@@ -42,7 +42,7 @@ const AuthManager = {
                 // Admin uses client-side authentication (no backend API)
                 // Credentials: admin@college.com / admin123
                 if (username === 'admin@college.com' && password === 'admin123') {
-                    sessionStorage.setItem('admin', JSON.stringify({
+                    localStorage.setItem('admin', JSON.stringify({
                         id: 1,
                         name: 'Admin',
                         email: username,
@@ -74,7 +74,7 @@ const AuthManager = {
             if (data.success || response.ok) {
                 // Store session data
                 const sessionKey = role === 'driver' ? 'driver' : 'client';
-                sessionStorage.setItem(sessionKey, JSON.stringify({
+                localStorage.setItem(sessionKey, JSON.stringify({
                     username: username,
                     role: role,
                     ...data

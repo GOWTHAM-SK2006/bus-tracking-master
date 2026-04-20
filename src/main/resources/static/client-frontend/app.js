@@ -1191,7 +1191,7 @@ const SearchManager = {
 
   initWelcomeSearch() {
     // If the user already has a saved bus stop, auto-apply it and skip the modal
-    const clientData = sessionStorage.getItem("client");
+    const clientData = localStorage.getItem("client");
     if (clientData) {
       try {
         const client = JSON.parse(clientData);
@@ -1304,7 +1304,7 @@ const SearchManager = {
 
     DOM.searchClear.addEventListener("click", () => {
       // Reset to saved bus stop filter if available, otherwise show all
-      const clientData = sessionStorage.getItem("client");
+      const clientData = localStorage.getItem("client");
       let defaultFilter = "";
       if (clientData) {
         try {
@@ -1465,7 +1465,7 @@ const SearchManager = {
   },
 
   async saveBusStop(stopName) {
-    const client = JSON.parse(sessionStorage.getItem("client"));
+    const client = JSON.parse(localStorage.getItem("client"));
     if (!client) return;
 
     try {
@@ -1484,7 +1484,7 @@ const SearchManager = {
 
       if (data.success) {
         // Update session storage
-        sessionStorage.setItem("client", JSON.stringify(data.client));
+        localStorage.setItem("client", JSON.stringify(data.client));
         showToast(`Saved ${stopName} as your original bus stop!`, "success");
         DOM.searchDropdown.classList.remove("active");
 
@@ -1820,7 +1820,7 @@ async function init() {
     });
 
     // Load and display username and profile picture
-    const clientData = sessionStorage.getItem("client");
+    const clientData = localStorage.getItem("client");
     if (clientData) {
       try {
         const client = JSON.parse(clientData);
@@ -1862,7 +1862,7 @@ document.addEventListener("DOMContentLoaded", init);
  * This prevents the "already logged in" error on re-login
  */
 function handleLogoutOnClose() {
-  const clientData = sessionStorage.getItem("client");
+  const clientData = localStorage.getItem("client");
   if (!clientData) return;
 
   try {
@@ -1890,8 +1890,8 @@ function handleLogoutOnClose() {
   }
 
   // Clear session data
-  sessionStorage.removeItem("client");
-  sessionStorage.removeItem("currentUser");
+  localStorage.removeItem("client");
+  localStorage.removeItem("currentUser");
 }
 
 // Logout when user closes browser/tab

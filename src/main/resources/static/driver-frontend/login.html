@@ -378,7 +378,7 @@
           const data = await response.json();
 
           if (response.ok && data.success) {
-            sessionStorage.setItem("driver", JSON.stringify(data.driver));
+            localStorage.setItem("driver", JSON.stringify(data.driver));
             showAlert("Success! Redirecting...", "success");
             setTimeout(() => {
               window.location.href = "index.html";

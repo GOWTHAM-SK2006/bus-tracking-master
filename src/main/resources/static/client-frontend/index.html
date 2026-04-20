@@ -34,7 +34,7 @@
   <body>
     <script>
       // Check for session immediately
-      const clientSession = sessionStorage.getItem("client");
+      const clientSession = localStorage.getItem("client");
       if (!clientSession) {
         window.location.href = "login.html";
       }
@@ -277,8 +277,8 @@
     <script>
       (function() {
         const loadingScreen = document.getElementById('busLoadingScreen');
-        if (sessionStorage.getItem('showBusLoading') === 'true') {
-          sessionStorage.removeItem('showBusLoading');
+        if (localStorage.getItem('showBusLoading') === 'true') {
+          localStorage.removeItem('showBusLoading');
           loadingScreen.style.display = 'flex';
           setTimeout(function() {
             loadingScreen.style.opacity = '0';
@@ -1282,7 +1282,7 @@
     <!-- Guest User Restrictions -->
     <script>
       (function applyGuestRestrictions() {
-        const isGuest = sessionStorage.getItem("isGuest") === "true";
+        const isGuest = localStorage.getItem("isGuest") === "true";
         if (!isGuest) return;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -1359,14 +1359,14 @@
           btnText: "Logout",
           btnColor: "#f97316",
           onConfirm: () => {
-            sessionStorage.removeItem("client");
+            localStorage.removeItem("client");
             window.location.href = "login.html";
           },
         });
       }
 
       // Display profile photo in bottom nav from session
-      const client = JSON.parse(sessionStorage.getItem("client"));
+      const client = JSON.parse(localStorage.getItem("client"));
       if (client && client.profilePicture) {
         const navPhoto = document.getElementById("navProfilePhoto");
         if (navPhoto) {
@@ -1468,7 +1468,7 @@
         },
 
         loadProfile() {
-          const c = JSON.parse(sessionStorage.getItem("client"));
+          const c = JSON.parse(localStorage.getItem("client"));
           if (!c) return;
 
           document.getElementById("profileName").value = c.name || "";
@@ -1536,7 +1536,7 @@
 
         async saveProfile() {
           const btn = document.getElementById("profileSaveBtn");
-          const c = JSON.parse(sessionStorage.getItem("client"));
+          const c = JSON.parse(localStorage.getItem("client"));
           if (!c) return;
 
           const name = document.getElementById("profileName").value.trim();
@@ -1557,7 +1557,7 @@
                // Async save bus route alongside profile
                window.BusTrackApp.SearchManager.saveBusStop(busRoute);
                c.savedBusStop = busRoute;
-               sessionStorage.setItem("client", JSON.stringify(c));
+               localStorage.setItem("client", JSON.stringify(c));
                
                // Apply filter and switch Map immediately for better UX
                window.BusTrackApp.state.searchFilter = busRoute;
@@ -1577,7 +1577,7 @@
             });
             const result = await res.json();
             if (result.success) {
-              sessionStorage.setItem("client", JSON.stringify(result.client));
+              localStorage.setItem("client", JSON.stringify(result.client));
               this.loadProfile();
               // Update nav photo
               const navPhoto = document.getElementById("navProfilePhoto");
@@ -1610,7 +1610,7 @@
             btnText: "Remove",
             btnColor: "#ef4444",
             onConfirm: async () => {
-              const c = JSON.parse(sessionStorage.getItem("client"));
+              const c = JSON.parse(localStorage.getItem("client"));
               if (!c) return;
               try {
                 const res = await fetch(
@@ -1626,7 +1626,7 @@
                 );
                 const result = await res.json();
                 if (result.success) {
-                  sessionStorage.setItem(
+                  localStorage.setItem(
                     "client",
                     JSON.stringify(result.client),
                   );
@@ -1655,7 +1655,7 @@
             btnText: "Delete Account",
             btnColor: "#ef4444",
             onConfirm: async () => {
-              const c = JSON.parse(sessionStorage.getItem("client"));
+              const c = JSON.parse(localStorage.getItem("client"));
               if (!c) return;
               try {
                 const res = await fetch(
@@ -1664,7 +1664,7 @@
                 );
                 const result = await res.json();
                 if (result.success) {
-                  sessionStorage.removeItem("client");
+                  localStorage.removeItem("client");
                   window.location.href = "login.html";
                 } else {
                   this.showAlert(result.message || "Delete failed", "error");
@@ -1766,7 +1766,7 @@
       function openFeedbackModal() {
         const busNo = document.getElementById('panelBusNo').textContent;
         const busRoute = document.getElementById('panelBusRoute').textContent.replace('Route: ', '');
-        const client = JSON.parse(sessionStorage.getItem('client') || '{}');
+        const client = JSON.parse(localStorage.getItem('client') || '{}');
 
         document.getElementById('fbBusNumber').value = busNo || '';
         document.getElementById('fbRouteName').value = busRoute || '';
