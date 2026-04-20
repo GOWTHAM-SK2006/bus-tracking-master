@@ -1597,6 +1597,7 @@ const WebSocketManager = {
 // =========================================
 function updateConnectionBadge(isConnected, customText) {
   const badge = DOM.connectionBadge;
+  if (!badge) return;
   const dot = badge.querySelector(".badge-dot");
   const text = badge.querySelector(".badge-text");
 

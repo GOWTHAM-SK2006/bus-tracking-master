@@ -2688,7 +2688,7 @@ body {
 }
 
 .dashboard-panel-header {
-  padding: 24px 40px;
+  padding: 48px 40px 24px;
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
