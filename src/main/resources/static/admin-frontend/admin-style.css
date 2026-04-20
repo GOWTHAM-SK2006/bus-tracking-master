@@ -468,126 +468,40 @@ body {
 /* =========================================
    Guest Access Widget (Admin)
    ========================================= */
-.guest-access-widget {
-  position: fixed;
-  bottom: 104px;
-  left: 284px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: var(--shadow-md);
-  font-family: "Inter", system-ui, sans-serif;
-  z-index: 1000;
-  transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-  min-width: 190px;
+/* =========================================
+   Guest Access Management Panel Styles
+   ========================================= */
+.guest-access-card-large {
+  width: 100%;
+  max-width: 500px;
+  padding: 40px;
+  border-radius: 24px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
 }
 
-.guest-access-widget:hover {
-  box-shadow: var(--shadow-lg);
-  background: rgba(255, 255, 255, 0.95);
+.guest-access-card-large:hover {
+  transform: translateY(-5px);
+  background: #ffffff;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
 }
 
-.guest-widget-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.code-box:hover .code-value-large {
+  letter-spacing: 0.15em;
+  transform: scale(1.02);
 }
 
-.guest-widget-icon {
-  font-size: 16px;
+.code-value-large {
+  transition: all 0.3s ease;
+  display: inline-block;
 }
 
-.guest-widget-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #64748b;
-}
-
-.guest-widget-body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.guest-code-display {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.guest-code-label {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.guest-code-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  font-family: "SF Mono", "Fira Code", monospace;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.guest-code-timer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.guest-timer-label {
-  font-size: 0.7rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.guest-timer-value {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #f59e0b;
-}
-
-.guest-regenerate-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: linear-gradient(135deg,
-      rgba(124, 58, 237, 0.08),
-      rgba(236, 72, 153, 0.06));
-  border: 1px solid rgba(124, 58, 237, 0.15);
-  border-radius: 8px;
-  color: #7c3aed;
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.guest-regenerate-btn:hover {
-  background: linear-gradient(135deg,
-      rgba(124, 58, 237, 0.15),
-      rgba(236, 72, 153, 0.1));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
-}
-
-.guest-regenerate-btn:active {
-  transform: scale(0.97);
+@media (max-width: 480px) {
+  .code-value-large {
+    font-size: 2.5rem !important;
+  }
 }
 
 .toggle-slider {

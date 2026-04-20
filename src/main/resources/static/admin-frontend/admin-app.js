@@ -108,6 +108,9 @@ const DOM = {
   get exportPanel() {
     return document.getElementById("exportView");
   },
+  get guestAccessPanel() {
+    return document.getElementById("guestAccessView");
+  },
   get closePanelBtns() {
     return document.querySelectorAll(".close-panel-btn");
   },
@@ -341,6 +344,8 @@ const PanelManager = {
           this.togglePanel("profile");
         } else if (target === "dashboard") {
           this.togglePanel("dashboard");
+        } else if (target === "guest-access") {
+          this.togglePanel("guest-access");
         }
       });
     });
@@ -378,8 +383,9 @@ const PanelManager = {
       DOM.routeDetailsPanel.classList.add("visible");
       this.updateActiveTab("routes");
     } else if (panelName === "export" && DOM.exportPanel) {
-      DOM.exportPanel.classList.add("visible");
-      this.updateActiveTab("export");
+      DOM.exportPanel.classList.add("active");
+    } else if (panelName === "guest-access" && DOM.guestAccessPanel) {
+      DOM.guestAccessPanel.classList.add("active");
     } else if (panelName === "feedback") {
       const fp = document.getElementById("feedbackView");
       if (fp) {

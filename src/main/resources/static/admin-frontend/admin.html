@@ -99,6 +99,12 @@
         </svg>
         <span>Export</span>
       </button>
+      <button class="bottom-nav-btn" data-tab="guest-access">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3L15.5 7.5z"></path>
+        </svg>
+        <span>Guest Access</span>
+      </button>
       <button class="bottom-nav-btn" data-tab="profile">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -292,30 +298,6 @@
 
     <!-- Bottom Widgets Container -->
     <div class="bottom-widgets-container">
-      <!-- Guest Access Widget (Left) -->
-      <div class="guest-access-widget hover-scale animate-float-delayed" id="guestAccessWidget">
-        <div class="guest-widget-header">
-          <span class="guest-widget-icon">🔑</span>
-          <span class="guest-widget-title">Guest Access</span>
-        </div>
-        <div class="guest-widget-body">
-          <div class="guest-code-display">
-            <span class="guest-code-label">Code</span>
-            <span class="guest-code-value" id="guestCodeDisplay">------</span>
-          </div>
-          <div class="guest-code-timer">
-            <span class="guest-timer-label">Expires in</span>
-            <span class="guest-timer-value" id="guestCodeTimer">--h --m</span>
-          </div>
-        </div>
-        <button class="guest-regenerate-btn" id="guestRegenerateBtn" onclick="regenerateGuestCode()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-          </svg>
-          Regenerate Code
-        </button>
-      </div>
 
       <!-- Active Bus Counter Widget (Right) -->
       <div class="bus-counter-widget hover-scale animate-float">
@@ -642,6 +624,56 @@
               <!-- Feedback rows populated by JS -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guest Access Panel -->
+    <section class="floating-panel panel-glass animate-fade-in-up" id="guestAccessView">
+      <div class="panel-container">
+        <div class="list-header" style="align-items: center">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h2>Guest Access Management</h2>
+            <span class="list-count">Temporary Access Codes</span>
+          </div>
+          <button class="close-panel-btn" onclick="PanelManager.closeAllPanels()">
+            ×
+          </button>
+        </div>
+        
+        <div class="guest-management-content" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
+          <div class="guest-access-card-large panel-glass">
+            <div class="guest-card-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+              <div class="card-icon" style="font-size: 2rem;">🔑</div>
+              <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Current Access Code</h3>
+            </div>
+            
+            <div class="guest-card-body" style="text-align: center; margin-bottom: 30px;">
+              <div class="code-box" style="background: rgba(249, 115, 22, 0.05); border: 2px dashed rgba(249, 115, 22, 0.2); border-radius: 16px; padding: 30px 40px; margin-bottom: 20px; position: relative;">
+                <span class="code-value-large" id="guestCodeDisplay" style="font-size: 3.5rem; font-weight: 800; letter-spacing: 0.1em; font-family: 'SF Mono', 'Fira Code', monospace; background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">------</span>
+                <span class="code-status-badge" style="position: absolute; top: -12px; right: 20px; background: var(--success); color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">ACTIVE</span>
+              </div>
+              
+              <div class="expiry-timer-large" style="display: flex; flex-direction: column; gap: 6px;">
+                <span class="timer-label" style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">This code will expire in:</span>
+                <span class="timer-value-large" id="guestCodeTimer" style="font-size: 1.4rem; font-weight: 700; color: #f59e0b;">--h --m</span>
+              </div>
+            </div>
+            
+            <div class="guest-card-actions" style="width: 100%;">
+              <button class="btn btn-primary" id="guestRegenerateBtn" onclick="regenerateGuestCode()" style="width: 100%; justify-content: center; gap: 10px; padding: 16px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Regenerate New Access Code
+              </button>
+            </div>
+          </div>
+          
+          <div class="guest-notice panel-glass" style="max-width: 480px; padding: 20px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.1); line-height: 1.6;">
+            <p style="margin: 0;"><strong>Security Note:</strong> Guest access codes allow temporary live tracking access for public users. Regenerating a code will immediately invalidate the previous one. Each code is valid for 24 hours.</p>
+          </div>
         </div>
       </div>
     </section>
