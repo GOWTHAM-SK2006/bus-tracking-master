@@ -1181,6 +1181,8 @@ function logout() {
     btnColor: "#f97316",
     onConfirm: () => {
       localStorage.removeItem("driver");
+      localStorage.removeItem("driverConfig");
+      localStorage.removeItem("currentUser");
       window.location.href = "login.html";
     },
   });
@@ -2929,50 +2931,6 @@ function initApp() {
 
 // Start application when DOM is ready
 document.addEventListener("DOMContentLoaded", initApp);
-
-// =========================================
-// Logout on App Close
-// =========================================
-/**
- * Handle logout when user closes the browser/app tab
- * This prevents the "already logged in" error on re-login
- */
-function handleLogoutOnClose() {
-  const driverData = localStorage.getItem("driver");
-  if (!driverData) return;
-
-  try {
-    const driver = JSON.parse(driverData);
-    if (!driver.id) return;
-
-    const logoutUrl = getApiBaseUrl() + "/api/driver/logout";
-    
-    // Use fetch with keepalive to ensure request completes even during page unload
-    // keepalive is more reliable than sendBeacon for JSON requests
-    fetch(logoutUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ driverId: driver.id }),
-      keepalive: true
-    }).catch(() => {
-      // Silently ignore errors - page is closing anyway
-    });
-    
-    console.log("[Driver] Driver logout request sent on page close");
-  } catch (error) {
-    console.error("[Driver] Error logging out:", error);
-  }
-
-  // Clear session data
-  localStorage.removeItem("driver");
-  localStorage.removeItem("driverConfig");
-}
-
-// Logout when user closes browser/tab
-window.addEventListener("beforeunload", handleLogoutOnClose);
-window.addEventListener("unload", handleLogoutOnClose);
 
 // Export for debugging
 window.DriverPanel = {

@@ -26,6 +26,15 @@
   </head>
 
   <body>
+    <script>
+      // Immediate Driver Session Check
+      (function() {
+        const driverSession = localStorage.getItem("driver");
+        if (!driverSession) {
+          window.location.href = "login.html";
+        }
+      })();
+    </script>
     <!-- Top Navigation Bar -->
     <header class="navbar">
       <div class="navbar-container">

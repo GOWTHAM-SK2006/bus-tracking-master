@@ -1913,6 +1913,7 @@ function adminLogout() {
         console.log("[Logout] Clearing session data");
         localStorage.removeItem("admin");
         localStorage.removeItem("adminEmail");
+        localStorage.removeItem("currentUser");
 
         if (WebSocketManager.socket) {
           console.log("[Logout] Closing WebSocket connection");
@@ -2142,25 +2143,7 @@ function updateAdminProfile() {
 // =========================================
 // Initialization
 // =========================================
-// =========================================
-// Logout on App Close
-// =========================================
-/**
- * Handle logout when user closes the browser/app tab
- * Clears admin session from sessionStorage
- */
-function handleAdminLogoutOnClose() {
-  const adminData = localStorage.getItem("admin");
-  if (!adminData) return;
-
-  // Clear admin session data
-  localStorage.removeItem("admin");
-  localStorage.removeItem("currentUser");
-
-  console.log("[Admin] Admin session cleared on page close");
-}
-
-// Add logout on unload handler after first DOMContentLoaded completes
+// Add initialization handler
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[App] Initializing Admin Panel");
   updateDebugStatus("System: Initializing Components...");

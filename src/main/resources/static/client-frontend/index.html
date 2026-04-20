@@ -1360,6 +1360,7 @@
           btnColor: "#f97316",
           onConfirm: () => {
             localStorage.removeItem("client");
+            localStorage.removeItem("currentUser");
             window.location.href = "login.html";
           },
         });

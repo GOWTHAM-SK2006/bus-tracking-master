@@ -1854,50 +1854,6 @@ async function init() {
 
 document.addEventListener("DOMContentLoaded", init);
 
-// =========================================
-// Logout on App Close
-// =========================================
-/**
- * Handle logout when user closes the browser/app tab
- * This prevents the "already logged in" error on re-login
- */
-function handleLogoutOnClose() {
-  const clientData = localStorage.getItem("client");
-  if (!clientData) return;
-
-  try {
-    const client = JSON.parse(clientData);
-    if (!client.id) return;
-
-    const logoutUrl = getApiBaseUrl() + "/api/client/logout";
-    
-    // Use fetch with keepalive to ensure request completes even during page unload
-    // keepalive is more reliable than sendBeacon for JSON requests
-    fetch(logoutUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ clientId: client.id }),
-      keepalive: true
-    }).catch(() => {
-      // Silently ignore errors - page is closing anyway
-    });
-    
-    console.log("[App] Client logout request sent on page close");
-  } catch (error) {
-    console.error("[App] Error logging out:", error);
-  }
-
-  // Clear session data
-  localStorage.removeItem("client");
-  localStorage.removeItem("currentUser");
-}
-
-// Logout when user closes browser/tab
-window.addEventListener("beforeunload", handleLogoutOnClose);
-window.addEventListener("unload", handleLogoutOnClose);
-
 // Export
 window.BusTrackApp = {
   CONFIG,
