@@ -2177,6 +2177,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 5. Default view is map
     updateDebugStatus("Ready!");
+    
+    // Set Dashboard as default view
+    PanelManager.togglePanel('dashboard');
 
     adminState.isInitialized = true;
     updateDebugStatus("System: Operational", "success");
