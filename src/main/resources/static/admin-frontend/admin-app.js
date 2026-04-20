@@ -393,13 +393,13 @@ const PanelManager = {
         pp.classList.add("visible");
         this.updateActiveTab("profile");
         loadAdminProfile();
-      } else if (panelName === "dashboard") {
-        const dp = document.getElementById("dashboardPanel");
-        if (dp) {
-          dp.classList.add("active");
-          this.updateActiveTab("dashboard");
-          this.updateDashboardStats();
-        }
+      }
+    } else if (panelName === "dashboard") {
+      const dp = document.getElementById("dashboardPanel");
+      if (dp) {
+        dp.classList.add("active");
+        this.updateActiveTab("dashboard");
+        this.updateDashboardStats();
       }
     }
 
