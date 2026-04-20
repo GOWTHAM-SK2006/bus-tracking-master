@@ -284,68 +284,99 @@
         </div>
 
         <div class="dashboard-panel-body">
-          <!-- Summary Stats -->
-          <div class="dashboard-section">
-            <h3 class="dashboard-section-title">System Overview</h3>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-value" id="dashTotalBuses">0</div>
-                <div class="stat-label">Total Buses</div>
+          <div class="dashboard-container">
+            <!-- Summary Stats -->
+            <div class="dashboard-section animate-fade-in-up">
+              <div class="section-flex">
+                <h3 class="dashboard-section-title">System Overview</h3>
+                <span class="live-indicator">
+                  <span class="status-dot"></span> Live System
+                </span>
               </div>
-              <div class="stat-card">
-                <div class="stat-value" id="dashActiveBuses" style="color: var(--primary);">0</div>
-                <div class="stat-label">Live Buses</div>
+              <div class="stats-grid">
+                <div class="stat-card glass-card">
+                  <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary-light);">📊
+                  </div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="dashTotalBuses">0</div>
+                    <div class="stat-label">Total Registered Buses</div>
+                  </div>
+                </div>
+                <div class="stat-card glass-card">
+                  <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">🚌</div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="dashActiveBuses">0</div>
+                    <div class="stat-label">Buses Currently Live</div>
+                  </div>
+                </div>
+                <div class="stat-card glass-card">
+                  <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">⚡</div>
+                  <div class="stat-info">
+                    <div class="stat-value">99.9%</div>
+                    <div class="stat-label">System Uptime</div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Quick Navigation -->
-          <div class="dashboard-section">
-            <h3 class="dashboard-section-title">Quick Access</h3>
-            <div class="dashboard-menu">
-              <a href="#" class="dash-menu-item"
-                onclick="mobileMenuTabClick('map'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                <span class="dash-menu-icon"
-                  style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">📍</span>
-                <div class="dash-menu-text">
-                  <h4>Live Tracking Map</h4>
-                  <p>View real-time locations</p>
-                </div>
-              </a>
-              <a href="#" class="dash-menu-item"
-                onclick="mobileMenuTabClick('buses'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                <span class="dash-menu-icon"
-                  style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">🚌</span>
-                <div class="dash-menu-text">
-                  <h4>Bus Details</h4>
-                  <p>Manage and view bus status</p>
-                </div>
-              </a>
-              <a href="#" class="dash-menu-item"
-                onclick="mobileMenuTabClick('routes'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                <span class="dash-menu-icon"
-                  style="background: rgba(16, 185, 129, 0.1); color: var(--success);">🗺️</span>
-                <div class="dash-menu-text">
-                  <h4>Routes</h4>
-                  <p>Manage service paths</p>
-                </div>
-              </a>
-              <a href="#" class="dash-menu-item"
-                onclick="mobileMenuTabClick('feedback'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                <span class="dash-menu-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">🔔</span>
-                <div class="dash-menu-text">
-                  <h4>Feedback</h4>
-                  <p>Student issue reports</p>
-                </div>
-              </a>
-              <a href="#" class="dash-menu-item"
-                onclick="mobileMenuTabClick('export'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                <span class="dash-menu-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">📄</span>
-                <div class="dash-menu-text">
-                  <h4>Export Reports</h4>
-                  <p>Download analytical data</p>
-                </div>
-              </a>
+            <!-- Quick Navigation -->
+            <div class="dashboard-section animate-fade-in-up-delayed">
+              <h3 class="dashboard-section-title">Quick Access & Management</h3>
+              <div class="dashboard-menu">
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('map'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon"
+                    style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">📍</span>
+                  <div class="dash-menu-text">
+                    <h4>Live Tracking Map</h4>
+                    <p>Real-time fleet monitoring</p>
+                  </div>
+                </a>
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('buses'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon"
+                    style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">🚌</span>
+                  <div class="dash-menu-text">
+                    <h4>Bus Details</h4>
+                    <p>Manage fleet configurations</p>
+                  </div>
+                </a>
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('routes'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon"
+                    style="background: rgba(16, 185, 129, 0.1); color: var(--success);">🗺️</span>
+                  <div class="dash-menu-text">
+                    <h4>Routes</h4>
+                    <p>Route optimization & paths</p>
+                  </div>
+                </a>
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('feedback'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon"
+                    style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">🔔</span>
+                  <div class="dash-menu-text">
+                    <h4>Feedback</h4>
+                    <p>Student safety & issue logs</p>
+                  </div>
+                </a>
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('export'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">📄</span>
+                  <div class="dash-menu-text">
+                    <h4>Export Reports</h4>
+                    <p>Analytical data downloads</p>
+                  </div>
+                </a>
+                <a href="#" class="dash-menu-item glass-card"
+                  onclick="mobileMenuTabClick('profile'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
+                  <span class="dash-menu-icon"
+                    style="background: rgba(71, 85, 105, 0.1); color: var(--text-dark);">👤</span>
+                  <div class="dash-menu-text">
+                    <h4>Admin Profile</h4>
+                    <p>Account settings & preferences</p>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>
