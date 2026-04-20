@@ -20,6 +20,23 @@
 
     <!-- Splash Screen -->
     <link rel="stylesheet" href="splash.css" />
+
+    <script>
+      // Immediate Session Redirection
+      (function() {
+        const admin = localStorage.getItem("admin");
+        const driver = localStorage.getItem("driver");
+        const client = localStorage.getItem("client");
+
+        if (admin) {
+          window.location.href = 'admin-frontend/admin.html';
+        } else if (driver) {
+          window.location.href = 'driver-frontend/index.html';
+        } else if (client) {
+          window.location.href = 'client-frontend/index.html';
+        }
+      })();
+    </script>
   </head>
 
   <body>
