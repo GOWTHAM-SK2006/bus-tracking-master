@@ -383,9 +383,11 @@ const PanelManager = {
       DOM.routeDetailsPanel.classList.add("visible");
       this.updateActiveTab("routes");
     } else if (panelName === "export" && DOM.exportPanel) {
-      DOM.exportPanel.classList.add("active");
+      DOM.exportPanel.classList.add("visible");
+      this.updateActiveTab("export");
     } else if (panelName === "guest-access" && DOM.guestAccessPanel) {
-      DOM.guestAccessPanel.classList.add("active");
+      DOM.guestAccessPanel.classList.add("visible");
+      this.updateActiveTab("guest-access");
     } else if (panelName === "feedback") {
       const fp = document.getElementById("feedbackView");
       if (fp) {
@@ -419,12 +421,14 @@ const PanelManager = {
     const rdp = DOM.routeDetailsPanel;
     const fp = document.getElementById("feedbackView");
     const pp = document.getElementById("profileView");
+    const gap = document.getElementById("guestAccessView");
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
     if (rp) rp.classList.remove("visible");
     if (rdp) rdp.classList.remove("visible");
     if (fp) fp.classList.remove("visible");
     if (pp) pp.classList.remove("visible");
+    if (gap) gap.classList.remove("visible");
     const dp = document.getElementById("dashboardPanel");
     if (dp) dp.classList.remove("active");
 

@@ -1776,11 +1776,12 @@ body {
 .floating-panel {
   position: fixed;
   top: 64px;
-  left: 0;
+  left: 260px;
   right: 0;
-  bottom: 60px;
-  background: rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(4px);
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   z-index: 1000;
   pointer-events: none;
   display: none;
@@ -2625,8 +2626,8 @@ body {
 .dashboard-panel {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: 260px;
+  width: calc(100% - 260px);
   height: 100vh;
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.95);
@@ -2642,6 +2643,19 @@ body {
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
+}
+
+/* Revert offsets on Mobile */
+@media (max-width: 1024px) {
+  .floating-panel {
+    left: 0;
+    bottom: 60px;
+  }
+  
+  .dashboard-panel {
+    left: 0;
+    width: 100%;
+  }
 }
 
 .dashboard-panel.active {
