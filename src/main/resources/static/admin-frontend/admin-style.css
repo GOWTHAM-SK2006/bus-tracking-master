@@ -111,41 +111,71 @@ body {
 }
 
 /* ======================================== 
-   Bottom Navigation — Glass Dock
+   Global Layout - Sidebar + Content
    ======================================== */
-.bottom-nav {
+.main-content-layout {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  transition: all var(--transition-normal);
+}
+
+@media (max-width: 1024px) {
+  .main-content-layout {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* ======================================== 
+   Sidebar Navigation — Professional Left Bar
+   ======================================== */
+.admin-sidebar {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
-  right: 0;
-  z-index: 2000;
+  bottom: 0;
+  width: 260px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.04);
+  z-index: 2500;
   display: flex;
-  justify-content: center;
-  align-items: stretch;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.06);
-  padding: 6px 16px;
-  padding-bottom: max(6px, env(safe-area-inset-bottom));
-  gap: 4px;
+  flex-direction: column;
+  padding: var(--spacing-lg) 0;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-header {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: var(--spacing-md);
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px;
+  overflow-y: auto;
 }
 
 .bottom-nav-btn {
-  flex: 1;
-  max-width: 140px;
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Horizontal alignment in sidebar */
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 12px;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -155,38 +185,89 @@ body {
 }
 
 .bottom-nav-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .bottom-nav-btn:hover {
   color: var(--primary);
-  background: rgba(249, 115, 22, 0.06);
+  background: rgba(249, 115, 22, 0.08);
 }
 
 .bottom-nav-btn:hover svg {
-  transform: scale(1.12) translateY(-1px);
+  transform: scale(1.1) translateX(2px);
 }
 
 .bottom-nav-btn.active {
   color: var(--primary);
+  background: rgba(249, 115, 22, 0.1);
 }
 
 .bottom-nav-btn.active svg {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .bottom-nav-btn.active::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary), var(--primary-light));
-  border-radius: 0 0 3px 3px;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(180deg, var(--primary), var(--primary-light));
+  border-radius: 0 4px 4px 0;
+}
+
+/* Revert to Bottom Nav on Mobile */
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    padding: 6px 12px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  .sidebar-header {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: center;
+    padding: 0;
+    gap: 4px;
+    overflow-y: visible;
+  }
+
+  .bottom-nav-btn {
+    flex: 1;
+    max-width: 120px;
+    flex-direction: column;
+    padding: 8px 6px;
+    font-size: 0.65rem;
+    gap: 4px;
+    align-items: center;
+  }
+  
+  .bottom-nav-btn.active::after {
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+  }
 }
 
 .tab-btn {
@@ -227,23 +308,38 @@ body {
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
+.header-title h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+}
+
 .connection-badge {
   position: fixed;
-  bottom: 74px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 24px;
+  right: 24px;
   display: flex;
   align-items: center;
   gap: 6px;
   background: linear-gradient(135deg, var(--success), #059669);
   color: white;
-  padding: 6px 16px;
+  padding: 8px 18px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
   z-index: 2001;
   backdrop-filter: blur(8px);
+}
+
+@media (max-width: 1024px) {
+  .connection-badge {
+    bottom: 80px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
 }
 
 .header-actions {
@@ -278,11 +374,10 @@ body {
   background: #cbd5e1;
 }
 
-/* Bus Counter Widget — Glass */
 .bus-counter-widget {
   position: fixed;
-  bottom: 76px;
-  left: 20px;
+  bottom: 24px;
+  left: 284px;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -375,8 +470,8 @@ body {
    ========================================= */
 .guest-access-widget {
   position: fixed;
-  bottom: 140px;
-  left: 20px;
+  bottom: 104px;
+  left: 284px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -596,7 +691,7 @@ body {
 .admin-main {
   width: 100%;
   padding: 0;
-  height: calc(100vh - 64px - env(safe-area-inset-top, 0px) - 60px);
+  height: calc(100vh - 64px);
   position: relative;
 }
 
