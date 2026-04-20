@@ -2688,12 +2688,14 @@ body {
 }
 
 .dashboard-panel-header {
-  padding: 48px 40px 24px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 40px 40px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .dashboard-container {
