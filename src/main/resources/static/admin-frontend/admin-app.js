@@ -349,6 +349,8 @@ const PanelManager = {
           this.togglePanel("guest-access");
         } else if (target === "system-settings") {
           this.togglePanel("system-settings");
+        } else if (target === "dashboard") {
+          this.togglePanel("dashboard");
         }
       });
     });
