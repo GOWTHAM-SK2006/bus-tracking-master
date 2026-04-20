@@ -105,6 +105,13 @@
         </svg>
         <span>Guest Access</span>
       </button>
+      <button class="bottom-nav-btn" data-tab="system-settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>System Settings</span>
+      </button>
       <button class="bottom-nav-btn" data-tab="profile">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -135,29 +142,6 @@
 
       <!-- Admin Actions (Desktop Only) -->
       <div class="header-actions" id="adminHeaderActions">
-        <!-- Driver Sign In Toggle -->
-        <div class="toggle-container">
-          <span>Driver Sign In</span>
-          <button id="driverSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleDriverSignIn(event)">
-            <span class="toggle-slider" id="driverSignInSlider"></span>
-          </button>
-        </div>
-
-        <!-- Student Sign In Toggle -->
-        <div class="toggle-container">
-          <span>Student Sign In</span>
-          <button id="studentSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleStudentSignIn(event)">
-            <span class="toggle-slider" id="studentSignInSlider"></span>
-          </button>
-        </div>
-
-        <!-- Account Creation Toggle -->
-        <div class="toggle-container">
-          <span>Driver Signup</span>
-          <button id="accountToggleBtn" class="toggle-btn" type="button" onclick="toggleAccountCreation(event)">
-            <span class="toggle-slider"></span>
-          </button>
-        </div>
 
         <button id="adminLogoutBtn" type="button" onclick="
               event.preventDefault();
@@ -673,6 +657,68 @@
           
           <div class="guest-notice panel-glass" style="max-width: 480px; padding: 20px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.1); line-height: 1.6;">
             <p style="margin: 0;"><strong>Security Note:</strong> Guest access codes allow temporary live tracking access for public users. Regenerating a code will immediately invalidate the previous one. Each code is valid for 24 hours.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Settings Panel -->
+    <section class="floating-panel panel-glass animate-fade-in-up" id="systemSettingsView">
+      <div class="panel-container">
+        <div class="list-header" style="align-items: center">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h2>System Global Settings</h2>
+            <span class="list-count">Control Core Platform Access</span>
+          </div>
+          <button class="close-panel-btn" onclick="PanelManager.closeAllPanels()">
+            ×
+          </button>
+        </div>
+        
+        <div class="settings-management-content" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
+          <div class="settings-card panel-glass" style="width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; background: rgba(255, 255, 255, 0.7);">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark); display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.4rem;">🛡️</span> Access Control Toggles
+            </h3>
+            
+            <div class="settings-toggles-list" style="display: flex; flex-direction: column; gap: 20px;">
+              <!-- Driver Sign In Toggle -->
+              <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
+                <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
+                  <span style="font-weight: 600; font-size: 0.95rem;">Driver Sign In</span>
+                  <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Allow drivers to log into their mobile app.</p>
+                </div>
+                <button id="driverSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleDriverSignIn(event)" style="flex-shrink: 0;">
+                  <span class="toggle-slider" id="driverSignInSlider"></span>
+                </button>
+              </div>
+
+              <!-- Student Sign In Toggle -->
+              <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
+                <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
+                  <span style="font-weight: 600; font-size: 0.95rem;">Student Sign In</span>
+                  <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Enable student authentication for tracking.</p>
+                </div>
+                <button id="studentSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleStudentSignIn(event)" style="flex-shrink: 0;">
+                  <span class="toggle-slider" id="studentSignInSlider"></span>
+                </button>
+              </div>
+
+              <!-- Account Creation Toggle -->
+              <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
+                <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
+                  <span style="font-weight: 600; font-size: 0.95rem;">Driver Signup</span>
+                  <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Allow new drivers to register via the app.</p>
+                </div>
+                <button id="accountToggleBtn" class="toggle-btn" type="button" onclick="toggleAccountCreation(event)" style="flex-shrink: 0;">
+                  <span class="toggle-slider"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="settings-info-box panel-glass" style="max-width: 500px; padding: 20px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.1); line-height: 1.6;">
+            <p style="margin: 0;"><strong>Global Impact:</strong> Changes made here affect all users immediately. Disabling sign-in will prevent new sessions but will not forcefully log out existing active users.</p>
           </div>
         </div>
       </div>

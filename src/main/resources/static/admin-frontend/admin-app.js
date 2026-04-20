@@ -111,6 +111,9 @@ const DOM = {
   get guestAccessPanel() {
     return document.getElementById("guestAccessView");
   },
+  get systemSettingsPanel() {
+    return document.getElementById("systemSettingsView");
+  },
   get closePanelBtns() {
     return document.querySelectorAll(".close-panel-btn");
   },
@@ -342,10 +345,10 @@ const PanelManager = {
           this.togglePanel("feedback");
         } else if (target === "profile") {
           this.togglePanel("profile");
-        } else if (target === "dashboard") {
-          this.togglePanel("dashboard");
         } else if (target === "guest-access") {
           this.togglePanel("guest-access");
+        } else if (target === "system-settings") {
+          this.togglePanel("system-settings");
         }
       });
     });
@@ -388,6 +391,9 @@ const PanelManager = {
     } else if (panelName === "guest-access" && DOM.guestAccessPanel) {
       DOM.guestAccessPanel.classList.add("visible");
       this.updateActiveTab("guest-access");
+    } else if (panelName === "system-settings" && DOM.systemSettingsPanel) {
+      DOM.systemSettingsPanel.classList.add("visible");
+      this.updateActiveTab("system-settings");
     } else if (panelName === "feedback") {
       const fp = document.getElementById("feedbackView");
       if (fp) {
@@ -422,6 +428,7 @@ const PanelManager = {
     const fp = document.getElementById("feedbackView");
     const pp = document.getElementById("profileView");
     const gap = document.getElementById("guestAccessView");
+    const ssp = document.getElementById("systemSettingsView");
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
     if (rp) rp.classList.remove("visible");
@@ -429,6 +436,7 @@ const PanelManager = {
     if (fp) fp.classList.remove("visible");
     if (pp) pp.classList.remove("visible");
     if (gap) gap.classList.remove("visible");
+    if (ssp) ssp.classList.remove("visible");
     const dp = document.getElementById("dashboardPanel");
     if (dp) dp.classList.remove("active");
 
