@@ -411,35 +411,69 @@ body {
     gap: 10px; padding: 10px 24px;
     font-family: inherit; font-size: var(--text-sm);
     font-weight: 700; border-radius: 12px;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border: none; position: relative; overflow: hidden;
-    color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    color: white; box-shadow: var(--shadow-sm);
+    letter-spacing: 0.01em; text-rendering: optimizeLegibility;
 }
 
 .btn:hover:not(:disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transform: translateY(-2.5px);
+    box-shadow: var(--shadow-md);
 }
 
-.btn:active:not(:disabled) { transform: translateY(-1px) scale(0.98); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5); }
+.btn:active:not(:disabled) { transform: translateY(-0.5px) scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.4); }
 
 /* Button Sizes */
-.btn-sm { padding: 8px 16px; font-size: 0.75rem; border-radius: 10px; }
+.btn-sm { padding: 6px 14px; font-size: 0.825rem; border-radius: 9px; min-width: 90px; }
 .btn-lg { 
-    padding: 16px 36px; font-size: 1.1rem; 
-    border-radius: 16px; letter-spacing: 0.02em;
-    min-width: 180px;
+    padding: 14px 34px; font-size: 1.05rem; 
+    border-radius: 14px; letter-spacing: 0.02em;
+    min-width: 170px;
 }
 
-/* Button Variants — High Contrast */
-.btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-.btn-success { background: linear-gradient(135deg, #10b981, #047857); }
-.btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+/* Button Variants — Premium Gradients with Depth */
+.btn-primary { 
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); 
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2), inset 0 1px 1px rgba(255,255,255,0.1);
+}
+
+.btn-secondary { 
+    background: #ffffff; color: var(--text-secondary); 
+    border: 1.5px solid var(--border-light);
+    box-shadow: var(--shadow-xs);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-200); color: var(--text-primary); }
+
+.btn-success { 
+    background: linear-gradient(135deg, #10b981 0%, #065f46 100%); 
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15), inset 0 1px 1px rgba(255,255,255,0.1);
+}
+
+.btn-danger { 
+    background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); 
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2), inset 0 1px 1px rgba(255,255,255,0.1);
+}
+
 .btn-warning { 
-    background: linear-gradient(135deg, #f97316, #c2410c); 
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); 
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.22), inset 0 1px 1px rgba(255,255,255,0.15);
+}
+
+/* Specialized ADD Button — Pill Style with Vibrant Accent */
+#addBusInfoBtn {
+    border-radius: 99px !important;
+    padding: 6px 20px !important;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: unset;
+}
+
+#addBusInfoBtn:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    transform: translateY(-2.5px) scale(1.02);
 }
 
 /* Action Layouts — Centered & Spaced */
@@ -450,7 +484,7 @@ body {
     margin-bottom: 20px;
 }
 
-.help-text { text-align: center; font-size: 0.9rem; color: var(--text-muted); width: 100%; margin-top: 10px; }
+.help-text { text-align: center; font-size: 0.85rem; color: var(--text-muted); width: 100%; margin-top: 10px; }
 
 /* Bus Info Entry Select Button — RIGHT ALIGNED & COMPACT */
 .bus-info-entry-actions {
@@ -459,41 +493,34 @@ body {
 }
 
 .bus-info-select-btn {
-    padding: 8px 20px; border-radius: 10px;
-    font-size: 0.8rem; font-weight: 700;
-    cursor: pointer; transition: all 0.3s;
-    background: #f1f5f9; color: #64748b;
-    border: 1.5px solid #e2e8f0;
+    padding: 7px 20px; border-radius: 10px;
+    font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc; color: var(--text-secondary);
+    border: 1.5px solid var(--border-light);
 }
 
-.bus-info-select-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
-
-.bus-info-select-btn.active {
-    background: #fff; color: #ea580c;
-    border-color: #f97316;
-    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
-    font-weight: 800;
-}
+.bus-info-select-btn:hover { background: #f1f5f9; border-color: var(--gray-300); transform: translateY(-1.5px); }
 
 .bus-info-delete-btn {
-    background: transparent; color: #94a3b8;
+    background: transparent; color: var(--text-disabled);
     border: none; cursor: pointer;
-    padding: 8px; border-radius: 8px;
+    padding: 8px; border-radius: 100%;
     transition: all 0.2s; display: flex; align-items: center; justify-content: center;
 }
 
-.bus-info-delete-btn:hover { background: #fee2e2; color: #ef4444; }
+.bus-info-delete-btn:hover { background: #fee2e2; color: #ef4444; transform: rotate(8deg); }
 
 .bus-info-entry.selected {
-    border: 2px solid #f97316;
-    background: rgba(249, 115, 22, 0.03);
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+    border: 2px solid var(--primary-500);
+    background: rgba(79, 70, 229, 0.04);
+    box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.1), var(--shadow-sm);
 }
 
 .bus-info-entry.selected .bus-info-select-btn {
-    background: #f97316; color: white;
-    border-color: #ea580c;
-    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+    background: var(--primary-500); color: white;
+    border-color: var(--primary-600);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
 /* =========================================
