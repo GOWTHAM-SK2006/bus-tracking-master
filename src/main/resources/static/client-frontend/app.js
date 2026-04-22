@@ -80,6 +80,8 @@ const CONFIG = {
   MAPTILER_API_KEY: "qT5xViuAuUmEXe01G0oI",
   MAPTILER_STYLE_URL:
     "https://api.maptiler.com/maps/019bfffb-7613-7306-82a6-88f9659c6bff/style.json",
+  MAPTILER_DARK_STYLE_URL:
+    "https://api.maptiler.com/maps/darkmatter/style.json",
 
   // Map Defaults
   MAP_CENTER: [80.2707, 13.0827], // [lng, lat]
@@ -219,9 +221,16 @@ const MapManager = {
     // MapTiler SDK Initialization
     maptilersdk.config.apiKey = CONFIG.MAPTILER_API_KEY;
 
+    // Determine initial style based on theme
+    const currentTheme = localStorage.getItem("theme") || "light";
+    const initialStyle =
+      currentTheme === "dark"
+        ? `${CONFIG.MAPTILER_DARK_STYLE_URL}?key=${CONFIG.MAPTILER_API_KEY}`
+        : CONFIG.MAPTILER_STYLE_URL;
+
     this.map = new maptilersdk.Map({
       container: DOM.mapContainer,
-      style: CONFIG.MAPTILER_STYLE_URL,
+      style: initialStyle,
       center: CONFIG.MAP_CENTER, // [lng, lat]
       zoom: CONFIG.MAP_ZOOM,
       minZoom: CONFIG.MAP_MIN_ZOOM,
@@ -1776,12 +1785,66 @@ function initTomTomServices() {
 }
 
 // =========================================
+// Theme Manager
+// =========================================
+const ThemeManager = {
+  icons: {
+    sun: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+    moon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
+  },
+
+  init() {
+    console.log("[Theme] Initializing ThemeManager...");
+    const savedTheme = localStorage.getItem("theme") || "light";
+    this.applyTheme(savedTheme, false);
+
+    const toggleBtn = document.getElementById("themeToggleBtn");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const currentTheme = localStorage.getItem("theme") || "light";
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        this.applyTheme(newTheme, true);
+      });
+    }
+  },
+
+  applyTheme(theme, updateMap = true) {
+    console.log(`[Theme] Applying theme: ${theme}`);
+    const body = document.body;
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    if (theme === "dark") {
+      body.classList.add("dark-theme");
+      if (toggleBtn) toggleBtn.innerHTML = this.icons.sun;
+    } else {
+      body.classList.remove("dark-theme");
+      if (toggleBtn) toggleBtn.innerHTML = this.icons.moon;
+    }
+
+    localStorage.setItem("theme", theme);
+
+    if (updateMap && MapManager.map) {
+      const styleUrl =
+        theme === "dark"
+          ? `${CONFIG.MAPTILER_DARK_STYLE_URL}?key=${CONFIG.MAPTILER_API_KEY}`
+          : CONFIG.MAPTILER_STYLE_URL;
+
+      console.log("[Theme] Updating map style...");
+      MapManager.map.setStyle(styleUrl);
+    }
+  },
+};
+
+// =========================================
 // Initialization
 // =========================================
 async function init() {
   console.log("[App] Initializing...");
 
   try {
+    // Initialize Theme First
+    ThemeManager.init();
+
     // Clear any stale bus data from previous sessions before displaying anything
     state.buses.clear();
     state.stops.clear();

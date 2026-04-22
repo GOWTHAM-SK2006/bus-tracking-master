@@ -65,6 +65,70 @@
   --transition-normal: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
+/* Theme Toggle Button Hover */
+#themeToggleBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+  color: var(--primary);
+  border-color: var(--primary-light) !important;
+}
+
+body.dark-theme #themeToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary) !important;
+}
+
+/* Dark Mode Theme Overrides */
+body.dark-theme {
+  --bg-white: #1e293b;
+  --bg-light: #0f172a;
+  --bg-gray: #334155;
+  --text-primary: #f1f5f9;
+  --text-dark: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-color: #334155;
+}
+
+/* Specific Dark Mode Refinements */
+body.dark-theme .header {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .bottom-nav {
+  background: rgba(15, 23, 42, 0.9);
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .search-input {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+body.dark-theme .search-dropdown,
+body.dark-theme .bus-info-panel,
+body.dark-theme .floating-panel {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .bus-counter-widget {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .bus-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .info-value {
+  background: #0f172a;
+}
+
+
 /* Reset & Base */
 *,
 *::before,
