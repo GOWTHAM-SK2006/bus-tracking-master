@@ -2090,3 +2090,75 @@ body.dark-theme .selection-hint-banner {
 body.dark-theme .selection-hint-banner span {
   color: white;
 }
+
+/* ETA Card */
+.eta-container {
+  margin-bottom: 20px;
+  animation: slideDownFade 0.4s ease-out;
+}
+
+.eta-container.hidden {
+  display: none;
+}
+
+@keyframes slideDownFade {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.eta-card {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.03));
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  backdrop-filter: blur(8px);
+}
+
+.eta-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.eta-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.eta-value-group {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.eta-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.eta-unit {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.eta-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(249, 115, 22, 0.2);
+}
+
+body.dark-theme .eta-card {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05));
+  border-color: rgba(249, 115, 22, 0.25);
+}

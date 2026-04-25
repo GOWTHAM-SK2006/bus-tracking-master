@@ -187,6 +187,9 @@ const DOM = {
   panelLocation: document.getElementById("panelLocation"),
   panelDriver: document.getElementById("panelDriver"),
   panelPhone: document.getElementById("panelPhone"),
+  panelEtaContainer: document.getElementById("panelEtaContainer"),
+  panelDistance: document.getElementById("panelDistance"),
+  panelEta: document.getElementById("panelEta"),
 
   // Lists
   busGrid: document.getElementById("busGrid"),
@@ -724,13 +727,16 @@ const MapManager = {
       }
     }
 
-    // Show address if available, otherwise show coordinates (treat 0,0 as unavailable)
+    // Update Travel Stats (Distance & ETA) if user has a saved stop
+    this.updateTravelStats(bus);
+
     const hasValidCoords =
       bus.latitude != null &&
       bus.longitude != null &&
       !isNaN(bus.latitude) &&
       !isNaN(bus.longitude) &&
       (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
+
     if (bus.address && hasValidCoords) {
       DOM.panelLocation.textContent = bus.address;
     } else if (hasValidCoords) {
@@ -748,12 +754,53 @@ const MapManager = {
       }
     } else {
       DOM.panelLocation.textContent = "Location unavailable";
+      if (DOM.panelEtaContainer) DOM.panelEtaContainer.classList.add("hidden");
     }
 
     // Update Driver Info
     if (DOM.panelDriver)
       DOM.panelDriver.textContent = bus.driverName || "Unknown";
     if (DOM.panelPhone) DOM.panelPhone.textContent = bus.driverPhone || "N/A";
+  },
+
+  async updateTravelStats(bus) {
+    const savedStop = localStorage.getItem("userSavedStop");
+    if (!savedStop || !DOM.panelEtaContainer) {
+      if (DOM.panelEtaContainer) DOM.panelEtaContainer.classList.add("hidden");
+      return;
+    }
+
+    try {
+      const stop = JSON.parse(savedStop);
+      const stats = await this.getTravelStats(bus.latitude, bus.longitude, stop.lat, stop.lng);
+      
+      if (stats) {
+        DOM.panelEtaContainer.classList.remove("hidden");
+        DOM.panelDistance.textContent = stats.distanceKm;
+        DOM.panelEta.textContent = stats.durationMinutes;
+      } else {
+        DOM.panelEtaContainer.classList.add("hidden");
+      }
+    } catch (e) {
+      console.error("[Map] Failed to calculate travel stats:", e);
+      DOM.panelEtaContainer.classList.add("hidden");
+    }
+  },
+
+  async getTravelStats(busLat, busLng, stopLat, stopLng) {
+    if (!window.TomTomServices || !window.TomTomServices.Routing) return null;
+
+    try {
+      const routeData = await window.TomTomServices.Routing.calculateRoute(
+        [busLng, busLat],
+        [stopLng, stopLat]
+      );
+      
+      return window.TomTomServices.Routing.getRouteSummary(routeData);
+    } catch (e) {
+      console.error("[Map] Routing error:", e);
+      return null;
+    }
   },
 
   closePanel() {
