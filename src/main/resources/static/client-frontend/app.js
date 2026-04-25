@@ -2010,15 +2010,38 @@ const DashboardManager = {
     this.confirmBtn = document.getElementById("confirmStopBtn");
     this.cancelMarkerBtn = document.getElementById("cancelMarkerBtn");
 
-    this.noStopContainer = document.getElementById("noStopContainer");
-    this.hasStopContainer = document.getElementById("hasStopContainer");
+    this.stopActionCard = document.getElementById("stopActionCard");
+    this.stopActionTitle = document.getElementById("stopActionTitle");
+    this.stopActionSub = document.getElementById("stopActionSub");
+    this.stopDetailsPanel = document.getElementById("stopDetailsPanel");
+
     this.savedStopLocation = document.getElementById("savedStopLocation");
     this.savedStopCoords = document.getElementById("savedStopCoords");
 
     // Event listeners
-    if (this.setStopBtn) this.setStopBtn.onclick = () => this.openSelectionMap();
-    if (this.changeStopBtn) this.changeStopBtn.onclick = () => this.openSelectionMap();
-    if (this.removeStopBtn) this.removeStopBtn.onclick = () => this.removeStop();
+    if (this.stopActionCard) {
+      this.stopActionCard.onclick = () => {
+        const savedStop = localStorage.getItem("userSavedStop");
+        if (savedStop) {
+          // Toggle expansion
+          this.stopDetailsPanel.classList.toggle("hidden");
+        } else {
+          // Open map selection
+          this.openSelectionMap();
+        }
+      };
+    }
+    
+    if (this.changeStopBtn) this.changeStopBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.openSelectionMap();
+    };
+    
+    if (this.removeStopBtn) this.removeStopBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.removeStop();
+    };
+
     if (this.cancelOverlayBtn) this.cancelOverlayBtn.onclick = () => this.closeSelectionMap();
     if (this.confirmBtn) this.confirmBtn.onclick = () => this.confirmStop();
     if (this.cancelMarkerBtn) this.cancelMarkerBtn.onclick = () => this.clearTempMarker();
@@ -2039,8 +2062,11 @@ const DashboardManager = {
     if (savedStop) {
       try {
         const stop = JSON.parse(savedStop);
-        this.noStopContainer.classList.add("hidden");
-        this.hasStopContainer.classList.remove("hidden");
+        
+        // Update Action Card to show "Your Stop"
+        if (this.stopActionTitle) this.stopActionTitle.textContent = "Your Stop";
+        if (this.stopActionSub) this.stopActionSub.textContent = "Tap to view details";
+        
         this.savedStopCoords.textContent = `${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}`;
         
         // Reverse geocode to get name if possible
@@ -2053,8 +2079,10 @@ const DashboardManager = {
         console.error("[Dashboard] Error parsing saved stop:", e);
       }
     } else {
-      this.noStopContainer.classList.remove("hidden");
-      this.hasStopContainer.classList.add("hidden");
+      // Update Action Card to show "Set My Stop"
+      if (this.stopActionTitle) this.stopActionTitle.textContent = "Set My Stop";
+      if (this.stopActionSub) this.stopActionSub.textContent = "Manage your location";
+      if (this.stopDetailsPanel) this.stopDetailsPanel.classList.add("hidden");
     }
   },
 
