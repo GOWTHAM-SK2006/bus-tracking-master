@@ -481,17 +481,82 @@
         style="display: none"
       ></section>
 
-      <!-- Dashboard Panel (Empty) -->
+      <!-- Dashboard Panel -->
       <section class="floating-panel" id="dashboardView">
         <div class="panel-container">
           <div class="list-header">
             <h2>Dashboard</h2>
           </div>
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem;">
-            No content yet.
+          
+          <div class="dashboard-content" id="dashboardContent">
+            <!-- If no stop is set -->
+            <div id="noStopContainer" class="dashboard-empty-state">
+              <div class="empty-icon">📍</div>
+              <h3>No Stop Set</h3>
+              <p>Set your daily bus stop to get quick access to tracking.</p>
+              <button class="btn btn-primary" id="setStopBtn" style="margin-top: 1rem; width: 100%;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Set My Stop
+              </button>
+            </div>
+
+            <!-- If stop is set -->
+            <div id="hasStopContainer" class="stop-card hidden">
+              <div class="stop-card-header">
+                <div class="stop-icon">🏠</div>
+                <div class="stop-info">
+                  <h3>Your Stop</h3>
+                  <p id="savedStopLocation">Loading location...</p>
+                  <span id="savedStopCoords" class="coords-badge">0.000, 0.000</span>
+                </div>
+              </div>
+              <div class="stop-card-actions">
+                <button class="btn btn-outline" id="changeStopBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Change Stop
+                </button>
+                <button class="btn btn-danger-outline" id="removeStopBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Remove Stop
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      <!-- Stop Selection Map Overlay -->
+      <div id="stopSelectionOverlay" class="stop-selection-overlay hidden">
+        <div id="stopSelectionMap" class="full-screen-map"></div>
+        <div class="stop-selection-header">
+          <button class="back-btn" id="cancelStopSelection">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <h3>Tap to Set Your Stop</h3>
+        </div>
+        
+        <div id="confirmStopPopup" class="confirm-stop-popup hidden">
+          <div class="popup-content">
+            <p>Set this as your stop?</p>
+            <div class="popup-actions">
+              <button class="btn btn-primary" id="confirmStopBtn">Confirm</button>
+              <button class="btn btn-outline" id="cancelMarkerBtn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Buses List Panel (Left Side Overlay) -->
       <section class="floating-panel" id="busesView">

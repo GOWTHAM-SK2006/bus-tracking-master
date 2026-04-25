@@ -208,6 +208,7 @@ const MapManager = {
   isNavigating: false,
   navTimeout: null,
   lockTimeout: null,
+  selectedStopMarker: null,
 
   // Smooth Animation State
   animationTargets: new Map(), // Stores target positions for each bus
@@ -253,6 +254,53 @@ const MapManager = {
     this.startAnimationLoop();
 
     console.log("[Map] MapTiler SDK Map Initialized");
+
+    // Load saved stop if exists
+    this.loadSavedStop();
+  },
+
+  loadSavedStop() {
+    const savedStop = localStorage.getItem("userSavedStop");
+    if (savedStop) {
+      try {
+        const stop = JSON.parse(savedStop);
+        this.updateSavedStopMarker(stop.lng, stop.lat);
+      } catch (e) {
+        console.error("[Map] Failed to load saved stop:", e);
+      }
+    }
+  },
+
+  updateSavedStopMarker(lng, lat) {
+    if (this.selectedStopMarker) {
+      this.selectedStopMarker.remove();
+    }
+
+    const el = document.createElement("div");
+    el.className = "saved-stop-marker";
+    el.innerHTML = `
+      <div class="stop-marker-ring"></div>
+      <div class="stop-marker-center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </div>
+      <div class="stop-marker-label">My Stop</div>
+    `;
+
+    this.selectedStopMarker = new maptilersdk.Marker({ element: el })
+      .setLngLat([lng, lat])
+      .addTo(this.map);
+
+    console.log(`[Map] Saved stop marker placed at ${lng}, ${lat}`);
+  },
+
+  removeSavedStopMarker() {
+    if (this.selectedStopMarker) {
+      this.selectedStopMarker.remove();
+      this.selectedStopMarker = null;
+    }
   },
 
   createBusElement(bus, isSelected = false) {
@@ -1836,6 +1884,190 @@ const ThemeManager = {
 };
 
 // =========================================
+// Dashboard Manager
+// =========================================
+const DashboardManager = {
+  selectionMap: null,
+  tempMarker: null,
+  selectedCoords: null,
+
+  init() {
+    console.log("[Dashboard] Initializing DashboardManager...");
+
+    // UI elements
+    this.setStopBtn = document.getElementById("setStopBtn");
+    this.changeStopBtn = document.getElementById("changeStopBtn");
+    this.removeStopBtn = document.getElementById("removeStopBtn");
+    this.overlay = document.getElementById("stopSelectionOverlay");
+    this.cancelOverlayBtn = document.getElementById("cancelStopSelection");
+    this.confirmPopup = document.getElementById("confirmStopPopup");
+    this.confirmBtn = document.getElementById("confirmStopBtn");
+    this.cancelMarkerBtn = document.getElementById("cancelMarkerBtn");
+
+    this.noStopContainer = document.getElementById("noStopContainer");
+    this.hasStopContainer = document.getElementById("hasStopContainer");
+    this.savedStopLocation = document.getElementById("savedStopLocation");
+    this.savedStopCoords = document.getElementById("savedStopCoords");
+
+    // Event listeners
+    if (this.setStopBtn) this.setStopBtn.onclick = () => this.openSelectionMap();
+    if (this.changeStopBtn) this.changeStopBtn.onclick = () => this.openSelectionMap();
+    if (this.removeStopBtn) this.removeStopBtn.onclick = () => this.removeStop();
+    if (this.cancelOverlayBtn) this.cancelOverlayBtn.onclick = () => this.closeSelectionMap();
+    if (this.confirmBtn) this.confirmBtn.onclick = () => this.confirmStop();
+    if (this.cancelMarkerBtn) this.cancelMarkerBtn.onclick = () => this.clearTempMarker();
+
+    this.updateDashboardUI();
+  },
+
+  updateDashboardUI() {
+    const savedStop = localStorage.getItem("userSavedStop");
+    if (savedStop) {
+      try {
+        const stop = JSON.parse(savedStop);
+        this.noStopContainer.classList.add("hidden");
+        this.hasStopContainer.classList.remove("hidden");
+        this.savedStopCoords.textContent = `${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}`;
+        
+        // Reverse geocode to get name if possible
+        if (stop.name) {
+          this.savedStopLocation.textContent = stop.name;
+        } else {
+          this.fetchStopName(stop.lat, stop.lng);
+        }
+      } catch (e) {
+        console.error("[Dashboard] Error parsing saved stop:", e);
+      }
+    } else {
+      this.noStopContainer.classList.remove("hidden");
+      this.hasStopContainer.classList.add("hidden");
+    }
+  },
+
+  async fetchStopName(lat, lng) {
+    if (window.TomTomServices) {
+      const address = await window.TomTomServices.ReverseGeocoding.getAddress(lat, lng);
+      if (address) {
+        this.savedStopLocation.textContent = address;
+        // Update storage with name
+        const savedStop = JSON.parse(localStorage.getItem("userSavedStop"));
+        savedStop.name = address;
+        localStorage.setItem("userSavedStop", JSON.stringify(savedStop));
+      } else {
+        this.savedStopLocation.textContent = "Custom Location";
+      }
+    } else {
+      this.savedStopLocation.textContent = "Custom Location";
+    }
+  },
+
+  openSelectionMap() {
+    this.overlay.classList.remove("hidden");
+    
+    if (!this.selectionMap) {
+      this.initSelectionMap();
+    } else {
+      this.selectionMap.resize();
+    }
+  },
+
+  closeSelectionMap() {
+    this.overlay.classList.add("hidden");
+    this.clearTempMarker();
+  },
+
+  initSelectionMap() {
+    maptilersdk.config.apiKey = CONFIG.MAPTILER_API_KEY;
+    
+    const currentTheme = localStorage.getItem("theme") || "light";
+    const initialStyle = currentTheme === "dark" 
+      ? `${CONFIG.MAPTILER_DARK_STYLE_URL}?key=${CONFIG.MAPTILER_API_KEY}`
+      : CONFIG.MAPTILER_STYLE_URL;
+
+    this.selectionMap = new maptilersdk.Map({
+      container: "stopSelectionMap",
+      style: initialStyle,
+      center: CONFIG.MAP_CENTER,
+      zoom: 14,
+      attributionControl: false
+    });
+
+    this.selectionMap.on("click", (e) => {
+      const { lng, lat } = e.lngLat;
+      this.placeTempMarker(lng, lat);
+    });
+  },
+
+  placeTempMarker(lng, lat) {
+    this.selectedCoords = { lng, lat };
+    
+    if (this.tempMarker) {
+      this.tempMarker.remove();
+    }
+
+    const el = document.createElement("div");
+    el.className = "temp-stop-marker";
+    el.innerHTML = `
+      <div class="marker-pin"></div>
+      <div class="marker-pulse-ring"></div>
+    `;
+
+    this.tempMarker = new maptilersdk.Marker({ element: el, draggable: false })
+      .setLngLat([lng, lat])
+      .addTo(this.selectionMap);
+
+    this.confirmPopup.classList.remove("hidden");
+    
+    this.selectionMap.easeTo({
+      center: [lng, lat],
+      zoom: 16,
+      duration: 1000
+    });
+  },
+
+  clearTempMarker() {
+    if (this.tempMarker) {
+      this.tempMarker.remove();
+      this.tempMarker = null;
+    }
+    this.confirmPopup.classList.add("hidden");
+    this.selectedCoords = null;
+  },
+
+  confirmStop() {
+    if (!this.selectedCoords) return;
+
+    const stopData = {
+      lat: this.selectedCoords.lat,
+      lng: this.selectedCoords.lng,
+      timestamp: Date.now()
+    };
+
+    localStorage.setItem("userSavedStop", JSON.stringify(stopData));
+    
+    // Update main map marker
+    MapManager.updateSavedStopMarker(stopData.lng, stopData.lat);
+    
+    // Update Dashboard UI
+    this.updateDashboardUI();
+    
+    // Close overlay
+    this.closeSelectionMap();
+    
+    showToast("Stop saved successfully!", "success");
+  },
+
+  removeStop() {
+    if (confirm("Are you sure you want to remove your saved stop?")) {
+      localStorage.removeItem("userSavedStop");
+      MapManager.removeSavedStopMarker();
+      this.updateDashboardUI();
+      showToast("Stop removed", "info");
+    }
+  }
+};
+
+// =========================================
 // Initialization
 // =========================================
 async function init() {
@@ -1854,6 +2086,7 @@ async function init() {
     TabManager.init();
     SearchManager.init();
     SearchManager.initWelcomeSearch(); // Activate welcome prompt
+    DashboardManager.init();
     initMobileMenu();
     initTomTomServices();
 

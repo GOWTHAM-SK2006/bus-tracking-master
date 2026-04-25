@@ -1651,3 +1651,374 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.5);
 }
+
+/* Saved Stop Marker (Main Map) */
+.saved-stop-marker {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stop-marker-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(249, 115, 22, 0.2);
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: markerRipple 2s infinite;
+}
+
+.stop-marker-center {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.4);
+  z-index: 2;
+}
+
+.stop-marker-label {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+
+@keyframes markerRipple {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Temp Stop Marker (Selection Map) */
+.temp-stop-marker {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-pin {
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  animation: pinBounce 0.5s ease-out;
+}
+
+.marker-pulse-ring {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: rgba(249, 115, 22, 0.3);
+  border-radius: 50%;
+  animation: pinPulse 1.5s infinite;
+}
+
+@keyframes pinBounce {
+  0% { transform: rotate(-45deg) scale(0) translateY(20px); }
+  70% { transform: rotate(-45deg) scale(1.2); }
+  100% { transform: rotate(-45deg) scale(1); }
+}
+
+@keyframes pinPulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.dashboard-empty-state {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.dashboard-empty-state h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.dashboard-empty-state p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 240px;
+}
+
+/* Stop Card */
+.stop-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s;
+}
+
+.stop-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.stop-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stop-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(249, 115, 22, 0.1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stop-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.stop-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.coords-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--primary);
+  background: rgba(249, 115, 22, 0.05);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stop-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--bg-gray);
+  border-color: var(--text-muted);
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.btn-danger-outline:hover {
+  background: rgba(239, 68, 68, 0.05);
+  border-color: var(--danger);
+}
+
+/* Stop Selection Overlay */
+.stop-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5000;
+  background: #000;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stop-selection-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.05);
+}
+
+.full-screen-map {
+  width: 100%;
+  height: 100%;
+}
+
+.stop-selection-header {
+  position: absolute;
+  top: env(safe-area-inset-top, 20px);
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 5010;
+}
+
+.stop-selection-header h3 {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-dark);
+}
+
+.back-btn {
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+/* Confirm Popup */
+.confirm-stop-popup {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 340px;
+  z-index: 5010;
+  animation: popupSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confirm-stop-popup.hidden {
+  display: none;
+}
+
+@keyframes popupSlideUp {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.popup-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.popup-content p {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
+
+.popup-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Dark Mode Adjustments */
+body.dark-theme .stop-selection-header h3 {
+  background: rgba(30, 41, 59, 0.85);
+  color: white;
+}
+
+body.dark-theme .back-btn {
+  background: #1e293b;
+  color: white;
+}
+
+body.dark-theme .popup-content {
+  background: rgba(30, 41, 59, 0.95);
+  color: white;
+}
+
+body.dark-theme .popup-content p {
+  color: white;
+}
+
+body.dark-theme .stop-card {
+  background: rgba(30, 41, 59, 0.8);
+}
