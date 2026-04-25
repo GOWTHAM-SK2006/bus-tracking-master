@@ -190,6 +190,7 @@ const DOM = {
   panelEtaContainer: document.getElementById("panelEtaContainer"),
   panelDistance: document.getElementById("panelDistance"),
   panelEta: document.getElementById("panelEta"),
+  panelSpeed: document.getElementById("panelSpeed"),
 
   // Lists
   busGrid: document.getElementById("busGrid"),
@@ -776,8 +777,21 @@ const MapManager = {
       
       if (stats) {
         DOM.panelEtaContainer.classList.remove("hidden");
+        
+        // Calculate Speed
+        const speed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
+        DOM.panelSpeed.textContent = speed;
+
+        // Calculate accurate ETA based on current speed if moving
+        // Fallback to routing ETA if speed is too low (< 5km/h)
+        let finalEta = stats.durationMinutes;
+        if (speed >= 5) {
+          const hours = parseFloat(stats.distanceKm) / speed;
+          finalEta = Math.ceil(hours * 60);
+        }
+
         DOM.panelDistance.textContent = stats.distanceKm;
-        DOM.panelEta.textContent = stats.durationMinutes;
+        DOM.panelEta.textContent = finalEta;
       } else {
         DOM.panelEtaContainer.classList.add("hidden");
       }
@@ -801,6 +815,46 @@ const MapManager = {
       console.error("[Map] Routing error:", e);
       return null;
     }
+  },
+
+  calculateSpeed(busId, lat, lng) {
+    const bus = state.buses.get(busId);
+    if (!bus) return 0;
+
+    const now = Date.now();
+    if (!bus.prevCoords) {
+      bus.prevCoords = { lat, lng, time: now };
+      return 0;
+    }
+
+    const timeDiff = (now - bus.prevCoords.time) / 1000; // seconds
+    if (timeDiff < 3) return bus.currentSpeed || 0; // Throttle updates
+
+    const dist = this.getHaversineDistance(bus.prevCoords.lat, bus.prevCoords.lng, lat, lng);
+    const speedKmh = Math.round((dist / 1000) / (timeDiff / 3600));
+    
+    // Smooth speed (moving average or simple cap)
+    const finalSpeed = Math.min(speedKmh, 100); // Cap at 100km/h for stability
+    
+    bus.prevCoords = { lat, lng, time: now };
+    bus.currentSpeed = finalSpeed;
+    
+    return finalSpeed;
+  },
+
+  getHaversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // metres
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in metres
   },
 
   closePanel() {
