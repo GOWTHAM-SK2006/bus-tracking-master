@@ -1992,12 +1992,17 @@ const DashboardManager = {
       attributionControl: false
     });
 
-    this.selectionMap.on("contextmenu", (e) => {
-      // Prevent default browser context menu
-      e.originalEvent.preventDefault();
+    // Handle selection (Both click and right-click/contextmenu)
+    const handleSelection = (e) => {
+      if (e.originalEvent && e.originalEvent.type === "contextmenu") {
+        e.originalEvent.preventDefault();
+      }
       const { lng, lat } = e.lngLat;
       this.placeTempMarker(lng, lat);
-    });
+    };
+
+    this.selectionMap.on("click", handleSelection);
+    this.selectionMap.on("contextmenu", handleSelection);
   },
 
   placeTempMarker(lng, lat) {
