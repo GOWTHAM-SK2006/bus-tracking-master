@@ -56,18 +56,10 @@ public class UserHandler extends TextWebSocketHandler {
         List<BusData> result = new ArrayList<>();
 
         if ("ALL".equals(type)) {
-            // Filter out buses with invalid (0,0) coordinates
-            for (BusData bus : BusSessionStore.BUS_MAP.values()) {
-                if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
-                    result.add(bus);
-                }
-            }
+            // Send all buses to client, even if offline or (0,0)
+            result.addAll(BusSessionStore.BUS_MAP.values());
         } else {
             for (BusData bus : BusSessionStore.BUS_MAP.values()) {
-                // Skip buses with invalid coordinates
-                if (bus.getLatitude() == 0.0 && bus.getLongitude() == 0.0)
-                    continue;
-
                 if ("BUS_NUMBER".equals(type) && bus.getBusNumber().equals(value)) {
                     result.add(bus);
                 }
@@ -82,19 +74,11 @@ public class UserHandler extends TextWebSocketHandler {
 
     public void broadcastUpdate() {
         try {
-            // Filter out buses with invalid (0,0) coordinates for client broadcast
-            List<BusData> validBuses = new ArrayList<>();
+            // Send all buses to client for lists, map will ignore (0,0)
+            List<BusData> validBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+            
             // Collect ALL buses (including 0,0) for admin so they see status changes
             List<BusData> allBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
-
-            for (BusData bus : BusSessionStore.BUS_MAP.values()) {
-                if (bus.getLatitude() != 0.0 || bus.getLongitude() != 0.0) {
-                    validBuses.add(bus);
-                } else {
-                    System.out
-                            .println("[UserHandler] Skipping bus " + bus.getBusNumber() + " due to (0,0) coordinates");
-                }
-            }
 
             // Broadcast valid buses to user/student clients
             if (!validBuses.isEmpty()) {

@@ -720,11 +720,11 @@ const MapManager = {
       if (bus.gpsOn) {
         statusEl.style.color = "var(--success)";
         statusEl.innerHTML =
-          '<span class="status-dot" style="background: var(--success)"></span>Live Now';
+          '<span class="status-dot" style="background: var(--success)"></span>Online';
       } else {
         statusEl.style.color = "var(--danger)";
         statusEl.innerHTML =
-          '<span class="status-dot" style="background: var(--danger)"></span>Inactive';
+          '<span class="status-dot" style="background: var(--danger)"></span>Offline';
       }
     }
 
@@ -1805,7 +1805,7 @@ const UIManager = {
 
         if (statusBadge) {
           const isGpsOn = bus.gpsOn;
-          statusBadge.textContent = isGpsOn ? "Active" : "Inactive";
+          statusBadge.textContent = isGpsOn ? "Online" : "Offline";
           statusBadge.className = `bus-card-status ${isGpsOn ? "status-active" : "status-inactive"}`;
 
           // Toggle dot style
@@ -1846,7 +1846,7 @@ const UIManager = {
             <div class="bus-card-header">
                 <span class="bus-card-number">${bus.busNo}</span>
                 <span class="bus-card-status" style="color: ${statusColor}; background: ${statusBg}">
-                    ${isGpsOn ? "Active" : "Inactive"}
+                    ${isGpsOn ? "Online" : "Offline"}
                 </span>
             </div>
             <div class="bus-card-name">${bus.busName || ""}</div>
