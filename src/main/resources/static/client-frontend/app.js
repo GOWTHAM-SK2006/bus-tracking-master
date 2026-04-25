@@ -1992,7 +1992,9 @@ const DashboardManager = {
       attributionControl: false
     });
 
-    this.selectionMap.on("click", (e) => {
+    this.selectionMap.on("contextmenu", (e) => {
+      // Prevent default browser context menu
+      e.originalEvent.preventDefault();
       const { lng, lat } = e.lngLat;
       this.placeTempMarker(lng, lat);
     });
@@ -2005,23 +2007,37 @@ const DashboardManager = {
       this.tempMarker.remove();
     }
 
+    // Create a custom element for the "Add" button and 10m radius
     const el = document.createElement("div");
-    el.className = "temp-stop-marker";
+    el.className = "temp-stop-container";
     el.innerHTML = `
-      <div class="marker-pin"></div>
-      <div class="marker-pulse-ring"></div>
+      <div class="stop-radius-circle"></div>
+      <div class="add-stop-popup">
+        <button class="add-stop-btn">Add</button>
+      </div>
     `;
 
-    this.tempMarker = new maptilersdk.Marker({ element: el, draggable: false })
+    // Add click event to the "Add" button
+    const addBtn = el.querySelector(".add-stop-btn");
+    addBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.confirmStop();
+    };
+
+    this.tempMarker = new maptilersdk.Marker({ 
+      element: el, 
+      anchor: 'center'
+    })
       .setLngLat([lng, lat])
       .addTo(this.selectionMap);
 
-    this.confirmPopup.classList.remove("hidden");
+    // Hide the old confirm popup from index.html if it exists
+    if (this.confirmPopup) this.confirmPopup.classList.add("hidden");
     
     this.selectionMap.easeTo({
       center: [lng, lat],
-      zoom: 16,
-      duration: 1000
+      zoom: 17,
+      duration: 800
     });
   },
 

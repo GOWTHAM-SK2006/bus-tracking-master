@@ -1706,46 +1706,71 @@ body {
   100% { transform: scale(1.5); opacity: 0; }
 }
 
-/* Temp Stop Marker (Selection Map) */
-.temp-stop-marker {
-  width: 40px;
-  height: 40px;
+/* Temp Stop Selection (Right Click) */
+.temp-stop-container {
   position: relative;
+  width: 0;
+  height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
-.marker-pin {
-  width: 20px;
-  height: 20px;
-  background: var(--primary);
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  border: 3px solid white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  z-index: 2;
-  animation: pinBounce 0.5s ease-out;
-}
-
-.marker-pulse-ring {
+.stop-radius-circle {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  background: rgba(249, 115, 22, 0.3);
+  width: 80px; /* Approx 10m radius at zoom 17-18 */
+  height: 80px;
+  background: rgba(249, 115, 22, 0.15);
+  border: 2px dashed var(--primary);
   border-radius: 50%;
-  animation: pinPulse 1.5s infinite;
+  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  animation: circleFadeIn 0.3s ease-out;
 }
 
-@keyframes pinBounce {
-  0% { transform: rotate(-45deg) scale(0) translateY(20px); }
-  70% { transform: rotate(-45deg) scale(1.2); }
-  100% { transform: rotate(-45deg) scale(1); }
+@keyframes circleFadeIn {
+  from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-@keyframes pinPulse {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
+.add-stop-popup {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  animation: popupBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popupBounce {
+  from { transform: translateX(-50%) translateY(10px) scale(0.8); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+.add-stop-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.add-stop-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+.add-stop-btn:active {
+  transform: translateY(0);
 }
 
 /* Dashboard Content */
