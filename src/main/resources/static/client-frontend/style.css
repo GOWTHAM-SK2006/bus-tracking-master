@@ -2162,3 +2162,76 @@ body.dark-theme .eta-card {
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05));
   border-color: rgba(249, 115, 22, 0.25);
 }
+
+/* Dashboard Tabs */
+.dashboard-nav-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.dashboard-tabs {
+  display: flex;
+  background: var(--bg-light);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  gap: 4px;
+  width: 100%;
+  border: 1px solid var(--border-light);
+}
+
+.dash-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dash-tab-btn svg {
+  opacity: 0.6;
+}
+
+.dash-tab-btn.active {
+  background: var(--bg-white);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-tab-btn.active svg {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.dash-tab-btn:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-dark);
+}
+
+body.dark-theme .dashboard-tabs {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .dash-tab-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+body.dark-theme .dash-tab-btn.active svg {
+  color: white;
+}
+
+body.dark-theme .dash-tab-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+}

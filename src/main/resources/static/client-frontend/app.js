@@ -1744,6 +1744,11 @@ const TabManager = {
       btn.classList.toggle("active", btn.dataset.tab === tabName);
     });
 
+    // Update dashboard internal tabs if they exist
+    document.querySelectorAll(".dash-tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === tabName);
+    });
+
     // Toggle Floating Panels
     // If tab is 'map', we just want to close all panels (map is always visible in background)
     const panels = document.querySelectorAll(".floating-panel");
@@ -2017,6 +2022,14 @@ const DashboardManager = {
     if (this.cancelOverlayBtn) this.cancelOverlayBtn.onclick = () => this.closeSelectionMap();
     if (this.confirmBtn) this.confirmBtn.onclick = () => this.confirmStop();
     if (this.cancelMarkerBtn) this.cancelMarkerBtn.onclick = () => this.clearTempMarker();
+
+    // Internal Dashboard Tabs
+    document.querySelectorAll(".dash-tab-btn").forEach(btn => {
+      btn.onclick = () => {
+        const tab = btn.dataset.tab;
+        TabManager.switchTab(tab);
+      };
+    });
 
     this.updateDashboardUI();
   },
