@@ -1976,7 +1976,8 @@ const BusDetailPopup = {
 
     // Track on Map button
     if (this.trackBtn) {
-      this.trackBtn.addEventListener("click", () => {
+      this.trackBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         if (this.currentBusId) {
           this.close();
           TabManager.switchTab("map");

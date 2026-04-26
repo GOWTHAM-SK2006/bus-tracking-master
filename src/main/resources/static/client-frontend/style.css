@@ -2304,11 +2304,13 @@ body.dark-theme .action-label span {
   justify-content: center;
   opacity: 1;
   transition: opacity 0.3s ease;
+  pointer-events: auto;
 }
 
 .bus-detail-popup-overlay.hidden {
   display: none;
   opacity: 0;
+  pointer-events: none;
 }
 
 .bus-detail-popup-overlay.fade-out {
@@ -2329,6 +2331,7 @@ body.dark-theme .action-label span {
     0 10px 24px rgba(0, 0, 0, 0.08);
   animation: popupSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 @keyframes popupSlideIn {
@@ -2375,6 +2378,7 @@ body.dark-theme .action-label span {
   color: var(--text-secondary);
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   z-index: 10;
+  pointer-events: auto;
 }
 
 .bus-detail-close-btn svg {
