@@ -2224,7 +2224,11 @@ const DashboardManager = {
     this.stopActionCard = document.getElementById("stopActionCard");
     this.stopActionTitle = document.getElementById("stopActionTitle");
     this.stopActionSub = document.getElementById("stopActionSub");
-    this.stopDetailsPanel = document.getElementById("stopDetailsPanel");
+    
+    // Linked to the new popup overlay
+    this.stopDetailsPopup = document.getElementById("stopDetailsPopup");
+    this.closeStopDetailsBtn = document.getElementById("closeStopDetails");
+    this.locateStopBtn = document.getElementById("locateStopBtn");
 
     this.savedStopLocation = document.getElementById("savedStopLocation");
     this.savedStopCoords = document.getElementById("savedStopCoords");
@@ -2234,11 +2238,48 @@ const DashboardManager = {
       this.stopActionCard.onclick = () => {
         const savedStop = localStorage.getItem("userSavedStop");
         if (savedStop) {
-          // Toggle expansion
-          this.stopDetailsPanel.classList.toggle("hidden");
+          // Open the new popup panel
+          if (this.stopDetailsPopup) {
+             this.stopDetailsPopup.classList.remove("hidden");
+             this.stopDetailsPopup.style.display = "flex"; // Ensure it shows
+          }
         } else {
           // Open map selection
           this.openSelectionMap();
+        }
+      };
+    }
+
+    if (this.closeStopDetailsBtn) {
+      this.closeStopDetailsBtn.onclick = () => {
+        if (this.stopDetailsPopup) {
+           this.stopDetailsPopup.classList.add("hidden");
+           this.stopDetailsPopup.style.display = "none";
+        }
+      };
+    }
+
+    if (this.locateStopBtn) {
+      this.locateStopBtn.onclick = () => {
+        const savedStop = localStorage.getItem("userSavedStop");
+        if (savedStop) {
+          const stop = JSON.parse(savedStop);
+          // Hide popup
+          if (this.stopDetailsPopup) {
+             this.stopDetailsPopup.classList.add("hidden");
+             this.stopDetailsPopup.style.display = "none";
+          }
+          // Switch to map tab
+          TabManager.switchTab("map");
+          // Center map
+          if (MapManager.map) {
+            MapManager.map.flyTo({
+              center: [stop.lng, stop.lat],
+              zoom: 16,
+              essential: true
+            });
+            showToast("Centered on your stop", "info");
+          }
         }
       };
     }
@@ -2293,7 +2334,10 @@ const DashboardManager = {
       // Update Action Card to show "Set My Stop"
       if (this.stopActionTitle) this.stopActionTitle.textContent = "Set My Stop";
       if (this.stopActionSub) this.stopActionSub.textContent = "Manage your location";
-      if (this.stopDetailsPanel) this.stopDetailsPanel.classList.add("hidden");
+      if (this.stopDetailsPopup) {
+         this.stopDetailsPopup.classList.add("hidden");
+         this.stopDetailsPopup.style.display = "none";
+      }
     }
   },
 
@@ -2327,6 +2371,16 @@ const DashboardManager = {
   closeSelectionMap() {
     this.overlay.classList.add("hidden");
     this.clearTempMarker();
+  },
+
+  removeStop() {
+    localStorage.removeItem("userSavedStop");
+    if (this.stopDetailsPopup) {
+       this.stopDetailsPopup.classList.add("hidden");
+       this.stopDetailsPopup.style.display = "none";
+    }
+    this.updateDashboardUI();
+    showToast("Stop removed", "info");
   },
 
   initSelectionMap() {
