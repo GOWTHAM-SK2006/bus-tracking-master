@@ -194,7 +194,6 @@ const DOM = {
 
   // Lists
   busGrid: document.getElementById("busGrid"),
-  busFilterInput: document.getElementById("busFilterInput"),
   totalBuses: document.getElementById("totalBuses"),
   busesEmpty: document.getElementById("busesEmpty"),
 
@@ -1458,9 +1457,6 @@ const SearchManager = {
       // Update filter state immediately
       state.searchFilter = e.target.value.trim();
 
-      // Sync with bus list filter input
-      if (DOM.busFilterInput) DOM.busFilterInput.value = e.target.value;
-
       // Re-apply filter to map markers
       this.refreshFilteredView();
 
@@ -1673,9 +1669,8 @@ const SearchManager = {
     // Set filter state
     state.searchFilter = name;
     
-    // Sync both search inputs
+    // Sync the search input
     if (DOM.searchInput) DOM.searchInput.value = name;
-    if (DOM.busFilterInput) DOM.busFilterInput.value = name;
     
     // Ensure clear button is visible
     if (DOM.searchClear) DOM.searchClear.classList.remove("hidden");
@@ -2470,16 +2465,8 @@ async function init() {
     initMobileMenu();
     initTomTomServices();
 
-    // Wire up bus list filter input
-    if (DOM.busFilterInput) {
-      DOM.busFilterInput.addEventListener("input", (e) => {
-        state.searchFilter = e.target.value.trim();
-        // Sync with header search bar
-        if (DOM.searchInput) DOM.searchInput.value = e.target.value;
-        DOM.searchClear.classList.toggle("hidden", !e.target.value);
-        SearchManager.refreshFilteredView();
-      });
-    }
+    // Main search logic is handled by SearchManager.init()
+    // which now points to the single search input in the Buses tab.
 
     DOM.panelCloseBtn.addEventListener("click", (e) => {
       console.log("[App] Close Button Clicked! Event:", e);

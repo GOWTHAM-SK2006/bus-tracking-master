@@ -302,47 +302,7 @@
 
         <!-- Navigation Tabs moved to bottom bar -->
 
-        <!-- Search Bar -->
-        <div class="search-container">
-          <div class="search-wrapper">
-            <svg
-              class="search-icon"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              type="text"
-              id="searchInput"
-              class="search-input"
-              placeholder="Search for a bus route(bus name)"
-              autocomplete="off"
-            />
-            <button class="search-clear hidden" id="searchClear">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-          <!-- Search Dropdown -->
-          <div class="search-dropdown" id="searchDropdown">
-            <div class="dropdown-content" id="searchDropdownContent"></div>
-          </div>
-        </div>
+        <!-- Search Bar removed from header -->
 
         <!-- Theme Toggle Button -->
         <button
@@ -611,25 +571,46 @@
             <h2>All Buses</h2>
             <span class="list-count"><span id="totalBuses">0</span> buses</span>
           </div>
-          <!-- Search within list -->
-          <div class="local-search">
-            <svg
-              class="search-icon"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input
-              type="text"
-              placeholder="Filter buses..."
-              id="busFilterInput"
-            />
+          <!-- Consolidated Search (Replaces old Filter buses) -->
+          <div class="search-container" style="margin-bottom: 20px;">
+            <div class="search-wrapper">
+              <svg
+                class="search-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="Search for a bus route(bus name)"
+                autocomplete="off"
+              />
+              <button class="search-clear hidden" id="searchClear">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <!-- Search Dropdown -->
+            <div class="search-dropdown" id="searchDropdown">
+              <div class="dropdown-content" id="searchDropdownContent"></div>
+            </div>
           </div>
           <div class="cards-grid" id="busGrid">
             <div class="empty-state" id="busesEmpty">
