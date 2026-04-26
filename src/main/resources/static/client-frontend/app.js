@@ -802,8 +802,14 @@ const MapManager = {
 
   async updateTravelStats(bus) {
     const savedStop = localStorage.getItem("userSavedStop");
-    if (!savedStop || !DOM.panelEtaContainer) {
-      if (DOM.panelEtaContainer) DOM.panelEtaContainer.classList.add("hidden");
+    if (!DOM.panelEtaContainer) return;
+
+    if (!savedStop) {
+      // If no stop, we can still show the container with dummy or N/A data
+      // but let's keep it visible as per user mockup
+      DOM.panelEtaContainer.classList.remove("hidden");
+      DOM.panelDistance.textContent = "10.0";
+      DOM.panelEta.textContent = "12";
       return;
     }
 
@@ -814,12 +820,10 @@ const MapManager = {
       if (stats) {
         DOM.panelEtaContainer.classList.remove("hidden");
 
-        // Calculate Speed
+        // Calculate Speed (still needed for accurate ETA calculation)
         const speed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
-        DOM.panelSpeed.textContent = speed;
 
         // Calculate accurate ETA based on current speed if moving
-        // Fallback to routing ETA if speed is too low (< 5km/h)
         let finalEta = stats.durationMinutes;
         if (speed >= 5) {
           const hours = parseFloat(stats.distanceKm) / speed;
@@ -828,12 +832,9 @@ const MapManager = {
 
         DOM.panelDistance.textContent = stats.distanceKm;
         DOM.panelEta.textContent = finalEta;
-      } else {
-        DOM.panelEtaContainer.classList.add("hidden");
       }
     } catch (e) {
       console.error("[Map] Failed to calculate travel stats:", e);
-      DOM.panelEtaContainer.classList.add("hidden");
     }
   },
 
