@@ -560,6 +560,46 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-md);
   position: relative;
   z-index: 10;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mini-map-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3000;
+  border-radius: 0;
+  margin: 0;
+}
+
+.map-fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  color: var(--text-dark);
+  transition: all 0.2s;
+}
+
+.map-fullscreen-btn:hover {
+  background: var(--bg-gray);
+  transform: scale(1.05);
+}
+
+.map-fullscreen-btn.hidden {
+  display: none;
 }
 
 .map-container {

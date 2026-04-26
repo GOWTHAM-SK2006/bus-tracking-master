@@ -258,6 +258,43 @@ const MapManager = {
 
     console.log("[Map] MapTiler SDK Map Initialized");
 
+    // Double click to show fullscreen button
+    this.map.on('dblclick', () => {
+      const btn = document.getElementById('mapFullscreenBtn');
+      if (btn) {
+        btn.classList.remove('hidden');
+        // Auto-hide after 5 seconds if not clicked? No, let user decide.
+      }
+    });
+
+    // Handle fullscreen toggle
+    document.getElementById('mapFullscreenBtn')?.addEventListener('click', () => {
+      const container = document.querySelector('.mini-map-container');
+      const btn = document.getElementById('mapFullscreenBtn');
+      if (container) {
+        const isFullscreen = container.classList.toggle('fullscreen');
+        
+        // Update button icon
+        if (btn) {
+          if (isFullscreen) {
+            btn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5" />
+              </svg>
+            `;
+          } else {
+            btn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            `;
+          }
+        }
+
+        setTimeout(() => this.map.resize(), 450);
+      }
+    });
+
     // Load saved stop if exists
     this.loadSavedStop();
   },
