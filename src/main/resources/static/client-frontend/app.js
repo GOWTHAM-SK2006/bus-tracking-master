@@ -660,8 +660,8 @@ const MapManager = {
     }
 
     // 4. Update Panel (Immediate)
-    this.updatePanel(busData);
     DOM.busInfoPanel.classList.add("active");
+    this.updatePanel(busData);
 
     // 5. Navigate Map (With Sync Delay)
     const delay = isMapVisible ? 50 : 350;
@@ -740,8 +740,8 @@ const MapManager = {
   async updatePanel(bus) {
     console.log(`[Map] Updating panel for bus: ${bus.busNo}`, bus);
 
-    // Skip update if panel is not visible
-    if (!DOM.busInfoPanel || !DOM.busInfoPanel.classList.contains("active")) {
+    // Skip update if panel is missing
+    if (!DOM.busInfoPanel) {
       return;
     }
 
