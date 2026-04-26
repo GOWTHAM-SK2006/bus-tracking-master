@@ -1522,19 +1522,35 @@ const SearchManager = {
   },
 
   async performSearch(query, context) {
+    const q = query.toLowerCase().trim();
     const results = [];
+    const matchedNames = new Map(); // Name -> example bus object
+    const directBusMatches = [];
 
-    // Local Search (Buses only - by bus number, name, or route)
+    // Local Search
     state.buses.forEach((bus, busId) => {
-      const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(query);
-      const matchesName =
-        bus.busName && bus.busName.toLowerCase().includes(query);
-      const matchesRoute =
-        bus.routeName && bus.routeName.toLowerCase().includes(query);
+      const busName = bus.busName || "";
+      const matchesName = busName.toLowerCase().includes(q);
+      const matchesNo = bus.busNo && bus.busNo.toLowerCase().includes(q);
+      const matchesRoute = bus.routeName && bus.routeName.toLowerCase().includes(q);
 
-      if (matchesNo || matchesName || matchesRoute) {
-        results.push({ type: "bus", ...bus });
+      if (matchesName) {
+        if (!matchedNames.has(busName)) {
+          matchedNames.set(busName, bus);
+        }
+      } else if (matchesNo || matchesRoute) {
+        directBusMatches.push({ type: "bus", ...bus });
       }
+    });
+
+    // Add unique names to results first
+    matchedNames.forEach((bus, name) => {
+      results.push({ type: "name", name: name, routeName: bus.routeName });
+    });
+
+    // Add specific bus matches (where name didn't match but number/route did)
+    directBusMatches.forEach(bus => {
+      results.push(bus);
     });
 
     if (results.length > 0) {
@@ -1581,29 +1597,52 @@ const SearchManager = {
 
     container.innerHTML = results
       .map((result) => {
-        return `
-                    <div class="dropdown-item" data-type="bus" data-id="${result.busId}">
-                        <div class="dropdown-item-header">
-                            <span class="dropdown-bus-number">${result.busNo}</span>
-                            <span class="dropdown-bus-name">${result.busName}</span>
-                        </div>
-                        ${result.routeName ? `<div class="dropdown-route">${result.routeName}</div>` : ""}
+        if (result.type === "name") {
+          return `
+                <div class="dropdown-item" data-type="name" data-value="${result.name}">
+                    <div class="dropdown-item-header">
+                        <span class="dropdown-bus-name">${result.name}</span>
                     </div>
-                `;
+                    <div class="dropdown-route">View all buses for this name</div>
+                </div>
+            `;
+        }
+        return `
+            <div class="dropdown-item" data-type="bus" data-id="${result.busId}">
+                <div class="dropdown-item-header">
+                    <span class="dropdown-bus-number">${result.busNo}</span>
+                    <span class="dropdown-bus-name">${result.busName}</span>
+                </div>
+                ${result.routeName ? `<div class="dropdown-route">${result.routeName}</div>` : ""}
+            </div>
+        `;
       })
       .join("");
 
     // Event listeners for results
     container.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", () => {
+        const type = item.dataset.type;
+        const id = item.dataset.id;
+        const val = item.dataset.value;
+
         if (context === "welcome") {
-          const bus = state.buses.get(item.dataset.id);
-          if (bus) {
-            DOM.welcomeSearchInput.value = bus.busName || bus.busNo;
-            this.applyWelcomeFilter(bus.busName || bus.busNo);
+          if (type === "name") {
+            DOM.welcomeSearchInput.value = val;
+            this.applyWelcomeFilter(val);
+          } else {
+            const bus = state.buses.get(id);
+            if (bus) {
+              DOM.welcomeSearchInput.value = bus.busName || bus.busNo;
+              this.applyWelcomeFilter(bus.busName || bus.busNo);
+            }
           }
         } else {
-          this.selectBusResult(item.dataset.id);
+          if (type === "name") {
+            this.selectNameResult(val);
+          } else {
+            this.selectBusResult(id);
+          }
         }
       });
     });
@@ -1611,6 +1650,16 @@ const SearchManager = {
     if (context === "welcome")
       DOM.welcomeSearchDropdown.style.display = "block";
     else DOM.searchDropdown.classList.add("active");
+  },
+
+  selectNameResult(name) {
+    DOM.searchDropdown.classList.remove("active");
+    DOM.searchInput.value = name;
+    state.searchFilter = name;
+    
+    // Switch to buses tab to show all matching buses
+    TabManager.switchTab("buses");
+    this.refreshFilteredView();
   },
 
   selectBusResult(busId) {
