@@ -660,7 +660,7 @@ const MapManager = {
     }
 
     // 4. Update Panel (Immediate)
-    DOM.busInfoPanel.classList.add("active");
+    if (DOM.busInfoPanel) DOM.busInfoPanel.classList.add("active");
     this.updatePanel(busData);
 
     // 5. Navigate Map (With Sync Delay)
@@ -910,7 +910,7 @@ const MapManager = {
     this.isNavigating = false;
 
     // Hide panel
-    DOM.busInfoPanel.classList.remove("active");
+    if (DOM.busInfoPanel) DOM.busInfoPanel.classList.remove("active");
     console.log("[Map] Panel closed");
   },
 
@@ -1211,7 +1211,7 @@ const BusTracker = {
       if (b.gpsOn) activeCount++;
     });
 
-    DOM.activeBusCount.textContent = `${activeCount} Active`;
+    if (DOM.activeBusCount) DOM.activeBusCount.textContent = `${activeCount} Active`;
     DOM.totalBuses.textContent = state.buses.size;
 
     UIManager.renderBusesList();
@@ -1244,7 +1244,7 @@ const BusTracker = {
     state.buses.delete(busId);
     MapManager.removeBusMarker(busId);
 
-    DOM.activeBusCount.textContent = state.buses.size;
+    if (DOM.activeBusCount) DOM.activeBusCount.textContent = state.buses.size;
     DOM.totalBuses.textContent = state.buses.size;
 
     UIManager.renderBusesList();
@@ -1322,7 +1322,7 @@ const BusTracker = {
       if (bus.gpsOn) activeCount++;
     });
 
-    DOM.activeBusCount.textContent = `${activeCount} Active`;
+    if (DOM.activeBusCount) DOM.activeBusCount.textContent = `${activeCount} Active`;
     DOM.totalBuses.textContent = state.buses.size;
 
     // Update markers and panel for active buses
@@ -2562,11 +2562,13 @@ async function init() {
     // Main search logic is handled by SearchManager.init()
     // which now points to the single search input in the Buses tab.
 
-    DOM.panelCloseBtn.addEventListener("click", (e) => {
-      console.log("[App] Close Button Clicked! Event:", e);
-      MapManager.closePanel();
-      console.log("[App] closePanel() method finished");
-    });
+    if (DOM.panelCloseBtn) {
+      DOM.panelCloseBtn.addEventListener("click", (e) => {
+        console.log("[App] Close Button Clicked! Event:", e);
+        MapManager.closePanel();
+        console.log("[App] closePanel() method finished");
+      });
+    }
 
     // Connect to WebSocket
     WebSocketManager.connect();
