@@ -2315,19 +2315,19 @@ body.dark-theme .eta-card {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 5000;
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(8px);
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-normal);
+  pointer-events: auto !important;
 }
 
 .stop-details-popup-overlay.hidden {
-  display: none;
-  opacity: 0;
-  pointer-events: none;
+  display: none !important;
+  pointer-events: none !important;
 }
 
 .stop-details-popup {
@@ -2336,11 +2336,12 @@ body.dark-theme .eta-card {
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  width: 90%;
+  width: 92%;
   max-width: 400px;
   padding: 32px;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
   position: relative;
+  pointer-events: auto !important;
   animation: popupSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2348,17 +2349,19 @@ body.dark-theme .eta-card {
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: none;
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-dark);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  pointer-events: auto !important;
+  z-index: 100;
 }
 
 .popup-close-btn:hover {
@@ -2388,22 +2391,25 @@ body.dark-theme .eta-card {
 
 .stop-title-group h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  font-weight: 800;
   color: var(--text-dark);
 }
 
 .stop-title-group p {
-  margin: 4px 0 0;
-  font-size: 0.9rem;
+  margin: 6px 0 0;
+  font-size: 0.95rem;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .stop-details-body {
   margin-bottom: 32px;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.03);
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.04);
   border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stop-info-row {
@@ -2422,6 +2428,16 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+#locateStopBtn, #changeStopBtn, #removeStopBtn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 10;
+}
+
+#locateStopBtn:active, #changeStopBtn:active, #removeStopBtn:active {
+  transform: scale(0.95);
 }
 
 #locateStopBtn {
