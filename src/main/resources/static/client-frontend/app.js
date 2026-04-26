@@ -86,7 +86,7 @@ const CONFIG = {
   // Map Defaults
   MAP_CENTER: [80.2707, 13.0827], // [lng, lat]
   MAP_ZOOM: 12,
-  MAP_MIN_ZOOM: 10,
+  MAP_MIN_ZOOM: 2,
   MAP_MAX_ZOOM: 18,
   ANIMATION_DURATION: 100,
   SEARCH_DEBOUNCE: 300,

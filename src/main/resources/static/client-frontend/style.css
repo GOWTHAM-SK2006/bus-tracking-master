@@ -608,6 +608,37 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--bg-gray);
 }
 
+/* Larger Map Controls for easier zooming */
+.maptilersdk-ctrl-group {
+  border: 1px solid var(--border-light) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-lg) !important;
+  overflow: hidden;
+  background: white !important;
+}
+
+.maptilersdk-ctrl-group button {
+  width: 48px !important;
+  height: 48px !important;
+  border-bottom: 1px solid var(--border-light) !important;
+}
+
+.maptilersdk-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+.maptilersdk-ctrl-icon {
+  transform: scale(1.2);
+}
+
+.maptilersdk-ctrl-zoom-out {
+  background-color: #fff !important;
+}
+
+.maptilersdk-ctrl-zoom-out:hover {
+  background-color: var(--bg-gray) !important;
+}
+
 /* Bus Counter Widget — Glass Pill */
 .bus-counter-widget {
   position: fixed;
