@@ -810,6 +810,7 @@ const MapManager = {
       DOM.panelEtaContainer.classList.remove("hidden");
       DOM.panelDistance.textContent = "10.0";
       DOM.panelEta.textContent = "12";
+      if (DOM.panelSpeed) DOM.panelSpeed.textContent = "0";
       return;
     }
 
@@ -822,6 +823,7 @@ const MapManager = {
 
         // Calculate Speed (still needed for accurate ETA calculation)
         const speed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
+        if (DOM.panelSpeed) DOM.panelSpeed.textContent = speed;
 
         // Calculate accurate ETA based on current speed if moving
         let finalEta = stats.durationMinutes;

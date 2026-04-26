@@ -824,6 +824,25 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
 }
 
+.bus-speed-label {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(249, 115, 22, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.bus-speed-label span {
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
 .bus-status .status-dot {
   width: 8px;
   height: 8px;
