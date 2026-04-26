@@ -22,13 +22,9 @@ public class MainActivity extends BridgeActivity {
         getWindow().setNavigationBarColor(0xFF000000);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "App onStop called - sending stop tracking notification");
-        // Notify JavaScript to send STOP action when app is backgrounded
-        notifyAppStopped();
-    }
+    // Removed onStop override that was stopping tracking when app backgrounded
+    // Background tracking should continue via the BackgroundGeolocation service
+
 
     @Override
     public void onDestroy() {

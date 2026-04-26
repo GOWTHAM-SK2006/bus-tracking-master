@@ -32,7 +32,7 @@
       "showSpinner": false
     },
     "BackgroundGeolocation": {
-      "distanceFilter": 5,
+      "distanceFilter": 0,
       "backgroundTitle": "Bus Tracking Active",
       "backgroundMessage": "Location is being tracked for bus tracking",
       "requestPermissions": true,
