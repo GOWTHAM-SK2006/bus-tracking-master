@@ -285,9 +285,9 @@ body {
    Search — Floating Pill
    ========================================= */
 .search-container {
-  flex: 1;
-  max-width: 400px;
   position: relative;
+  width: 100%;
+  margin-bottom: 16px;
 }
 .search-wrapper {
   position: relative;
