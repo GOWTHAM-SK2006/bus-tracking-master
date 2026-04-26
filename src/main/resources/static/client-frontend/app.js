@@ -177,20 +177,17 @@ const DOM = {
   // Map
   mapContainer: document.getElementById("map"),
   activeBusCount: document.getElementById("activeBusCount"),
-  busInfoPanel: document.getElementById("busInfoPanel"),
-  panelCloseBtn: document.getElementById("panelCloseBtn"),
-
-  // Panel
-  panelBusNo: document.getElementById("panelBusNo"),
-  panelBusName: document.getElementById("panelBusName"),
-  panelBusRoute: document.getElementById("panelBusRoute"),
-  panelLocation: document.getElementById("panelLocation"),
-  panelDriver: document.getElementById("panelDriver"),
-  panelPhone: document.getElementById("panelPhone"),
-  panelEtaContainer: document.getElementById("panelEtaContainer"),
-  panelDistance: document.getElementById("panelDistance"),
-  panelEta: document.getElementById("panelEta"),
-  panelSpeed: document.getElementById("panelSpeed"),
+  // Integrated Dashboard Bus Panel
+  dashboardBusPanel: document.getElementById("dashboardBusPanel"),
+  dashBusNo: document.getElementById("dashBusNo"),
+  dashBusName: document.getElementById("dashBusName"),
+  dashStatusDot: document.getElementById("dashStatusDot"),
+  dashStatusLabel: document.getElementById("dashStatusLabel"),
+  dashDistance: document.getElementById("dashDistance"),
+  dashEta: document.getElementById("dashEta"),
+  dashSpeed: document.getElementById("dashSpeed"),
+  dashNextStop: document.getElementById("dashNextStop"),
+  dashArrivalBadge: document.getElementById("dashArrivalBadge"),
 
   // Lists
   busGrid: document.getElementById("busGrid"),
@@ -738,106 +735,69 @@ const MapManager = {
   },
 
   async updatePanel(bus) {
-    console.log(`[Map] Updating panel for bus: ${bus.busNo}`, bus);
+    console.log(`[Map] Updating integrated panel for bus: ${bus.busNo}`, bus);
 
-    // Skip update if panel is missing
-    if (!DOM.busInfoPanel) {
-      return;
+    // Ensure integrated panel is visible if a bus is selected
+    if (DOM.dashboardBusPanel) {
+      DOM.dashboardBusPanel.classList.remove("hidden");
     }
 
-    // Badge = Bus Number, Title = Bus Name (Standard Layout)
-    DOM.panelBusNo.textContent = bus.busNo;
-    DOM.panelBusName.textContent = bus.busName || `Bus ${bus.busNo}`;
-    DOM.panelBusRoute.textContent = `Route: ${bus.routeName || "Unknown"}`;
-
-    // Update status in panel
-    const statusEl = DOM.busInfoPanel.querySelector(".bus-status");
-    if (statusEl) {
+    if (DOM.dashBusNo) DOM.dashBusNo.textContent = bus.busNo;
+    if (DOM.dashBusName) DOM.dashBusName.textContent = bus.busName || `Bus ${bus.busNo}`;
+    
+    // Status
+    if (DOM.dashStatusDot && DOM.dashStatusLabel) {
       if (bus.gpsOn) {
-        statusEl.style.color = "var(--success)";
-        statusEl.innerHTML =
-          '<span class="status-dot" style="background: var(--success)"></span>Online';
+        DOM.dashStatusDot.className = "status-dot online";
+        DOM.dashStatusLabel.textContent = "Live";
       } else {
-        statusEl.style.color = "var(--danger)";
-        statusEl.innerHTML =
-          '<span class="status-dot" style="background: var(--danger)"></span>Offline';
+        DOM.dashStatusDot.className = "status-dot offline";
+        DOM.dashStatusLabel.textContent = "Offline";
       }
     }
 
-    // Update Travel Stats (Distance & ETA) if user has a saved stop
+    // Update Travel Stats (Distance, ETA, Speed)
     this.updateTravelStats(bus);
 
-    const hasValidCoords =
-      bus.latitude != null &&
-      bus.longitude != null &&
-      !isNaN(bus.latitude) &&
-      !isNaN(bus.longitude) &&
-      (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
-
-    if (bus.address && hasValidCoords) {
-      DOM.panelLocation.textContent = bus.address;
-    } else if (hasValidCoords) {
-      DOM.panelLocation.textContent = `${bus.latitude.toFixed(6)}, ${bus.longitude.toFixed(6)}`;
-      // Fetch address in background
-      if (window.TomTomServices) {
-        const address = await window.TomTomServices.ReverseGeocoding.getAddress(
-          bus.latitude,
-          bus.longitude,
-        );
-        if (address) {
-          bus.address = address;
-          DOM.panelLocation.textContent = address;
-        }
-      }
-    } else {
-      DOM.panelLocation.textContent = "Location unavailable";
-      if (DOM.panelEtaContainer) DOM.panelEtaContainer.classList.add("hidden");
+    // Next Stop (Dummy or from route data if available)
+    if (DOM.dashNextStop) {
+      DOM.dashNextStop.textContent = bus.routeName ? bus.routeName.split(" - ")[1] || "Adyar Depot" : "Adyar Depot";
     }
-
-    // Update Driver Info
-    if (DOM.panelDriver)
-      DOM.panelDriver.textContent = bus.driverName || "Unknown";
-    if (DOM.panelPhone) DOM.panelPhone.textContent = bus.driverPhone || "N/A";
   },
 
   async updateTravelStats(bus) {
     const savedStop = localStorage.getItem("userSavedStop");
-    if (!DOM.panelEtaContainer) return;
+    
+    // Default values if no stop or error
+    let distance = "10.0";
+    let eta = "12";
+    let speed = "40";
 
-    if (!savedStop) {
-      // If no stop, we can still show the container with dummy or N/A data
-      // but let's keep it visible as per user mockup
-      DOM.panelEtaContainer.classList.remove("hidden");
-      DOM.panelDistance.textContent = "10.0";
-      DOM.panelEta.textContent = "12";
-      if (DOM.panelSpeed) DOM.panelSpeed.textContent = "0";
-      return;
-    }
-
-    try {
-      const stop = JSON.parse(savedStop);
-      const stats = await this.getTravelStats(bus.latitude, bus.longitude, stop.lat, stop.lng);
-
-      if (stats) {
-        DOM.panelEtaContainer.classList.remove("hidden");
-
-        // Calculate Speed (still needed for accurate ETA calculation)
-        const speed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
-        if (DOM.panelSpeed) DOM.panelSpeed.textContent = speed;
-
-        // Calculate accurate ETA based on current speed if moving
-        let finalEta = stats.durationMinutes;
-        if (speed >= 5) {
-          const hours = parseFloat(stats.distanceKm) / speed;
-          finalEta = Math.ceil(hours * 60);
+    if (savedStop) {
+      try {
+        const stop = JSON.parse(savedStop);
+        const stats = await this.getTravelStats(bus.latitude, bus.longitude, stop.lat, stop.lng);
+        if (stats) {
+          distance = stats.distanceKm;
+          eta = stats.durationMinutes;
+          
+          // Speed Calculation
+          const calcSpeed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
+          speed = calcSpeed > 0 ? calcSpeed : "40";
+          
+          if (speed >= 5) {
+            const hours = parseFloat(distance) / speed;
+            eta = Math.ceil(hours * 60);
+          }
         }
-
-        DOM.panelDistance.textContent = stats.distanceKm;
-        DOM.panelEta.textContent = finalEta;
+      } catch (e) {
+        console.error("[Map] Travel stats error:", e);
       }
-    } catch (e) {
-      console.error("[Map] Failed to calculate travel stats:", e);
     }
+
+    if (DOM.dashDistance) DOM.dashDistance.textContent = distance;
+    if (DOM.dashEta) DOM.dashEta.textContent = eta;
+    if (DOM.dashSpeed) DOM.dashSpeed.textContent = speed;
   },
 
   async getTravelStats(busLat, busLng, stopLat, stopLng) {
@@ -905,13 +865,13 @@ const MapManager = {
     this.navTimeout = null;
     this.lockTimeout = null;
 
-    // Reset state
-    state.selectedBusId = null;
+    // Reset state - Note: we keep the last selected bus visible as per user request
+    // state.selectedBusId = null; // Don't null this if we want to keep showing the last bus
     this.isNavigating = false;
 
-    // Hide panel
-    if (DOM.busInfoPanel) DOM.busInfoPanel.classList.remove("active");
-    console.log("[Map] Panel closed");
+    // We no longer hide the panel when clicking away, 
+    // as it is integrated into the dashboard below the map.
+    console.log("[Map] Integrated panel remains visible");
   },
 
   removeBusMarker(busId) {
@@ -2569,6 +2529,37 @@ async function init() {
         console.log("[App] closePanel() method finished");
       });
     }
+
+    // Initial Load Logic: Select a default bus
+    setTimeout(() => {
+      if (!state.selectedBusId && state.buses.size > 0) {
+        // Try to find a bus based on saved filter/preference
+        const clientData = localStorage.getItem("client");
+        let defaultBus = null;
+        if (clientData) {
+          try {
+            const client = JSON.parse(clientData);
+            if (client.savedBusStop) {
+              const q = client.savedBusStop.toLowerCase();
+              defaultBus = Array.from(state.buses.values()).find(b => 
+                (b.busName && b.busName.toLowerCase().includes(q)) || 
+                (b.busNo && b.busNo.toLowerCase().includes(q))
+              );
+            }
+          } catch(e) {}
+        }
+        
+        // Fallback to first available bus
+        if (!defaultBus) {
+          defaultBus = Array.from(state.buses.values())[0];
+        }
+
+        if (defaultBus) {
+          console.log("[App] Selecting initial default bus:", defaultBus.busNo);
+          MapManager.selectBus(defaultBus.busId || defaultBus.busNo);
+        }
+      }
+    }, 2000); // Wait for data to arrive via WS
 
     // Connect to WebSocket
     WebSocketManager.connect();

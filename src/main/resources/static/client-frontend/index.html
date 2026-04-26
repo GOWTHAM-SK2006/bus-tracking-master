@@ -359,15 +359,15 @@
             <!-- Detailed Bus Status Card (Reference Style) -->
             <div class="bus-status-premium-card hidden" id="dashboardBusPanel">
               <div class="card-header-main">
-                <div class="bus-number-badge orange">120</div>
+                <div class="bus-number-badge orange" id="dashBusNo">--</div>
                 <div class="bus-info-text">
-                  <h3 id="panelBusName">Bus 120</h3>
+                  <h3 id="dashBusName">Select a Bus</h3>
                   <div class="status-indicator">
-                    <span class="status-dot online"></span>
-                    <span class="status-label">Live</span>
+                    <span class="status-dot" id="dashStatusDot"></span>
+                    <span class="status-label" id="dashStatusLabel">--</span>
                   </div>
                 </div>
-                <div class="arrival-status-badge">
+                <div class="arrival-status-badge" id="dashArrivalBadge">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   On Time
                 </div>
@@ -375,19 +375,19 @@
               <div class="card-stats-grid">
                 <div class="stat-item">
                   <div class="stat-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> DISTANCE</div>
-                  <div class="stat-value"><span id="panelDistance">10.0</span> <span class="unit">km</span></div>
+                  <div class="stat-value"><span id="dashDistance">--</span> <span class="unit">km</span></div>
                 </div>
                 <div class="stat-item">
                   <div class="stat-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ARRIVAL IN</div>
-                  <div class="stat-value"><span id="panelArrival">12</span> <span class="unit">mins</span></div>
+                  <div class="stat-value"><span id="dashEta">--</span> <span class="unit">mins</span></div>
                 </div>
                 <div class="stat-item">
                   <div class="stat-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> SPEED</div>
-                  <div class="stat-value"><span id="panelSpeed">40</span> <span class="unit">km/h</span></div>
+                  <div class="stat-value"><span id="dashSpeed">--</span> <span class="unit">km/h</span></div>
                 </div>
                 <div class="stat-item">
                   <div class="stat-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> NEXT STOP</div>
-                  <div class="stat-value"><span id="panelNextStop" class="small-text">Adyar Depot</span></div>
+                  <div class="stat-value"><span id="dashNextStop" class="small-text">--</span></div>
                 </div>
               </div>
             </div>
