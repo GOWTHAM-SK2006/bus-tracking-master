@@ -715,7 +715,7 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   bottom: 70px;
   right: var(--spacing-lg);
-  width: 340px;
+  width: 300px;
   max-height: calc(100vh - 140px);
   overflow-y: auto;
   background: rgba(255, 255, 255, 0.92);
@@ -728,6 +728,14 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(calc(100% + 40px));
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none; /* Allow map interaction through panel padding */
+}
+
+.bus-info-panel .panel-close-btn,
+.bus-info-panel .panel-header,
+.bus-info-panel .panel-body,
+.bus-info-panel .report-btn-container {
+  pointer-events: auto; /* Enable interaction for content only */
 }
 
 .bus-info-panel.active {
@@ -1539,8 +1547,7 @@ h1, h2, h3, h4, h5, h6 {
 .header,
 .bus-counter-widget,
 .bus-info-panel,
-.floating-panel,
-.map-overlays {
+.floating-panel {
   pointer-events: auto;
 }
 
