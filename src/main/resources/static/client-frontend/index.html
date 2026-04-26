@@ -332,86 +332,8 @@
     <main class="main-content">
       <!-- Persistent Map Background removed - now in Dashboard -->
 
-      <!-- Active Bus Counter Widget (Bottom Left) -->
-      <div class="bus-counter-widget">
-        <div class="counter-icon">🚌</div>
-        <div class="counter-info">
-          <span class="counter-value" id="activeBusCount">0</span>
-          <span class="counter-label">Active Buses</span>
-        </div>
-      </div>
 
-      <!-- Map Controls Layer (Bus Info Panel) -->
-      <div class="map-overlays" id="mapOverlays">
-        <!-- Selected Bus Panel (Right Side) -->
-        <div class="bus-info-panel" id="busInfoPanel">
-          <button class="panel-close-btn" id="panelCloseBtn">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-          <div class="panel-header">
-            <div class="bus-badge-large" id="panelBusNo">--</div>
-            <div class="bus-details">
-              <div class="bus-name-large" id="panelBusName">Select a bus</div>
-              <div class="bus-route-label" id="panelBusRoute">Route: --</div>
-              <div class="bus-status active">
-                <span class="status-dot"></span>
-                <span>Active</span>
-              </div>
-              <div class="bus-speed-label">
-                🚀 Speed: <span id="panelSpeed">0</span> km/h
-              </div>
-            </div>
-          </div>
-          <div class="panel-body">
-            <!-- New ETA & Distance Card -->
-            <div class="eta-container" id="panelEtaContainer">
-              <div class="eta-card">
-                <div class="eta-stat">
-                  <span class="eta-label">DISTANCE</span>
-                  <div class="eta-value-group">
-                    <span class="eta-value" id="panelDistance">10.0</span>
-                    <span class="eta-unit">km</span>
-                  </div>
-                </div>
-                <div class="eta-divider"></div>
-                <div class="eta-stat">
-                  <span class="eta-label">ARRIVAL IN</span>
-                  <div class="eta-value-group">
-                    <span class="eta-value" id="panelEta">12</span>
-                    <span class="eta-unit">mins</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div class="info-row">
-              <span class="info-value" id="panelLocation">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">👤 Driver</span>
-              <span class="info-value" id="panelDriver">--</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">📞 Phone</span>
-              <span class="info-value" id="panelPhone">--</span>
-            </div>
-            <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(226,232,240,0.6);">
-              <button id="feedbackBtn" onclick="openFeedbackModal()" style="width:100%;padding:10px 16px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                Report Issue / Feedback
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Dummy Map Tab (to keep tab logic working for now) -->
       <section class="tab-content" id="mapView" style="display: none"></section>
