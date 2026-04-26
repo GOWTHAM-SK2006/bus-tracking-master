@@ -1411,7 +1411,16 @@ const SearchManager = {
     if (query) {
       state.searchFilter = query;
       if (DOM.welcomeSearchModal) DOM.welcomeSearchModal.style.display = "none";
-      if (DOM.searchInput) DOM.searchInput.value = query;
+      
+      // Sync all search inputs
+      if (DOM.searchInput) {
+        DOM.searchInput.value = query;
+        DOM.searchClear.classList.remove("hidden");
+      }
+      if (DOM.busFilterInput) {
+        DOM.busFilterInput.value = query;
+      }
+      
       this.refreshFilteredView();
     }
   },
@@ -1434,6 +1443,12 @@ const SearchManager = {
         MapManager.removeBusMarker(bus.busId);
       }
     });
+
+    // Update search clear button visibility
+    if (DOM.searchClear) {
+      DOM.searchClear.classList.toggle("hidden", !state.searchFilter);
+    }
+
     UIManager.renderBusesList();
   },
 
@@ -1654,8 +1669,16 @@ const SearchManager = {
 
   selectNameResult(name) {
     DOM.searchDropdown.classList.remove("active");
-    DOM.searchInput.value = name;
+    
+    // Set filter state
     state.searchFilter = name;
+    
+    // Sync both search inputs
+    if (DOM.searchInput) DOM.searchInput.value = name;
+    if (DOM.busFilterInput) DOM.busFilterInput.value = name;
+    
+    // Ensure clear button is visible
+    if (DOM.searchClear) DOM.searchClear.classList.remove("hidden");
     
     // Switch to buses tab to show all matching buses
     TabManager.switchTab("buses");
