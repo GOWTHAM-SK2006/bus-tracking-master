@@ -510,23 +510,50 @@
               </div>
             </div>
 
-            <!-- Expanded Stop Details (Hidden by default) -->
-            <div id="stopDetailsPanel" class="stop-details-card hidden">
-              <div class="details-header">
-                <div class="stop-info">
-                  <h3>Your Stop</h3>
-                  <p id="savedStopLocation">Loading location...</p>
-                  <span id="savedStopCoords" class="coords-badge">0.000, 0.000</span>
-                </div>
-              </div>
-              <div class="details-actions">
-                <button class="btn btn-outline" id="changeStopBtn">Change Stop</button>
-                <button class="btn btn-danger-outline" id="removeStopBtn">Remove</button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
+
+      <!-- Your Stop Details Popup Overlay -->
+      <div id="stopDetailsPopup" class="stop-details-popup-overlay hidden">
+        <div class="stop-details-popup">
+          <button class="popup-close-btn" id="closeStopDetails">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          
+          <div class="stop-details-header">
+            <div class="stop-icon-large">📍</div>
+            <div class="stop-title-group">
+              <h3>Your Saved Stop</h3>
+              <p id="savedStopLocation">Loading location...</p>
+            </div>
+          </div>
+
+          <div class="stop-details-body">
+            <div class="stop-info-row">
+              <span class="info-label">Coordinates</span>
+              <span id="savedStopCoords" class="coords-badge">0.000, 0.000</span>
+            </div>
+          </div>
+
+          <div class="stop-details-footer">
+            <button class="btn btn-primary" id="locateStopBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 2v3m0 14v3M2 12h3m14 0h3" />
+              </svg>
+              Locate on Map
+            </button>
+            <div class="footer-actions-grid">
+              <button class="btn btn-outline" id="changeStopBtn">Change</button>
+              <button class="btn btn-danger-outline" id="removeStopBtn">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Stop Selection Map Overlay -->
       <div id="stopSelectionOverlay" class="stop-selection-overlay hidden">

@@ -773,10 +773,10 @@ const MapManager = {
     try {
       const stop = JSON.parse(savedStop);
       const stats = await this.getTravelStats(bus.latitude, bus.longitude, stop.lat, stop.lng);
-      
+
       if (stats) {
         DOM.panelEtaContainer.classList.remove("hidden");
-        
+
         // Calculate Speed
         const speed = this.calculateSpeed(bus.busId, bus.latitude, bus.longitude);
         DOM.panelSpeed.textContent = speed;
@@ -808,7 +808,7 @@ const MapManager = {
         [busLng, busLat],
         [stopLng, stopLat]
       );
-      
+
       return window.TomTomServices.Routing.getRouteSummary(routeData);
     } catch (e) {
       console.error("[Map] Routing error:", e);
@@ -831,13 +831,13 @@ const MapManager = {
 
     const dist = this.getHaversineDistance(bus.prevCoords.lat, bus.prevCoords.lng, lat, lng);
     const speedKmh = Math.round((dist / 1000) / (timeDiff / 3600));
-    
+
     // Smooth speed (moving average or simple cap)
     const finalSpeed = Math.min(speedKmh, 100); // Cap at 100km/h for stability
-    
+
     bus.prevCoords = { lat, lng, time: now };
     bus.currentSpeed = finalSpeed;
-    
+
     return finalSpeed;
   },
 
@@ -849,8 +849,8 @@ const MapManager = {
     const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
     const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c; // in metres
@@ -925,7 +925,7 @@ const WebSocketManager = {
           console.log("[WS] Heartbeat PONG received");
           return;
         }
-        
+
         // Handle driver bus selection START/STOP messages
         if (data.action === "START" && data.busNumber) {
           console.log(
@@ -933,7 +933,7 @@ const WebSocketManager = {
           );
           const busId = data.busNumber;
           console.log(`[WS] Looking for bus ID: "${busId}", current buses:`, Array.from(state.buses.keys()));
-          
+
           // IMPORTANT: When ONE bus is selected, ALL other buses must be marked offline
           // Clear Active status from all buses first
           state.buses.forEach((bus, id) => {
@@ -941,7 +941,7 @@ const WebSocketManager = {
               bus.gpsOn = false; // Mark all OTHER buses as Offline
             }
           });
-          
+
           if (state.buses.has(busId)) {
             const bus = state.buses.get(busId);
             console.log(`[WS] Found bus ${busId}, setting as Active`);
@@ -982,7 +982,7 @@ const WebSocketManager = {
           }
           return;
         }
-        
+
         this.handleMessage(data);
       } catch (error) {
         console.error("[WS] Parse error:", error);
@@ -1410,7 +1410,7 @@ const SearchManager = {
     if (query) {
       state.searchFilter = query;
       if (DOM.welcomeSearchModal) DOM.welcomeSearchModal.style.display = "none";
-      
+
       // Sync all search inputs
       if (DOM.searchInput) {
         DOM.searchInput.value = query;
@@ -1419,7 +1419,7 @@ const SearchManager = {
       if (DOM.busFilterInput) {
         DOM.busFilterInput.value = query;
       }
-      
+
       this.refreshFilteredView();
     }
   },
@@ -1665,16 +1665,16 @@ const SearchManager = {
 
   selectNameResult(name) {
     DOM.searchDropdown.classList.remove("active");
-    
+
     // Set filter state
     state.searchFilter = name;
-    
+
     // Sync the search input
     if (DOM.searchInput) DOM.searchInput.value = name;
-    
+
     // Ensure clear button is visible
     if (DOM.searchClear) DOM.searchClear.classList.remove("hidden");
-    
+
     // Switch to buses tab to show all matching buses
     TabManager.switchTab("buses");
     this.refreshFilteredView();
@@ -1782,15 +1782,15 @@ const TabManager = {
       panel.addEventListener("touchend", (e) => {
         if (!isDragging) return;
         isDragging = false;
-        
+
         // Restore CSS transition
         panel.style.transition = "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)";
-        
+
         const deltaY = currentY - startY;
         if (deltaY > 150) {
           // Swiped down far enough to close
           this.switchTab("map");
-          
+
           setTimeout(() => {
             panel.style.transform = "";
           }, 450);
@@ -2242,12 +2242,12 @@ const DashboardManager = {
         }
       };
     }
-    
+
     if (this.changeStopBtn) this.changeStopBtn.onclick = (e) => {
       e.stopPropagation();
       this.openSelectionMap();
     };
-    
+
     if (this.removeStopBtn) this.removeStopBtn.onclick = (e) => {
       e.stopPropagation();
       this.removeStop();
@@ -2273,13 +2273,13 @@ const DashboardManager = {
     if (savedStop) {
       try {
         const stop = JSON.parse(savedStop);
-        
+
         // Update Action Card to show "Your Stop"
         if (this.stopActionTitle) this.stopActionTitle.textContent = "Your Stop";
         if (this.stopActionSub) this.stopActionSub.textContent = "Tap to view details";
-        
+
         this.savedStopCoords.textContent = `${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}`;
-        
+
         // Reverse geocode to get name if possible
         if (stop.name) {
           this.savedStopLocation.textContent = stop.name;
@@ -2316,7 +2316,7 @@ const DashboardManager = {
 
   openSelectionMap() {
     this.overlay.classList.remove("hidden");
-    
+
     if (!this.selectionMap) {
       this.initSelectionMap();
     } else {
@@ -2331,9 +2331,9 @@ const DashboardManager = {
 
   initSelectionMap() {
     maptilersdk.config.apiKey = CONFIG.MAPTILER_API_KEY;
-    
+
     const currentTheme = localStorage.getItem("theme") || "light";
-    const initialStyle = currentTheme === "dark" 
+    const initialStyle = currentTheme === "dark"
       ? `${CONFIG.MAPTILER_DARK_STYLE_URL}?key=${CONFIG.MAPTILER_API_KEY}`
       : CONFIG.MAPTILER_STYLE_URL;
 
@@ -2360,7 +2360,7 @@ const DashboardManager = {
 
   placeTempMarker(lng, lat) {
     this.selectedCoords = { lng, lat };
-    
+
     if (this.tempMarker) {
       this.tempMarker.remove();
     }
@@ -2382,8 +2382,8 @@ const DashboardManager = {
       this.confirmStop();
     };
 
-    this.tempMarker = new maptilersdk.Marker({ 
-      element: el, 
+    this.tempMarker = new maptilersdk.Marker({
+      element: el,
       anchor: 'center'
     })
       .setLngLat([lng, lat])
@@ -2391,7 +2391,7 @@ const DashboardManager = {
 
     // Hide the old confirm popup from index.html if it exists
     if (this.confirmPopup) this.confirmPopup.classList.add("hidden");
-    
+
     this.selectionMap.easeTo({
       center: [lng, lat],
       zoom: 17,
@@ -2418,16 +2418,16 @@ const DashboardManager = {
     };
 
     localStorage.setItem("userSavedStop", JSON.stringify(stopData));
-    
+
     // Update main map marker
     MapManager.updateSavedStopMarker(stopData.lng, stopData.lat);
-    
+
     // Update Dashboard UI
     this.updateDashboardUI();
-    
+
     // Close overlay
     this.closeSelectionMap();
-    
+
     showToast("Stop saved successfully!", "success");
   },
 
@@ -2455,7 +2455,7 @@ async function init() {
     state.buses.clear();
     state.stops.clear();
     state.selectedBusId = null;
-    
+
     MapManager.init();
     TabManager.init();
     SearchManager.init();
