@@ -614,12 +614,12 @@ const MapManager = {
     }
 
     // 3. Handle Tab Switch
-    const mapView = document.getElementById("mapView");
-    const isMapVisible = mapView && mapView.classList.contains("active");
+    const dashboardView = document.getElementById("dashboardView");
+    const isMapVisible = dashboardView && dashboardView.classList.contains("active");
 
     if (!isMapVisible) {
-      console.log("[Map] Switching to map tab for selection");
-      TabManager.switchTab("map");
+      console.log("[Map] Switching to dashboard for map view");
+      TabManager.switchTab("dashboard");
     }
 
     // 4. Update Panel (Immediate)
@@ -1685,7 +1685,7 @@ const SearchManager = {
     DOM.searchInput.value = "";
     DOM.searchClear.classList.add("hidden");
 
-    TabManager.switchTab("map");
+    TabManager.switchTab("dashboard");
     MapManager.selectBus(busId);
   },
 
@@ -1789,7 +1789,7 @@ const TabManager = {
         const deltaY = currentY - startY;
         if (deltaY > 150) {
           // Swiped down far enough to close
-          this.switchTab("map");
+          this.switchTab("dashboard");
 
           setTimeout(() => {
             panel.style.transform = "";
@@ -2047,7 +2047,7 @@ const BusDetailPopup = {
         e.stopPropagation();
         if (this.currentBusId) {
           this.close();
-          TabManager.switchTab("map");
+          TabManager.switchTab("dashboard");
           MapManager.selectBus(this.currentBusId);
         }
       });
@@ -2270,7 +2270,7 @@ const DashboardManager = {
              this.stopDetailsPopup.style.display = "none";
           }
           // Switch to map tab
-          TabManager.switchTab("map");
+          TabManager.switchTab("dashboard");
           // Center map
           if (MapManager.map) {
             MapManager.map.flyTo({

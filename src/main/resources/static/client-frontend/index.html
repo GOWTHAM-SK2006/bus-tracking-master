@@ -369,10 +369,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Persistent Map Background -->
-      <div class="map-background">
-        <div id="map" class="map-container"></div>
-      </div>
+      <!-- Persistent Map Background removed - now in Dashboard -->
 
       <!-- Active Bus Counter Widget (Bottom Left) -->
       <div class="bus-counter-widget">
@@ -461,20 +458,21 @@
       </div>
 
       <!-- Dummy Map Tab (to keep tab logic working for now) -->
-      <section
-        class="tab-content active"
-        id="mapView"
-        style="display: none"
-      ></section>
+      <section class="tab-content" id="mapView" style="display: none"></section>
 
       <!-- Dashboard Panel -->
-      <section class="floating-panel" id="dashboardView">
+      <section class="floating-panel active" id="dashboardView">
         <div class="panel-container">
           <div class="list-header">
             <h2>Dashboard</h2>
           </div>
           
           <div class="dashboard-content" id="dashboardContent">
+            <!-- Mini Map Integration -->
+            <div class="mini-map-container">
+              <div id="map" class="map-container"></div>
+            </div>
+
             <div class="dashboard-main-grid">
               <!-- Stop Action Card -->
               <div class="action-card" id="stopActionCard">
@@ -487,16 +485,7 @@
                 </div>
               </div>
 
-              <!-- Map Card -->
-              <div class="action-card dash-tab-btn" data-tab="map">
-                <div class="action-icon map-bg">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-                </div>
-                <div class="action-label">
-                  <span>Live Map</span>
-                  <p>Real-time tracking</p>
-                </div>
-              </div>
+
 
               <!-- Buses Card -->
               <div class="action-card dash-tab-btn" data-tab="buses">
@@ -1302,22 +1291,7 @@
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav" id="bottomNav">
-      <button class="bottom-nav-btn active" data-tab="map">
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-          <line x1="8" y1="2" x2="8" y2="18" />
-          <line x1="16" y1="6" x2="16" y2="22" />
-        </svg>
-        <span>Live Map</span>
-      </button>
-      <button class="bottom-nav-btn" data-tab="dashboard">
+      <button class="bottom-nav-btn active" data-tab="dashboard">
         <svg
           width="22"
           height="22"
