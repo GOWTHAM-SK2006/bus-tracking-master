@@ -1856,8 +1856,7 @@ const UIManager = {
 
     card.addEventListener("click", () => {
       console.log(`[Dashboard] Card clicked for bus ${bus.busNo}`);
-      TabManager.switchTab("map");
-      MapManager.selectBus(bus.busId || bus.busNo);
+      BusDetailPopup.show(bus.busId || bus.busNo);
     });
 
     return card;
@@ -1941,6 +1940,150 @@ function initTomTomServices() {
 // =========================================
 // Theme Manager
 // =========================================
+// =========================================
+// Bus Detail Popup Manager
+// =========================================
+const BusDetailPopup = {
+  overlay: null,
+  closeBtn: null,
+  trackBtn: null,
+  currentBusId: null,
+
+  init() {
+    this.overlay = document.getElementById("busDetailPopupOverlay");
+    this.closeBtn = document.getElementById("busDetailCloseBtn");
+    this.trackBtn = document.getElementById("popupTrackBtn");
+
+    if (!this.overlay) {
+      console.warn("[BusDetailPopup] Overlay element not found");
+      return;
+    }
+
+    // Close button
+    if (this.closeBtn) {
+      this.closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.close();
+      });
+    }
+
+    // Click on backdrop to close
+    this.overlay.addEventListener("click", (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // Track on Map button
+    if (this.trackBtn) {
+      this.trackBtn.addEventListener("click", () => {
+        if (this.currentBusId) {
+          this.close();
+          TabManager.switchTab("map");
+          MapManager.selectBus(this.currentBusId);
+        }
+      });
+    }
+
+    // ESC key to close
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.overlay && !this.overlay.classList.contains("hidden")) {
+        this.close();
+      }
+    });
+
+    console.log("[BusDetailPopup] Initialized");
+  },
+
+  show(busId) {
+    const id = String(busId);
+    this.currentBusId = id;
+
+    // Find bus data
+    const bus = state.buses.get(id) ||
+      Array.from(state.buses.values()).find((b) => String(b.busId) === id || String(b.busNo) === id);
+
+    if (!bus) {
+      console.error(`[BusDetailPopup] No bus data found for ID: ${id}`);
+      return;
+    }
+
+    console.log(`[BusDetailPopup] Showing details for bus ${bus.busNo}`);
+
+    // Populate fields
+    const popupBusNo = document.getElementById("popupBusNo");
+    const popupBusName = document.getElementById("popupBusName");
+    const popupBusRoute = document.getElementById("popupBusRoute");
+    const popupBusStatus = document.getElementById("popupBusStatus");
+    const popupLocation = document.getElementById("popupLocation");
+    const popupDriver = document.getElementById("popupDriver");
+    const popupPhone = document.getElementById("popupPhone");
+    const popupCoords = document.getElementById("popupCoords");
+
+    if (popupBusNo) popupBusNo.textContent = bus.busNo;
+    if (popupBusName) popupBusName.textContent = bus.busName || `Bus ${bus.busNo}`;
+    if (popupBusRoute) popupBusRoute.textContent = `Route: ${bus.routeName || "Unknown"}`;
+
+    // Status
+    if (popupBusStatus) {
+      const isOnline = bus.gpsOn;
+      popupBusStatus.className = `bus-detail-status ${isOnline ? "online" : "offline"}`;
+      popupBusStatus.innerHTML = `
+        <span class="status-dot"></span>
+        <span>${isOnline ? "Online" : "Offline"}</span>
+      `;
+    }
+
+    // Location
+    if (popupLocation) {
+      const hasValidCoords = bus.latitude != null && bus.longitude != null &&
+        !isNaN(bus.latitude) && !isNaN(bus.longitude) &&
+        (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
+
+      if (bus.address && hasValidCoords) {
+        popupLocation.textContent = bus.address;
+      } else if (hasValidCoords) {
+        popupLocation.textContent = `${parseFloat(bus.latitude).toFixed(6)}, ${parseFloat(bus.longitude).toFixed(6)}`;
+      } else {
+        popupLocation.textContent = "Location unavailable";
+      }
+    }
+
+    // Driver & Phone
+    if (popupDriver) popupDriver.textContent = bus.driverName || "Unknown";
+    if (popupPhone) popupPhone.textContent = bus.driverPhone || "N/A";
+
+    // Coordinates
+    if (popupCoords) {
+      const hasCoords = bus.latitude != null && bus.longitude != null &&
+        !isNaN(bus.latitude) && !isNaN(bus.longitude) &&
+        (Math.abs(bus.latitude) >= 0.0001 || Math.abs(bus.longitude) >= 0.0001);
+      if (hasCoords) {
+        popupCoords.textContent = `${parseFloat(bus.latitude).toFixed(6)}, ${parseFloat(bus.longitude).toFixed(6)}`;
+      } else {
+        popupCoords.textContent = "N/A";
+      }
+    }
+
+    // Show overlay
+    if (this.overlay) {
+      this.overlay.classList.remove("hidden", "fade-out");
+    }
+  },
+
+  close() {
+    if (!this.overlay) return;
+
+    // Animate out
+    this.overlay.classList.add("fade-out");
+    setTimeout(() => {
+      this.overlay.classList.add("hidden");
+      this.overlay.classList.remove("fade-out");
+      this.currentBusId = null;
+    }, 280);
+  }
+};
+
 const ThemeManager = {
   icons: {
     sun: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
@@ -2250,6 +2393,7 @@ async function init() {
     SearchManager.init();
     SearchManager.initWelcomeSearch(); // Activate welcome prompt
     DashboardManager.init();
+    BusDetailPopup.init();
     initMobileMenu();
     initTomTomServices();
 

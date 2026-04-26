@@ -2285,3 +2285,348 @@ body.dark-theme .action-card {
 body.dark-theme .action-label span {
   color: white;
 }
+
+/* =========================================
+   Bus Detail Popup — Glassmorphic Card
+   ========================================= */
+.bus-detail-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3000;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.bus-detail-popup-overlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.bus-detail-popup-overlay.fade-out {
+  opacity: 0;
+}
+
+.bus-detail-popup {
+  position: relative;
+  width: 92%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.15),
+    0 10px 24px rgba(0, 0, 0, 0.08);
+  animation: popupSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.bus-detail-popup-overlay.fade-out .bus-detail-popup {
+  animation: popupSlideOut 0.25s ease forwards;
+}
+
+@keyframes popupSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+  }
+}
+
+/* Close Button */
+.bus-detail-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  background: rgba(241, 245, 249, 0.85);
+  backdrop-filter: blur(8px);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  z-index: 10;
+}
+
+.bus-detail-close-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.bus-detail-close-btn:hover {
+  background: var(--danger);
+  color: white;
+  transform: rotate(90deg) scale(1.08);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+/* Header */
+.bus-detail-header {
+  padding: 24px 24px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.04) 0%,
+    rgba(251, 146, 60, 0.02) 100%
+  );
+}
+
+.bus-detail-badge {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 1.35rem;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.bus-detail-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.bus-detail-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bus-detail-route {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.bus-detail-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.bus-detail-status.online {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.bus-detail-status.offline {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.bus-detail-status .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+.bus-detail-status.online .status-dot {
+  background: var(--success);
+}
+
+.bus-detail-status.offline .status-dot {
+  background: var(--danger);
+}
+
+/* Body */
+.bus-detail-body {
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bus-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.bus-detail-row:hover {
+  background: rgba(241, 245, 249, 0.7);
+}
+
+.bus-detail-icon {
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-gray);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.bus-detail-row-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bus-detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.bus-detail-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Footer */
+.bus-detail-footer {
+  padding: 14px 24px 20px;
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.bus-detail-track-btn {
+  width: 100%;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+}
+
+.bus-detail-track-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  filter: brightness(1.05);
+}
+
+.bus-detail-track-btn:active {
+  transform: translateY(0);
+}
+
+/* Dark Mode */
+body.dark-theme .bus-detail-popup {
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .bus-detail-popup-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body.dark-theme .bus-detail-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.08) 0%,
+    rgba(251, 146, 60, 0.03) 100%
+  );
+}
+
+body.dark-theme .bus-detail-close-btn {
+  background: rgba(51, 65, 85, 0.85);
+  color: var(--text-secondary);
+}
+
+body.dark-theme .bus-detail-icon {
+  background: rgba(51, 65, 85, 0.6);
+}
+
+body.dark-theme .bus-detail-row:hover {
+  background: rgba(51, 65, 85, 0.4);
+}
+
+body.dark-theme .bus-detail-footer {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .bus-detail-popup {
+    width: 95%;
+    max-width: 360px;
+  }
+
+  .bus-detail-header {
+    padding: 20px 18px 14px;
+  }
+
+  .bus-detail-badge {
+    padding: 10px 16px;
+    font-size: 1.15rem;
+  }
+
+  .bus-detail-body {
+    padding: 14px 18px;
+  }
+
+  .bus-detail-row {
+    padding: 10px 10px;
+    gap: 12px;
+  }
+
+  .bus-detail-footer {
+    padding: 12px 18px 16px;
+  }
+}

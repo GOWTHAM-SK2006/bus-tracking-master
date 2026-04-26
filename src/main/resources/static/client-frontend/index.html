@@ -641,6 +641,69 @@
         </div>
       </section>
 
+      <!-- Bus Detail Popup (shown when clicking a bus card in Buses tab) -->
+      <div class="bus-detail-popup-overlay hidden" id="busDetailPopupOverlay">
+        <div class="bus-detail-popup" id="busDetailPopup">
+          <button class="bus-detail-close-btn" id="busDetailCloseBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          <div class="bus-detail-header">
+            <div class="bus-detail-badge" id="popupBusNo">--</div>
+            <div class="bus-detail-title-group">
+              <div class="bus-detail-name" id="popupBusName">Bus Name</div>
+              <div class="bus-detail-route" id="popupBusRoute">Route: --</div>
+              <div class="bus-detail-status" id="popupBusStatus">
+                <span class="status-dot"></span>
+                <span>--</span>
+              </div>
+            </div>
+          </div>
+          <div class="bus-detail-body">
+            <div class="bus-detail-row">
+              <span class="bus-detail-icon">📍</span>
+              <div class="bus-detail-row-content">
+                <span class="bus-detail-label">Location</span>
+                <span class="bus-detail-value" id="popupLocation">--</span>
+              </div>
+            </div>
+            <div class="bus-detail-row">
+              <span class="bus-detail-icon">👤</span>
+              <div class="bus-detail-row-content">
+                <span class="bus-detail-label">Driver</span>
+                <span class="bus-detail-value" id="popupDriver">--</span>
+              </div>
+            </div>
+            <div class="bus-detail-row">
+              <span class="bus-detail-icon">📞</span>
+              <div class="bus-detail-row-content">
+                <span class="bus-detail-label">Phone</span>
+                <span class="bus-detail-value" id="popupPhone">--</span>
+              </div>
+            </div>
+            <div class="bus-detail-row">
+              <span class="bus-detail-icon">🛰️</span>
+              <div class="bus-detail-row-content">
+                <span class="bus-detail-label">Coordinates</span>
+                <span class="bus-detail-value" id="popupCoords">--</span>
+              </div>
+            </div>
+          </div>
+          <div class="bus-detail-footer">
+            <button class="bus-detail-track-btn" id="popupTrackBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                <line x1="8" y1="2" x2="8" y2="18"></line>
+                <line x1="16" y1="6" x2="16" y2="22"></line>
+              </svg>
+              Track on Map
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Profile Panel -->
       <section class="floating-panel" id="profileView">
         <div class="panel-container" style="overflow-y: auto">
