@@ -692,11 +692,11 @@ body.dark-theme .live-status-pill {
 }
 
 .mini-map-container {
-  height: 130px; /* Reduced height further to 130px */
+  height: 120px; /* Reduced further to 120px */
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  margin: -12px 0 0; /* Aggressively move upward */
+  margin: -16px -8px 0; /* Moved up more and increased width significantly */
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -2570,7 +2570,7 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: -36px; /* Aggressively move upward */
+  margin-top: -44px; /* Move upward even more to maintain compaction */
   margin-bottom: 20px;
   padding: 0;
 }
@@ -2656,7 +2656,7 @@ body.dark-theme .eta-card {
   background: white;
   border-radius: 20px;
   padding: 8px 16px;
-  margin: -4px 0 10px; /* Zero gap between map and card */
+  margin: -10px -8px 10px; /* Moved up to overlap map slightly for tighter look and widened */
   box-shadow: 0px 6px 15px rgba(0,0,0,0.04);
   position: relative;
   border: 1px solid rgba(0,0,0,0.02);
@@ -2741,43 +2741,59 @@ body.dark-theme .eta-card {
 }
 
 .stat-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .stat-label {
-  font-size: 10px; /* Exact size from requirement 5 */
+  font-size: 10px;
   font-weight: 700;
-  color: #6366F1;
-  text-transform: uppercase; /* Uppercase as per requirement 5 */
+  color: #64748b; /* var(--text-muted) equivalent */
+  text-transform: uppercase;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  height: 16px; /* Fixed height for label row */
+  white-space: nowrap;
+}
+
+.stat-label svg {
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0;
 }
 
 .stat-value {
-  font-size: 14px; /* Exact size from requirement 5 */
-  font-weight: 700; /* Bold as per requirement 5 */
-  color: #F97316;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  justify-content: center;
+  gap: 1px;
+  margin-top: 2px;
+  height: 20px; /* Fixed height for value row */
 }
 
-.icon-orange { color: #F97316; }
-.icon-purple { color: #8B5CF6; }
-.icon-yellow { color: #F59E0B; }
-.icon-pink { color: #EC4899; }
+#dashDistance, #dashEta, #dashSpeed {
+  color: #f97316; /* Orange values */
+}
 
-.stat-value {
-  font-size: 1.1rem;
+#dashNextStop {
+  color: #1e293b; /* Dark value */
   font-weight: 800;
-  color: #F97316; /* Orange for stats as per reference */
-  display: flex;
-  align-items: baseline;
+}
+
+.icon-orange { color: #f97316; }
+.icon-purple { color: #8b5cf6; }
+.icon-yellow { color: #f59e0b; }
+.icon-pink { color: #ec4899; }
   gap: 2px;
 }
 
