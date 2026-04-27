@@ -530,18 +530,24 @@ const MapManager = {
     const statusClass = bus.gpsOn ? "status-active" : "status-inactive";
     const selectedClass = isSelected ? "selected" : "";
     return `
-            <div class="bus-marker-container ${statusClass} ${selectedClass}" style="position: relative; width: 100%; height: 100%;">
-                 <div class="marker-pulse"></div>
+            <div class="bus-marker-container ${statusClass} ${selectedClass}">
+                 <!-- Label Above (Bus Name + Live Status) -->
+                 <div class="marker-label-top">
+                    <span class="label-bus-name">Bus ${bus.busNo}</span>
+                    <span class="label-status ${bus.gpsOn ? 'live' : 'offline'}">
+                        ${bus.gpsOn ? '<span class="dot"></span> Live' : 'Offline'}
+                    </span>
+                 </div>
+
+                 <!-- Main Circle Icon -->
                  <div class="bus-icon-container">
                      <svg viewBox="0 0 24 24" class="bus-svg">
                          <path fill="currentColor" d="M18,11H6V6H18M16.5,17A1.5,1.5 0 0,1 15,15.5A1.5,1.5 0 0,1 16.5,14A1.5,1.5 0 0,1 18,15.5A1.5,1.5 0 0,1 16.5,17M7.5,17A1.5,1.5 0 0,1 6,15.5A1.5,1.5 0 0,1 7.5,14A1.5,1.5 0 0,1 9,15.5A1.5,1.5 0 0,1 7.5,17M4,16C4,16.88 4.39,17.67 5,18.22V20A1,1 0 0,0 6,21H7A1,1 0 0,0 8,20V19H16V20A1,1 0 0,0 17,21H18A1,1 0 0,0 19,20V18.22C19.61,17.67 20,16.88 20,16V6C20,1.5 16,2 12,2C8,2 4,1.5 4,6V16Z" />
                      </svg>
-                     <div class="bus-number-overlay">${bus.busNo}</div>
                  </div>
-                 <div class="marker-tooltip">
-                     <strong>Bus ${bus.busNo}</strong>
-                     <span class="status-text">${bus.gpsOn ? "Live" : "Last Seen"}</span>
-                 </div>
+
+                 <!-- Number Label Below -->
+                 <div class="bus-number-overlay">${bus.busNo}</div>
             </div>
         `;
   },
@@ -2293,6 +2299,21 @@ const DashboardManager = {
       e.stopPropagation();
       this.removeStop();
     };
+
+    // Quick Actions
+    const qaEnableAlerts = document.getElementById("qaEnableAlerts");
+    const qaChangeStop = document.getElementById("qaChangeStop");
+    const qaContactDriver = document.getElementById("qaContactDriver");
+
+    if (qaEnableAlerts) {
+      qaEnableAlerts.onclick = () => showToast("Alerts enabled for your route!", "success");
+    }
+    if (qaChangeStop) {
+      qaChangeStop.onclick = () => this.openSelectionMap();
+    }
+    if (qaContactDriver) {
+      qaContactDriver.onclick = () => showToast("Connecting to driver...", "info");
+    }
 
     if (this.cancelOverlayBtn) this.cancelOverlayBtn.onclick = () => this.closeSelectionMap();
     if (this.confirmBtn) this.confirmBtn.onclick = () => this.confirmStop();
