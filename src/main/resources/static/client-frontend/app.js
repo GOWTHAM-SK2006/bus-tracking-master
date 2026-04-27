@@ -292,8 +292,8 @@ const MapManager = {
       }
     });
 
-    // Load saved stop if exists
-    this.loadSavedStop();
+    // Load saved stop if exists (Disabled as per requirement 7)
+    // this.loadSavedStop();
   },
 
   loadSavedStop() {
