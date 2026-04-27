@@ -692,11 +692,11 @@ body.dark-theme .live-status-pill {
 }
 
 .mini-map-container {
-  height: 160px; /* Reduced height as requested */
+  height: 140px; /* Reduced height further */
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  margin: 4px 8px 0; /* Reduced top margin and horizontal margins for more width */
+  margin: -4px 0 0; /* Moved upward and increased width to full */
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -2570,22 +2570,22 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin-top: -8px; /* Move upward as requested */
+  margin-top: -24px; /* Move upward more significantly */
   margin-bottom: 24px;
-  padding: 0 8px;
+  padding: 0;
 }
 
 .action-card {
   background: var(--bg-white);
   border: 1px solid var(--glass-border);
-  border-radius: 20px; /* Reduced radius */
-  padding: 16px 12px; /* Reduced padding */
+  border-radius: 16px; /* Slightly more compact radius */
+  padding: 12px 10px; /* Reduced padding further */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
@@ -2597,8 +2597,8 @@ body.dark-theme .eta-card {
 }
 
 .action-icon-wrapper {
-  width: 52px; /* Reduced size */
-  height: 52px; /* Reduced size */
+  width: 44px; /* Reduced size further */
+  height: 44px; /* Reduced size further */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2655,8 +2655,8 @@ body.dark-theme .eta-card {
 .bus-status-premium-card {
   background: white;
   border-radius: 20px;
-  padding: 10px 16px; /* Reduced vertical padding */
-  margin: 10px 8px 16px; /* Reduced margins to increase width and move up */
+  padding: 10px 16px;
+  margin: 4px 0 12px; /* Moved up closer to map and increased width */
   box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
   position: relative;
   border: 1px solid rgba(0,0,0,0.02);
