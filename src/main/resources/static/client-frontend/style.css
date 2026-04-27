@@ -692,11 +692,11 @@ body.dark-theme .live-status-pill {
 }
 
 .mini-map-container {
-  height: 140px; /* Reduced height further */
+  height: 130px; /* Reduced height further to 130px */
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  margin: -4px 0 0; /* Moved upward and increased width to full */
+  margin: -12px 0 0; /* Aggressively move upward */
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -2569,23 +2569,23 @@ body.dark-theme .eta-card {
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: -24px; /* Move upward more significantly */
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-top: -36px; /* Aggressively move upward */
+  margin-bottom: 20px;
   padding: 0;
 }
 
 .action-card {
   background: var(--bg-white);
   border: 1px solid var(--glass-border);
-  border-radius: 16px; /* Slightly more compact radius */
-  padding: 12px 10px; /* Reduced padding further */
+  border-radius: 12px; /* Minimum radius */
+  padding: 8px 6px; /* Minimal padding */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 6px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  gap: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
@@ -2597,8 +2597,8 @@ body.dark-theme .eta-card {
 }
 
 .action-icon-wrapper {
-  width: 44px; /* Reduced size further */
-  height: 44px; /* Reduced size further */
+  width: 36px; /* Minimal icon size */
+  height: 36px; /* Minimal icon size */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2655,9 +2655,9 @@ body.dark-theme .eta-card {
 .bus-status-premium-card {
   background: white;
   border-radius: 20px;
-  padding: 10px 16px;
-  margin: 4px 0 12px; /* Moved up closer to map and increased width */
-  box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
+  padding: 8px 16px;
+  margin: -4px 0 10px; /* Zero gap between map and card */
+  box-shadow: 0px 6px 15px rgba(0,0,0,0.04);
   position: relative;
   border: 1px solid rgba(0,0,0,0.02);
 }
