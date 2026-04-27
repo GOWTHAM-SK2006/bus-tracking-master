@@ -692,11 +692,11 @@ body.dark-theme .live-status-pill {
 }
 
 .mini-map-container {
-  height: 180px; /* Exact height from requirement 1 */
+  height: 160px; /* Reduced height as requested */
   position: relative;
-  border-radius: 20px; /* Exact radius from requirement 1 */
+  border-radius: 20px;
   overflow: hidden;
-  margin: 12px 16px 0; /* Exact top margin from requirement 1 */
+  margin: 4px 8px 0; /* Reduced top margin and horizontal margins for more width */
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -2569,21 +2569,23 @@ body.dark-theme .eta-card {
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-top: -8px; /* Move upward as requested */
+  margin-bottom: 24px;
+  padding: 0 8px;
 }
 
 .action-card {
   background: var(--bg-white);
   border: 1px solid var(--glass-border);
-  border-radius: 28px;
-  padding: 24px 16px;
+  border-radius: 20px; /* Reduced radius */
+  padding: 16px 12px; /* Reduced padding */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
@@ -2595,8 +2597,8 @@ body.dark-theme .eta-card {
 }
 
 .action-icon-wrapper {
-  width: 64px;
-  height: 64px;
+  width: 52px; /* Reduced size */
+  height: 52px; /* Reduced size */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2653,8 +2655,8 @@ body.dark-theme .eta-card {
 .bus-status-premium-card {
   background: white;
   border-radius: 20px;
-  padding: 16px;
-  margin: 16px 16px 20px; /* 20px gap below card as per requirement 8 */
+  padding: 10px 16px; /* Reduced vertical padding */
+  margin: 10px 8px 16px; /* Reduced margins to increase width and move up */
   box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
   position: relative;
   border: 1px solid rgba(0,0,0,0.02);
