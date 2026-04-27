@@ -2328,6 +2328,25 @@ const DashboardManager = {
     });
 
     this.updateDashboardUI();
+
+    // Default load shows selected bus
+    setTimeout(() => {
+      const activeBuses = state.buses.filter(b => b.latitude != null);
+      if (activeBuses.length > 0) {
+        // Find bus 120 or take the first one
+        const bus120 = activeBuses.find(b => b.busNo === "120") || activeBuses[0];
+        this.updatePanel(bus120);
+        
+        // Also center map on this bus
+        if (MapManager.map) {
+          MapManager.map.flyTo({
+            center: [bus120.longitude, bus120.latitude],
+            zoom: 15
+          });
+          MapManager.updateBusMarker(bus120, true);
+        }
+      }
+    }, 1000);
   },
 
   updateDashboardUI() {
