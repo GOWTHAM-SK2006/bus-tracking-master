@@ -434,7 +434,7 @@ body.dark-theme .live-status-pill {
   position: relative;
   width: 100%;
   max-width: 320px;
-  margin: 16px 0 24px; /* Added top margin and increased bottom margin */
+  margin: 12px 0 12px; /* Reduced margins for tighter layout */
 }
 .search-wrapper {
   position: relative;
@@ -1996,7 +1996,7 @@ body.dark-theme .live-status-pill {
   }
 
   .search-container {
-    margin-bottom: 24px;
+    margin-bottom: 12px; /* Reduced from 24px for tighter mobile layout */
     padding: 0 4px;
   }
 
