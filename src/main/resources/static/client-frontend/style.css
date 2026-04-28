@@ -2571,7 +2571,7 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: -28px; /* Moved downward from -44px */
+  margin-top: -12px; /* Moved downward from -28px */
   margin-bottom: 20px;
   padding: 0;
 }
@@ -2656,7 +2656,7 @@ body.dark-theme .eta-card {
 .bus-status-premium-card {
   background: white;
   border-radius: 20px;
-  padding: 8px 16px;
+  padding: 12px 20px; /* Increased padding slightly to increase size */
   margin: -32px -8px 10px; /* Shifted upward closer to map */
   box-shadow: 0px 6px 15px rgba(0,0,0,0.04);
   position: relative;
@@ -2673,13 +2673,13 @@ body.dark-theme .eta-card {
 }
 
 .bus-number-badge {
-  width: 48px;
-  height: 48px;
+  width: 52px; /* Increased from 48px */
+  height: 52px; /* Increased from 48px */
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Increased from 1.1rem */
   font-weight: 800;
   color: white;
   flex-shrink: 0;
