@@ -2735,10 +2735,14 @@ body.dark-theme .eta-card {
 }
 
 .card-stats-grid {
-  display: flex; /* Exact display from requirement 5 */
-  justify-content: space-between; /* Exact justify from requirement 5 */
-  align-items: center;
-  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 12px 0;
+  background: #fdfdfd;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  margin-top: 16px;
 }
 
 .stat-item {
@@ -2747,21 +2751,28 @@ body.dark-theme .eta-card {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2px;
+  gap: 6px;
   min-width: 0;
+  border-right: 1.5px solid #f1f5f9;
+  padding: 4px 0;
+}
+
+.stat-item:last-child {
+  border-right: none;
 }
 
 .stat-label {
-  font-size: 11px; /* Increased from 10px */
+  font-size: 12px; /* Increased from 11px */
   font-weight: 700;
-  color: #64748b; /* var(--text-muted) equivalent */
+  color: #94a3b8; /* text-muted */
   text-transform: uppercase;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 16px; /* Fixed height for label row */
+  height: 18px;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 .stat-label svg {
@@ -2771,15 +2782,14 @@ body.dark-theme .eta-card {
 }
 
 .stat-value {
-  font-size: 16px; /* Increased from 14px */
-  font-weight: 700;
+  font-size: 18px; /* Increased from 16px */
+  font-weight: 800;
   color: #1e293b;
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 1px;
+  gap: 2px;
   margin-top: 2px;
-  height: 20px; /* Fixed height for value row */
 }
 
 #dashDistance, #dashEta, #dashSpeed {
