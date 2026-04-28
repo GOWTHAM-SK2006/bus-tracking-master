@@ -1982,11 +1982,11 @@ body.dark-theme .live-status-pill {
   }
 
   .card-stats-grid {
-    gap: 14px;
+    padding: 10px 0;
   }
 
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 15px;
   }
 }
 
@@ -2735,8 +2735,8 @@ body.dark-theme .eta-card {
 }
 
 .card-stats-grid {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   align-items: stretch;
   padding: 12px 0;
   background: #fdfdfd;
@@ -2746,15 +2746,14 @@ body.dark-theme .eta-card {
 }
 
 .stat-item {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
   border-right: 1.5px solid #f1f5f9;
-  padding: 4px 0;
+  padding: 4px 2px;
 }
 
 .stat-item:last-child {
@@ -2762,7 +2761,7 @@ body.dark-theme .eta-card {
 }
 
 .stat-label {
-  font-size: 12px; /* Increased from 11px */
+  font-size: 11px; /* Reduced from 12px to prevent overlap */
   font-weight: 700;
   color: #94a3b8; /* text-muted */
   text-transform: uppercase;
@@ -2772,7 +2771,7 @@ body.dark-theme .eta-card {
   gap: 4px;
   height: 18px;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .stat-label svg {
@@ -2782,7 +2781,7 @@ body.dark-theme .eta-card {
 }
 
 .stat-value {
-  font-size: 18px; /* Increased from 16px */
+  font-size: 16px; /* Reduced from 18px to prevent overlap */
   font-weight: 800;
   color: #1e293b;
   display: flex;
