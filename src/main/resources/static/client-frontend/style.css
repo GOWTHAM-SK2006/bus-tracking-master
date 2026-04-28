@@ -434,7 +434,7 @@ body.dark-theme .live-status-pill {
   position: relative;
   width: 100%;
   max-width: 320px;
-  margin-bottom: 12px;
+  margin: 16px 0 24px; /* Added top margin and increased bottom margin */
 }
 .search-wrapper {
   position: relative;
@@ -1118,7 +1118,7 @@ body.dark-theme .live-status-pill {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.6);
   border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
+  padding: 14px 18px; /* Reduced padding for smaller card size */
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
   position: relative;
@@ -1164,10 +1164,10 @@ body.dark-theme .live-status-pill {
 .bus-card-number {
   background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
   color: white;
-  padding: 8px 14px;
+  padding: 6px 12px; /* Reduced padding */
   border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem; /* Reduced font size */
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
@@ -1193,7 +1193,7 @@ body.dark-theme .live-status-pill {
 }
 
 .bus-card-name {
-  font-size: 1.1rem;
+  font-size: 1.05rem; /* Reduced font size */
   font-weight: 600;
   color: var(--text-dark);
   margin-top: 8px;
