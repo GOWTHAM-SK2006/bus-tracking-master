@@ -2571,7 +2571,7 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: -12px; /* Moved downward from -28px */
+  margin-top: 4px; /* Moved downward from -12px */
   margin-bottom: 20px;
   padding: 0;
 }
@@ -2580,7 +2580,7 @@ body.dark-theme .eta-card {
   background: var(--bg-white);
   border: 1px solid var(--glass-border);
   border-radius: 12px; /* Minimum radius */
-  padding: 8px 6px; /* Minimal padding */
+  padding: 14px 10px; /* Increased padding slightly to increase size */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2598,8 +2598,8 @@ body.dark-theme .eta-card {
 }
 
 .action-icon-wrapper {
-  width: 36px; /* Minimal icon size */
-  height: 36px; /* Minimal icon size */
+  width: 44px; /* Increased from 36px */
+  height: 44px; /* Increased from 36px */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2614,14 +2614,14 @@ body.dark-theme .eta-card {
 
 .action-label span {
   display: block;
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Increased from 1.1rem */
   font-weight: 800;
   color: var(--text-dark);
   margin-bottom: 4px;
 }
 
 .action-label p {
-  font-size: 0.8rem;
+  font-size: 0.85rem; /* Increased from 0.8rem */
   color: var(--text-muted);
   line-height: 1.4;
   margin-bottom: 12px;
@@ -2656,7 +2656,7 @@ body.dark-theme .eta-card {
 .bus-status-premium-card {
   background: white;
   border-radius: 20px;
-  padding: 12px 20px; /* Increased padding slightly to increase size */
+  padding: 18px 24px; /* Increased padding slightly to increase size */
   margin: -32px -8px 10px; /* Shifted upward closer to map */
   box-shadow: 0px 6px 15px rgba(0,0,0,0.04);
   position: relative;
@@ -2688,7 +2688,7 @@ body.dark-theme .eta-card {
 .bus-number-badge.orange { background: linear-gradient(135deg, #F97316, #EA580C); }
 
 .bus-info-text h3 {
-  font-size: 16px;
+  font-size: 18px; /* Increased from 16px */
   font-weight: 600;
   color: #1E293B;
   margin: 0;
@@ -2710,7 +2710,7 @@ body.dark-theme .eta-card {
 .status-dot.online { background: #10B981; box-shadow: 0 0 8px #10B981; }
 
 .status-label {
-  font-size: 12px; /* Exact size from requirement 3 */
+  font-size: 13px; /* Increased from 12px */
   font-weight: 700;
   color: #10B981;
 }
@@ -2721,7 +2721,7 @@ body.dark-theme .eta-card {
   color: #10B981;
   padding: 6px 12px; /* Exact padding from requirement 3 */
   border-radius: 20px; /* Exact radius from requirement 3 */
-  font-size: 12px; /* Exact size from requirement 3 */
+  font-size: 13px; /* Increased from 12px */
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -2752,7 +2752,7 @@ body.dark-theme .eta-card {
 }
 
 .stat-label {
-  font-size: 10px;
+  font-size: 11px; /* Increased from 10px */
   font-weight: 700;
   color: #64748b; /* var(--text-muted) equivalent */
   text-transform: uppercase;
@@ -2771,7 +2771,7 @@ body.dark-theme .eta-card {
 }
 
 .stat-value {
-  font-size: 14px;
+  font-size: 16px; /* Increased from 14px */
   font-weight: 700;
   color: #1e293b;
   display: flex;
