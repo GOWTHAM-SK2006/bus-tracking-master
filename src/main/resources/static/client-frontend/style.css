@@ -1086,7 +1086,7 @@ body.dark-theme .live-status-pill {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: -12px;
+  margin-top: -24px;
   margin-bottom: var(--spacing-xl);
 }
 
@@ -2571,7 +2571,7 @@ body.dark-theme .eta-card {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: -44px; /* Move upward even more to maintain compaction */
+  margin-top: -28px; /* Moved downward from -44px */
   margin-bottom: 20px;
   padding: 0;
 }
