@@ -1838,6 +1838,10 @@ const TabManager = {
       if (tabName === "profile" && typeof ProfileManager !== "undefined") {
         ProfileManager.loadProfile();
       }
+
+      if (tabName === "dashboard" && MapManager.map) {
+        setTimeout(() => MapManager.map.resize(), 100);
+      }
     } else {
       // If switching to map, maybe we want to resize just to be safe,
       // though it's always visible now.

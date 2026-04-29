@@ -1773,11 +1773,11 @@ body.dark-theme .live-status-pill {
   width: 100%;
   background: #ffffff; /* Solid White - No Transparency */
   z-index: 900;
-  display: flex !important;
+  display: none; /* Changed from flex !important to none for clean transitions */
   flex-direction: column;
   transform: none; /* No transition for removal of 'floating' feel */
   opacity: 1;
-  visibility: hidden; /* Controlled by .active */
+  visibility: visible; /* Controlled by display instead */
   border-radius: 0;
   box-shadow: none;
   border: none;
@@ -1785,7 +1785,7 @@ body.dark-theme .live-status-pill {
 }
 
 .floating-panel.active {
-  visibility: visible;
+  display: flex !important;
 }
 
 .panel-container {
@@ -3391,7 +3391,7 @@ body.dark-theme .bus-detail-footer {
    Buses Page Fix — Specific Overrides
    ========================================= */
 #busesView {
-  display: flex !important;
+  /* display handled by .floating-panel and .active */
   flex-direction: column !important;
   justify-content: flex-start !important; /* important */
   height: auto !important; /* remove 100vh */
