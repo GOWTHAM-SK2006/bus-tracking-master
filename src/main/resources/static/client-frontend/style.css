@@ -3408,3 +3408,42 @@ body.dark-theme .bus-detail-footer {
 #busesView .cards-grid {
   margin-top: 12px !important; /* small gap below search */
 }
+
+/* Dashboard Details Button */
+.details-item {
+  justify-content: center !important;
+  border-right: none !important;
+}
+
+.dash-details-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  width: auto;
+  height: auto;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(255, 126, 51, 0.2);
+}
+
+.dash-details-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px var(--primary-glow);
+}
+
+.dash-details-btn:active {
+  transform: scale(0.96);
+}
+
+body.dark-theme .dash-details-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

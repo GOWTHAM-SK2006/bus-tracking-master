@@ -2304,6 +2304,19 @@ const DashboardManager = {
       this.removeStop();
     };
 
+    // Bus Details Button
+    const dashDetailsBtn = document.getElementById("dashDetailsBtn");
+    if (dashDetailsBtn) {
+      dashDetailsBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (state.selectedBusId) {
+          BusDetailPopup.show(state.selectedBusId);
+        } else {
+          showToast("Please select a bus first", "info");
+        }
+      };
+    }
+
     // Quick Actions
     const qaEnableAlerts = document.getElementById("qaEnableAlerts");
     const qaChangeStop = document.getElementById("qaChangeStop");
