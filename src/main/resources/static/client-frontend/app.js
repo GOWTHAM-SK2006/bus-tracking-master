@@ -804,6 +804,17 @@ const MapManager = {
     if (DOM.dashDistance) DOM.dashDistance.textContent = distance;
     if (DOM.dashEta) DOM.dashEta.textContent = eta;
     if (DOM.dashSpeed) DOM.dashSpeed.textContent = speed;
+
+    // Sync with Popup if it's open for this bus
+    if (BusDetailPopup.currentBusId === String(bus.busId || bus.busNo)) {
+      const popupDistance = document.getElementById("popupDistance");
+      const popupEta = document.getElementById("popupEta");
+      const popupSpeed = document.getElementById("popupSpeed");
+      
+      if (popupDistance) popupDistance.textContent = `${distance} km`;
+      if (popupEta) popupEta.textContent = `${eta} mins`;
+      if (popupSpeed) popupSpeed.textContent = `${speed} km/h`;
+    }
   },
 
   async getTravelStats(busLat, busLng, stopLat, stopLng) {
@@ -2097,6 +2108,9 @@ const BusDetailPopup = {
     const popupDriver = document.getElementById("popupDriver");
     const popupPhone = document.getElementById("popupPhone");
     const popupCoords = document.getElementById("popupCoords");
+    const popupDistance = document.getElementById("popupDistance");
+    const popupEta = document.getElementById("popupEta");
+    const popupSpeed = document.getElementById("popupSpeed");
 
     if (popupBusNo) popupBusNo.textContent = bus.busNo;
     if (popupBusName) popupBusName.textContent = bus.busName || `Bus ${bus.busNo}`;
@@ -2130,6 +2144,18 @@ const BusDetailPopup = {
     // Driver & Phone
     if (popupDriver) popupDriver.textContent = bus.driverName || "Unknown";
     if (popupPhone) popupPhone.textContent = bus.driverPhone || "N/A";
+
+    // Distance, ETA, Speed (Initial population)
+    if (popupDistance) popupDistance.textContent = "-- km";
+    if (popupEta) popupEta.textContent = "-- mins";
+    if (popupSpeed) popupSpeed.textContent = "-- km/h";
+
+    // If we have dashboard data, use it
+    if (DOM.dashDistance && DOM.dashDistance.textContent !== "--") {
+       if (popupDistance) popupDistance.textContent = `${DOM.dashDistance.textContent} km`;
+       if (popupEta) popupEta.textContent = `${DOM.dashEta.textContent} mins`;
+       if (popupSpeed) popupSpeed.textContent = `${DOM.dashSpeed.textContent} km/h`;
+    }
 
     // Coordinates
     if (popupCoords) {

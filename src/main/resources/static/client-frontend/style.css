@@ -3230,10 +3230,12 @@ body.dark-theme .stop-icon-large {
 
 /* Body */
 .bus-detail-body {
-  padding: 18px 24px;
+  padding: 12px 24px; /* Reduced padding to fit more fields */
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .bus-detail-row {
