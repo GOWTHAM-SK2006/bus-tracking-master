@@ -220,7 +220,8 @@ h1, h2, h3, h4, h5, h6 {
 .header-center {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   z-index: 5;
@@ -1766,7 +1767,7 @@ body.dark-theme .live-status-pill {
 /* Floating Panel — Full Solid Page */
 .floating-panel {
   position: fixed;
-  top: var(--header-height);
+  top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
   left: 0;
   right: 0;
   bottom: 72px; /* Bottom Nav Height */
@@ -1883,10 +1884,10 @@ body.dark-theme .live-status-pill {
     max-width: none;
   }
   .main-content {
-    padding-top: var(--header-height);
+    padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
   }
   .tab-content {
-    height: calc(100vh - var(--header-height));
+    height: calc(100vh - var(--header-height) - env(safe-area-inset-top, 0px));
   }
   .bus-info-panel {
     left: var(--spacing-md);
@@ -1897,7 +1898,7 @@ body.dark-theme .live-status-pill {
 
 @media (max-width: 768px) {
   .floating-panel {
-    top: var(--header-height);
+    top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
     bottom: 72px;
     left: 0;
     right: 0;
