@@ -461,19 +461,72 @@ body {
     box-shadow: 0 6px 20px rgba(249, 115, 22, 0.22), inset 0 1px 1px rgba(255,255,255,0.15);
 }
 
-/* Specialized ADD Button — Pill Style with Vibrant Accent */
+/* Specialized ADD Button — Premium Box Style */
 #addBusInfoBtn {
-    border-radius: 99px !important;
-    padding: 6px 20px !important;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px !important;
+    padding: 10px 22px !important;
+    background: #0f172a;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 24px -8px rgba(15, 23, 42, 0.5), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
     min-width: unset;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-#addBusInfoBtn:hover {
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-    transform: translateY(-2.5px) scale(1.02);
+#addBusInfoBtn:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 18px 30px -10px rgba(15, 23, 42, 0.6);
+    border-color: var(--primary-400);
+}
+
+#addBusInfoBtn:active:not(:disabled) {
+    transform: translateY(-1px) scale(0.98);
+}
+
+#addBusInfoBtn svg {
+    color: var(--primary-400);
+    transition: transform 0.3s ease;
+}
+
+#addBusInfoBtn:hover svg {
+    transform: rotate(90deg);
+}
+
+/* Premium Current Information Card */
+.current-info-card {
+    border: 1px solid rgba(249, 115, 22, 0.15) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fefaf6 100%) !important;
+    box-shadow: 0 25px 60px -12px rgba(249, 115, 22, 0.15) !important;
+    position: relative;
+    z-index: 1;
+}
+
+.current-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--primary-400), var(--primary-600));
+    z-index: 2;
+}
+
+.current-info-card .section-header {
+    background: linear-gradient(90deg, rgba(249, 115, 22, 0.06) 0%, transparent 100%);
+    padding: var(--space-5) var(--space-6);
+}
+
+.current-info-card .section-title {
+    color: var(--primary-700);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
 }
 
 /* Action Layouts — Centered & Spaced */
