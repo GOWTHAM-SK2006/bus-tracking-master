@@ -1516,16 +1516,18 @@ body.dark-theme .live-status-pill {
 }
 
 .bus-icon-container {
-  width: 52px;
-  height: 52px;
-  background: transparent;
+  width: 42px;
+  height: 42px;
+  background: var(--secondary);
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
   position: relative;
   z-index: 2;
   transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  border: 2px solid white;
 }
 
 .bus-number-overlay {
@@ -1599,28 +1601,26 @@ body.dark-theme .live-status-pill {
 }
 
 .bus-svg {
-  width: 44px;
-  height: 44px;
-  color: var(--secondary);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  width: 24px;
+  height: 24px;
+  color: white;
 }
 
 /* Status Colors */
 .bus-marker-container.status-active .bus-icon-container {
-  border-color: var(--success);
-  color: var(--success);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+  background: var(--secondary);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 .bus-marker-container.status-active .bus-svg {
-  color: var(--secondary);
+  color: white;
 }
 
 .bus-marker-container.status-inactive .bus-icon-container {
-  border-color: var(--danger);
-  color: var(--danger);
+  background: #94a3b8;
+  opacity: 0.8;
 }
 .bus-marker-container.status-inactive .bus-svg {
-  color: var(--danger);
+  color: white;
 }
 
 .bus-marker-container.selected .bus-icon-container {
