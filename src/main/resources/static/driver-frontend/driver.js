@@ -1232,10 +1232,12 @@ const GPSController = {
 
             // Minimum time between updates (milliseconds)
             interval: 1000,
+            fastestInterval: 1000,
+            smallInterval: 1000,
 
             // Continue tracking even when screen is off
             stopOnTerminate: false,
-            startOnBoot: false,
+            startOnBoot: true,
           },
           (location, error) => {
             if (error) {
@@ -2179,7 +2181,7 @@ const TrackingController = {
       if (state.isTracking && state.lastPosition) {
         this.sendUpdate();
       }
-    }, 5000);
+    }, 1000);
 
     // GPS HEARTBEAT MONITOR: Silently detect when GPS stops.
     // Does NOT show errors or change status — just quietly waits for GPS to return.
