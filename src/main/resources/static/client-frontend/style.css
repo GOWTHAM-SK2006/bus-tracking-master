@@ -1518,22 +1518,19 @@ body.dark-theme .live-status-pill {
 .bus-icon-container {
   width: 52px;
   height: 52px;
-  background: #6366f1; /* Purple background from reference */
-  border-radius: 50%;
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
   position: relative;
   z-index: 2;
   transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-  border: 3px solid white;
 }
 
 .bus-number-overlay {
   position: absolute;
-  bottom: -22px;
+  bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
   background: #f97316;
@@ -1602,10 +1599,10 @@ body.dark-theme .live-status-pill {
 }
 
 .bus-svg {
-  width: 28px;
-  height: 28px;
-  color: #94a3b8;
-  margin-top: -2px;
+  width: 44px;
+  height: 44px;
+  color: var(--secondary);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 /* Status Colors */
@@ -1615,7 +1612,7 @@ body.dark-theme .live-status-pill {
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
 }
 .bus-marker-container.status-active .bus-svg {
-  color: white;
+  color: var(--secondary);
 }
 
 .bus-marker-container.status-inactive .bus-icon-container {
