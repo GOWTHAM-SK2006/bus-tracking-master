@@ -1273,11 +1273,11 @@ const RouteManager = {
 
     if (DOM.totalRoutes) DOM.totalRoutes.textContent = routes.length;
 
-    if (routes.length === 0) {
+        if (routes.length === 0) {
       DOM.routesListContainer.innerHTML = `
-        <div style="text-align: center; padding: 40px; color: #999; background: rgba(0,0,0,0.02); border-radius: 12px;">
-          <div style="font-size: 2rem; margin-bottom: 8px;">📍</div>
-          ${query ? "No routes matching your search" : "No routes available"}
+        <div class="no-routes-placeholder">
+          <div class="icon">📍</div>
+          <p>${query ? "No routes matching your search" : "No service routes available"}</p>
         </div>`;
       return;
     }
@@ -1285,19 +1285,18 @@ const RouteManager = {
     DOM.routesListContainer.innerHTML = routes
       .map(
         (route) => `
-      <div class="route-item" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\\\'")}')" 
-           style="background: white; padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <div style="width: 40px; height: 40px; background: rgba(30, 64, 175, 0.1); color: var(--secondary, #1e40af); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-            🗺️
+      <div class="route-card-new" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\\\")}')">
+        <div class="route-card-left">
+          <div class="route-icon-new">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           </div>
-          <div>
-            <div style="font-weight: 700; color: #1f2937; font-size: 1.05rem;">${route.name}</div>
-            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Service Route</div>
+          <div class="route-details-new">
+            <h3>${route.name}</h3>
+            <p>Active Service Route</p>
           </div>
         </div>
-        <div style="background: rgba(30, 64, 175, 0.08); color: var(--secondary, #1e40af); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700;">
-          ${route.busCount} ${route.busCount === 1 ? "bus" : "buses"}
+        <div class="route-badge-new">
+          ${route.busCount} ${route.busCount === 1 ? "Bus" : "Buses"}
         </div>
       </div>
     `,
