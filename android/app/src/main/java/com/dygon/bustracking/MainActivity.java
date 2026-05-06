@@ -29,9 +29,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "App onDestroy called - stopping tracking");
-        // Send final STOP message before app is completely destroyed
-        notifyAppStopped();
+        Log.d(TAG, "App onDestroy called");
     }
 
     /**

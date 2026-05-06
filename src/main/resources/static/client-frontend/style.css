@@ -1496,8 +1496,8 @@ body.dark-theme .live-status-pill {
 .bus-marker-container {
   position: relative;
   cursor: pointer;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: block;
   z-index: 1000;
   pointer-events: auto !important;
@@ -1507,23 +1507,23 @@ body.dark-theme .live-status-pill {
 }
 
 .bus-marker-container:hover {
-  transform: scale(1.15) translateZ(0);
+  transform: scale(1.1) translateZ(0);
   z-index: 100;
 }
 .bus-marker-container.selected {
   z-index: 101;
-  transform: scale(1.25) translateZ(0);
+  transform: scale(1.15) translateZ(0);
 }
 
 .bus-icon-container {
-  width: 42px;
-  height: 42px;
-  background: var(--secondary);
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4), 0 0 10px rgba(124, 58, 237, 0.2);
   position: relative;
   z-index: 2;
   transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -1548,20 +1548,21 @@ body.dark-theme .live-status-pill {
 
 .marker-label-top {
   position: absolute;
-  top: -45px;
+  top: -48px;
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 80px;
+  gap: 1px;
+  min-width: 70px;
   z-index: 5;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .marker-label-top::after {
@@ -1606,30 +1607,27 @@ body.dark-theme .live-status-pill {
   color: white;
 }
 
-/* Status Colors */
-.bus-marker-container.status-active .bus-icon-container {
-  background: var(--secondary);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-.bus-marker-container.status-active .bus-svg {
-  color: white;
+/* Status Colors - Unified for Modern Look */
+.bus-marker-container.status-active .bus-icon-container,
+.bus-marker-container.status-inactive .bus-icon-container {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4), 0 0 10px rgba(124, 58, 237, 0.2);
+  opacity: 1;
 }
 
-.bus-marker-container.status-inactive .bus-icon-container {
-  background: #94a3b8;
-  opacity: 0.8;
-}
+.bus-marker-container.status-active .bus-svg,
 .bus-marker-container.status-inactive .bus-svg {
   color: white;
 }
 
 .bus-marker-container.selected .bus-icon-container {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-  border-color: var(--secondary);
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5), 0 0 15px rgba(124, 58, 237, 0.3);
+  border-color: white;
 }
+
 .bus-marker-container.selected .bus-svg {
-  color: var(--secondary);
+  color: white;
 }
 
 /* Pulse Animation */
@@ -1669,14 +1667,14 @@ body.dark-theme .live-status-pill {
 /* Tooltip */
 .marker-tooltip {
   position: absolute;
-  bottom: 30px;
+  bottom: 34px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
@@ -1684,7 +1682,7 @@ body.dark-theme .live-status-pill {
   font-size: 0.8rem;
   pointer-events: none;
   text-align: center;
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .marker-tooltip::after {

@@ -2872,20 +2872,15 @@ function initApp() {
     }
   };
 
-  // Web: beforeunload and pagehide events (browser closing)
+  // Web: beforeunload event (browser tab closing)
   window.addEventListener("beforeunload", (e) => {
-    handleAppClosing();
     if (state.isTracking) {
+      handleAppClosing();
       e.preventDefault();
       e.returnValue =
         "GPS tracking is still active. Are you sure you want to leave?";
       return e.returnValue;
     }
-  });
-
-  window.addEventListener("pagehide", () => {
-    console.log("[AppLifecycle] pagehide event triggered");
-    handleAppClosing();
   });
 
   // Mobile: Capacitor App pause event (app going to background or being closed)
@@ -2895,30 +2890,10 @@ function initApp() {
         const { App } = window.Capacitor.Plugins;
 
         // Listen for app pause (app being closed from recent tasks)
+        // Only register appStateChange for monitoring, NOT for stopping tracking
         App.addListener("appStateChange", async (appState) => {
-          if (!appState.isActive && state.isTracking) {
-            // App is being paused/closed
-            console.log("[AppLifecycle] App paused - checking if closed");
-
-            // Give it 500ms to see if we come back
-            const checkTimeout = setTimeout(() => {
-              if (state.isTracking) {
-                console.log(
-                  "[AppLifecycle] App appears to be closing while tracking",
-                );
-                // Send STOP immediately
-                handleAppClosing();
-              }
-            }, 500);
-
-            // If app comes back to foreground, cancel the check
-            const resumeCheckInterval = setInterval(() => {
-              if (appState.isActive) {
-                clearTimeout(checkTimeout);
-                clearInterval(resumeCheckInterval);
-              }
-            }, 100);
-          }
+          console.log("[AppLifecycle] App state changed to:", appState.isActive ? "Active" : "Background");
+          // Background geolocation service will handle tracking persistence
         });
 
         console.log("[AppLifecycle] App lifecycle handlers registered");
