@@ -3225,3 +3225,139 @@ body {
   margin-bottom: 16px;
   opacity: 0.5;
 }
+
+/* =========================================
+   Reports & Exports Redesign
+   ========================================= */
+.export-grid-new {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.export-card-new {
+  background: var(--bg-white);
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: all var(--transition-normal);
+}
+
+.export-card-new:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-light);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+}
+
+.export-header-new {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.export-icon-box-new {
+  width: 56px;
+  height: 56px;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--primary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.export-card-new h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.export-card-new p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.export-form-new {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.export-input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.export-field-new {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.export-field-new label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.export-field-new input {
+  padding: 10px 14px;
+  background: var(--bg-gray);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.export-field-new input:focus {
+  outline: none;
+  background: var(--bg-white);
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.btn-export-new {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 8px;
+}
+
+.btn-export-new:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+}
+
+.btn-export-new svg {
+  transition: transform var(--transition-fast);
+}
+
+.btn-export-new:hover svg {
+  transform: translateY(2px);
+}
