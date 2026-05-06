@@ -124,21 +124,11 @@
 
   <div class="main-content-layout">
     <!-- Header -->
-    <header class="admin-header animate-fade-in-down">
+    <header class="admin-header">
       <div class="header-container">
-        <!-- Spacer or Title for Breadcrumb if needed, keeping it minimal -->
-        <div class="header-title">
-          <h2>Management Panel</h2>
+        <div class="header-left">
+           <h1 class="page-title">Management Dashboard</h1>
         </div>
-
-      <!-- Mobile Menu Toggle (Hamburger) -->
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
 
       <!-- Admin Actions (Desktop Only) -->
       <div class="header-actions" id="adminHeaderActions">
@@ -441,20 +431,21 @@
 
     <section class="floating-panel panel-glass animate-fade-in-up" id="busesView">
       <div class="panel-container">
-        <div class="list-header" style="align-items: center">
-          <div style="display: flex; flex-direction: column; gap: 4px">
+        <div class="list-header">
+          <div class="header-main">
             <h2>Registered Buses</h2>
-            <span class="list-count"><span id="totalBuses">0</span> buses</span>
+            <p class="header-sub">Manage and monitor your fleet real-time</p>
           </div>
-          <div style="display: flex; gap: 8px; align-items: center">
-            <button class="close-panel-btn" onclick="toggleBusesPanel(false)">
-              ×
-            </button>
+          <div class="header-stats">
+            <span class="stat-badge"><span id="totalBuses">0</span> Buses Registered</span>
           </div>
         </div>
-        <!-- Search within list -->
-        <div class="local-search">
-          <input type="text" placeholder="Filter buses..." id="busFilterInput" />
+
+        <div class="table-controls">
+          <div class="search-input-wrapper">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+             <input type="text" placeholder="Search by bus no, driver or route..." id="busFilterInput" />
+          </div>
         </div>
         <div class="buses-table-container">
           <table class="buses-table">

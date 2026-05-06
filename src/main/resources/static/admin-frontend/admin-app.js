@@ -1201,21 +1201,23 @@ const BusManager = {
       .map(
         (bus) => `
             <tr>
-                <td data-label="Bus No"><strong>${bus.busNo}</strong></td>
-                <td data-label="Driver">${bus.driverName}</td>
-                <td data-label="Route">${bus.routeName}</td>
+                <td data-label="Bus No"><span class="bus-number-badge">${bus.busNo}</span></td>
+                <td data-label="Driver" style="font-weight: 500;">${bus.driverName}</td>
+                <td data-label="Route" style="color: var(--text-secondary);">${bus.routeName}</td>
                 <td data-label="Status">
                     <span class="status-badge ${bus.gpsOn ? "active" : "inactive"}">
-                        ${bus.gpsOn ? "Active" : "Offline"}
+                        ${bus.gpsOn ? "Online" : "Offline"}
                     </span>
                 </td>
                 <td data-label="Action">
-                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                        <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+                    <div class="table-actions">
+                        <button class="action-btn locate" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             Locate
                         </button>
-                        <button class="btn btn-sm" style="padding: 4px 8px; font-size: 12px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer;" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')">
-                            Info
+                        <button class="action-btn info" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            Details
                         </button>
                     </div>
                 </td>
