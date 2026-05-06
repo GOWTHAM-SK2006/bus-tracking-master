@@ -1254,13 +1254,7 @@
         if (!isGuest) return;
 
         document.addEventListener("DOMContentLoaded", () => {
-          // Hide restricted nav buttons (Buses, Profile)
-          document.querySelectorAll(".bottom-nav-btn").forEach((btn) => {
-            const tab = btn.dataset.tab;
-            if (tab === "profile") {
-              btn.style.display = "none";
-            }
-          });
+          // Profile tab restored
 
           // Hide feedback button if present
           const feedbackBtn = document.getElementById("feedbackBtn") ||
