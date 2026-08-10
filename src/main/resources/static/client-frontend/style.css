@@ -1965,12 +1965,13 @@ body.dark-theme .live-status-pill {
   }
 
   .mini-map-container {
-    height: 150px;
+    height: 195px;
     margin-bottom: 0;
     flex-shrink: 0;
   }
 
   .bus-status-premium-card {
+    margin-top: 14px;
     flex-shrink: 0;
   }
 
