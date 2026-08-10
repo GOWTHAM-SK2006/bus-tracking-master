@@ -1966,19 +1966,20 @@ body.dark-theme .live-status-pill {
 
   .mini-map-container {
     height: 195px;
+    margin-top: 8px;
     margin-bottom: 0;
     flex-shrink: 0;
   }
 
   .bus-status-premium-card {
-    margin-top: 14px;
+    margin-top: 12px;
     flex-shrink: 0;
   }
 
   .dashboard-main-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    margin-top: auto;
+    margin-top: 12px;
     flex-shrink: 0;
   }
 
