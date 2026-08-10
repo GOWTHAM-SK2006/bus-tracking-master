@@ -885,14 +885,33 @@ body {
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--danger), #dc2626);
-  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white !important;
+  border: 1px solid rgba(220, 38, 38, 0.3);
   flex: 1;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  font-weight: 600;
 }
 
 .btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
+  color: white !important;
+}
+
+.btn-outline-danger, .btn-danger-outline {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1.5px solid #fca5a5 !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+  font-weight: 600;
+}
+
+.btn-outline-danger:hover, .btn-danger-outline:hover {
+  background: #dc2626 !important;
+  color: white !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
 }
 
 /* ======================================== 
