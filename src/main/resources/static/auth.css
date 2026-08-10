@@ -230,17 +230,14 @@ body::after {
     background: rgba(255,255,255,0.03);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    padding: 3rem var(--space-8);
+    padding: 2.5rem var(--space-6);
     position: relative;
     min-height: 100vh;
-    /* Allow natural body scrolling */
-    overflow-y: visible;
+    overflow-y: auto;
     backdrop-filter: blur(5px);
 }
-
-@media (min-height: 800px) { .auth-panel { justify-content: center; } }
 
 .auth-card {
     width: 100%;
@@ -523,25 +520,48 @@ body::after {
    ========================================= */
 @media (max-width: 768px) {
     .auth-branding { display: none; }
-    .mobile-header { display: block; }
+    .mobile-header { display: block; margin-bottom: var(--space-6); }
     .auth-panel {
-        padding: var(--space-4);
-        justify-content: flex-start;
+        padding: 2.5rem var(--space-4);
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
         background: linear-gradient(135deg, rgba(15,12,41,0.95), rgba(48,43,99,0.9), rgba(36,36,62,0.95));
     }
     .auth-card {
-        max-width: 100%; padding: var(--space-6);
+        width: 100%;
+        max-width: 440px;
+        padding: var(--space-6);
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        margin: auto 0;
     }
-    .role-cards { grid-template-columns: repeat(3, 1fr); }
+    .role-cards { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 }
 
 @media (max-width: 480px) {
-    .auth-panel { padding: 0; align-items: stretch; }
-    .auth-card { padding: var(--space-6) var(--space-5); border-radius: 0; border: none; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; }
-    .role-cards { grid-template-columns: 1fr; gap: var(--space-2); }
-    .role-card { flex-direction: row; justify-content: flex-start; padding: var(--space-3); min-height: 50px; }
-    .role-icon { margin: 0; }
+    .auth-panel {
+        padding: 2rem 1rem;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+    .auth-card {
+        padding: var(--space-6) var(--space-5);
+        border-radius: var(--radius-2xl);
+        border: 1px solid rgba(255,255,255,0.6);
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        max-width: 420px;
+        margin: auto 0;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .role-cards { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .role-card { flex-direction: column; justify-content: center; padding: 10px 4px; }
+    .role-icon { width: 20px; height: 20px; }
+    .role-name { font-size: 0.75rem; text-align: center; }
     .form-input { font-size: 16px !important; padding: 12px; }
     .btn { min-height: 48px; }
 }
