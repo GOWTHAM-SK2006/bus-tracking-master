@@ -186,7 +186,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: max(env(safe-area-inset-top, 0px), 10px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -1775,7 +1775,7 @@ body.dark-theme .live-status-pill {
 /* Floating Panel — Full Solid Page */
 .floating-panel {
   position: fixed;
-  top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  top: calc(var(--header-height) + max(env(safe-area-inset-top, 0px), 10px));
   left: 0;
   right: 0;
   bottom: 72px; /* Bottom Nav Height */
@@ -1906,13 +1906,16 @@ body.dark-theme .live-status-pill {
 
 @media (max-width: 768px) {
   .floating-panel {
-    top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+    top: calc(var(--header-height) + max(env(safe-area-inset-top, 0px), 10px));
     bottom: 72px;
     left: 0;
     right: 0;
     width: 100%;
     border-radius: 0;
     box-shadow: none;
+  }
+  .panel-container {
+    padding: 12px 16px 20px;
   }
 }
 
@@ -1932,14 +1935,15 @@ body.dark-theme .live-status-pill {
   }
 
   /* Dashboard Mobile Refinements */
+  .list-header h2,
   .dashboard-header h2 {
-    font-size: 1.75rem;
-    margin-bottom: 20px;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
   }
 
   .mini-map-container {
-    height: 180px;
-    margin-bottom: 16px;
+    height: 160px;
+    margin-bottom: 14px;
   }
 
   .dashboard-main-grid {
