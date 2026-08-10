@@ -1790,7 +1790,7 @@ body.dark-theme .live-status-pill {
   border-radius: 0;
   box-shadow: none;
   border: none;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .floating-panel.active {
@@ -1934,9 +1934,10 @@ body.dark-theme .live-status-pill {
     padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
     flex: 1 !important;
-    gap: 12px !important;
+    gap: 10px !important;
+    overflow: hidden !important;
   }
 }
 
@@ -1965,10 +1966,11 @@ body.dark-theme .live-status-pill {
   }
 
   .mini-map-container {
-    height: 195px;
-    margin-top: 8px;
+    flex: 1;
+    min-height: 140px;
+    max-height: 240px;
+    margin-top: 0;
     margin-bottom: 0;
-    flex-shrink: 0;
   }
 
   .bus-status-premium-card {
