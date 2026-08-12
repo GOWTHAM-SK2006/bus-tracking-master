@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BusTrack - Real-Time Live Bus Tracking</title>
+    <meta name="description" content="Track your college bus live with OpenStreetMap, real-time ETAs, bus stop schedules, and driver contacts.">
+    <link rel="icon" href="../logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Custom Client Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar / Drawer -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <img src="../logo.png" alt="BusTrack Logo" class="brand-logo">
+                    <div class="brand-text">
+                        <h2>BusTrack <span>Live</span></h2>
+                        <p id="clientGreeting">Welcome, Student</p>
+                    </div>
+                </div>
+                <button class="mobile-drawer-toggle" id="drawerToggle" title="Toggle Drawer">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <!-- Real-time Status Badge -->
+            <div class="status-banner" id="statusBanner">
+                <span class="status-indicator active" id="statusPulse"></span>
+                <span id="statusText">Connecting live feed...</span>
+                <button class="refresh-btn" id="refreshBtn" title="Refresh Live Data">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+
+            <!-- Quick Action & Search Bar -->
+            <div class="search-box-container">
+                <div class="search-input-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="busSearchInput" placeholder="Search by bus #, route, stop, driver...">
+                    <button class="clear-search-btn hidden" id="clearSearchBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">All Buses (<span id="countAll">0</span>)</button>
+                <button class="filter-btn" data-filter="running">Active (<span id="countRunning">0</span>)</button>
+                <button class="filter-btn" data-filter="stops">Stops</button>
+            </div>
+
+            <!-- Saved Bus Stop Banner -->
+            <div class="saved-stop-card" id="savedStopCard">
+                <div class="saved-stop-info">
+                    <i class="fa-solid fa-bookmark text-primary"></i>
+                    <div>
+                        <span class="saved-stop-label">Your Preferred Stop:</span>
+                        <strong id="savedStopName">Not selected</strong>
+                    </div>
+                </div>
+                <button class="btn-sm btn-outline" id="changeStopBtn"><i class="fa-solid fa-pen-to-square"></i> Change</button>
+            </div>
+
+            <!-- Scrollable Content List -->
+            <div class="content-scroll" id="contentScroll">
+                
+                <!-- Active Route ETA Banner (If user stop is selected) -->
+                <div class="eta-alert-box hidden" id="etaAlertBox">
+                    <div class="eta-icon"><i class="fa-solid fa-clock text-warning"></i></div>
+                    <div class="eta-details">
+                        <span class="eta-label">Nearest Bus to <b id="etaTargetStop">Stop</b>:</span>
+                        <h4 id="etaTime">Calculating ETA...</h4>
+                        <span class="eta-subtext" id="etaBusInfo">Bus # --</span>
+                    </div>
+                </div>
+
+                <!-- Bus List Container -->
+                <div class="bus-list" id="busList">
+                    <div class="loading-skeleton">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live buses...
+                    </div>
+                </div>
+
+                <!-- Bus Stop List Container (Hidden by default until 'Stops' tab clicked) -->
+                <div class="stops-list hidden" id="stopsList"></div>
+
+            </div>
+
+            <!-- Footer / User Menu -->
+            <div class="sidebar-footer">
+                <div class="user-pill" id="userPill">
+                    <div class="user-avatar" id="userAvatar">S</div>
+                    <div class="user-details">
+                        <strong id="userName">Student User</strong>
+                        <span id="userEmail">student@sairamtap.edu.in</span>
+                    </div>
+                </div>
+                <div class="footer-actions">
+                    <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button class="icon-btn danger" id="logoutBtn" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Map Screen -->
+        <main class="map-container">
+            <!-- OpenStreetMap Container -->
+            <div id="map"></div>
+
+            <!-- Floating Top Right Controls -->
+            <div class="map-controls-top">
+                <button class="map-control-btn" id="locateUserBtn" title="Recenter to My Location">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <span class="btn-text">My Location</span>
+                </button>
+                <button class="map-control-btn" id="recenterCollegeBtn" title="Focus College Campus">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span class="btn-text">Campus</span>
+                </button>
+                <button class="map-control-btn" id="openFeedbackBtn" title="Report Issue / Feedback">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span class="btn-text">Feedback</span>
+                </button>
+            </div>
+
+            <!-- Floating Selected Bus Quick Card (Bottom overlay on map) -->
+            <div class="selected-bus-floating-card hidden" id="floatingBusCard">
+                <button class="close-floating-card" id="closeFloatingCard"><i class="fa-solid fa-xmark"></i></button>
+                <div class="floating-bus-header">
+                    <span class="bus-badge" id="floatBusBadge">BUS-101</span>
+                    <h3 id="floatBusName">Route 1 - Central Line</h3>
+                    <span class="live-pill" id="floatLivePill">MOVING</span>
+                </div>
+                <div class="floating-bus-body">
+                    <div class="floating-stat">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>Driver: <strong id="floatDriverName">--</strong></span>
+                    </div>
+                    <div class="floating-stat">
+                        <i class="fa-solid fa-route"></i>
+                        <span>Destination Stop: <strong id="floatBusStop">--</strong></span>
+                    </div>
+                    <div class="floating-stat">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Speed: <strong id="floatSpeed">0 km/h</strong></span>
+                    </div>
+                </div>
+                <div class="floating-bus-footer">
+                    <a href="#" id="floatCallBtn" class="btn-call"><i class="fa-solid fa-phone"></i> Call Driver</a>
+                    <button id="floatFollowBtn" class="btn-follow"><i class="fa-solid fa-location-arrow"></i> Track on Map</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bus Stop Change Modal -->
+    <div class="modal-backdrop hidden" id="stopModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bookmark text-primary"></i> Select Your Preferred Bus Stop</h3>
+                <button class="modal-close-btn" id="closeStopModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Choose your bus stop to automatically highlight relevant buses and receive live arrival ETAs.</p>
+                <div class="search-input-wrapper margin-v">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="stopModalSearch" placeholder="Type stop name (e.g. Tambaram, Guindy, Koyambedu)...">
+                </div>
+                <div class="stop-options-list" id="stopModalOptions">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelStopModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal-backdrop hidden" id="feedbackModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-paper-plane text-primary"></i> Send Feedback / Report Issue</h3>
+                <button class="modal-close-btn" id="closeFeedbackModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="feedbackForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="feedbackSubject">Subject</label>
+                        <select id="feedbackSubject" class="form-control" required>
+                            <option value="Bus Delay">Bus Delay</option>
+                            <option value="Incorrect Location">Incorrect Location / GPS</option>
+                            <option value="Overcrowding">Overcrowded Bus</option>
+                            <option value="Lost Property">Lost Property</option>
+                            <option value="Other">General Feedback</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackBus">Select Bus (Optional)</label>
+                        <select id="feedbackBus" class="form-control">
+                            <option value="">-- Any Bus / General --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackMessage">Message / Details</label>
+                        <textarea id="feedbackMessage" class="form-control" rows="4" placeholder="Describe the issue or share your suggestion..." required></textarea>
+                    </div>
+                    <div id="feedbackAlert" class="alert-box hidden"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelFeedback">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitFeedbackBtn">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client JS App -->
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -401,7 +401,7 @@ signinForm.addEventListener("submit", async (e) => {
     switch (currentRole) {
       case "client":
         localStorage.setItem("client", JSON.stringify(data.client));
-        window.location.href = "login.html";
+        window.location.href = "client-frontend/index.html";
         break;
       case "driver":
         localStorage.setItem("driver", JSON.stringify(data.driver));
