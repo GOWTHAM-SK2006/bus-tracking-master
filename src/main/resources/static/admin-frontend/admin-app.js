@@ -1959,136 +1959,151 @@ function exportActiveBusesPDF() {
   );
 }
 
-// --- PDF Report Date Presets & Modal ---
-
-function formatDateForInput(dateObj) {
-  const yyyy = dateObj.getFullYear();
-  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const dd = String(dateObj.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function applyPreset(presetKey) {
+function applyDatePreset(presetType, btnElement) {
   const today = new Date();
-  let startDateStr = '';
-  let endDateStr = formatDateForInput(today);
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const endFormatted = `${year}-${month}-${day}`;
 
-  if (presetKey === 'last-7') {
+  let startFormatted = '';
+
+  if (presetType === 'all') {
+    startFormatted = '';
+  } else if (presetType === '7days') {
     const d = new Date();
     d.setDate(d.getDate() - 7);
-    startDateStr = formatDateForInput(d);
-  } else if (presetKey === 'last-30') {
+    const sYear = d.getFullYear();
+    const sMonth = String(d.getMonth() + 1).padStart(2, '0');
+    const sDay = String(d.getDate()).padStart(2, '0');
+    startFormatted = `${sYear}-${sMonth}-${sDay}`;
+  } else if (presetType === '30days') {
     const d = new Date();
     d.setDate(d.getDate() - 30);
-    startDateStr = formatDateForInput(d);
-  } else if (presetKey === 'last-90') {
+    const sYear = d.getFullYear();
+    const sMonth = String(d.getMonth() + 1).padStart(2, '0');
+    const sDay = String(d.getDate()).padStart(2, '0');
+    startFormatted = `${sYear}-${sMonth}-${sDay}`;
+  } else if (presetType === '90days') {
     const d = new Date();
     d.setDate(d.getDate() - 90);
-    startDateStr = formatDateForInput(d);
-  } else if (presetKey === 'this-year') {
-    const d = new Date(today.getFullYear(), 0, 1);
-    startDateStr = formatDateForInput(d);
-  } else if (presetKey === 'all-time') {
-    startDateStr = '';
-    endDateStr = formatDateForInput(today);
+    const sYear = d.getFullYear();
+    const sMonth = String(d.getMonth() + 1).padStart(2, '0');
+    const sDay = String(d.getDate()).padStart(2, '0');
+    startFormatted = `${sYear}-${sMonth}-${sDay}`;
+  } else if (presetType === 'thisyear') {
+    startFormatted = `${year}-01-01`;
   }
 
-  const inputs = [
-    document.getElementById('exportStartDate'),
-    document.getElementById('modalExportStartDate')
-  ];
-  inputs.forEach(input => { if (input) input.value = startDateStr; });
+  const cardStart = document.getElementById("exportStartDate");
+  const cardEnd = document.getElementById("exportEndDate");
+  const modalStart = document.getElementById("pdfFromDate");
+  const modalEnd = document.getElementById("pdfToDate");
 
-  const endInputs = [
-    document.getElementById('exportEndDate'),
-    document.getElementById('modalExportEndDate')
-  ];
-  endInputs.forEach(input => { if (input) input.value = endDateStr; });
+  if (cardStart) cardStart.value = startFormatted;
+  if (cardEnd) cardEnd.value = endFormatted;
+  if (modalStart) modalStart.value = startFormatted;
+  if (modalEnd) modalEnd.value = endFormatted;
 
-  document.querySelectorAll('.preset-chip').forEach(chip => {
-    if (chip.getAttribute('data-preset') === presetKey) {
-      chip.classList.add('active');
+  document.querySelectorAll('.preset-pill-btn').forEach((btn) => {
+    const onclickAttr = btn.getAttribute('onclick') || '';
+    if (onclickAttr.includes(`'${presetType}'`)) {
+      btn.classList.add('active');
     } else {
-      chip.classList.remove('active');
+      btn.classList.remove('active');
     }
   });
 }
 
 function clearPresetActiveState() {
-  document.querySelectorAll('.preset-chip').forEach(chip => chip.classList.remove('active'));
+  document.querySelectorAll('.preset-pill-btn').forEach((btn) => btn.classList.remove('active'));
 }
 
 function openPdfReportModal() {
-  const modal = document.getElementById('pdfReportModal');
+  const modal = document.getElementById("pdfReportModal");
   if (modal) {
-    const cardStart = document.getElementById('exportStartDate');
-    const cardEnd = document.getElementById('exportEndDate');
-    const modalStart = document.getElementById('modalExportStartDate');
-    const modalEnd = document.getElementById('modalExportEndDate');
+    const cardStart = document.getElementById("exportStartDate")?.value || "";
+    const cardEnd = document.getElementById("exportEndDate")?.value || "";
+    const modalStart = document.getElementById("pdfFromDate");
+    const modalEnd = document.getElementById("pdfToDate");
+    if (modalStart) modalStart.value = cardStart;
+    if (modalEnd) modalEnd.value = cardEnd;
 
-    if (cardStart && cardStart.value && modalStart) modalStart.value = cardStart.value;
-    if (cardEnd && cardEnd.value && modalEnd) modalEnd.value = cardEnd.value;
-
-    modal.style.display = 'flex';
-    modal.classList.add('show');
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
   }
 }
 
 function closePdfReportModal() {
-  const modal = document.getElementById('pdfReportModal');
+  const modal = document.getElementById("pdfReportModal");
   if (modal) {
-    modal.style.display = 'none';
-    modal.classList.remove('show');
+    modal.style.display = "none";
+    document.body.style.overflow = "";
   }
 }
 
-function submitPdfReportModal() {
-  const startInput = document.getElementById('modalExportStartDate');
-  const endInput = document.getElementById('modalExportEndDate');
-  const start = startInput ? startInput.value : '';
-  const end = endInput ? endInput.value : '';
+function handlePdfModalBackdropClick(e) {
+  if (e.target && e.target.id === "pdfReportModal") {
+    closePdfReportModal();
+  }
+}
+
+function syncFromModalInputs() {
+  const cardStart = document.getElementById("exportStartDate");
+  const cardEnd = document.getElementById("exportEndDate");
+  const modalStart = document.getElementById("pdfFromDate");
+  const modalEnd = document.getElementById("pdfToDate");
+
+  if (cardStart && modalStart) cardStart.value = modalStart.value;
+  if (cardEnd && modalEnd) cardEnd.value = modalEnd.value;
+}
+
+function generatePdfFromModal() {
+  const start = document.getElementById("pdfFromDate")?.value || document.getElementById("exportStartDate")?.value;
+  const end = document.getElementById("pdfToDate")?.value || document.getElementById("exportEndDate")?.value;
+
+  if (!start && !end) {
+    showToast("Please select a date range or preset", "error");
+    return;
+  }
+
+  const cardStart = document.getElementById("exportStartDate");
+  const cardEnd = document.getElementById("exportEndDate");
+  if (cardStart) cardStart.value = start || "";
+  if (cardEnd) cardEnd.value = end || "";
 
   closePdfReportModal();
-  exportDateRangePDFWithDates(start, end);
+  exportDateRangePDF();
 }
 
 function exportDateRangePDF() {
-  const start = document.getElementById('exportStartDate') ? document.getElementById('exportStartDate').value : '';
-  const end = document.getElementById('exportEndDate') ? document.getElementById('exportEndDate').value : '';
-  exportDateRangePDFWithDates(start, end);
-}
+  const start = document.getElementById("exportStartDate")?.value || document.getElementById("pdfFromDate")?.value;
+  const end = document.getElementById("exportEndDate")?.value || document.getElementById("pdfToDate")?.value;
 
-function exportDateRangePDFWithDates(start, end) {
   if (!start && !end) {
-    const buses = Array.from(adminState.buses.values());
-    if (buses.length === 0) {
-      showToast("No buses available for export", "error");
-      return;
-    }
-    generateBusPDF(buses, "All Time Buses Report");
+    showToast("Please select a date range or quick preset", "error");
     return;
   }
 
-  if (!start || !end) {
-    showToast("Please select both start and end dates", "error");
-    return;
+  let filtered = Array.from(adminState.buses.values());
+
+  if (start) {
+    const startTime = new Date(start).getTime();
+    filtered = filtered.filter((bus) => new Date(bus.lastUpdate).getTime() >= startTime);
   }
 
-  const startTime = new Date(start).getTime();
-  const endTime = new Date(end).getTime() + 24 * 60 * 60 * 1000;
-
-  const filtered = Array.from(adminState.buses.values()).filter((bus) => {
-    const updateTime = new Date(bus.lastUpdate).getTime();
-    return updateTime >= startTime && updateTime <= endTime;
-  });
+  if (end) {
+    const endTime = new Date(end).getTime() + 24 * 60 * 60 * 1000; // End of day
+    filtered = filtered.filter((bus) => new Date(bus.lastUpdate).getTime() <= endTime);
+  }
 
   if (filtered.length === 0) {
-    showToast("No buses found in this date range", "info");
-    generateBusPDF(Array.from(adminState.buses.values()), `Buses Report (${start} to ${end})`);
+    showToast("No buses found in this date range", "error");
     return;
   }
 
-  generateBusPDF(filtered, `Buses Report (${start} to ${end})`);
+  const rangeTitle = start && end ? `${start} to ${end}` : (start ? `From ${start}` : (end ? `Until ${end}` : `All Time`));
+  generateBusPDF(filtered, `Buses Report (${rangeTitle})`);
 }
 
 function generateBusPDF(buses, title) {
