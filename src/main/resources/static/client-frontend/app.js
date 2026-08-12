@@ -1,8 +1,9 @@
 /**
  * ==========================================================================
- * BusTrack Client Application - Real-Time Live Bus Tracking System
+ * DYGON Student Application - Real-Time Live Bus Tracking & Navigation System
+ * Navigation: 🏠 Dashboard | 🚌 Buses | 📍 Stops | 🕐 Schedules
  * Features: OpenStreetMap (Leaflet.js), Live WebSocket Sync, ETA Logic,
- * Bus Stop Explorer, User Location Tracking, Saved Stop Management.
+ * Bus Stop Directory, Timetables, User Location Tracking.
  * ==========================================================================
  */
 
@@ -17,8 +18,6 @@
     let map = null;
     let userLocationMarker = null;
     let busMarkers = {}; // busNumber -> Leaflet Marker
-    let stopMarkers = []; // Array of Leaflet Markers for Bus Stops
-    let routePolyline = null;
     let busesData = [];
     let busStopsList = [];
     let currentUser = null;
@@ -27,7 +26,9 @@
     let webSocket = null;
     let wsHeartbeatTimer = null;
     let pollingInterval = null;
-    let activeFilter = 'all';
+    let activeNavTab = 'dashboard';
+    let busSubFilter = 'all';
+    let scheduleType = 'morning';
 
     // DOM Elements
     const elements = {
@@ -36,8 +37,8 @@
         statusPulse: document.getElementById('statusPulse'),
         statusText: document.getElementById('statusText'),
         refreshBtn: document.getElementById('refreshBtn'),
-        busSearchInput: document.getElementById('busSearchInput'),
-        clearSearchBtn: document.getElementById('clearSearchBtn'),
+        navTabBtns: document.querySelectorAll('.nav-tab-btn'),
+        tabViews: document.querySelectorAll('.tab-view'),
         countAll: document.getElementById('countAll'),
         countRunning: document.getElementById('countRunning'),
         savedStopName: document.getElementById('savedStopName'),
@@ -47,9 +48,18 @@
         etaTargetStop: document.getElementById('etaTargetStop'),
         etaTime: document.getElementById('etaTime'),
         etaBusInfo: document.getElementById('etaBusInfo'),
+        statActiveBuses: document.getElementById('statActiveBuses'),
+        statTotalStops: document.getElementById('statTotalStops'),
+        quickBusPreview: document.getElementById('quickBusPreview'),
+        busSearchInput: document.getElementById('busSearchInput'),
+        clearSearchBtn: document.getElementById('clearSearchBtn'),
+        subPillBtns: document.querySelectorAll('.sub-pill-btn'),
         busList: document.getElementById('busList'),
+        stopSearchInput: document.getElementById('stopSearchInput'),
+        clearStopSearchBtn: document.getElementById('clearStopSearchBtn'),
         stopsList: document.getElementById('stopsList'),
-        filterBtns: document.querySelectorAll('.filter-btn'),
+        schedPillBtns: document.querySelectorAll('.sched-pill-btn'),
+        scheduleContentList: document.getElementById('scheduleContentList'),
         clientGreeting: document.getElementById('clientGreeting'),
         userName: document.getElementById('userName'),
         userEmail: document.getElementById('userEmail'),
@@ -240,7 +250,6 @@
                 try {
                     const data = JSON.parse(event.data);
 
-                    // Ignore PONG keepalive response
                     if (data.type === 'PONG') return;
 
                     if (Array.isArray(data)) {
@@ -248,7 +257,7 @@
                     } else if (data.type === 'BUS_UPDATE' && Array.isArray(data.buses)) {
                         updateBusesData(data.buses);
                     } else if (data.type === 'START' || data.type === 'STOP') {
-                        fetchBusesData(); // Refresh list on start/stop events
+                        fetchBusesData();
                     }
                 } catch (err) {
                     console.error('[ClientWS] Message parse error:', err);
@@ -292,7 +301,9 @@
                 const res = await response.json();
                 if (res.success && Array.isArray(res.busStops)) {
                     busStopsList = res.busStops;
+                    elements.statTotalStops.textContent = busStopsList.length;
                     renderStopsList();
+                    renderSchedules();
                 }
             }
         } catch (e) {
@@ -306,28 +317,29 @@
 
         busesData = newBuses;
         updateCounts();
+        renderDashboardView();
         renderBusList();
         updateMapMarkers();
         calculateETA();
 
-        // Update selected floating card if active
         if (selectedBusNumber) {
             const bus = busesData.find(b => b.busNumber === selectedBusNumber);
             if (bus) updateFloatingCard(bus);
         }
     }
 
-    // Update Counts (All vs Active)
+    // Update Counts
     function updateCounts() {
         const total = busesData.length;
         const running = busesData.filter(b => b.status === 'RUNNING' || b.status === 'MOVING').length;
         elements.countAll.textContent = total;
         elements.countRunning.textContent = running;
+        elements.statActiveBuses.textContent = running;
     }
 
     // Haversine Distance Calculation (in Km)
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Earth radius in km
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -355,7 +367,6 @@
             return;
         }
 
-        // For demo: find closest active bus to campus / student stop
         let minDistance = Infinity;
         let closestBus = null;
 
@@ -368,7 +379,6 @@
         });
 
         if (closestBus) {
-            // Assume average speed 30 km/h
             const speedKmh = 30;
             const etaMinutes = Math.max(1, Math.round((minDistance / speedKmh) * 60));
 
@@ -381,14 +391,40 @@
         }
     }
 
-    // Render Bus Cards List
-    function renderBusList() {
-        if (activeFilter === 'stops') return;
+    // Render Dashboard View Quick Preview
+    function renderDashboardView() {
+        const activeBuses = busesData.filter(b => b.status === 'RUNNING' || b.status === 'MOVING');
 
-        const searchTerm = elements.busSearchInput.value.toLowerCase().trim();
+        if (activeBuses.length === 0) {
+            elements.quickBusPreview.innerHTML = `
+                <div class="loading-skeleton">
+                    <i class="fa-solid fa-clock" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 8px;"></i>
+                    <p>No active buses running currently.</p>
+                </div>`;
+            return;
+        }
+
+        elements.quickBusPreview.innerHTML = activeBuses.slice(0, 3).map(bus => `
+            <div class="bus-card status-running" onclick="window.focusBus('${bus.busNumber}')">
+                <div class="bus-card-header">
+                    <span class="bus-number-badge">${bus.busNumber}</span>
+                    <span class="status-pill running">MOVING</span>
+                </div>
+                <div class="bus-title">${bus.busName || 'College Route'}</div>
+                <div class="bus-meta">
+                    <div class="meta-row"><i class="fa-solid fa-location-dot"></i> ${bus.busStop || 'En route'}</div>
+                    <div class="meta-row"><i class="fa-solid fa-user-tie"></i> ${bus.driverName || 'Driver'}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Render Buses Tab List
+    function renderBusList() {
+        const searchTerm = elements.busSearchInput ? elements.busSearchInput.value.toLowerCase().trim() : '';
 
         let filtered = busesData.filter(b => {
-            if (activeFilter === 'running' && !(b.status === 'RUNNING' || b.status === 'MOVING')) {
+            if (busSubFilter === 'running' && !(b.status === 'RUNNING' || b.status === 'MOVING')) {
                 return false;
             }
             if (searchTerm) {
@@ -405,7 +441,7 @@
             elements.busList.innerHTML = `
                 <div class="loading-skeleton">
                     <i class="fa-solid fa-bus-simple" style="font-size: 2rem; margin-bottom: 10px; color: var(--text-muted);"></i>
-                    <p>No buses found matching your criteria.</p>
+                    <p>No buses match the filter criteria.</p>
                 </div>`;
             return;
         }
@@ -415,7 +451,7 @@
             const isSelected = selectedBusNumber === bus.busNumber;
 
             return `
-                <div class="bus-card status-${statusClass} ${isSelected ? 'selected' : ''}" data-bus="${bus.busNumber}">
+                <div class="bus-card status-${statusClass} ${isSelected ? 'selected' : ''}" data-bus="${bus.busNumber}" onclick="window.focusBus('${bus.busNumber}')">
                     <div class="bus-card-header">
                         <span class="bus-number-badge">${bus.busNumber || 'BUS'}</span>
                         <span class="status-pill ${statusClass}">${bus.status || 'INACTIVE'}</span>
@@ -434,24 +470,16 @@
                 </div>
             `;
         }).join('');
-
-        // Attach click listeners to bus cards
-        document.querySelectorAll('.bus-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const busNum = card.getAttribute('data-bus');
-                window.focusBus(busNum);
-            });
-        });
     }
 
-    // Render Stops List
+    // Render Stops Tab Directory
     function renderStopsList() {
         if (busStopsList.length === 0) {
             elements.stopsList.innerHTML = `<div class="loading-skeleton">No bus stops available.</div>`;
             return;
         }
 
-        const searchTerm = elements.busSearchInput.value.toLowerCase().trim();
+        const searchTerm = elements.stopSearchInput ? elements.stopSearchInput.value.toLowerCase().trim() : '';
 
         let filtered = busStopsList.filter(stop =>
             !searchTerm || stop.toLowerCase().includes(searchTerm)
@@ -460,13 +488,40 @@
         elements.stopsList.innerHTML = filtered.map(stopName => `
             <div class="stop-card" onclick="window.selectStopFromList('${stopName.replace(/'/g, "\\'")}')">
                 <div class="stop-card-info">
-                    <div class="stop-icon"><i class="fa-solid fa-bus-stop"></i></div>
+                    <div class="stop-icon"><i class="fa-solid fa-location-dot"></i></div>
                     <div>
                         <h4>${stopName}</h4>
                         <p>Click to set as your preferred stop</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-muted"></i>
+            </div>
+        `).join('');
+    }
+
+    // Render Schedules Timetable Tab
+    function renderSchedules() {
+        if (!elements.scheduleContentList) return;
+
+        const isMorning = scheduleType === 'morning';
+        const sampleRoutes = [
+            { num: 'BUS-101', route: 'Tambaram - Chromepet Line', morning: '07:30 AM', evening: '04:30 PM' },
+            { num: 'BUS-102', route: 'Guindy - Saidapet Express', morning: '07:40 AM', evening: '04:35 PM' },
+            { num: 'BUS-103', route: 'Koyambedu - Vadapalani Line', morning: '07:25 AM', evening: '04:40 PM' },
+            { num: 'BUS-104', route: 'Porur - Iyyapanthangal Line', morning: '07:45 AM', evening: '04:45 PM' },
+            { num: 'BUS-105', route: 'Velachery - Medavakkam Route', morning: '07:35 AM', evening: '04:30 PM' }
+        ];
+
+        elements.scheduleContentList.innerHTML = sampleRoutes.map(item => `
+            <div class="schedule-card">
+                <div class="schedule-card-header">
+                    <span class="bus-number-badge">${item.num}</span>
+                    <span class="sched-time-badge"><i class="fa-regular fa-clock"></i> ${isMorning ? item.morning : item.evening}</span>
+                </div>
+                <div class="bus-title">${item.route}</div>
+                <div class="bus-meta">
+                    <div class="meta-row"><i class="fa-solid fa-flag-checkered"></i> ${isMorning ? 'Pickup from stop → Campus' : 'Campus departure → Drop stops'}</div>
+                </div>
             </div>
         `).join('');
     }
@@ -483,10 +538,8 @@
             const isMoving = bus.status === 'RUNNING' || bus.status === 'MOVING';
 
             if (busMarkers[bus.busNumber]) {
-                // Smooth movement update
                 busMarkers[bus.busNumber].setLatLng(latLng);
             } else {
-                // Create custom bus marker
                 const busIcon = L.divIcon({
                     className: `leaflet-bus-icon ${isMoving ? 'moving' : ''}`,
                     html: `<i class="fa-solid fa-bus"></i>`,
@@ -526,7 +579,7 @@
         renderBusList();
     }
 
-    // Expose focusBus globally for button onclicks
+    // Expose focusBus globally
     window.focusBus = function (busNumber) {
         const bus = busesData.find(b => b.busNumber === busNumber);
         if (bus) {
@@ -574,7 +627,6 @@
         calculateETA();
         closeModal(elements.stopModal);
 
-        // Sync with backend if client is logged in
         if (currentUser && currentUser.id) {
             try {
                 await fetch(`${getApiBaseUrl()}/api/client/bus-stop/save`, {
@@ -634,48 +686,88 @@
             }
         });
 
-        // Search Input
-        elements.busSearchInput.addEventListener('input', () => {
-            const val = elements.busSearchInput.value;
-            if (val) {
-                elements.clearSearchBtn.classList.remove('hidden');
-            } else {
-                elements.clearSearchBtn.classList.add('hidden');
-            }
-            if (activeFilter === 'stops') {
-                renderStopsList();
-            } else {
-                renderBusList();
-            }
-        });
-
-        // Clear Search
-        elements.clearSearchBtn.addEventListener('click', () => {
-            elements.busSearchInput.value = '';
-            elements.clearSearchBtn.classList.add('hidden');
-            renderBusList();
-            renderStopsList();
-        });
-
-        // Filter Tabs
-        elements.filterBtns.forEach(btn => {
+        // 📱 Main DYGON Navigation Tabs (Dashboard | Buses | Stops | Schedules)
+        elements.navTabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                elements.filterBtns.forEach(b => b.classList.remove('active'));
+                const targetTab = btn.dataset.tab;
+                activeNavTab = targetTab;
+
+                elements.navTabBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                activeFilter = btn.dataset.filter;
+                elements.tabViews.forEach(view => {
+                    if (view.id === `view${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
+                        view.classList.remove('hidden');
+                        view.classList.add('active');
+                    } else {
+                        view.classList.add('hidden');
+                        view.classList.remove('active');
+                    }
+                });
 
-                if (activeFilter === 'stops') {
-                    elements.busList.classList.add('hidden');
-                    elements.stopsList.classList.remove('hidden');
-                    renderStopsList();
-                } else {
-                    elements.stopsList.classList.add('hidden');
-                    elements.busList.classList.remove('hidden');
-                    renderBusList();
-                }
+                if (targetTab === 'buses') renderBusList();
+                if (targetTab === 'stops') renderStopsList();
+                if (targetTab === 'schedules') renderSchedules();
             });
         });
+
+        // Bus Sub-Filter Pills (All vs Active)
+        elements.subPillBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elements.subPillBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                busSubFilter = btn.dataset.busFilter;
+                renderBusList();
+            });
+        });
+
+        // Schedule Type Pills (Morning vs Evening)
+        elements.schedPillBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elements.schedPillBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                scheduleType = btn.dataset.schedType;
+                renderSchedules();
+            });
+        });
+
+        // Bus Search Input
+        if (elements.busSearchInput) {
+            elements.busSearchInput.addEventListener('input', () => {
+                const val = elements.busSearchInput.value;
+                if (val) {
+                    elements.clearSearchBtn.classList.remove('hidden');
+                } else {
+                    elements.clearSearchBtn.classList.add('hidden');
+                }
+                renderBusList();
+            });
+
+            elements.clearSearchBtn.addEventListener('click', () => {
+                elements.busSearchInput.value = '';
+                elements.clearSearchBtn.classList.add('hidden');
+                renderBusList();
+            });
+        }
+
+        // Stop Search Input
+        if (elements.stopSearchInput) {
+            elements.stopSearchInput.addEventListener('input', () => {
+                const val = elements.stopSearchInput.value;
+                if (val) {
+                    elements.clearStopSearchBtn.classList.remove('hidden');
+                } else {
+                    elements.clearStopSearchBtn.classList.add('hidden');
+                }
+                renderStopsList();
+            });
+
+            elements.clearStopSearchBtn.addEventListener('click', () => {
+                elements.stopSearchInput.value = '';
+                elements.clearStopSearchBtn.classList.add('hidden');
+                renderStopsList();
+            });
+        }
 
         // Manual Refresh Button
         elements.refreshBtn.addEventListener('click', () => {
