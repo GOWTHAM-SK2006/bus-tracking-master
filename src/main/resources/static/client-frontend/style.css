@@ -1,6 +1,7 @@
 /* ==========================================================================
    BusTrack Client Frontend - Custom Design System (Orange & White Theme)
    DYGON Student Navigation: 🏠 Dashboard | 🚌 Buses | 📍 Stops | 🕐 Schedules
+   Bottom Navigation Bar Styling (Matching User Requested UI)
    ========================================================================== */
 
 :root {
@@ -109,6 +110,7 @@ body, html {
     z-index: 1000;
     box-shadow: var(--shadow-lg);
     transition: var(--transition);
+    position: relative;
 }
 
 .sidebar-header {
@@ -214,57 +216,6 @@ body, html {
     transform: rotate(90deg);
 }
 
-/* 📱 Primary DYGON Navigation Tabs */
-.main-nav-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    background: #FFFFFF;
-    border-bottom: 1.5px solid var(--border-color);
-    padding: 4px 8px;
-    gap: 4px;
-}
-
-[data-theme="dark"] .main-nav-tabs {
-    background: rgba(15, 23, 42, 0.95);
-}
-
-.nav-tab-btn {
-    padding: 10px 6px;
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    border-radius: var(--radius-sm);
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    transition: var(--transition);
-}
-
-.nav-tab-btn i {
-    font-size: 1.1rem;
-}
-
-.nav-tab-btn:hover {
-    color: var(--primary);
-    background: var(--primary-light);
-}
-
-.nav-tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-    background: #FFF7F2;
-    font-weight: 700;
-}
-
-[data-theme="dark"] .nav-tab-btn.active {
-    background: rgba(232, 93, 4, 0.15);
-}
-
 /* Content Scroll List */
 .content-scroll {
     flex: 1;
@@ -293,6 +244,88 @@ body, html {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📱 Bottom Navigation Bar (Exact Match to User UI Request) */
+.main-nav-tabs.bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #FFF8F5;
+    border-top: 1.5px solid #FFE4D6;
+    padding: 6px 10px 0 10px;
+    gap: 6px;
+    z-index: 1050;
+    box-shadow: 0 -4px 16px rgba(232, 93, 4, 0.06);
+}
+
+[data-theme="dark"] .main-nav-tabs.bottom-nav {
+    background: rgba(15, 23, 42, 0.98);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tab-btn {
+    padding: 10px 4px 8px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 14px 14px 0 0;
+    color: #64748B;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    transition: var(--transition);
+}
+
+.nav-tab-btn i {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-tab-btn:hover {
+    color: var(--primary);
+    background: rgba(232, 93, 4, 0.05);
+}
+
+.nav-tab-btn:hover i {
+    transform: translateY(-2px);
+}
+
+/* Active Bottom Navigation Tab Styling (Orange Pill & Curved Bottom Indicator Bar) */
+.nav-tab-btn.active {
+    color: #E85D04;
+    background: #FFF0E6;
+    font-weight: 700;
+    border-radius: 14px 14px 0 0;
+}
+
+.nav-tab-btn.active i {
+    color: #E85D04;
+    transform: translateY(-1px);
+}
+
+.nav-tab-btn.active span {
+    color: #E85D04;
+}
+
+.nav-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: #E85D04;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 -2px 8px rgba(232, 93, 4, 0.4);
+}
+
+[data-theme="dark"] .nav-tab-btn.active {
+    background: rgba(232, 93, 4, 0.2);
 }
 
 /* Dashboard Views & Stats Grid */
@@ -1322,7 +1355,7 @@ body, html {
     }
 
     .selected-bus-floating-card {
-        bottom: 90px;
+        bottom: 120px;
     }
 
     .map-control-btn .btn-text {
