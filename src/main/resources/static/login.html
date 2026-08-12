@@ -200,34 +200,8 @@
             try {
                 const baseUrl = getApiBaseUrl();
 
-                // Try client login first
-                let response = await fetch(`${baseUrl}/api/client/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                let data;
-                try {
-                    data = await response.json();
-                } catch {
-                    throw new Error('Invalid server response');
-                }
-
-                if (response.ok && data.success) {
-                    // Client login successful
-                    localStorage.setItem('client', JSON.stringify(data.client));
-                    showAlert('Success! Redirecting...', 'success');
-
-                    setTimeout(() => {
-                        const nextPage = data.client.phoneVerified ? 'client-frontend/index.html' : 'client-frontend/profile.html';
-                        window.location.href = nextPage;
-                    }, 500);
-                    return;
-                }
-
                 // Try driver login
-                response = await fetch(`${baseUrl}/api/driver/login`, {
+                let response = await fetch(`${baseUrl}/api/driver/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: email, password })

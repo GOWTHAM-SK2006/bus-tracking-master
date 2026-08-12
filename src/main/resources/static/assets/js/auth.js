@@ -32,7 +32,7 @@ const AuthManager = {
         switch (role) {
             case 'client':
                 endpoint = '/api/client/login';
-                redirectPath = '/client-frontend/index.html';
+                redirectPath = '/login.html';
                 break;
             case 'driver':
                 endpoint = '/api/driver/login';

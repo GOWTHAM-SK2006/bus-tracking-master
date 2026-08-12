@@ -401,7 +401,7 @@ signinForm.addEventListener("submit", async (e) => {
     switch (currentRole) {
       case "client":
         localStorage.setItem("client", JSON.stringify(data.client));
-        window.location.href = "client-frontend/index.html";
+        window.location.href = "login.html";
         break;
       case "driver":
         localStorage.setItem("driver", JSON.stringify(data.driver));
@@ -962,7 +962,7 @@ async function submitGuestCode() {
         })
       );
       localStorage.setItem("isGuest", "true");
-      window.location.href = "client-frontend/index.html";
+      window.location.href = "login.html";
     } else {
       errorMsg.textContent = data.message || "Invalid access code";
     }
