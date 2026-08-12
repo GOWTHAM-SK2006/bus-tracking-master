@@ -649,7 +649,7 @@ if (resetPasswordForm) {
 
         // Use the production URL for the reset link so it works everywhere
         const prodBase =
-          "https://bus-tracking-master-production.up.railway.app";
+          "https://bus-tracking-master-production-3369.up.railway.app";
         const fullLink = `${prodBase}/${data.resetLink}`;
         console.log("[ForgotPW] Reset link generated:", fullLink);
         console.log(`[ForgotPW] Sending email to: ${recipientEmail}`);
@@ -845,7 +845,7 @@ function getWebSocketUrl(endpoint) {
 
   // Capacitor Support: Default to production URL
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    return `wss://bus-tracking-master-production-3369.up.railway.app${endpoint}`;
   }
 
   if (host.includes(".devtunnels.ms")) {
@@ -870,12 +870,12 @@ function getApiBaseUrl() {
 
   // Capacitor / Native — must be checked FIRST because Android serves from localhost
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return "https://bus-tracking-master-production.up.railway.app";
+    return "https://bus-tracking-master-production-3369.up.railway.app";
   }
 
   // File protocol fallback - use production URL for Capacitor
   if (protocol === "file:") {
-    return "https://bus-tracking-master-production.up.railway.app";
+    return "https://bus-tracking-master-production-3369.up.railway.app";
   }
 
   // If we are already on the production domain, use relative path

@@ -31,7 +31,7 @@ function getWebSocketUrl(endpoint) {
 
   // Capacitor Support: Default to production URL
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    return `wss://bus-tracking-master-production-3369.up.railway.app${endpoint}`;
   }
 
   if (host.includes(".devtunnels.ms")) {
@@ -1662,7 +1662,7 @@ function getApiBaseUrl() {
   const protocol = window.location.protocol;
 
   // Default to Railway production URL as per user instruction
-  const productionUrl = "https://bus-tracking-master-production.up.railway.app";
+  const productionUrl = "https://bus-tracking-master-production-3369.up.railway.app";
 
   // If we are already on the production domain, return empty string (relative calls)
   if (host.includes("railway.app")) {
@@ -1959,9 +1959,115 @@ function exportActiveBusesPDF() {
   );
 }
 
+// --- PDF Report Date Presets & Modal ---
+
+function formatDateForInput(dateObj) {
+  const yyyy = dateObj.getFullYear();
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const dd = String(dateObj.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function applyPreset(presetKey) {
+  const today = new Date();
+  let startDateStr = '';
+  let endDateStr = formatDateForInput(today);
+
+  if (presetKey === 'last-7') {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    startDateStr = formatDateForInput(d);
+  } else if (presetKey === 'last-30') {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    startDateStr = formatDateForInput(d);
+  } else if (presetKey === 'last-90') {
+    const d = new Date();
+    d.setDate(d.getDate() - 90);
+    startDateStr = formatDateForInput(d);
+  } else if (presetKey === 'this-year') {
+    const d = new Date(today.getFullYear(), 0, 1);
+    startDateStr = formatDateForInput(d);
+  } else if (presetKey === 'all-time') {
+    startDateStr = '';
+    endDateStr = formatDateForInput(today);
+  }
+
+  const inputs = [
+    document.getElementById('exportStartDate'),
+    document.getElementById('modalExportStartDate')
+  ];
+  inputs.forEach(input => { if (input) input.value = startDateStr; });
+
+  const endInputs = [
+    document.getElementById('exportEndDate'),
+    document.getElementById('modalExportEndDate')
+  ];
+  endInputs.forEach(input => { if (input) input.value = endDateStr; });
+
+  document.querySelectorAll('.preset-chip').forEach(chip => {
+    if (chip.getAttribute('data-preset') === presetKey) {
+      chip.classList.add('active');
+    } else {
+      chip.classList.remove('active');
+    }
+  });
+}
+
+function clearPresetActiveState() {
+  document.querySelectorAll('.preset-chip').forEach(chip => chip.classList.remove('active'));
+}
+
+function openPdfReportModal() {
+  const modal = document.getElementById('pdfReportModal');
+  if (modal) {
+    const cardStart = document.getElementById('exportStartDate');
+    const cardEnd = document.getElementById('exportEndDate');
+    const modalStart = document.getElementById('modalExportStartDate');
+    const modalEnd = document.getElementById('modalExportEndDate');
+
+    if (cardStart && cardStart.value && modalStart) modalStart.value = cardStart.value;
+    if (cardEnd && cardEnd.value && modalEnd) modalEnd.value = cardEnd.value;
+
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+  }
+}
+
+function closePdfReportModal() {
+  const modal = document.getElementById('pdfReportModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+}
+
+function submitPdfReportModal() {
+  const startInput = document.getElementById('modalExportStartDate');
+  const endInput = document.getElementById('modalExportEndDate');
+  const start = startInput ? startInput.value : '';
+  const end = endInput ? endInput.value : '';
+
+  closePdfReportModal();
+  exportDateRangePDFWithDates(start, end);
+}
+
 function exportDateRangePDF() {
-  const start = document.getElementById("exportStartDate").value;
-  const end = document.getElementById("exportEndDate").value;
+  const start = document.getElementById('exportStartDate') ? document.getElementById('exportStartDate').value : '';
+  const end = document.getElementById('exportEndDate') ? document.getElementById('exportEndDate').value : '';
+  exportDateRangePDFWithDates(start, end);
+}
+
+function exportDateRangePDFWithDates(start, end) {
+  if (!start && !end) {
+    const buses = Array.from(adminState.buses.values());
+    if (buses.length === 0) {
+      showToast("No buses available for export", "error");
+      return;
+    }
+    generateBusPDF(buses, "All Time Buses Report");
+    return;
+  }
 
   if (!start || !end) {
     showToast("Please select both start and end dates", "error");
@@ -1969,7 +2075,7 @@ function exportDateRangePDF() {
   }
 
   const startTime = new Date(start).getTime();
-  const endTime = new Date(end).getTime() + 24 * 60 * 60 * 1000; // End of day
+  const endTime = new Date(end).getTime() + 24 * 60 * 60 * 1000;
 
   const filtered = Array.from(adminState.buses.values()).filter((bus) => {
     const updateTime = new Date(bus.lastUpdate).getTime();
@@ -1977,7 +2083,8 @@ function exportDateRangePDF() {
   });
 
   if (filtered.length === 0) {
-    showToast("No buses found in this date range", "error");
+    showToast("No buses found in this date range", "info");
+    generateBusPDF(Array.from(adminState.buses.values()), `Buses Report (${start} to ${end})`);
     return;
   }
 
@@ -2364,7 +2471,7 @@ function getAdminApiBaseUrl() {
 
   // Capacitor Support: Default to production URL for native platforms
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return "https://bus-tracking-master-production.up.railway.app";
+    return "https://bus-tracking-master-production-3369.up.railway.app";
   }
 
   if (host.includes("railway.app")) return "";

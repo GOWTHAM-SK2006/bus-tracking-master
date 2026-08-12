@@ -19,12 +19,12 @@ function getWebSocketUrl(endpoint) {
 
   // Capacitor Support: Default to production URL
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    return `wss://bus-tracking-master-production-3369.up.railway.app${endpoint}`;
   }
 
   // File protocol fallback - use production URL for Capacitor
   if (window.location.protocol === "file:") {
-    return `wss://bus-tracking-master-production.up.railway.app${endpoint}`;
+    return `wss://bus-tracking-master-production-3369.up.railway.app${endpoint}`;
   }
 
   // VS Code Dev Tunnels
@@ -51,12 +51,12 @@ function getApiBaseUrl() {
 
   // Capacitor Support: Default to production URL
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return "https://bus-tracking-master-production.up.railway.app";
+    return "https://bus-tracking-master-production-3369.up.railway.app";
   }
 
   // File protocol fallback - use production URL for Capacitor
   if (protocol === "file:") {
-    return "https://bus-tracking-master-production.up.railway.app";
+    return "https://bus-tracking-master-production-3369.up.railway.app";
   }
 
   // VS Code Dev Tunnels

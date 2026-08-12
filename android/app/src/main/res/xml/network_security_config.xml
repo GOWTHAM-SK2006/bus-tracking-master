@@ -9,7 +9,7 @@
 
     <!-- Allow the production backend -->
     <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">bus-tracking-master-production.up.railway.app</domain>
+        <domain includeSubdomains="true">bus-tracking-master-production-3369.up.railway.app</domain>
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>

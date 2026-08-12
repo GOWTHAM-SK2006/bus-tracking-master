@@ -7,7 +7,7 @@ const AuthManager = {
 
         // File protocol fallback - use production URL for Capacitor
         if (protocol === 'file:') {
-            return 'https://bus-tracking-master-production.up.railway.app';
+            return 'https://bus-tracking-master-production-3369.up.railway.app';
         }
 
         if (host.includes('.devtunnels.ms')) {

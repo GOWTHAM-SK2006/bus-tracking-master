@@ -1,6 +1,9 @@
 {
   "name": "bus-tracking",
   "version": "1.0.0",
+  "scripts": {
+    "postinstall": "node -e \"const fs=require('fs'),p='node_modules/@capacitor-community/background-geolocation/android/build.gradle';if(fs.existsSync(p)){let c=fs.readFileSync(p,'utf8');if(c.includes('proguard-android.txt')){fs.writeFileSync(p,c.replace('proguard-android.txt','proguard-android-optimize.txt'));}}\""
+  },
   "dependencies": {
     "@capacitor-community/background-geolocation": "^1.2.26",
     "@capacitor/android": "^8.1.0",

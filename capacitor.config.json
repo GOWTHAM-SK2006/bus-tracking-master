@@ -8,7 +8,7 @@
   },
   "server": {
     "allowNavigation": [
-      "bus-tracking-master-production.up.railway.app",
+      "bus-tracking-master-production-3369.up.railway.app",
       "*.railway.app"
     ]
   },

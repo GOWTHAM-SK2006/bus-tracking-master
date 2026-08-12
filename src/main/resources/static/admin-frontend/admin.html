@@ -498,7 +498,7 @@
           <!-- Date Range Card -->
           <div class="export-card-new">
             <div class="export-header-new">
-               <div class="export-icon-box-new">
+               <div class="export-icon-box-new" style="background: #FFF3EB; color: #F97316;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                </div>
                <h3>Export by Date Range</h3>
@@ -508,17 +508,34 @@
               <div class="export-input-group">
                 <div class="export-field-new">
                   <label>Start Date</label>
-                  <input type="date" id="exportStartDate" />
+                  <input type="date" id="exportStartDate" onchange="clearPresetActiveState()" />
                 </div>
                 <div class="export-field-new">
                   <label>End Date</label>
-                  <input type="date" id="exportEndDate" />
+                  <input type="date" id="exportEndDate" onchange="clearPresetActiveState()" />
                 </div>
               </div>
-              <button class="btn-export-new" onclick="exportDateRangePDF()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Download History PDF
-              </button>
+
+              <div class="pdf-presets-section">
+                <label class="pdf-presets-label">Quick Presets</label>
+                <div class="pdf-preset-chips">
+                  <button type="button" class="preset-chip" data-preset="all-time" onclick="applyPreset('all-time')">ALL TIME</button>
+                  <button type="button" class="preset-chip" data-preset="last-7" onclick="applyPreset('last-7')">LAST 7 DAYS</button>
+                  <button type="button" class="preset-chip" data-preset="last-30" onclick="applyPreset('last-30')">LAST 30 DAYS</button>
+                  <button type="button" class="preset-chip" data-preset="last-90" onclick="applyPreset('last-90')">LAST 90 DAYS</button>
+                  <button type="button" class="preset-chip" data-preset="this-year" onclick="applyPreset('this-year')">THIS YEAR</button>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 10px; margin-top: 8px;">
+                <button class="btn-export-new" onclick="exportDateRangePDF()" style="flex: 1;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Download History PDF
+                </button>
+                <button class="btn-export-new" onclick="openPdfReportModal()" style="width: auto; padding: 0 16px; background: #1E293B;" title="Open PDF Report Dialog">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6"></path><path d="M10 14L21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -932,6 +949,87 @@
       </div>
     </section>
   </main>
+
+  <!-- Modal for Generate PDF Report -->
+  <div class="modal" id="pdfReportModal" style="display: none; align-items: center; justify-content: center">
+    <div class="pdf-modal-card">
+      <button type="button" class="pdf-modal-close" onclick="closePdfReportModal()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      
+      <div class="pdf-modal-header">
+        <div class="pdf-icon-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div class="pdf-header-titles">
+          <h3 class="pdf-modal-title">GENERATE PDF REPORT</h3>
+          <p class="pdf-modal-subtitle">SELECT DATE RANGE</p>
+        </div>
+      </div>
+      
+      <div class="pdf-modal-divider"></div>
+      
+      <div class="pdf-modal-body">
+        <div class="pdf-form-group">
+          <label class="pdf-field-label">FROM DATE</label>
+          <div class="pdf-input-wrapper">
+            <input type="date" id="modalExportStartDate" onchange="clearPresetActiveState()" />
+            <svg class="pdf-calendar-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+        </div>
+
+        <div class="pdf-form-group">
+          <label class="pdf-field-label">TO DATE</label>
+          <div class="pdf-input-wrapper">
+            <input type="date" id="modalExportEndDate" onchange="clearPresetActiveState()" />
+            <svg class="pdf-calendar-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+        </div>
+
+        <div class="pdf-presets-section">
+          <label class="pdf-presets-label">QUICK PRESETS</label>
+          <div class="pdf-preset-chips">
+            <button type="button" class="preset-chip" data-preset="all-time" onclick="applyPreset('all-time')">ALL TIME</button>
+            <button type="button" class="preset-chip" data-preset="last-7" onclick="applyPreset('last-7')">LAST 7 DAYS</button>
+            <button type="button" class="preset-chip" data-preset="last-30" onclick="applyPreset('last-30')">LAST 30 DAYS</button>
+            <button type="button" class="preset-chip" data-preset="last-90" onclick="applyPreset('last-90')">LAST 90 DAYS</button>
+            <button type="button" class="preset-chip" data-preset="this-year" onclick="applyPreset('this-year')">THIS YEAR</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdf-modal-footer">
+        <button type="button" class="btn-pdf-cancel" onclick="closePdfReportModal()">CANCEL</button>
+        <button type="button" class="btn-pdf-generate" onclick="submitPdfReportModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          GENERATE REPORT
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal for Request Details -->
   <div class="modal" id="requestModal">
