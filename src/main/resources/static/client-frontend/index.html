@@ -31,215 +31,214 @@
 <body>
     <div class="app-layout">
 
-        <!-- Sidebar / Drawer -->
-        <aside class="sidebar" id="sidebar">
-            <!-- Brand Header -->
-            <div class="sidebar-header">
-                <div class="brand">
-                    <img src="../logo.png" alt="DYGON Logo" class="brand-logo">
-                    <div class="brand-text">
-                        <h2>DYGON <span>Live</span></h2>
-                        <p id="clientGreeting">Welcome, Student</p>
+        <!-- 1. FULL-WIDTH SOLID WHITE TOP HEADER BAR -->
+        <header class="app-top-bar">
+            <div class="brand">
+                <img src="../logo.png" alt="DYGON Logo" class="brand-logo">
+                <div class="brand-text">
+                    <h2>DYGON <span>Live</span></h2>
+                    <p id="clientGreeting">Welcome, Student</p>
+                </div>
+            </div>
+
+            <!-- Top Right Student Profile -->
+            <div class="top-user-card" id="topUserCard">
+                <div class="user-pill" id="userPill">
+                    <div class="user-avatar" id="userAvatar">G</div>
+                    <div class="user-details">
+                        <strong id="userName">Student User</strong>
+                        <span id="userEmail">student@sairamtap.edu.in</span>
                     </div>
                 </div>
-                <button class="mobile-drawer-toggle" id="drawerToggle" title="Toggle Drawer">
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
+                <div class="footer-actions">
+                    <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button class="icon-btn danger" id="logoutBtn" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </div>
+        </header>
 
-            <!-- Real-time Status Banner -->
-            <div class="status-banner" id="statusBanner">
-                <span class="status-indicator active" id="statusPulse"></span>
-                <span id="statusText">Connecting live feed...</span>
-                <button class="refresh-btn" id="refreshBtn" title="Refresh Live Data">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-            </div>
+        <!-- 2. MAIN APP BODY (Sidebar + Map Container) -->
+        <div class="app-body">
+            <!-- Sidebar / Drawer -->
+            <aside class="sidebar" id="sidebar">
+                <!-- Real-time Status Banner -->
+                <div class="status-banner" id="statusBanner">
+                    <span class="status-indicator active" id="statusPulse"></span>
+                    <span id="statusText">Connecting live feed...</span>
+                    <button class="refresh-btn" id="refreshBtn" title="Refresh Live Data">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
 
-            <!-- Scrollable Tab Content Container -->
-            <div class="content-scroll" id="contentScroll">
-                
-                <!-- 1. DASHBOARD VIEW -->
-                <div class="tab-view active" id="viewDashboard">
-                    <!-- Preferred Stop Card -->
-                    <div class="saved-stop-card" id="savedStopCard">
-                        <div class="saved-stop-info">
-                            <i class="fa-solid fa-bookmark text-primary"></i>
-                            <div>
-                                <span class="saved-stop-label">Your Preferred Bus Stop:</span>
-                                <strong id="savedStopName">Not selected</strong>
+                <!-- Scrollable Tab Content Container -->
+                <div class="content-scroll" id="contentScroll">
+                    
+                    <!-- 1. DASHBOARD VIEW -->
+                    <div class="tab-view active" id="viewDashboard">
+                        <!-- Preferred Stop Card -->
+                        <div class="saved-stop-card" id="savedStopCard">
+                            <div class="saved-stop-info">
+                                <i class="fa-solid fa-bookmark text-primary"></i>
+                                <div>
+                                    <span class="saved-stop-label">Your Preferred Bus Stop:</span>
+                                    <strong id="savedStopName">Not selected</strong>
+                                </div>
+                            </div>
+                            <button class="btn-sm btn-outline" id="changeStopBtn"><i class="fa-solid fa-pen-to-square"></i> Change</button>
+                        </div>
+
+                        <!-- Nearest Bus ETA Alert -->
+                        <div class="eta-alert-box hidden" id="etaAlertBox">
+                            <div class="eta-icon"><i class="fa-solid fa-clock"></i></div>
+                            <div class="eta-details">
+                                <span class="eta-label">Nearest Bus to <b id="etaTargetStop">Stop</b>:</span>
+                                <h4 id="etaTime">Calculating ETA...</h4>
+                                <span class="eta-subtext" id="etaBusInfo">Bus # --</span>
                             </div>
                         </div>
-                        <button class="btn-sm btn-outline" id="changeStopBtn"><i class="fa-solid fa-pen-to-square"></i> Change</button>
-                    </div>
 
-                    <!-- Nearest Bus ETA Alert -->
-                    <div class="eta-alert-box hidden" id="etaAlertBox">
-                        <div class="eta-icon"><i class="fa-solid fa-clock"></i></div>
-                        <div class="eta-details">
-                            <span class="eta-label">Nearest Bus to <b id="etaTargetStop">Stop</b>:</span>
-                            <h4 id="etaTime">Calculating ETA...</h4>
-                            <span class="eta-subtext" id="etaBusInfo">Bus # --</span>
-                        </div>
-                    </div>
-
-                    <!-- Quick Overview Grid -->
-                    <div class="stats-overview-grid">
-                        <div class="stat-box">
-                            <i class="fa-solid fa-bus text-primary"></i>
-                            <div>
-                                <h3 id="statActiveBuses">0</h3>
-                                <span>Active Buses</span>
+                        <!-- Quick Overview Grid -->
+                        <div class="stats-overview-grid">
+                            <div class="stat-box">
+                                <i class="fa-solid fa-bus text-primary"></i>
+                                <div>
+                                    <h3 id="statActiveBuses">0</h3>
+                                    <span>Active Buses</span>
+                                </div>
+                            </div>
+                            <div class="stat-box">
+                                <i class="fa-solid fa-map-pin text-primary"></i>
+                                <div>
+                                    <h3 id="statTotalStops">0</h3>
+                                    <span>Total Stops</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="stat-box">
-                            <i class="fa-solid fa-map-pin text-primary"></i>
-                            <div>
-                                <h3 id="statTotalStops">0</h3>
-                                <span>Total Stops</span>
+
+                        <!-- Quick Active Buses Preview -->
+                        <div class="section-title">
+                            <h4><i class="fa-solid fa-bolt text-primary"></i> Active Buses Nearby</h4>
+                        </div>
+                        <div class="quick-bus-preview" id="quickBusPreview">
+                            <div class="loading-skeleton">Loading live preview...</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. BUSES VIEW -->
+                    <div class="tab-view hidden" id="viewBuses">
+                        <!-- Search & Filter Controls -->
+                        <div class="search-box-container">
+                            <div class="search-input-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="busSearchInput" placeholder="Search by bus #, route, driver, stop...">
+                                <button class="clear-search-btn hidden" id="clearSearchBtn"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="sub-filter-pills">
+                            <button class="sub-pill-btn active" data-bus-filter="all">All Buses</button>
+                            <button class="sub-pill-btn" data-bus-filter="running">Active (<span id="countRunning">0</span>)</button>
+                        </div>
+
+                        <!-- Bus Cards List -->
+                        <div class="bus-list" id="busList">
+                            <div class="loading-skeleton">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live buses...
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Active Buses Preview -->
-                    <div class="section-title">
-                        <h4><i class="fa-solid fa-bolt text-primary"></i> Active Buses Nearby</h4>
-                    </div>
-                    <div class="quick-bus-preview" id="quickBusPreview">
-                        <div class="loading-skeleton">Loading live preview...</div>
-                    </div>
-                </div>
+                    <!-- 3. STOPS VIEW -->
+                    <div class="tab-view hidden" id="viewStops">
+                        <div class="search-box-container">
+                            <div class="search-input-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="stopSearchInput" placeholder="Search college bus stop...">
+                                <button class="clear-search-btn hidden" id="clearStopSearchBtn"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
 
-                <!-- 2. BUSES VIEW -->
-                <div class="tab-view hidden" id="viewBuses">
-                    <!-- Search & Filter Controls -->
-                    <div class="search-box-container">
-                        <div class="search-input-wrapper">
-                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" id="busSearchInput" placeholder="Search by bus #, route, driver, stop...">
-                            <button class="clear-search-btn hidden" id="clearSearchBtn"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="stops-list" id="stopsList">
+                            <div class="loading-skeleton">Loading bus stops directory...</div>
                         </div>
                     </div>
 
-                    <div class="sub-filter-pills">
-                        <button class="sub-pill-btn active" data-bus-filter="all">All Buses</button>
-                        <button class="sub-pill-btn" data-bus-filter="running">Active (<span id="countRunning">0</span>)</button>
-                    </div>
-
-                    <!-- Bus Cards List -->
-                    <div class="bus-list" id="busList">
-                        <div class="loading-skeleton">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live buses...
+                    <!-- 4. SCHEDULES VIEW -->
+                    <div class="tab-view hidden" id="viewSchedules">
+                        <div class="schedule-header">
+                            <h4><i class="fa-solid fa-calendar-days text-primary"></i> Bus Timetable & Routes</h4>
+                            <p>Daily morning pickup and evening drop-off schedules.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 3. STOPS VIEW -->
-                <div class="tab-view hidden" id="viewStops">
-                    <div class="search-box-container">
-                        <div class="search-input-wrapper">
-                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" id="stopSearchInput" placeholder="Search college bus stop...">
-                            <button class="clear-search-btn hidden" id="clearStopSearchBtn"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="schedule-tabs">
+                            <button class="sched-pill-btn active" data-sched-type="morning"><i class="fa-solid fa-sun"></i> Morning Pick-up</button>
+                            <button class="sched-pill-btn" data-sched-type="evening"><i class="fa-solid fa-moon"></i> Evening Drop-off</button>
+                        </div>
+
+                        <div class="schedule-content-list" id="scheduleContentList">
+                            <!-- Populated dynamically in app.js -->
                         </div>
                     </div>
 
-                    <div class="stops-list" id="stopsList">
-                        <div class="loading-skeleton">Loading bus stops directory...</div>
-                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Map Screen -->
+            <main class="map-container">
+                <!-- OpenStreetMap Container -->
+                <div id="map"></div>
+
+                <!-- Floating Controls (Map Actions) -->
+                <div class="map-controls-top">
+                    <button class="map-control-btn" id="locateUserBtn" title="Recenter to My Location">
+                        <i class="fa-solid fa-crosshairs"></i>
+                        <span class="btn-text">My Location</span>
+                    </button>
+                    <button class="map-control-btn" id="recenterCollegeBtn" title="Focus College Campus">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span class="btn-text">Campus</span>
+                    </button>
+                    <button class="map-control-btn" id="openFeedbackBtn" title="Report Issue / Feedback">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <span class="btn-text">Feedback</span>
+                    </button>
                 </div>
 
-                <!-- 4. SCHEDULES VIEW -->
-                <div class="tab-view hidden" id="viewSchedules">
-                    <div class="schedule-header">
-                        <h4><i class="fa-solid fa-calendar-days text-primary"></i> Bus Timetable & Routes</h4>
-                        <p>Daily morning pickup and evening drop-off schedules.</p>
+                <!-- Floating Selected Bus Quick Card (Bottom overlay on map) -->
+                <div class="selected-bus-floating-card hidden" id="floatingBusCard">
+                    <button class="close-floating-card" id="closeFloatingCard"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="floating-bus-header">
+                        <span class="bus-badge" id="floatBusBadge">BUS-101</span>
+                        <h3 id="floatBusName">Route 1 - Central Line</h3>
+                        <span class="live-pill" id="floatLivePill">MOVING</span>
                     </div>
-
-                    <div class="schedule-tabs">
-                        <button class="sched-pill-btn active" data-sched-type="morning"><i class="fa-solid fa-sun"></i> Morning Pick-up</button>
-                        <button class="sched-pill-btn" data-sched-type="evening"><i class="fa-solid fa-moon"></i> Evening Drop-off</button>
-                    </div>
-
-                    <div class="schedule-content-list" id="scheduleContentList">
-                        <!-- Populated dynamically in app.js -->
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
-        <!-- Main Map Screen -->
-        <main class="map-container">
-            <!-- OpenStreetMap Container -->
-            <div id="map"></div>
-
-            <!-- Floating Top Right Controls (User Profile & Map Actions) -->
-            <div class="map-controls-top">
-                <!-- User Profile Card in Top Right Corner -->
-                <div class="top-user-card" id="topUserCard">
-                    <div class="user-pill" id="userPill">
-                        <div class="user-avatar" id="userAvatar">G</div>
-                        <div class="user-details">
-                            <strong id="userName">Student User</strong>
-                            <span id="userEmail">student@sairamtap.edu.in</span>
+                    <div class="floating-bus-body">
+                        <div class="floating-stat">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>Driver: <strong id="floatDriverName">--</strong></span>
+                        </div>
+                        <div class="floating-stat">
+                            <i class="fa-solid fa-route"></i>
+                            <span>Destination Stop: <strong id="floatBusStop">--</strong></span>
+                        </div>
+                        <div class="floating-stat">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Speed: <strong id="floatSpeed">0 km/h</strong></span>
                         </div>
                     </div>
-                    <div class="footer-actions">
-                        <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
-                            <i class="fa-solid fa-moon"></i>
-                        </button>
-                        <button class="icon-btn danger" id="logoutBtn" title="Logout">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </button>
+                    <div class="floating-bus-footer">
+                        <a href="#" id="floatCallBtn" class="btn-call"><i class="fa-solid fa-phone"></i> Call Driver</a>
+                        <button id="floatFollowBtn" class="btn-follow"><i class="fa-solid fa-location-arrow"></i> Track on Map</button>
                     </div>
                 </div>
+            </main>
+        </div>
 
-                <!-- Map Controls -->
-                <button class="map-control-btn" id="locateUserBtn" title="Recenter to My Location">
-                    <i class="fa-solid fa-crosshairs"></i>
-                    <span class="btn-text">My Location</span>
-                </button>
-                <button class="map-control-btn" id="recenterCollegeBtn" title="Focus College Campus">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <span class="btn-text">Campus</span>
-                </button>
-                <button class="map-control-btn" id="openFeedbackBtn" title="Report Issue / Feedback">
-                    <i class="fa-solid fa-comment-dots"></i>
-                    <span class="btn-text">Feedback</span>
-                </button>
-            </div>
-
-            <!-- Floating Selected Bus Quick Card (Bottom overlay on map) -->
-            <div class="selected-bus-floating-card hidden" id="floatingBusCard">
-                <button class="close-floating-card" id="closeFloatingCard"><i class="fa-solid fa-xmark"></i></button>
-                <div class="floating-bus-header">
-                    <span class="bus-badge" id="floatBusBadge">BUS-101</span>
-                    <h3 id="floatBusName">Route 1 - Central Line</h3>
-                    <span class="live-pill" id="floatLivePill">MOVING</span>
-                </div>
-                <div class="floating-bus-body">
-                    <div class="floating-stat">
-                        <i class="fa-solid fa-user-tie"></i>
-                        <span>Driver: <strong id="floatDriverName">--</strong></span>
-                    </div>
-                    <div class="floating-stat">
-                        <i class="fa-solid fa-route"></i>
-                        <span>Destination Stop: <strong id="floatBusStop">--</strong></span>
-                    </div>
-                    <div class="floating-stat">
-                        <i class="fa-solid fa-gauge-high"></i>
-                        <span>Speed: <strong id="floatSpeed">0 km/h</strong></span>
-                    </div>
-                </div>
-                <div class="floating-bus-footer">
-                    <a href="#" id="floatCallBtn" class="btn-call"><i class="fa-solid fa-phone"></i> Call Driver</a>
-                    <button id="floatFollowBtn" class="btn-follow"><i class="fa-solid fa-location-arrow"></i> Track on Map</button>
-                </div>
-            </div>
-        </main>
-
-        <!-- 📱 Full-Width Bottom Navigation Bar (Covering Below Map & Sidebar) -->
+        <!-- 3. FULL-WIDTH BOTTOM NAVIGATION BAR (Covering Below Map & Sidebar) -->
         <nav class="main-nav-tabs bottom-nav-full">
             <button class="nav-tab-btn active" data-tab="dashboard">
                 <i class="fa-solid fa-house"></i>
