@@ -1,41 +1,42 @@
 /* ==========================================================================
-   BusTrack Client Frontend - Custom Design System & OpenStreetMap Styling
+   BusTrack Client Frontend - Custom Design System (Orange & White Theme)
    ========================================================================== */
 
 :root {
-    /* Primary Colors */
+    /* Primary Orange & Accent Colors */
     --primary: #E85D04;
-    --primary-hover: #DC2F02;
-    --primary-light: rgba(232, 93, 4, 0.15);
+    --primary-hover: #D04D00;
+    --primary-light: rgba(232, 93, 4, 0.08);
     --secondary: #F4A261;
-    --accent: #E76F51;
+    --accent: #FF7A00;
 
     /* Status Colors */
     --success: #10B981;
-    --success-bg: rgba(16, 185, 129, 0.15);
+    --success-bg: rgba(16, 185, 129, 0.12);
     --warning: #F59E0B;
-    --warning-bg: rgba(245, 158, 11, 0.15);
+    --warning-bg: rgba(245, 158, 11, 0.12);
     --danger: #EF4444;
-    --danger-bg: rgba(239, 68, 68, 0.15);
+    --danger-bg: rgba(239, 68, 68, 0.12);
     --info: #3B82F6;
 
-    /* Dark Theme Surfaces */
-    --bg-main: #0B0F19;
-    --bg-sidebar: rgba(15, 23, 42, 0.82);
-    --bg-card: rgba(30, 41, 59, 0.7);
-    --bg-card-hover: rgba(51, 65, 85, 0.8);
-    --bg-floating: rgba(15, 23, 42, 0.88);
-    --border-color: rgba(255, 255, 255, 0.1);
+    /* Pure White & Clean Light Surfaces */
+    --bg-main: #F8F9FA;
+    --bg-sidebar: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #FFF7F2;
+    --bg-floating: #FFFFFF;
+    --border-color: #E2E8F0;
+    --border-primary: rgba(232, 93, 4, 0.25);
     
     /* Text Colors */
-    --text-main: #F8FAFC;
-    --text-muted: #94A3B8;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
     --text-dark: #0F172A;
 
     /* Shadows & Effects */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
-    --glass-blur: blur(16px);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 16px 36px rgba(232, 93, 4, 0.12);
+    --glass-blur: blur(12px);
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 18px;
@@ -44,17 +45,30 @@
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light Theme Variables */
+/* Light Theme (Orange & White Default) */
 [data-theme="light"] {
-    --bg-main: #F1F5F9;
-    --bg-sidebar: rgba(255, 255, 255, 0.9);
-    --bg-card: rgba(255, 255, 255, 0.8);
-    --bg-card-hover: rgba(241, 245, 249, 0.95);
-    --bg-floating: rgba(255, 255, 255, 0.92);
-    --border-color: rgba(0, 0, 0, 0.1);
-    --text-main: #0F172A;
+    --bg-main: #F8F9FA;
+    --bg-sidebar: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #FFF7F2;
+    --bg-floating: #FFFFFF;
+    --border-color: #E2E8F0;
+    --text-main: #1E293B;
     --text-muted: #64748B;
-    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Theme Option */
+[data-theme="dark"] {
+    --bg-main: #0B0F19;
+    --bg-sidebar: rgba(15, 23, 42, 0.95);
+    --bg-card: rgba(30, 41, 59, 0.85);
+    --bg-card-hover: rgba(51, 65, 85, 0.9);
+    --bg-floating: rgba(15, 23, 42, 0.95);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* General Reset */
@@ -88,8 +102,6 @@ body, html {
     width: 420px;
     height: 100%;
     background: var(--bg-sidebar);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -104,6 +116,11 @@ body, html {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border-color);
+    background: #FFFFFF;
+}
+
+[data-theme="dark"] .sidebar-header {
+    background: transparent;
 }
 
 .brand {
@@ -117,7 +134,7 @@ body, html {
     height: 44px;
     object-fit: contain;
     border-radius: var(--radius-sm);
-    filter: drop-shadow(0 4px 8px rgba(232, 93, 4, 0.4));
+    filter: drop-shadow(0 4px 8px rgba(232, 93, 4, 0.3));
 }
 
 .brand-text h2 {
@@ -150,13 +167,14 @@ body, html {
 /* Status Banner */
 .status-banner {
     padding: 10px 24px;
-    background: rgba(0, 0, 0, 0.15);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--primary-light);
+    border-bottom: 1px solid var(--border-primary);
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 0.82rem;
-    color: var(--text-muted);
+    color: var(--text-main);
+    font-weight: 500;
 }
 
 .status-indicator {
@@ -182,7 +200,7 @@ body, html {
     margin-left: auto;
     background: transparent;
     border: none;
-    color: var(--text-muted);
+    color: var(--primary);
     cursor: pointer;
     font-size: 0.9rem;
     padding: 4px 8px;
@@ -191,7 +209,7 @@ body, html {
 }
 
 .refresh-btn:hover {
-    color: var(--primary);
+    color: var(--primary-hover);
     transform: rotate(90deg);
 }
 
@@ -209,7 +227,7 @@ body, html {
 .search-icon {
     position: absolute;
     left: 14px;
-    color: var(--text-muted);
+    color: var(--primary);
     font-size: 0.95rem;
 }
 
@@ -217,7 +235,7 @@ body, html {
     width: 100%;
     padding: 12px 38px 12px 42px;
     background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-main);
     font-size: 0.9rem;
@@ -227,7 +245,7 @@ body, html {
 
 .search-input-wrapper input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(232, 93, 4, 0.15);
 }
 
 .clear-search-btn {
@@ -249,39 +267,48 @@ body, html {
 
 .filter-btn {
     flex: 1;
-    padding: 8px 12px;
-    background: var(--bg-card);
+    padding: 9px 12px;
+    background: #F1F5F9;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-muted);
     font-size: 0.82rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
 
+[data-theme="dark"] .filter-btn {
+    background: var(--bg-card);
+}
+
 .filter-btn:hover {
-    color: var(--text-main);
-    background: var(--bg-card-hover);
+    color: var(--primary);
+    background: var(--primary-light);
 }
 
 .filter-btn.active {
     background: var(--primary);
     border-color: var(--primary);
     color: white;
-    font-weight: 600;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(232, 93, 4, 0.25);
 }
 
 /* Saved Stop Card */
 .saved-stop-card {
     margin: 0 24px 14px 24px;
     padding: 12px 16px;
-    background: var(--primary-light);
-    border: 1px solid rgba(232, 93, 4, 0.3);
+    background: #FFF7F2;
+    border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+[data-theme="dark"] .saved-stop-card {
+    background: var(--primary-light);
 }
 
 .saved-stop-info {
@@ -311,7 +338,7 @@ body, html {
 }
 
 .btn-outline {
-    background: transparent;
+    background: #FFFFFF;
     border: 1px solid var(--primary);
     color: var(--primary);
 }
@@ -336,20 +363,25 @@ body, html {
 }
 
 .content-scroll::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: rgba(232, 93, 4, 0.2);
     border-radius: 4px;
 }
 
 /* ETA Alert Box */
 .eta-alert-box {
     padding: 14px 16px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(232, 93, 4, 0.2));
-    border: 1px solid rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, #FFF5EE, #FFEAD9);
+    border: 1.5px solid var(--primary);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     gap: 14px;
     animation: fadeIn 0.3s ease-in;
+    box-shadow: 0 4px 14px rgba(232, 93, 4, 0.12);
+}
+
+[data-theme="dark"] .eta-alert-box {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(232, 93, 4, 0.2));
 }
 
 @keyframes fadeIn {
@@ -359,12 +391,13 @@ body, html {
 
 .eta-icon {
     font-size: 1.6rem;
+    color: var(--primary);
 }
 
 .eta-details h4 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--warning);
+    color: var(--primary);
 }
 
 .eta-label {
@@ -375,19 +408,20 @@ body, html {
 .eta-subtext {
     font-size: 0.8rem;
     color: var(--text-main);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Bus Cards */
 .bus-card {
     background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 16px;
     cursor: pointer;
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .bus-card::before {
@@ -396,7 +430,7 @@ body, html {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: 5px;
     background: var(--text-muted);
     transition: var(--transition);
 }
@@ -416,8 +450,18 @@ body, html {
 .bus-card:hover {
     background: var(--bg-card-hover);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-    border-color: rgba(232, 93, 4, 0.4);
+    box-shadow: 0 8px 24px rgba(232, 93, 4, 0.12);
+    border-color: var(--primary);
+}
+
+.bus-card.selected {
+    border-color: var(--primary);
+    background: #FFF7F2;
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+[data-theme="dark"] .bus-card.selected {
+    background: rgba(232, 93, 4, 0.15);
 }
 
 .bus-card-header {
@@ -428,13 +472,13 @@ body, html {
 }
 
 .bus-number-badge {
-    background: var(--primary-light);
-    color: var(--primary);
-    padding: 4px 10px;
+    background: var(--primary);
+    color: white;
+    padding: 4px 12px;
     border-radius: var(--radius-sm);
     font-weight: 700;
     font-size: 0.85rem;
-    border: 1px solid rgba(232, 93, 4, 0.3);
+    box-shadow: 0 2px 8px rgba(232, 93, 4, 0.3);
 }
 
 .status-pill {
@@ -462,13 +506,13 @@ body, html {
 }
 
 .status-pill.inactive {
-    background: rgba(148, 163, 184, 0.2);
+    background: #E2E8F0;
     color: var(--text-muted);
 }
 
 .bus-title {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 8px;
     color: var(--text-main);
 }
@@ -504,8 +548,8 @@ body, html {
 
 .call-driver-link {
     color: var(--success);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -517,20 +561,21 @@ body, html {
 }
 
 .track-btn {
-    background: var(--primary-light);
-    color: var(--primary);
+    background: var(--primary);
+    color: white;
     border: none;
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(232, 93, 4, 0.25);
 }
 
 .track-btn:hover {
-    background: var(--primary);
-    color: white;
+    background: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
 /* Bus Stop List Items */
@@ -583,10 +628,14 @@ body, html {
 .sidebar-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
-    background: rgba(0, 0, 0, 0.2);
+    background: #F8F9FA;
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+[data-theme="dark"] .sidebar-footer {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .user-pill {
@@ -596,22 +645,24 @@ body, html {
 }
 
 .user-avatar {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: white;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(232, 93, 4, 0.3);
 }
 
 .user-details strong {
     display: block;
     font-size: 0.85rem;
     color: var(--text-main);
+    font-weight: 700;
 }
 
 .user-details span {
@@ -633,7 +684,7 @@ body, html {
     width: 36px;
     height: 36px;
     border-radius: var(--radius-sm);
-    background: var(--bg-card);
+    background: #FFFFFF;
     border: 1px solid var(--border-color);
     color: var(--text-muted);
     cursor: pointer;
@@ -644,8 +695,9 @@ body, html {
 }
 
 .icon-btn:hover {
-    color: var(--text-main);
-    background: var(--bg-card-hover);
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--primary-light);
 }
 
 .icon-btn.danger:hover {
@@ -667,11 +719,6 @@ body, html {
     z-index: 1;
 }
 
-/* Leaflet Custom Tile Filter for Dark Mode */
-[data-theme="dark"] .leaflet-tile-pane {
-    filter: brightness(0.7) invert(1) contrast(1.2) hue-rotate(200deg) saturate(0.3);
-}
-
 /* Floating Controls (Top Right of Map) */
 .map-controls-top {
     position: absolute;
@@ -684,21 +731,23 @@ body, html {
 }
 
 .map-control-btn {
-    background: var(--bg-floating);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    background: #FFFFFF;
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 10px 16px;
+    padding: 10px 18px;
     border-radius: var(--radius-full);
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 8px;
     transition: var(--transition);
+}
+
+.map-control-btn i {
+    color: var(--primary);
 }
 
 .map-control-btn:hover {
@@ -706,7 +755,11 @@ body, html {
     color: white;
     border-color: var(--primary);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 8px 24px rgba(232, 93, 4, 0.3);
+}
+
+.map-control-btn:hover i {
+    color: white;
 }
 
 /* Floating Selected Bus Quick Card */
@@ -718,13 +771,11 @@ body, html {
     z-index: 1000;
     width: calc(100% - 40px);
     max-width: 440px;
-    background: var(--bg-floating);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
+    background: #FFFFFF;
+    border: 2px solid var(--primary);
     border-radius: var(--radius-lg);
     padding: 20px;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 16px 40px rgba(232, 93, 4, 0.2);
     animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -755,7 +806,7 @@ body, html {
     background: var(--primary);
     color: white;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
 }
@@ -763,6 +814,7 @@ body, html {
 .floating-bus-header h3 {
     font-size: 1.1rem;
     font-weight: 700;
+    color: var(--text-main);
 }
 
 .live-pill {
@@ -811,7 +863,7 @@ body, html {
     border: 1px solid var(--success);
     border-radius: var(--radius-md);
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.85rem;
     text-decoration: none;
     transition: var(--transition);
@@ -829,7 +881,7 @@ body, html {
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
     transition: var(--transition);
@@ -846,8 +898,8 @@ body, html {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -856,12 +908,12 @@ body, html {
 }
 
 .modal-card {
-    background: var(--bg-floating);
+    background: #FFFFFF;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 480px;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     animation: zoomIn 0.25s ease-out;
 }
@@ -882,6 +934,7 @@ body, html {
 .modal-header h3 {
     font-size: 1.1rem;
     font-weight: 700;
+    color: var(--text-main);
 }
 
 .modal-close-btn {
@@ -917,7 +970,7 @@ body, html {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-main);
     transition: var(--transition);
 }
@@ -951,7 +1004,7 @@ body, html {
 .form-control {
     width: 100%;
     padding: 10px 14px;
-    background: var(--bg-card);
+    background: #FFFFFF;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-main);
@@ -966,7 +1019,7 @@ body, html {
 .btn {
     padding: 10px 20px;
     border-radius: var(--radius-md);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
     border: none;
@@ -976,6 +1029,7 @@ body, html {
 .btn-primary {
     background: var(--primary);
     color: white;
+    box-shadow: 0 4px 12px rgba(232, 93, 4, 0.3);
 }
 
 .btn-primary:hover {
@@ -983,13 +1037,13 @@ body, html {
 }
 
 .btn-secondary {
-    background: var(--bg-card);
+    background: #F1F5F9;
     color: var(--text-main);
     border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-    background: var(--bg-card-hover);
+    background: #E2E8F0;
 }
 
 .alert-box {
@@ -1037,34 +1091,34 @@ body, html {
 }
 
 .leaflet-bus-icon.moving {
-    background: var(--success);
-    box-shadow: 0 0 16px var(--success);
+    background: var(--primary);
+    box-shadow: 0 0 16px var(--primary);
 }
 
 .leaflet-stop-icon {
-    background: #3B82F6;
+    background: #FF7A00;
     border: 2px solid white;
     border-radius: 50%;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 10px rgba(232, 93, 4, 0.4);
     font-size: 0.85rem;
 }
 
 .leaflet-user-icon {
-    background: #E11D48;
+    background: #E85D04;
     border: 3px solid white;
     border-radius: 50%;
-    box-shadow: 0 0 16px #E11D48;
+    box-shadow: 0 0 16px #E85D04;
     animation: ripple 2s infinite;
 }
 
 @keyframes ripple {
-    0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6); }
-    70% { box-shadow: 0 0 0 18px rgba(225, 29, 72, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(232, 93, 4, 0.6); }
+    70% { box-shadow: 0 0 0 18px rgba(232, 93, 4, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(232, 93, 4, 0); }
 }
 
 /* Responsive Mobile Rules */
