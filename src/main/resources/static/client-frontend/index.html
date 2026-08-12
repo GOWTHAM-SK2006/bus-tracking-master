@@ -66,17 +66,8 @@
             <!-- OpenStreetMap Canvas -->
             <div id="map"></div>
 
-            <!-- Floating Top Left Live Status Pill -->
-            <div class="status-banner-floating" id="statusBanner">
-                <span class="status-indicator active" id="statusPulse"></span>
-                <span id="statusText">Connecting live feed...</span>
-                <button class="refresh-btn" id="refreshBtn" title="Refresh Live Data">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-            </div>
-
-            <!-- Floating Top Right Controls (Map Actions) -->
-            <div class="map-controls-top">
+            <!-- Floating Bottom Right Controls (Above Schedules tab) -->
+            <div class="map-controls-bottom-right">
                 <button class="map-control-btn" id="locateUserBtn" title="Recenter to My Location">
                     <i class="fa-solid fa-crosshairs"></i>
                     <span class="btn-text">My Location</span>
@@ -90,6 +81,11 @@
                     <span class="btn-text">Feedback</span>
                 </button>
             </div>
+
+            <!-- Hidden status elements (kept for JS compatibility) -->
+            <span id="statusPulse" class="hidden"></span>
+            <span id="statusText" class="hidden"></span>
+            <button id="refreshBtn" class="hidden"></button>
 
             <!-- Floating Selected Bus Quick Card (Bottom overlay on map) -->
             <div class="selected-bus-floating-card hidden" id="floatingBusCard">

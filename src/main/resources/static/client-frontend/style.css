@@ -250,75 +250,16 @@ body, html {
     z-index: 1;
 }
 
-/* Floating Top-Left Status Pill */
-.status-banner-floating {
+/* Map Action Controls — Bottom Right Above Schedules Tab */
+.map-controls-bottom-right {
     position: absolute;
-    top: 16px;
-    left: 20px;
-    z-index: 1000;
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
-    padding: 7px 18px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-[data-theme="dark"] .status-banner-floating {
-    background: rgba(15, 23, 42, 0.95);
-}
-
-.status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--warning);
-}
-
-.status-indicator.active {
-    background-color: var(--success);
-    box-shadow: 0 0 10px var(--success);
-    animation: pulse 1.8s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 0.9; }
-    50% { transform: scale(1.25); opacity: 1; }
-    100% { transform: scale(0.95); opacity: 0.9; }
-}
-
-.refresh-btn {
-    margin-left: auto;
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: var(--transition);
-}
-
-.refresh-btn:hover {
-    color: var(--primary-hover);
-    transform: rotate(90deg);
-}
-
-/* Map Action Controls (Top Right) */
-.map-controls-top {
-    position: absolute;
-    top: 16px;
-    right: 20px;
+    bottom: 80px; /* sits above the 64px bottom nav bar */
+    right: 16px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 10px;
+    gap: 8px;
 }
 
 .map-control-btn {
