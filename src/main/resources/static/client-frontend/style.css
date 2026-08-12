@@ -349,13 +349,18 @@ body, html {
 
 /* 3. 📱 FULL-WIDTH BOTTOM NAVIGATION BAR */
 .main-nav-tabs.bottom-nav-full {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100vw;
     height: 64px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    background: #FFF8F5;
+    background: #FFFFFF;
     border-top: 1.5px solid #FFE4D6;
     padding: 4px 16px 0 16px;
+    padding-bottom: env(safe-area-inset-bottom, 0px); /* iOS safe area */
     gap: 12px;
     z-index: 1200;
     box-shadow: 0 -4px 20px rgba(232, 93, 4, 0.08);
@@ -1226,7 +1231,11 @@ body, html {
     }
 
     .drawer-overlay {
-        max-width: 100%;
         border-radius: 20px 20px 0 0;
+    }
+
+    /* Map must not overlap bottom nav on mobile */
+    #map {
+        height: calc(100% - 64px) !important;
     }
 }
