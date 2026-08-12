@@ -1,7 +1,7 @@
 /* ==========================================================================
    BusTrack Client Frontend - Custom Design System (Orange & White Theme)
    DYGON Student Navigation: 🏠 Dashboard | 🚌 Buses | 📍 Stops | 🕐 Schedules
-   Bottom Navigation Bar Styling (Matching User Requested UI)
+   Full-Width Bottom Navigation Bar (Covering Below Map) & Top-Right Profile
    ========================================================================== */
 
 :root {
@@ -111,6 +111,7 @@ body, html {
     box-shadow: var(--shadow-lg);
     transition: var(--transition);
     position: relative;
+    padding-bottom: 64px; /* Space for full-width bottom navigation */
 }
 
 .sidebar-header {
@@ -246,37 +247,43 @@ body, html {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 📱 Bottom Navigation Bar (Exact Match to User UI Request) */
-.main-nav-tabs.bottom-nav {
+/* 📱 FULL-WIDTH BOTTOM NAVIGATION BAR (Covering Below Map & Sidebar) */
+.main-nav-tabs.bottom-nav-full {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: 64px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: #FFF8F5;
     border-top: 1.5px solid #FFE4D6;
-    padding: 6px 10px 0 10px;
-    gap: 6px;
-    z-index: 1050;
-    box-shadow: 0 -4px 16px rgba(232, 93, 4, 0.06);
+    padding: 4px 16px 0 16px;
+    gap: 12px;
+    z-index: 1200;
+    box-shadow: 0 -4px 20px rgba(232, 93, 4, 0.08);
 }
 
-[data-theme="dark"] .main-nav-tabs.bottom-nav {
+[data-theme="dark"] .main-nav-tabs.bottom-nav-full {
     background: rgba(15, 23, 42, 0.98);
     border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .nav-tab-btn {
-    padding: 10px 4px 8px 4px;
+    padding: 8px 4px;
     background: transparent;
     border: none;
     border-radius: 14px 14px 0 0;
     color: #64748B;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 4px;
     position: relative;
     transition: var(--transition);
 }
@@ -295,7 +302,7 @@ body, html {
     transform: translateY(-2px);
 }
 
-/* Active Bottom Navigation Tab Styling (Orange Pill & Curved Bottom Indicator Bar) */
+/* Active Bottom Navigation Tab Styling (Light Orange Pill & Curved Active Bar Indicator) */
 .nav-tab-btn.active {
     color: #E85D04;
     background: #FFF0E6;
@@ -823,29 +830,57 @@ body, html {
     font-weight: 700;
 }
 
-/* Sidebar Footer */
-.sidebar-footer {
-    padding: 14px 24px;
-    border-top: 1px solid var(--border-color);
-    background: #F8F9FA;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Main Map Screen */
+.map-container {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    padding-bottom: 64px; /* Space for full-width bottom navigation */
 }
 
-[data-theme="dark"] .sidebar-footer {
-    background: rgba(0, 0, 0, 0.2);
+#map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* 👤 Top-Right Floating User Profile & Action Controls */
+.map-controls-top {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.top-user-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 6px 14px 6px 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: var(--transition);
+}
+
+[data-theme="dark"] .top-user-card {
+    background: rgba(15, 23, 42, 0.95);
 }
 
 .user-pill {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .user-avatar {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: var(--primary);
     color: white;
@@ -868,7 +903,7 @@ body, html {
     font-size: 0.75rem;
     color: var(--text-muted);
     display: block;
-    max-width: 170px;
+    max-width: 160px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -880,10 +915,10 @@ body, html {
 }
 
 .icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    background: #FFFFFF;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #F8F9FA;
     border: 1px solid var(--border-color);
     color: var(--text-muted);
     cursor: pointer;
@@ -905,35 +940,11 @@ body, html {
     border-color: var(--danger);
 }
 
-/* Main Map Screen */
-.map-container {
-    flex: 1;
-    height: 100%;
-    position: relative;
-}
-
-#map {
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-/* Floating Controls (Top Right of Map) */
-.map-controls-top {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .map-control-btn {
     background: #FFFFFF;
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 10px 18px;
+    padding: 9px 16px;
     border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 700;
@@ -964,7 +975,7 @@ body, html {
 /* Floating Selected Bus Quick Card */
 .selected-bus-floating-card {
     position: absolute;
-    bottom: 24px;
+    bottom: 80px; /* Elevated above bottom navigation bar */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;

@@ -167,45 +167,6 @@
                 </div>
 
             </div>
-
-            <!-- 📱 Bottom Navigation Bar (Dashboard | Buses | Stops | Schedules) -->
-            <nav class="main-nav-tabs bottom-nav">
-                <button class="nav-tab-btn active" data-tab="dashboard">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Dashboard</span>
-                </button>
-                <button class="nav-tab-btn" data-tab="buses">
-                    <i class="fa-solid fa-bus"></i>
-                    <span>Buses (<b id="countAll">0</b>)</span>
-                </button>
-                <button class="nav-tab-btn" data-tab="stops">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Stops</span>
-                </button>
-                <button class="nav-tab-btn" data-tab="schedules">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Schedules</span>
-                </button>
-            </nav>
-
-            <!-- Footer / User Menu -->
-            <div class="sidebar-footer">
-                <div class="user-pill" id="userPill">
-                    <div class="user-avatar" id="userAvatar">S</div>
-                    <div class="user-details">
-                        <strong id="userName">Student User</strong>
-                        <span id="userEmail">student@sairamtap.edu.in</span>
-                    </div>
-                </div>
-                <div class="footer-actions">
-                    <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
-                    <button class="icon-btn danger" id="logoutBtn" title="Logout">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
-            </div>
         </aside>
 
         <!-- Main Map Screen -->
@@ -213,8 +174,28 @@
             <!-- OpenStreetMap Container -->
             <div id="map"></div>
 
-            <!-- Floating Top Right Controls -->
+            <!-- Floating Top Right Controls (User Profile & Map Actions) -->
             <div class="map-controls-top">
+                <!-- User Profile Card in Top Right Corner -->
+                <div class="top-user-card" id="topUserCard">
+                    <div class="user-pill" id="userPill">
+                        <div class="user-avatar" id="userAvatar">G</div>
+                        <div class="user-details">
+                            <strong id="userName">Student User</strong>
+                            <span id="userEmail">student@sairamtap.edu.in</span>
+                        </div>
+                    </div>
+                    <div class="footer-actions">
+                        <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                        <button class="icon-btn danger" id="logoutBtn" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Map Controls -->
                 <button class="map-control-btn" id="locateUserBtn" title="Recenter to My Location">
                     <i class="fa-solid fa-crosshairs"></i>
                     <span class="btn-text">My Location</span>
@@ -257,6 +238,26 @@
                 </div>
             </div>
         </main>
+
+        <!-- 📱 Full-Width Bottom Navigation Bar (Covering Below Map & Sidebar) -->
+        <nav class="main-nav-tabs bottom-nav-full">
+            <button class="nav-tab-btn active" data-tab="dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="buses">
+                <i class="fa-solid fa-bus"></i>
+                <span>Buses (<b id="countAll">0</b>)</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="stops">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Stops</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="schedules">
+                <i class="fa-solid fa-clock"></i>
+                <span>Schedules</span>
+            </button>
+        </nav>
     </div>
 
     <!-- Bus Stop Change Modal -->
