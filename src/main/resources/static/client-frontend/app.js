@@ -2,8 +2,8 @@
  * ==========================================================================
  * DYGON Student Application - Real-Time Live Bus Tracking & Navigation System
  * Navigation: 🏠 Dashboard | 🚌 Buses | 📍 Stops | 🕐 Schedules
- * Features: OpenStreetMap (Leaflet.js), Live WebSocket Sync, ETA Logic,
- * Bus Stop Directory, Timetables, User Location Tracking.
+ * Features: 100% Full-Screen OpenStreetMap (Leaflet.js), Solid White Top Bar,
+ * Full-Width Bottom Nav Bar, Live WebSocket Sync, ETA Logic, Bus Directory.
  * ==========================================================================
  */
 
@@ -32,25 +32,20 @@
 
     // DOM Elements
     const elements = {
-        sidebar: document.getElementById('sidebar'),
-        drawerToggle: document.getElementById('drawerToggle'),
         statusPulse: document.getElementById('statusPulse'),
         statusText: document.getElementById('statusText'),
         refreshBtn: document.getElementById('refreshBtn'),
         navTabBtns: document.querySelectorAll('.nav-tab-btn'),
         tabViews: document.querySelectorAll('.tab-view'),
+        drawerOverlay: document.getElementById('drawerOverlay'),
+        drawerTitle: document.getElementById('drawerTitle'),
+        closeDrawerBtn: document.getElementById('closeDrawerBtn'),
         countAll: document.getElementById('countAll'),
         countRunning: document.getElementById('countRunning'),
         savedStopName: document.getElementById('savedStopName'),
         changeStopBtn: document.getElementById('changeStopBtn'),
-        contentScroll: document.getElementById('contentScroll'),
-        etaAlertBox: document.getElementById('etaAlertBox'),
-        etaTargetStop: document.getElementById('etaTargetStop'),
-        etaTime: document.getElementById('etaTime'),
-        etaBusInfo: document.getElementById('etaBusInfo'),
         statActiveBuses: document.getElementById('statActiveBuses'),
         statTotalStops: document.getElementById('statTotalStops'),
-        quickBusPreview: document.getElementById('quickBusPreview'),
         busSearchInput: document.getElementById('busSearchInput'),
         clearSearchBtn: document.getElementById('clearSearchBtn'),
         subPillBtns: document.querySelectorAll('.sub-pill-btn'),
@@ -156,10 +151,8 @@
 
     // Update Saved Stop UI
     function updateSavedStopUI() {
-        if (preferredStop) {
-            elements.savedStopName.textContent = preferredStop;
-        } else {
-            elements.savedStopName.textContent = 'Not selected';
+        if (elements.savedStopName) {
+            elements.savedStopName.textContent = preferredStop || 'Not selected';
         }
     }
 
@@ -234,10 +227,8 @@
                 elements.statusPulse.classList.add('active');
                 elements.statusText.textContent = 'Real-time Live Sync Active';
 
-                // Send ALL message to request initial list
                 webSocket.send(JSON.stringify({ type: 'ALL' }));
 
-                // Start PING heartbeat
                 clearInterval(wsHeartbeatTimer);
                 wsHeartbeatTimer = setInterval(() => {
                     if (webSocket && webSocket.readyState === WebSocket.OPEN) {
@@ -301,7 +292,7 @@
                 const res = await response.json();
                 if (res.success && Array.isArray(res.busStops)) {
                     busStopsList = res.busStops;
-                    elements.statTotalStops.textContent = busStopsList.length;
+                    if (elements.statTotalStops) elements.statTotalStops.textContent = busStopsList.length;
                     renderStopsList();
                     renderSchedules();
                 }
@@ -317,10 +308,8 @@
 
         busesData = newBuses;
         updateCounts();
-        renderDashboardView();
         renderBusList();
         updateMapMarkers();
-        calculateETA();
 
         if (selectedBusNumber) {
             const bus = busesData.find(b => b.busNumber === selectedBusNumber);
@@ -332,95 +321,14 @@
     function updateCounts() {
         const total = busesData.length;
         const running = busesData.filter(b => b.status === 'RUNNING' || b.status === 'MOVING').length;
-        elements.countAll.textContent = total;
-        elements.countRunning.textContent = running;
-        elements.statActiveBuses.textContent = running;
-    }
-
-    // Haversine Distance Calculation (in Km)
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
-
-    // Calculate Best Bus ETA for Preferred Stop
-    function calculateETA() {
-        if (!preferredStop) {
-            elements.etaAlertBox.classList.add('hidden');
-            return;
-        }
-
-        const activeBuses = busesData.filter(b =>
-            (b.status === 'RUNNING' || b.status === 'MOVING') &&
-            b.latitude && b.longitude &&
-            (b.latitude !== 0 || b.longitude !== 0)
-        );
-
-        if (activeBuses.length === 0) {
-            elements.etaAlertBox.classList.add('hidden');
-            return;
-        }
-
-        let minDistance = Infinity;
-        let closestBus = null;
-
-        activeBuses.forEach(bus => {
-            const dist = calculateDistance(bus.latitude, bus.longitude, CAMPUS_COORDS[0], CAMPUS_COORDS[1]);
-            if (dist < minDistance) {
-                minDistance = dist;
-                closestBus = bus;
-            }
-        });
-
-        if (closestBus) {
-            const speedKmh = 30;
-            const etaMinutes = Math.max(1, Math.round((minDistance / speedKmh) * 60));
-
-            elements.etaTargetStop.textContent = preferredStop;
-            elements.etaTime.textContent = `Arr. in ~${etaMinutes} min${etaMinutes > 1 ? 's' : ''} (${minDistance.toFixed(1)} km away)`;
-            elements.etaBusInfo.textContent = `Nearest Active: ${closestBus.busNumber} (${closestBus.busName || 'Route'})`;
-            elements.etaAlertBox.classList.remove('hidden');
-        } else {
-            elements.etaAlertBox.classList.add('hidden');
-        }
-    }
-
-    // Render Dashboard View Quick Preview
-    function renderDashboardView() {
-        const activeBuses = busesData.filter(b => b.status === 'RUNNING' || b.status === 'MOVING');
-
-        if (activeBuses.length === 0) {
-            elements.quickBusPreview.innerHTML = `
-                <div class="loading-skeleton">
-                    <i class="fa-solid fa-clock" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 8px;"></i>
-                    <p>No active buses running currently.</p>
-                </div>`;
-            return;
-        }
-
-        elements.quickBusPreview.innerHTML = activeBuses.slice(0, 3).map(bus => `
-            <div class="bus-card status-running" onclick="window.focusBus('${bus.busNumber}')">
-                <div class="bus-card-header">
-                    <span class="bus-number-badge">${bus.busNumber}</span>
-                    <span class="status-pill running">MOVING</span>
-                </div>
-                <div class="bus-title">${bus.busName || 'College Route'}</div>
-                <div class="bus-meta">
-                    <div class="meta-row"><i class="fa-solid fa-location-dot"></i> ${bus.busStop || 'En route'}</div>
-                    <div class="meta-row"><i class="fa-solid fa-user-tie"></i> ${bus.driverName || 'Driver'}</div>
-                </div>
-            </div>
-        `).join('');
+        if (elements.countAll) elements.countAll.textContent = total;
+        if (elements.countRunning) elements.countRunning.textContent = running;
+        if (elements.statActiveBuses) elements.statActiveBuses.textContent = running;
     }
 
     // Render Buses Tab List
     function renderBusList() {
+        if (!elements.busList) return;
         const searchTerm = elements.busSearchInput ? elements.busSearchInput.value.toLowerCase().trim() : '';
 
         let filtered = busesData.filter(b => {
@@ -447,54 +355,51 @@
         }
 
         elements.busList.innerHTML = filtered.map(bus => {
-            const statusClass = (bus.status || 'INACTIVE').toLowerCase();
+            const isMoving = bus.status === 'RUNNING' || bus.status === 'MOVING';
             const isSelected = selectedBusNumber === bus.busNumber;
 
             return `
-                <div class="bus-card status-${statusClass} ${isSelected ? 'selected' : ''}" data-bus="${bus.busNumber}" onclick="window.focusBus('${bus.busNumber}')">
+                <div class="bus-card status-${isMoving ? 'running' : 'stopped'} ${isSelected ? 'selected' : ''}" onclick="window.focusBus('${bus.busNumber}')">
                     <div class="bus-card-header">
-                        <span class="bus-number-badge">${bus.busNumber || 'BUS'}</span>
-                        <span class="status-pill ${statusClass}">${bus.status || 'INACTIVE'}</span>
+                        <span class="bus-number-badge">${bus.busNumber}</span>
+                        <span class="status-pill ${isMoving ? 'running' : 'inactive'}">${isMoving ? 'MOVING' : 'OFFLINE'}</span>
                     </div>
-                    <div class="bus-title">${bus.busName || 'College Route'}</div>
+                    <div class="bus-title">${bus.busName || 'College Bus Route'}</div>
                     <div class="bus-meta">
-                        <div class="meta-row"><i class="fa-solid fa-location-dot"></i> Stop: ${bus.busStop || 'Campus Terminal'}</div>
+                        <div class="meta-row"><i class="fa-solid fa-location-dot"></i> Destination: ${bus.busStop || 'Campus'}</div>
                         <div class="meta-row"><i class="fa-solid fa-user-tie"></i> Driver: ${bus.driverName || 'Assigned Driver'}</div>
                     </div>
                     <div class="bus-card-footer">
-                        ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" class="call-driver-link" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ${bus.driverPhone}</a>` : '<span></span>'}
-                        <button class="track-btn" onclick="event.stopPropagation(); window.focusBus('${bus.busNumber}')">
-                            <i class="fa-solid fa-location-crosshairs"></i> Locate
-                        </button>
+                        ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" class="call-driver-link" onclick="event.stopPropagation()"><i class="fa-solid fa-phone"></i> Call Driver</a>` : '<span></span>'}
+                        <button class="track-btn" onclick="event.stopPropagation(); window.focusBus('${bus.busNumber}')"><i class="fa-solid fa-crosshairs"></i> Track</button>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    // Render Stops Tab Directory
+    // Render Bus Stops List
     function renderStopsList() {
-        if (busStopsList.length === 0) {
-            elements.stopsList.innerHTML = `<div class="loading-skeleton">No bus stops available.</div>`;
+        if (!elements.stopsList) return;
+        const searchTerm = elements.stopSearchInput ? elements.stopSearchInput.value.toLowerCase().trim() : '';
+
+        const filtered = busStopsList.filter(stop => !searchTerm || stop.toLowerCase().includes(searchTerm));
+
+        if (filtered.length === 0) {
+            elements.stopsList.innerHTML = `<div class="loading-skeleton">No bus stops found.</div>`;
             return;
         }
 
-        const searchTerm = elements.stopSearchInput ? elements.stopSearchInput.value.toLowerCase().trim() : '';
-
-        let filtered = busStopsList.filter(stop =>
-            !searchTerm || stop.toLowerCase().includes(searchTerm)
-        );
-
-        elements.stopsList.innerHTML = filtered.map(stopName => `
-            <div class="stop-card" onclick="window.selectStopFromList('${stopName.replace(/'/g, "\\'")}')">
+        elements.stopsList.innerHTML = filtered.map(stop => `
+            <div class="stop-card" onclick="window.selectStopFromList('${stop.replace(/'/g, "\\'")}')">
                 <div class="stop-card-info">
-                    <div class="stop-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="stop-icon"><i class="fa-solid fa-map-pin"></i></div>
                     <div>
-                        <h4>${stopName}</h4>
-                        <p>Click to set as your preferred stop</p>
+                        <h4>${stop}</h4>
+                        <p>College Bus Route Stop</p>
                     </div>
                 </div>
-                <i class="fa-solid fa-chevron-right text-muted"></i>
+                <button class="btn-sm btn-outline"><i class="fa-solid fa-check"></i> Select</button>
             </div>
         `).join('');
     }
@@ -624,7 +529,6 @@
         preferredStop = stopName;
         localStorage.setItem('client_preferred_stop', stopName);
         updateSavedStopUI();
-        calculateETA();
         closeModal(elements.stopModal);
 
         if (currentUser && currentUser.id) {
@@ -675,16 +579,17 @@
 
     // Setup Event Listeners
     function setupEventListeners() {
-        // Mobile Drawer Toggle
-        elements.drawerToggle.addEventListener('click', () => {
-            elements.sidebar.classList.toggle('collapsed');
-            const icon = elements.drawerToggle.querySelector('i');
-            if (elements.sidebar.classList.contains('collapsed')) {
-                icon.className = 'fa-solid fa-chevron-up';
-            } else {
-                icon.className = 'fa-solid fa-chevron-down';
-            }
-        });
+        // Close Drawer Event
+        if (elements.closeDrawerBtn) {
+            elements.closeDrawerBtn.addEventListener('click', () => {
+                elements.drawerOverlay.classList.add('hidden');
+                elements.navTabBtns.forEach(b => {
+                    if (b.dataset.tab === 'dashboard') b.classList.add('active');
+                    else b.classList.remove('active');
+                });
+                activeNavTab = 'dashboard';
+            });
+        }
 
         // 📱 Main DYGON Navigation Tabs (Dashboard | Buses | Stops | Schedules)
         elements.navTabBtns.forEach(btn => {
@@ -695,19 +600,29 @@
                 elements.navTabBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                elements.tabViews.forEach(view => {
-                    if (view.id === `view${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
-                        view.classList.remove('hidden');
-                        view.classList.add('active');
-                    } else {
-                        view.classList.add('hidden');
-                        view.classList.remove('active');
-                    }
-                });
+                if (targetTab === 'dashboard') {
+                    elements.drawerOverlay.classList.add('hidden');
+                } else {
+                    elements.drawerOverlay.classList.remove('hidden');
 
-                if (targetTab === 'buses') renderBusList();
-                if (targetTab === 'stops') renderStopsList();
-                if (targetTab === 'schedules') renderSchedules();
+                    if (targetTab === 'buses') elements.drawerTitle.textContent = 'Buses Directory';
+                    if (targetTab === 'stops') elements.drawerTitle.textContent = 'Bus Stops Directory';
+                    if (targetTab === 'schedules') elements.drawerTitle.textContent = 'Bus Timetables & Routes';
+
+                    elements.tabViews.forEach(view => {
+                        if (view.id === `view${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
+                            view.classList.remove('hidden');
+                            view.classList.add('active');
+                        } else {
+                            view.classList.add('hidden');
+                            view.classList.remove('active');
+                        }
+                    });
+
+                    if (targetTab === 'buses') renderBusList();
+                    if (targetTab === 'stops') renderStopsList();
+                    if (targetTab === 'schedules') renderSchedules();
+                }
             });
         });
 
@@ -776,10 +691,12 @@
         });
 
         // Change Stop Modal Triggers
-        elements.changeStopBtn.addEventListener('click', () => {
-            renderStopModalOptions();
-            openModal(elements.stopModal);
-        });
+        if (elements.changeStopBtn) {
+            elements.changeStopBtn.addEventListener('click', () => {
+                renderStopModalOptions();
+                openModal(elements.stopModal);
+            });
+        }
 
         elements.closeStopModal.addEventListener('click', () => closeModal(elements.stopModal));
         elements.cancelStopModal.addEventListener('click', () => closeModal(elements.stopModal));

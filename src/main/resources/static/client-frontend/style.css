@@ -1,7 +1,7 @@
 /* ==========================================================================
    BusTrack Client Frontend - Custom Design System (Orange & White Theme)
+   Map-First Layout: 100% Full-Screen OpenStreetMap between Top & Bottom Bars
    DYGON Student Navigation: 🏠 Dashboard | 🚌 Buses | 📍 Stops | 🕐 Schedules
-   Full-Width Solid White Top Header Bar (100vw) & Full-Width Bottom Navigation
    ========================================================================== */
 
 :root {
@@ -235,51 +235,42 @@ body, html {
     border-color: var(--danger);
 }
 
-/* 2. 🗺️ MAIN APP BODY CONTAINER */
-.app-body {
+/* 2. 🗺️ 100% FULL-SCREEN MAP CONTAINER (Zero Left Sidebar, 100% Width) */
+.map-container {
     flex: 1;
-    display: flex;
     width: 100vw;
     height: calc(100vh - 128px); /* Account for top bar 64px + bottom bar 64px */
     position: relative;
     overflow: hidden;
 }
 
-/* Sidebar Container */
-.sidebar {
-    width: 440px;
+#map {
+    width: 100%;
     height: 100%;
-    background: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
+    z-index: 1;
+}
+
+/* Floating Top-Left Status Pill */
+.status-banner-floating {
+    position: absolute;
+    top: 16px;
+    left: 20px;
     z-index: 1000;
-    box-shadow: var(--shadow-lg);
-    transition: var(--transition);
-    position: relative;
-}
-
-.mobile-drawer-toggle {
-    display: none;
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 8px;
-}
-
-/* Status Banner */
-.status-banner {
-    padding: 9px 24px;
-    background: var(--primary-light);
-    border-bottom: 1px solid var(--border-primary);
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 7px 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--text-main);
-    font-weight: 500;
+}
+
+[data-theme="dark"] .status-banner-floating {
+    background: rgba(15, 23, 42, 0.95);
 }
 
 .status-indicator {
@@ -308,7 +299,7 @@ body, html {
     color: var(--primary);
     cursor: pointer;
     font-size: 0.9rem;
-    padding: 4px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     transition: var(--transition);
 }
@@ -318,34 +309,102 @@ body, html {
     transform: rotate(90deg);
 }
 
-/* Content Scroll List */
-.content-scroll {
-    flex: 1;
-    overflow-y: auto;
+/* Map Action Controls (Top Right) */
+.map-controls-top {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.map-control-btn {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 9px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.map-control-btn i {
+    color: var(--primary);
+}
+
+.map-control-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232, 93, 4, 0.3);
+}
+
+.map-control-btn:hover i {
+    color: white;
+}
+
+/* 📱 SLIDE-UP DRAWER OVERLAY (For Buses, Stops, Schedules) */
+.drawer-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 520px;
+    max-height: 70vh;
+    background: #FFFFFF;
+    border: 1.5px solid var(--border-color);
+    border-top: 3.5px solid var(--primary);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .drawer-overlay {
+    background: rgba(15, 23, 42, 0.98);
+}
+
+.drawer-header {
     padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFF8F5;
 }
 
-.content-scroll::-webkit-scrollbar {
-    width: 6px;
+.drawer-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
 }
 
-.content-scroll::-webkit-scrollbar-thumb {
-    background: rgba(232, 93, 4, 0.2);
-    border-radius: 4px;
+.close-drawer-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    cursor: pointer;
 }
 
-.tab-view {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    animation: fadeIn 0.25s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+.drawer-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 /* 3. 📱 FULL-WIDTH BOTTOM NAVIGATION BAR */
@@ -432,54 +491,19 @@ body, html {
     background: rgba(232, 93, 4, 0.2);
 }
 
-/* Dashboard Views & Stats Grid */
-.stats-overview-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.stat-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 14px;
+/* Content & List Styles */
+.tab-view {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: var(--shadow-sm);
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeIn 0.25s ease-out;
 }
 
-.stat-box i {
-    font-size: 1.6rem;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.stat-box h3 {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--text-main);
-    line-height: 1;
-}
-
-.stat-box span {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-}
-
-.section-title {
-    margin-top: 6px;
-}
-
-.section-title h4 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Search Box Container */
 .search-box-container {
     padding-bottom: 6px;
 }
@@ -524,7 +548,6 @@ body, html {
     font-size: 0.9rem;
 }
 
-/* Sub Filter Pills */
 .sub-filter-pills {
     display: flex;
     gap: 8px;
@@ -550,7 +573,6 @@ body, html {
     font-weight: 700;
 }
 
-/* Saved Stop Card */
 .saved-stop-card {
     padding: 12px 16px;
     background: #FFF7F2;
@@ -598,41 +620,6 @@ body, html {
     color: white;
 }
 
-/* ETA Alert Box */
-.eta-alert-box {
-    padding: 14px 16px;
-    background: linear-gradient(135deg, #FFF5EE, #FFEAD9);
-    border: 1.5px solid var(--primary);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    box-shadow: 0 4px 14px rgba(232, 93, 4, 0.12);
-}
-
-.eta-icon {
-    font-size: 1.6rem;
-    color: var(--primary);
-}
-
-.eta-details h4 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary);
-}
-
-.eta-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-.eta-subtext {
-    font-size: 0.8rem;
-    color: var(--text-main);
-    font-weight: 600;
-}
-
-/* Bus Cards List */
 .bus-list {
     display: flex;
     flex-direction: column;
@@ -801,7 +788,6 @@ body, html {
     transform: translateY(-1px);
 }
 
-/* Bus Stop List Items */
 .stops-list {
     display: flex;
     flex-direction: column;
@@ -853,7 +839,6 @@ body, html {
     color: var(--text-muted);
 }
 
-/* Schedule Tab & Cards */
 .schedule-header {
     background: var(--primary-light);
     border: 1px solid var(--border-primary);
@@ -925,63 +910,6 @@ body, html {
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
     font-weight: 700;
-}
-
-/* Main Map Screen */
-.map-container {
-    flex: 1;
-    height: 100%;
-    position: relative;
-}
-
-#map {
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-/* Map Action Controls */
-.map-controls-top {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
-}
-
-.map-control-btn {
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 9px 16px;
-    border-radius: var(--radius-full);
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-}
-
-.map-control-btn i {
-    color: var(--primary);
-}
-
-.map-control-btn:hover {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(232, 93, 4, 0.3);
-}
-
-.map-control-btn:hover i {
-    color: white;
 }
 
 /* Floating Selected Bus Quick Card */
@@ -1353,35 +1281,12 @@ body, html {
         display: none;
     }
 
-    .app-body {
-        flex-direction: column-reverse;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: 60vh;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        border-right: none;
-        border-top: 1px solid var(--border-color);
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-
-    .sidebar.collapsed {
-        height: 80px;
-        overflow: hidden;
-    }
-
-    .mobile-drawer-toggle {
-        display: block;
-    }
-
-    .map-container {
-        height: 100vh;
-    }
-
     .map-control-btn .btn-text {
         display: none;
+    }
+
+    .drawer-overlay {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
     }
 }
