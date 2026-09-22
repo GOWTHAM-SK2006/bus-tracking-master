@@ -238,8 +238,9 @@ body, html {
 /* 2. 🗺️ 100% FULL-SCREEN MAP CONTAINER (Zero Left Sidebar, 100% Width) */
 .map-container {
     flex: 1;
-    width: 100vw;
-    height: calc(100vh - 128px); /* Account for top bar 64px + bottom bar 64px */
+    width: 100%;
+    height: calc(100vh - 128px);
+    height: calc(100dvh - 128px);
     position: relative;
     overflow: hidden;
 }
@@ -247,6 +248,11 @@ body, html {
 #map {
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 1;
 }
 
@@ -301,7 +307,8 @@ body, html {
     left: 0;
     right: 0;
     width: 100%;
-    height: 52vh; /* compact sheet — not full screen */
+    height: 54vh;
+    max-height: calc(100vh - 130px);
     background: #FFFFFF;
     border: 1.5px solid var(--border-color);
     border-top: 3.5px solid var(--primary);
@@ -311,20 +318,31 @@ body, html {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: drawerSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
 }
 
 [data-theme="dark"] .drawer-overlay {
     background: rgba(15, 23, 42, 0.98);
 }
 
+.drawer-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
 .drawer-header {
-    padding: 16px 20px;
+    padding: 14px 20px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: #FFF8F5;
+    min-height: 52px;
+    flex-shrink: 0;
 }
 
 .drawer-header h3 {
@@ -344,7 +362,10 @@ body, html {
 .drawer-body {
     padding: 16px 20px;
     overflow-y: auto;
+    overflow-x: hidden;
     flex: 1;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* 3. 📱 FULL-WIDTH BOTTOM NAVIGATION BAR */
@@ -353,15 +374,15 @@ body, html {
     bottom: 0;
     left: 0;
     right: 0;
-    width: 100vw;
+    width: 100%;
     height: 64px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: #FFFFFF;
     border-top: 1.5px solid #FFE4D6;
-    padding: 4px 16px 0 16px;
+    padding: 4px 12px 0 12px;
     padding-bottom: env(safe-area-inset-bottom, 0px); /* iOS safe area */
-    gap: 12px;
+    gap: 8px;
     z-index: 1200;
     box-shadow: 0 -4px 20px rgba(232, 93, 4, 0.08);
 }
@@ -372,10 +393,10 @@ body, html {
 }
 
 .nav-tab-btn {
-    padding: 8px 4px;
+    padding: 6px 2px;
     background: transparent;
     border: none;
-    border-radius: 14px 14px 0 0;
+    border-radius: 12px 12px 0 0;
     color: #64748B;
     font-size: 0.82rem;
     font-weight: 600;
@@ -386,12 +407,13 @@ body, html {
     justify-content: center;
     gap: 4px;
     position: relative;
-    transition: var(--transition);
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .nav-tab-btn i {
     font-size: 1.25rem;
-    transition: transform 0.2s ease;
+    transition: transform 0.15s ease;
 }
 
 .nav-tab-btn:hover {
@@ -400,7 +422,7 @@ body, html {
 }
 
 .nav-tab-btn:hover i {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 /* Active Bottom Navigation Tab Styling */
@@ -408,7 +430,7 @@ body, html {
     color: #E85D04;
     background: #FFF0E6;
     font-weight: 700;
-    border-radius: 14px 14px 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
 .nav-tab-btn.active i {
@@ -441,12 +463,31 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    animation: fadeIn 0.25s ease-out;
+    width: 100%;
+    min-height: 100%;
+    animation: viewFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes drawerSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes viewFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .search-box-container {
@@ -1171,6 +1212,80 @@ body, html {
     font-size: 0.9rem;
 }
 
+/* Skeleton Loading Cards & Inline UI States */
+.skeleton-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(232, 93, 4, 0.08), transparent);
+    animation: skeletonShimmer 1.5s infinite;
+}
+
+@keyframes skeletonShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.skeleton-line {
+    background: #E2E8F0;
+    border-radius: 6px;
+    height: 14px;
+}
+
+[data-theme="dark"] .skeleton-line {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-line.h-title { height: 22px; width: 45%; }
+.skeleton-line.h-sub { height: 16px; width: 70%; }
+.skeleton-line.h-meta { height: 14px; width: 60%; }
+
+.inline-error-state {
+    text-align: center;
+    padding: 32px 20px;
+    background: var(--danger-bg);
+    border: 1px dashed var(--danger);
+    border-radius: var(--radius-md);
+    color: var(--danger);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-error-state i {
+    font-size: 1.8rem;
+}
+
+.inline-empty-state {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.inline-empty-state i {
+    font-size: 2rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
 /* Leaflet Custom Marker Icons */
 .leaflet-bus-icon {
     background: var(--primary);
@@ -1216,7 +1331,7 @@ body, html {
     100% { box-shadow: 0 0 0 0 rgba(232, 93, 4, 0); }
 }
 
-/* Responsive Mobile Rules */
+/* Responsive Mobile & Desktop Rules */
 @media (max-width: 768px) {
     .app-top-bar {
         padding: 0 14px;
@@ -1233,9 +1348,19 @@ body, html {
     .drawer-overlay {
         border-radius: 20px 20px 0 0;
     }
+}
 
-    /* Map must not overlap bottom nav on mobile */
-    #map {
-        height: calc(100% - 64px) !important;
+@media (min-width: 769px) {
+    .drawer-overlay {
+        left: 20px;
+        right: auto;
+        width: 460px;
+        max-width: 90vw;
+        height: 58vh;
+        max-height: calc(100vh - 150px);
+        bottom: 76px;
+        border-radius: 20px;
+        border: 1.5px solid var(--border-color);
+        border-top: 3.5px solid var(--primary);
     }
 }

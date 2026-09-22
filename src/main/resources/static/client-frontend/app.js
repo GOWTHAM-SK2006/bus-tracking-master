@@ -29,6 +29,10 @@
     let activeNavTab = 'dashboard';
     let busSubFilter = 'all';
     let scheduleType = 'morning';
+    let isBusesLoading = true;
+    let busesFetchError = null;
+    let isStopsLoading = true;
+    let stopsFetchError = null;
 
     // DOM Elements
     const elements = {
@@ -277,10 +281,19 @@
             const response = await fetch(`${getApiBaseUrl()}/api/bus/all`);
             if (response.ok) {
                 const data = await response.json();
+                busesFetchError = null;
+                isBusesLoading = false;
                 updateBusesData(data);
+            } else {
+                throw new Error(`HTTP Error ${response.status}`);
             }
         } catch (e) {
             console.error('Failed to fetch buses data:', e);
+            if (!busesData || busesData.length === 0) {
+                busesFetchError = 'Unable to connect to live bus server.';
+                isBusesLoading = false;
+                renderBusList();
+            }
         }
     }
 
@@ -292,13 +305,22 @@
                 const res = await response.json();
                 if (res.success && Array.isArray(res.busStops)) {
                     busStopsList = res.busStops;
+                    stopsFetchError = null;
+                    isStopsLoading = false;
                     if (elements.statTotalStops) elements.statTotalStops.textContent = busStopsList.length;
                     renderStopsList();
                     renderSchedules();
                 }
+            } else {
+                throw new Error(`HTTP Error ${response.status}`);
             }
         } catch (e) {
             console.error('Failed to fetch bus stops:', e);
+            if (!busStopsList || busStopsList.length === 0) {
+                stopsFetchError = 'Could not load bus stops directory.';
+                isStopsLoading = false;
+                renderStopsList();
+            }
         }
     }
 
@@ -329,6 +351,34 @@
     // Render Buses Tab List
     function renderBusList() {
         if (!elements.busList) return;
+
+        if (isBusesLoading && busesData.length === 0) {
+            elements.busList.innerHTML = `
+                <div class="skeleton-card">
+                    <div class="skeleton-line h-title"></div>
+                    <div class="skeleton-line h-sub"></div>
+                    <div class="skeleton-line h-meta"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-line h-title"></div>
+                    <div class="skeleton-line h-sub"></div>
+                    <div class="skeleton-line h-meta"></div>
+                </div>
+            `;
+            return;
+        }
+
+        if (busesFetchError && busesData.length === 0) {
+            elements.busList.innerHTML = `
+                <div class="inline-error-state">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>${busesFetchError}</p>
+                    <button class="btn-sm btn-outline" onclick="window.retryFetchBuses()"><i class="fa-solid fa-rotate-right"></i> Retry Loading</button>
+                </div>
+            `;
+            return;
+        }
+
         const searchTerm = elements.busSearchInput ? elements.busSearchInput.value.toLowerCase().trim() : '';
 
         let filtered = busesData.filter(b => {
@@ -347,8 +397,8 @@
 
         if (filtered.length === 0) {
             elements.busList.innerHTML = `
-                <div class="loading-skeleton">
-                    <i class="fa-solid fa-bus-simple" style="font-size: 2rem; margin-bottom: 10px; color: var(--text-muted);"></i>
+                <div class="inline-empty-state">
+                    <i class="fa-solid fa-bus-simple"></i>
                     <p>No buses match the filter criteria.</p>
                 </div>`;
             return;
@@ -381,12 +431,42 @@
     // Render Bus Stops List
     function renderStopsList() {
         if (!elements.stopsList) return;
+
+        if (isStopsLoading && busStopsList.length === 0) {
+            elements.stopsList.innerHTML = `
+                <div class="skeleton-card">
+                    <div class="skeleton-line h-title"></div>
+                    <div class="skeleton-line h-sub"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-line h-title"></div>
+                    <div class="skeleton-line h-sub"></div>
+                </div>
+            `;
+            return;
+        }
+
+        if (stopsFetchError && busStopsList.length === 0) {
+            elements.stopsList.innerHTML = `
+                <div class="inline-error-state">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>${stopsFetchError}</p>
+                    <button class="btn-sm btn-outline" onclick="window.retryFetchStops()"><i class="fa-solid fa-rotate-right"></i> Retry Loading</button>
+                </div>
+            `;
+            return;
+        }
+
         const searchTerm = elements.stopSearchInput ? elements.stopSearchInput.value.toLowerCase().trim() : '';
 
         const filtered = busStopsList.filter(stop => !searchTerm || stop.toLowerCase().includes(searchTerm));
 
         if (filtered.length === 0) {
-            elements.stopsList.innerHTML = `<div class="loading-skeleton">No bus stops found.</div>`;
+            elements.stopsList.innerHTML = `
+                <div class="inline-empty-state">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <p>No bus stops found matching search.</p>
+                </div>`;
             return;
         }
 
@@ -577,6 +657,21 @@
             busesData.map(b => `<option value="${b.busNumber}">${b.busNumber} - ${b.busName || ''}</option>`).join('');
     }
 
+    // Global retry functions
+    window.retryFetchBuses = function () {
+        isBusesLoading = true;
+        busesFetchError = null;
+        renderBusList();
+        fetchBusesData();
+    };
+
+    window.retryFetchStops = function () {
+        isStopsLoading = true;
+        stopsFetchError = null;
+        renderStopsList();
+        fetchBusStops();
+    };
+
     // Setup Event Listeners
     function setupEventListeners() {
         // Close Drawer Event
@@ -588,6 +683,9 @@
                     else b.classList.remove('active');
                 });
                 activeNavTab = 'dashboard';
+                if (map) {
+                    setTimeout(() => map.invalidateSize({ animate: false }), 50);
+                }
             });
         }
 
@@ -597,20 +695,24 @@
                 const targetTab = btn.dataset.tab;
                 activeNavTab = targetTab;
 
+                // 1. Immediate visual update for active tab button
                 elements.navTabBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
+                // 2. Perform smooth transition without partial rendering
                 if (targetTab === 'dashboard') {
                     elements.drawerOverlay.classList.add('hidden');
+                    if (map) {
+                        setTimeout(() => map.invalidateSize({ animate: false }), 50);
+                    }
                 } else {
-                    elements.drawerOverlay.classList.remove('hidden');
-
                     if (targetTab === 'buses') elements.drawerTitle.textContent = 'Buses Directory';
                     if (targetTab === 'stops') elements.drawerTitle.textContent = 'Bus Stops Directory';
                     if (targetTab === 'schedules') elements.drawerTitle.textContent = 'Bus Timetables & Routes';
 
                     elements.tabViews.forEach(view => {
-                        if (view.id === `view${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
+                        const viewId = `view${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`;
+                        if (view.id === viewId) {
                             view.classList.remove('hidden');
                             view.classList.add('active');
                         } else {
@@ -619,9 +721,15 @@
                         }
                     });
 
+                    elements.drawerOverlay.classList.remove('hidden');
+
                     if (targetTab === 'buses') renderBusList();
                     if (targetTab === 'stops') renderStopsList();
                     if (targetTab === 'schedules') renderSchedules();
+
+                    if (map) {
+                        setTimeout(() => map.invalidateSize({ animate: false }), 50);
+                    }
                 }
             });
         });
