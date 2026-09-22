@@ -293,6 +293,176 @@
         </div>
     </div>
 
+    <!-- 👤 STUDENT PROFILE / ACCOUNT MODAL -->
+    <div class="modal-backdrop hidden" id="profileModal">
+        <div class="profile-modal-card">
+            <div class="profile-top-banner">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-big" id="profAvatarBig">G</div>
+                    <div class="profile-title-details">
+                        <h3 id="profNameBig">Gowtham</h3>
+                        <p id="profEmailBig">sec24am042@sairamtap.edu.in</p>
+                        <span class="profile-role-badge"><i class="fa-solid fa-graduation-cap"></i> Student Account</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn text-white" id="closeProfileModal" style="color: white; background: none; border: none; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="profile-body-scroll">
+                <!-- 1. Registered Student Information -->
+                <div>
+                    <div class="profile-section-title"><i class="fa-solid fa-id-card"></i> Student Details</div>
+                    <div class="profile-info-grid">
+                        <div class="info-item">
+                            <span class="label">Register No / ID</span>
+                            <span class="val" id="profRegNo">SEC24AM042</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Department</span>
+                            <span class="val" id="profDept">AI & Machine Learning</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Year / Semester</span>
+                            <span class="val" id="profYear">Year II / Sem 4</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Phone Number</span>
+                            <span class="val" id="profPhone">+91 Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Assigned Bus Information -->
+                <div>
+                    <div class="profile-section-title"><i class="fa-solid fa-bus"></i> Assigned Bus & Route</div>
+                    <div class="assigned-bus-box">
+                        <div class="assigned-bus-header">
+                            <div>
+                                <span class="bus-number-badge" id="profBusBadge">BUS-101</span>
+                                <strong id="profRouteName" style="margin-left: 8px; font-size: 0.95rem;">Tambaram Line</strong>
+                            </div>
+                            <span class="status-pill running" id="profBusStatus">LIVE</span>
+                        </div>
+                        <div class="bus-meta">
+                            <div class="meta-row"><i class="fa-solid fa-location-dot"></i> Preferred Stop: <strong id="profBusStop" class="text-primary">Tambaram</strong></div>
+                            <div class="meta-row"><i class="fa-solid fa-user-tie"></i> Assigned Driver: <span id="profDriverName">Assigned Driver</span></div>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="profTrackBusBtn" style="width: 100%; margin-top: 6px;">
+                            <i class="fa-solid fa-location-crosshairs"></i> Track Assigned Bus on Map
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Account Actions Menu -->
+                <div>
+                    <div class="profile-section-title"><i class="fa-solid fa-sliders"></i> Account Actions</div>
+                    <div class="account-menu-list">
+                        <button class="account-menu-item" id="menuMyBusBtn">
+                            <div class="account-menu-item-left">
+                                <i class="fa-solid fa-bus text-primary"></i>
+                                <span>My Bus & Live Location</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <button class="account-menu-item" id="menuMyRouteBtn">
+                            <div class="account-menu-item-left">
+                                <i class="fa-solid fa-route text-primary"></i>
+                                <span>My Stop & Route Details</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <button class="account-menu-item" id="menuEditProfileBtn">
+                            <div class="account-menu-item-left">
+                                <i class="fa-solid fa-user-pen text-primary"></i>
+                                <span>Edit Profile Info</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <button class="account-menu-item" id="menuChangePasswordBtn">
+                            <div class="account-menu-item-left">
+                                <i class="fa-solid fa-key text-primary"></i>
+                                <span>Change Password</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <button class="account-menu-item danger-item" id="menuLogoutBtn">
+                            <div class="account-menu-item-left">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Log Out Account</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✏️ EDIT PROFILE MODAL -->
+    <div class="modal-backdrop hidden" id="editProfileModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-pen text-primary"></i> Edit Profile Information</h3>
+                <button class="modal-close-btn" id="closeEditProfileModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="editProfileForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editProfileNameInput">Full Name</label>
+                        <input type="text" id="editProfileNameInput" class="form-control" required placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editProfilePhoneInput">Phone Number</label>
+                        <input type="tel" id="editProfilePhoneInput" class="form-control" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label>Student Register No / ID (System Locked)</label>
+                        <input type="text" id="editProfileRegNoInput" class="form-control" disabled style="background: #F1F5F9; opacity: 0.8;">
+                    </div>
+                    <div class="form-group">
+                        <label>Assigned Bus / Route (Admin Controlled)</label>
+                        <input type="text" id="editProfileBusInput" class="form-control" disabled value="Managed by College Administration" style="background: #F1F5F9; opacity: 0.8;">
+                    </div>
+                    <div id="editProfileAlert" class="alert-box hidden"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelEditProfile">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveEditProfileBtn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔑 CHANGE PASSWORD MODAL -->
+    <div class="modal-backdrop hidden" id="changePasswordModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key text-primary"></i> Change Account Password</h3>
+                <button class="modal-close-btn" id="closeChangePasswordModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="passCurrentInput">Current Password</label>
+                        <input type="password" id="passCurrentInput" class="form-control" required placeholder="Enter current password">
+                    </div>
+                    <div class="form-group">
+                        <label for="passNewInput">New Password (min 6 chars)</label>
+                        <input type="password" id="passNewInput" class="form-control" required placeholder="Minimum 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label for="passConfirmInput">Confirm New Password</label>
+                        <input type="password" id="passConfirmInput" class="form-control" required placeholder="Re-type new password">
+                    </div>
+                    <div id="changePasswordAlert" class="alert-box hidden"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelChangePassword">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveChangePasswordBtn">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Client JS App -->
     <script src="app.js"></script>
 </body>

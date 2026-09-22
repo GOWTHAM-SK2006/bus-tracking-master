@@ -91,7 +91,47 @@
         feedbackBus: document.getElementById('feedbackBus'),
         feedbackMessage: document.getElementById('feedbackMessage'),
         feedbackAlert: document.getElementById('feedbackAlert'),
-        submitFeedbackBtn: document.getElementById('submitFeedbackBtn')
+        submitFeedbackBtn: document.getElementById('submitFeedbackBtn'),
+        topUserCard: document.getElementById('topUserCard'),
+        profileModal: document.getElementById('profileModal'),
+        closeProfileModal: document.getElementById('closeProfileModal'),
+        profAvatarBig: document.getElementById('profAvatarBig'),
+        profNameBig: document.getElementById('profNameBig'),
+        profEmailBig: document.getElementById('profEmailBig'),
+        profRegNo: document.getElementById('profRegNo'),
+        profDept: document.getElementById('profDept'),
+        profYear: document.getElementById('profYear'),
+        profPhone: document.getElementById('profPhone'),
+        profBusBadge: document.getElementById('profBusBadge'),
+        profRouteName: document.getElementById('profRouteName'),
+        profBusStatus: document.getElementById('profBusStatus'),
+        profBusStop: document.getElementById('profBusStop'),
+        profDriverName: document.getElementById('profDriverName'),
+        profTrackBusBtn: document.getElementById('profTrackBusBtn'),
+        menuMyBusBtn: document.getElementById('menuMyBusBtn'),
+        menuMyRouteBtn: document.getElementById('menuMyRouteBtn'),
+        menuEditProfileBtn: document.getElementById('menuEditProfileBtn'),
+        menuChangePasswordBtn: document.getElementById('menuChangePasswordBtn'),
+        menuLogoutBtn: document.getElementById('menuLogoutBtn'),
+        editProfileModal: document.getElementById('editProfileModal'),
+        closeEditProfileModal: document.getElementById('closeEditProfileModal'),
+        cancelEditProfile: document.getElementById('cancelEditProfile'),
+        editProfileForm: document.getElementById('editProfileForm'),
+        editProfileNameInput: document.getElementById('editProfileNameInput'),
+        editProfilePhoneInput: document.getElementById('editProfilePhoneInput'),
+        editProfileRegNoInput: document.getElementById('editProfileRegNoInput'),
+        editProfileBusInput: document.getElementById('editProfileBusInput'),
+        editProfileAlert: document.getElementById('editProfileAlert'),
+        saveEditProfileBtn: document.getElementById('saveEditProfileBtn'),
+        changePasswordModal: document.getElementById('changePasswordModal'),
+        closeChangePasswordModal: document.getElementById('closeChangePasswordModal'),
+        cancelChangePassword: document.getElementById('cancelChangePassword'),
+        changePasswordForm: document.getElementById('changePasswordForm'),
+        passCurrentInput: document.getElementById('passCurrentInput'),
+        passNewInput: document.getElementById('passNewInput'),
+        passConfirmInput: document.getElementById('passConfirmInput'),
+        changePasswordAlert: document.getElementById('changePasswordAlert'),
+        saveChangePasswordBtn: document.getElementById('saveChangePasswordBtn')
     };
 
     // Helper: Dynamic API Base URL
@@ -657,6 +697,56 @@
             busesData.map(b => `<option value="${b.busNumber}">${b.busNumber} - ${b.busName || ''}</option>`).join('');
     }
 
+    // Get Student's Assigned Bus Object
+    function getAssignedBusForStudent() {
+        if (!busesData || busesData.length === 0) return null;
+        if (preferredStop) {
+            const found = busesData.find(b => b.busStop && b.busStop.toLowerCase().includes(preferredStop.toLowerCase()));
+            if (found) return found;
+        }
+        return busesData[0];
+    }
+
+    // Populate & Update Student Profile UI
+    function updateStudentProfileUI() {
+        if (!currentUser) return;
+
+        const regNo = currentUser.username || (currentUser.email ? currentUser.email.split('@')[0].toUpperCase() : 'SEC24AM042');
+        const name = currentUser.name || 'Student User';
+        const email = currentUser.email || 'student@sairamtap.edu.in';
+        const phone = currentUser.phoneNumber || 'Not configured';
+
+        if (elements.profAvatarBig) elements.profAvatarBig.textContent = name.charAt(0).toUpperCase();
+        if (elements.profNameBig) elements.profNameBig.textContent = name;
+        if (elements.profEmailBig) elements.profEmailBig.textContent = email;
+        if (elements.profRegNo) elements.profRegNo.textContent = regNo.toUpperCase();
+        if (elements.profPhone) elements.profPhone.textContent = phone;
+        if (elements.profDept) elements.profDept.textContent = 'AI & Machine Learning';
+        if (elements.profYear) elements.profYear.textContent = 'Year II / Sem 4';
+
+        const assignedBus = getAssignedBusForStudent();
+        if (assignedBus) {
+            const isMoving = assignedBus.status === 'RUNNING' || assignedBus.status === 'MOVING';
+            if (elements.profBusBadge) elements.profBusBadge.textContent = assignedBus.busNumber || 'BUS-101';
+            if (elements.profRouteName) elements.profRouteName.textContent = assignedBus.busName || 'College Route Line';
+            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || assignedBus.busStop || 'Campus';
+            if (elements.profDriverName) elements.profDriverName.textContent = assignedBus.driverName || 'Assigned Driver';
+            if (elements.profBusStatus) {
+                elements.profBusStatus.textContent = isMoving ? 'LIVE' : 'OFFLINE';
+                elements.profBusStatus.className = `status-pill ${isMoving ? 'running' : 'inactive'}`;
+            }
+        } else {
+            if (elements.profBusBadge) elements.profBusBadge.textContent = 'BUS-101';
+            if (elements.profRouteName) elements.profRouteName.textContent = 'Main Campus Route';
+            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || 'Campus';
+            if (elements.profDriverName) elements.profDriverName.textContent = 'Driver Assigned';
+            if (elements.profBusStatus) {
+                elements.profBusStatus.textContent = 'OFFLINE';
+                elements.profBusStatus.className = 'status-pill inactive';
+            }
+        }
+    }
+
     // Global retry functions
     window.retryFetchBuses = function () {
         isBusesLoading = true;
@@ -901,6 +991,205 @@
                 elements.submitFeedbackBtn.textContent = 'Submit Feedback';
             }
         });
+
+        // 👤 Student Profile Modal Triggers
+        if (elements.topUserCard) {
+            elements.topUserCard.style.cursor = 'pointer';
+            elements.topUserCard.addEventListener('click', () => {
+                updateStudentProfileUI();
+                openModal(elements.profileModal);
+            });
+        }
+
+        if (elements.closeProfileModal) {
+            elements.closeProfileModal.addEventListener('click', () => closeModal(elements.profileModal));
+        }
+
+        // Track Assigned Bus on Map
+        if (elements.profTrackBusBtn) {
+            elements.profTrackBusBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                const bus = getAssignedBusForStudent();
+                if (bus) window.focusBus(bus.busNumber);
+            });
+        }
+
+        // Menu Item: My Bus
+        if (elements.menuMyBusBtn) {
+            elements.menuMyBusBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                const bus = getAssignedBusForStudent();
+                if (bus) window.focusBus(bus.busNumber);
+            });
+        }
+
+        // Menu Item: My Route & Stop
+        if (elements.menuMyRouteBtn) {
+            elements.menuMyRouteBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                renderStopModalOptions();
+                openModal(elements.stopModal);
+            });
+        }
+
+        // Menu Item: Edit Profile
+        if (elements.menuEditProfileBtn) {
+            elements.menuEditProfileBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                if (elements.editProfileNameInput) elements.editProfileNameInput.value = currentUser ? (currentUser.name || '') : '';
+                if (elements.editProfilePhoneInput) elements.editProfilePhoneInput.value = currentUser ? (currentUser.phoneNumber || '') : '';
+                if (elements.editProfileRegNoInput) elements.editProfileRegNoInput.value = currentUser ? (currentUser.username || (currentUser.email ? currentUser.email.split('@')[0].toUpperCase() : 'SEC24AM042')) : 'SEC24AM042';
+
+                const bus = getAssignedBusForStudent();
+                if (elements.editProfileBusInput) elements.editProfileBusInput.value = (bus ? `${bus.busNumber} - ${bus.busName}` : 'BUS-101') + ' (Admin Assigned)';
+
+                if (elements.editProfileAlert) elements.editProfileAlert.classList.add('hidden');
+                openModal(elements.editProfileModal);
+            });
+        }
+
+        if (elements.closeEditProfileModal) elements.closeEditProfileModal.addEventListener('click', () => closeModal(elements.editProfileModal));
+        if (elements.cancelEditProfile) elements.cancelEditProfile.addEventListener('click', () => closeModal(elements.editProfileModal));
+
+        // Submit Edit Profile Form
+        if (elements.editProfileForm) {
+            elements.editProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newName = elements.editProfileNameInput.value.trim();
+                const newPhone = elements.editProfilePhoneInput.value.trim();
+                if (!newName) return;
+
+                elements.saveEditProfileBtn.disabled = true;
+                elements.saveEditProfileBtn.textContent = 'Saving...';
+
+                try {
+                    if (currentUser && currentUser.id) {
+                        const response = await fetch(`${getApiBaseUrl()}/api/client/profile`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                clientId: currentUser.id,
+                                name: newName,
+                                phoneNumber: newPhone
+                            })
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.client) {
+                                currentUser = data.client;
+                            }
+                        }
+                    }
+                    if (currentUser) {
+                        currentUser.name = newName;
+                        currentUser.phoneNumber = newPhone;
+                        localStorage.setItem('client', JSON.stringify(currentUser));
+                    }
+                    loadUserSession();
+                    updateStudentProfileUI();
+
+                    elements.editProfileAlert.className = 'alert-box success';
+                    elements.editProfileAlert.textContent = 'Profile updated successfully!';
+                    elements.editProfileAlert.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        elements.editProfileAlert.classList.add('hidden');
+                        closeModal(elements.editProfileModal);
+                    }, 1200);
+                } catch (err) {
+                    console.error('Failed to update profile:', err);
+                    elements.editProfileAlert.className = 'alert-box error';
+                    elements.editProfileAlert.textContent = 'Could not update profile. Please try again.';
+                    elements.editProfileAlert.classList.remove('hidden');
+                } finally {
+                    elements.saveEditProfileBtn.disabled = false;
+                    elements.saveEditProfileBtn.textContent = 'Save Changes';
+                }
+            });
+        }
+
+        // Menu Item: Change Password
+        if (elements.menuChangePasswordBtn) {
+            elements.menuChangePasswordBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                elements.changePasswordForm.reset();
+                if (elements.changePasswordAlert) elements.changePasswordAlert.classList.add('hidden');
+                openModal(elements.changePasswordModal);
+            });
+        }
+
+        if (elements.closeChangePasswordModal) elements.closeChangePasswordModal.addEventListener('click', () => closeModal(elements.changePasswordModal));
+        if (elements.cancelChangePassword) elements.cancelChangePassword.addEventListener('click', () => closeModal(elements.changePasswordModal));
+
+        // Submit Change Password Form
+        if (elements.changePasswordForm) {
+            elements.changePasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPass = elements.passCurrentInput.value;
+                const newPass = elements.passNewInput.value;
+                const confirmPass = elements.passConfirmInput.value;
+
+                if (!currentPass) {
+                    showPassAlert('Current password is required.', true);
+                    return;
+                }
+                if (newPass.length < 6) {
+                    showPassAlert('New password must be at least 6 characters.', true);
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    showPassAlert('New password and confirm password do not match.', true);
+                    return;
+                }
+
+                elements.saveChangePasswordBtn.disabled = true;
+                elements.saveChangePasswordBtn.textContent = 'Updating...';
+
+                try {
+                    const emailOrUsername = currentUser ? (currentUser.email || currentUser.username) : 'guest';
+                    const response = await fetch(`${getApiBaseUrl()}/api/client/reset-password`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: emailOrUsername,
+                            newPassword: newPass
+                        })
+                    });
+
+                    if (response.ok) {
+                        showPassAlert('Password updated successfully!', false);
+                        elements.changePasswordForm.reset();
+                        setTimeout(() => {
+                            closeModal(elements.changePasswordModal);
+                        }, 1400);
+                    } else {
+                        const errData = await response.json();
+                        throw new Error(errData.message || 'Failed to update password');
+                    }
+                } catch (err) {
+                    showPassAlert(err.message || 'Failed to update password. Please try again.', true);
+                } finally {
+                    elements.saveChangePasswordBtn.disabled = false;
+                    elements.saveChangePasswordBtn.textContent = 'Update Password';
+                }
+            });
+        }
+
+        function showPassAlert(msg, isError) {
+            if (elements.changePasswordAlert) {
+                elements.changePasswordAlert.className = `alert-box ${isError ? 'error' : 'success'}`;
+                elements.changePasswordAlert.textContent = msg;
+                elements.changePasswordAlert.classList.remove('hidden');
+            }
+        }
+
+        // Menu Item: Logout
+        if (elements.menuLogoutBtn) {
+            elements.menuLogoutBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                elements.logoutBtn.click();
+            });
+        }
     }
 
     // Ensure window scroll cannot push top header off screen
