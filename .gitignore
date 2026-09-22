@@ -39,3 +39,5 @@ node_modules/
 # Native folders included as requested
 # android/
 # ios/
+joystick/
+
