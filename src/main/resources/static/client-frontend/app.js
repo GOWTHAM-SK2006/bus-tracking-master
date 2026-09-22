@@ -903,7 +903,17 @@
         });
     }
 
+    // Ensure window scroll cannot push top header off screen
+    window.addEventListener('scroll', () => {
+        if (window.scrollY !== 0 || window.scrollX !== 0) {
+            window.scrollTo(0, 0);
+        }
+    });
+
     // Initialize on DOM Content Loaded
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+        window.scrollTo(0, 0);
+        init();
+    });
 
 })();
