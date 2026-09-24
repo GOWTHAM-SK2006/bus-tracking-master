@@ -5,6 +5,14 @@
    ========================================================================== */
 
 :root {
+    /* Safe Area & Mobile Viewport Dimensions */
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --header-height: 64px;
+    --nav-height: 64px;
+
     /* Primary Orange & Accent Colors */
     --primary: #E85D04;
     --primary-hover: #D04D00;
@@ -85,18 +93,22 @@
 body, html {
     width: 100%;
     height: 100%;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    overflow: hidden;
+    overflow: hidden !important;
     touch-action: manipulation;
     background-color: var(--bg-main);
     color: var(--text-main);
+    -webkit-text-size-adjust: 100%;
 }
 
-/* Layout - Permanent Application Shell */
+/* Layout - Permanent Flexbox Application Shell */
 .app-layout {
     position: fixed;
     top: 0;
@@ -104,7 +116,7 @@ body, html {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     height: 100dvh;
     overflow: hidden;
     display: flex;
@@ -112,22 +124,21 @@ body, html {
     background-color: var(--bg-main);
 }
 
-/* 1. 🌟 FULL-WIDTH SOLID WHITE TOP HEADER BAR - PERMANENTLY FIXED (Z-INDEX 1300) */
+/* 1. 🌟 FULL-WIDTH SOLID WHITE TOP HEADER BAR - PERMANENT TOP FLEX ITEM (Z-INDEX 1300) */
 .app-top-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    flex: 0 0 auto;
     width: 100%;
-    height: 64px;
-    min-height: 64px;
-    max-height: 64px;
+    min-height: calc(var(--header-height) + var(--sat));
+    height: calc(var(--header-height) + var(--sat));
     background: #FFFFFF;
     border-bottom: 1.5px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding-top: var(--sat);
+    padding-left: max(16px, var(--sal));
+    padding-right: max(16px, var(--sar));
+    padding-bottom: 0;
     z-index: 1300;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
@@ -253,16 +264,12 @@ body, html {
     border-color: var(--danger);
 }
 
-/* 2. 🗺️ 100% FULL-SCREEN MAP CONTAINER (Zero Left Sidebar, 100% Width) */
+/* 2. 🗺️ 100% MAP CONTAINER (FLEX ITEM FILLING SPACE BETWEEN HEADER & BOTTOM NAV) */
 .map-container {
-    position: fixed;
-    top: 64px;
-    bottom: 64px;
-    left: 0;
-    right: 0;
+    flex: 1 1 0%;
     width: 100%;
-    height: calc(100vh - 128px);
-    height: calc(100dvh - 128px);
+    height: 100%;
+    position: relative;
     overflow: hidden;
     z-index: 1;
 }
@@ -278,10 +285,10 @@ body, html {
     z-index: 1;
 }
 
-/* Map Action Controls — Bottom Right Above Schedules Tab */
+/* Map Action Controls — Bottom Right inside .map-container */
 .map-controls-bottom-right {
     position: absolute;
-    bottom: 80px; /* sits above the 64px bottom nav bar */
+    bottom: 16px;
     right: 16px;
     z-index: 1000;
     display: flex;
@@ -324,13 +331,13 @@ body, html {
 
 /* 📱 SLIDE-UP DRAWER OVERLAY (For Buses, Stops, Schedules) — compact bottom sheet */
 .drawer-overlay {
-    position: fixed;
-    bottom: 64px; /* sits above the 64px bottom nav bar */
+    position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    height: 54vh;
-    max-height: calc(100vh - 130px);
+    height: 72%;
+    max-height: calc(100% - 12px);
     background: #FFFFFF;
     border: 1.5px solid var(--border-color);
     border-top: 3.5px solid var(--primary);
@@ -390,21 +397,21 @@ body, html {
     -webkit-overflow-scrolling: touch;
 }
 
-/* 3. 📱 FULL-WIDTH BOTTOM NAVIGATION BAR */
+/* 3. 📱 FULL-WIDTH BOTTOM NAVIGATION BAR - PERMANENT BOTTOM FLEX ITEM (Z-INDEX 1200) */
 .main-nav-tabs.bottom-nav-full {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex: 0 0 auto;
     width: 100%;
-    height: 64px;
+    min-height: calc(var(--nav-height) + var(--sab));
+    height: calc(var(--nav-height) + var(--sab));
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: #FFFFFF;
     border-top: 1.5px solid #FFE4D6;
-    padding: 4px 12px 0 12px;
-    padding-bottom: env(safe-area-inset-bottom, 0px); /* iOS safe area */
-    gap: 8px;
+    padding-top: 4px;
+    padding-left: max(8px, var(--sal));
+    padding-right: max(8px, var(--sar));
+    padding-bottom: var(--sab);
+    gap: 4px;
     z-index: 1200;
     box-shadow: 0 -4px 20px rgba(232, 93, 4, 0.08);
 }
@@ -1574,6 +1581,59 @@ body, html {
 .account-menu-item.danger-item:hover {
     background: var(--danger);
     color: white;
+}
+
+/* Mobile Screen Responsive Tuning */
+@media (max-width: 480px) {
+    .app-top-bar {
+        padding-left: max(12px, var(--sal));
+        padding-right: max(12px, var(--sar));
+    }
+    .brand {
+        gap: 8px;
+    }
+    .brand-logo {
+        width: 34px;
+        height: 34px;
+    }
+    .brand-text h2 {
+        font-size: 1.15rem;
+    }
+    .brand-text p {
+        font-size: 0.72rem;
+    }
+    .top-user-card {
+        padding: 3px 8px;
+        gap: 6px;
+    }
+    .user-details span {
+        display: none;
+    }
+    .user-details strong {
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.8rem;
+    }
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+    .icon-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+    .nav-tab-btn {
+        padding: 4px 2px;
+        font-size: 0.75rem;
+        gap: 2px;
+    }
+    .nav-tab-btn i {
+        font-size: 1.15rem;
+    }
 }
 
 .account-menu-item-left {

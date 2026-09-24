@@ -2,7 +2,7 @@
 
 This document tracks every link from the authentication layer to the real-time location tracking.
 
-**Base URL:** `https://bus-tracking-master-production.up.railway.app`
+**Base URL:** `https://bus-tracking-master-production-2d22.up.railway.app`
 
 ## 1. Authentication Layer
 These endpoints handle user registration and login for both Clients and Drivers.

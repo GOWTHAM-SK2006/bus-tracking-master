@@ -31,7 +31,7 @@ function getWebSocketUrl(endpoint) {
 
   // Capacitor Support: Default to production URL
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return `wss://bus-tracking-master-production-3369.up.railway.app${endpoint}`;
+    return `wss://bus-tracking-master-production-2d22.up.railway.app${endpoint}`;
   }
 
   if (host.includes(".devtunnels.ms")) {
@@ -1662,7 +1662,7 @@ function getApiBaseUrl() {
   const protocol = window.location.protocol;
 
   // Default to Railway production URL as per user instruction
-  const productionUrl = "https://bus-tracking-master-production-3369.up.railway.app";
+  const productionUrl = "https://bus-tracking-master-production-2d22.up.railway.app";
 
   // If we are already on the production domain, return empty string (relative calls)
   if (host.includes("railway.app")) {
@@ -2486,7 +2486,7 @@ function getAdminApiBaseUrl() {
 
   // Capacitor Support: Default to production URL for native platforms
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return "https://bus-tracking-master-production-3369.up.railway.app";
+    return "https://bus-tracking-master-production-2d22.up.railway.app";
   }
 
   if (host.includes("railway.app")) return "";

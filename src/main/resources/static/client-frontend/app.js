@@ -140,7 +140,7 @@
         const protocol = window.location.protocol;
 
         if (protocol === 'file:') {
-            return 'https://bus-tracking-master-production-3369.up.railway.app';
+            return 'https://bus-tracking-master-production-2d22.up.railway.app';
         }
         if (host.includes('.devtunnels.ms')) {
             const match = host.match(/^([^-]+)-\d+\.(.+)$/);
@@ -200,6 +200,19 @@
         }
     }
 
+    // Helper to invalidate Leaflet map dimensions cleanly
+    function triggerMapResize() {
+        if (map) {
+            try {
+                requestAnimationFrame(() => {
+                    map.invalidateSize({ animate: false });
+                });
+            } catch (e) {
+                // Ignore map resize errors if unmounted
+            }
+        }
+    }
+
     // Initialize OpenStreetMap via Leaflet
     function initMap() {
         map = L.map('map', {
@@ -221,6 +234,10 @@
 
         // Auto-locate User on load
         tryLocateUser(false);
+
+        // Force Leaflet recalculation after DOM initialization
+        setTimeout(triggerMapResize, 100);
+        setTimeout(triggerMapResize, 350);
     }
 
     // Locate User with Geolocation API
@@ -773,9 +790,8 @@
                     else b.classList.remove('active');
                 });
                 activeNavTab = 'dashboard';
-                if (map) {
-                    setTimeout(() => map.invalidateSize({ animate: false }), 50);
-                }
+                triggerMapResize();
+                setTimeout(triggerMapResize, 150);
             });
         }
 
@@ -792,9 +808,8 @@
                 // 2. Perform smooth transition without partial rendering
                 if (targetTab === 'dashboard') {
                     elements.drawerOverlay.classList.add('hidden');
-                    if (map) {
-                        setTimeout(() => map.invalidateSize({ animate: false }), 50);
-                    }
+                    triggerMapResize();
+                    setTimeout(triggerMapResize, 150);
                 } else {
                     if (targetTab === 'buses') elements.drawerTitle.textContent = 'Buses Directory';
                     if (targetTab === 'stops') elements.drawerTitle.textContent = 'Bus Stops Directory';
@@ -817,9 +832,8 @@
                     if (targetTab === 'stops') renderStopsList();
                     if (targetTab === 'schedules') renderSchedules();
 
-                    if (map) {
-                        setTimeout(() => map.invalidateSize({ animate: false }), 50);
-                    }
+                    triggerMapResize();
+                    setTimeout(triggerMapResize, 150);
                 }
             });
         });
@@ -1191,6 +1205,23 @@
             });
         }
     }
+
+    // Mobile Viewport & Orientation Change Listener
+    window.addEventListener('resize', triggerMapResize);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(triggerMapResize, 150);
+        setTimeout(triggerMapResize, 400);
+    });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', triggerMapResize);
+    }
+
+    // Lock document bouncing on touch devices
+    document.addEventListener('touchmove', (e) => {
+        if (!e.target.closest('.drawer-body') && !e.target.closest('.modal-body') && !e.target.closest('#map')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 
     // Ensure window scroll cannot push top header off screen
     window.addEventListener('scroll', () => {
