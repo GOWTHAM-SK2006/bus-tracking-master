@@ -19,6 +19,7 @@
     let userLocationMarker = null;
     let busMarkers = {}; // busNumber -> Leaflet Marker
     let busesData = [];
+    let busHistory = {}; // Keep track of previous location and timestamp to calculate speed
     let busStopsList = [];
     let currentUser = null;
     let preferredStop = localStorage.getItem('client_preferred_stop') || null;
@@ -409,10 +410,61 @@
     }
 
     // Process & Update Bus Data
+    function calculateSpeedForBus(bus) {
+        if (!bus.latitude || !bus.longitude || (bus.latitude === 0 && bus.longitude === 0)) {
+            return 0;
+        }
+        
+        const busId = bus.busNumber;
+        const now = Date.now();
+        const lat = parseFloat(bus.latitude);
+        const lng = parseFloat(bus.longitude);
+
+        if (!busHistory[busId]) {
+            busHistory[busId] = { lat, lng, time: now, speed: 0 };
+            return 0;
+        }
+
+        const prev = busHistory[busId];
+        const timeDiffHours = (now - prev.time) / (1000 * 60 * 60);
+
+        if (timeDiffHours <= 0) return prev.speed;
+
+        const R = 6371; // Earth radius in km
+        const dLat = (lat - prev.lat) * Math.PI / 180;
+        const dLng = (lng - prev.lng) * Math.PI / 180;
+        
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(prev.lat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distanceKm = R * c;
+
+        if (distanceKm === 0) {
+            if (now - prev.time > 15000) { 
+                prev.speed = 0;
+                prev.time = now; 
+            }
+            return prev.speed;
+        }
+
+        let speed = Math.round(distanceKm / timeDiffHours);
+        
+        if (speed > 120) speed = prev.speed; 
+        if (distanceKm < 0.003) speed = 0; 
+        
+        busHistory[busId] = { lat, lng, time: now, speed };
+        return speed;
+    }
+
     function updateBusesData(newBuses) {
         if (!Array.isArray(newBuses)) return;
 
-        busesData = newBuses;
+        busesData = newBuses.map(bus => {
+            bus.calculatedSpeed = calculateSpeedForBus(bus);
+            return bus;
+        });
+        
         updateCounts();
         renderBusList();
         updateMapMarkers();
@@ -632,6 +684,7 @@
                 <div style="font-family: Inter, sans-serif; padding: 4px;">
                     <b style="color: #E85D04; font-size: 1rem;">${bus.busNumber}</b> - ${bus.busName || 'Route'}<br>
                     <b>Status:</b> <span style="color: ${isMoving ? '#10B981' : '#EF4444'}">${isMoving ? '● ACTIVE' : '● INACTIVE'}</span><br>
+                    <b>Speed:</b> ${bus.calculatedSpeed || 0} km/h<br>
                     <b>Driver:</b> ${bus.driverName || 'N/A'}<br>
                     ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" style="color: #10B981; font-weight: bold; text-decoration: none;">📞 ${bus.driverPhone}</a>` : ''}
                 </div>
@@ -703,7 +756,7 @@
         elements.floatLivePill.className = `live-pill ${isMoving ? 'running' : 'stopped'}`;
         elements.floatDriverName.textContent = bus.driverName || 'Assigned Driver';
         elements.floatBusStop.textContent = bus.busStop || 'Terminal';
-        elements.floatSpeed.textContent = (bus.status === 'RUNNING' || bus.status === 'MOVING') ? '28 km/h' : '0 km/h';
+        elements.floatSpeed.textContent = `${bus.calculatedSpeed || 0} km/h`;
 
         if (bus.driverPhone) {
             elements.floatCallBtn.href = `tel:${bus.driverPhone}`;
