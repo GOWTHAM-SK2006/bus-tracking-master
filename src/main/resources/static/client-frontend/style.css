@@ -1364,7 +1364,7 @@ body, html {
     bottom: -15px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: var(--primary);
     color: white;
     padding: 2px 8px;
     border-radius: 6px;
