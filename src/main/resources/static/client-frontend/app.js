@@ -644,8 +644,20 @@
     function selectBus(bus) {
         selectedBusNumber = bus.busNumber;
 
+        // Automatically close the drawer and switch to Dashboard view to show the map
+        if (elements.drawerOverlay && !elements.drawerOverlay.classList.contains('hidden')) {
+            elements.drawerOverlay.classList.add('hidden');
+            elements.navTabBtns.forEach(b => {
+                if (b.dataset.tab === 'dashboard') b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            activeNavTab = 'dashboard';
+            triggerMapResize();
+            setTimeout(triggerMapResize, 150);
+        }
+
         if (map && bus.latitude && bus.longitude && bus.latitude !== 0) {
-            map.flyTo([bus.latitude, bus.longitude], 15, { duration: 1.0 });
+            map.flyTo([bus.latitude, bus.longitude], 16, { duration: 1.0 });
         }
 
         updateFloatingCard(bus);
