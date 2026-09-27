@@ -17,9 +17,10 @@ public class MainActivity extends BridgeActivity {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        getWindow().setStatusBarColor(0xFF000000);
-        getWindow().setNavigationBarColor(0xFF000000);
+        // Ensure WebView fits below the native Android Status Bar and above Navigation Bar
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        getWindow().setStatusBarColor(0xFFFFFFFF);
+        getWindow().setNavigationBarColor(0xFFFFFFFF);
     }
 
     // Removed onStop override that was stopping tracking when app backgrounded

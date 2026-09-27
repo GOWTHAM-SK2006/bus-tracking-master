@@ -988,8 +988,14 @@ body, html {
     font-weight: 700;
     padding: 3px 8px;
     border-radius: var(--radius-full);
+}
+.live-pill.running {
     background: var(--success-bg);
     color: var(--success);
+}
+.live-pill.stopped {
+    background: var(--danger-bg);
+    color: var(--danger);
 }
 
 .floating-bus-body {

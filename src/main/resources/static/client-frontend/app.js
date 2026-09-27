@@ -469,7 +469,7 @@
                 <div class="bus-card status-${isMoving ? 'running' : 'stopped'} ${isSelected ? 'selected' : ''}" onclick="window.focusBus('${bus.busNumber}')">
                     <div class="bus-card-header">
                         <span class="bus-number-badge">${bus.busNumber}</span>
-                        <span class="status-pill ${isMoving ? 'running' : 'inactive'}">${isMoving ? 'MOVING' : 'OFFLINE'}</span>
+                        <span class="status-pill ${isMoving ? 'running' : 'stopped'}">${isMoving ? '● ACTIVE' : '● INACTIVE'}</span>
                     </div>
                     <div class="bus-title">${bus.busName || 'College Bus Route'}</div>
                     <div class="bus-meta">
@@ -594,7 +594,7 @@
                 marker.bindPopup(`
                     <div style="font-family: Inter, sans-serif; padding: 4px;">
                         <b style="color: #E85D04; font-size: 1rem;">${bus.busNumber}</b> - ${bus.busName || 'Route'}<br>
-                        <b>Status:</b> ${bus.status || 'INACTIVE'}<br>
+                        <b>Status:</b> <span style="color: ${isMoving ? '#10B981' : '#EF4444'}">${isMoving ? '● ACTIVE' : '● INACTIVE'}</span><br>
                         <b>Driver:</b> ${bus.driverName || 'N/A'}<br>
                         ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" style="color: #10B981; font-weight: bold; text-decoration: none;">📞 ${bus.driverPhone}</a>` : ''}
                     </div>
@@ -638,9 +638,11 @@
 
     // Update Floating Bus Quick Card
     function updateFloatingCard(bus) {
+        const isMoving = bus.status === 'RUNNING' || bus.status === 'MOVING';
         elements.floatBusBadge.textContent = bus.busNumber || 'BUS';
         elements.floatBusName.textContent = bus.busName || 'College Route';
-        elements.floatLivePill.textContent = bus.status || 'INACTIVE';
+        elements.floatLivePill.textContent = isMoving ? '● ACTIVE' : '● INACTIVE';
+        elements.floatLivePill.className = `live-pill ${isMoving ? 'running' : 'stopped'}`;
         elements.floatDriverName.textContent = bus.driverName || 'Assigned Driver';
         elements.floatBusStop.textContent = bus.busStop || 'Terminal';
         elements.floatSpeed.textContent = (bus.status === 'RUNNING' || bus.status === 'MOVING') ? '28 km/h' : '0 km/h';
@@ -749,8 +751,8 @@
             if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || assignedBus.busStop || 'Campus';
             if (elements.profDriverName) elements.profDriverName.textContent = assignedBus.driverName || 'Assigned Driver';
             if (elements.profBusStatus) {
-                elements.profBusStatus.textContent = isMoving ? 'LIVE' : 'OFFLINE';
-                elements.profBusStatus.className = `status-pill ${isMoving ? 'running' : 'inactive'}`;
+                elements.profBusStatus.textContent = isMoving ? '● ACTIVE' : '● INACTIVE';
+                elements.profBusStatus.className = `status-pill ${isMoving ? 'running' : 'stopped'}`;
             }
         } else {
             if (elements.profBusBadge) elements.profBusBadge.textContent = 'BUS-101';
@@ -758,8 +760,8 @@
             if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || 'Campus';
             if (elements.profDriverName) elements.profDriverName.textContent = 'Driver Assigned';
             if (elements.profBusStatus) {
-                elements.profBusStatus.textContent = 'OFFLINE';
-                elements.profBusStatus.className = 'status-pill inactive';
+                elements.profBusStatus.textContent = '● INACTIVE';
+                elements.profBusStatus.className = 'status-pill stopped';
             }
         }
     }
