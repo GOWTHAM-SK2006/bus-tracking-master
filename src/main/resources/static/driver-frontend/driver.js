@@ -2275,7 +2275,9 @@ const TrackingController = {
       state.updateCount++;
       state.lastUpdateTime = new Date();
       this.updateCounterDisplay();
+      this.updateAndroidNotification("active");
     } else {
+      this.updateAndroidNotification("error");
       // Is it actually disconnected or just connecting?
       const isConnecting =
         (state.socket && state.socket.readyState === WebSocket.CONNECTING) ||
@@ -2418,6 +2420,56 @@ const TrackingController = {
 
     // Update dashboard buttons (syncs disabled state based on isConfigured/isTracking)
     ProfileController.updateDashboardButtons();
+
+    // Update Android notification
+    this.updateAndroidNotification(status);
+  },
+
+  /**
+   * Update Android foreground notification
+   * @param {string} status - active | error | stopped
+   */
+  async updateAndroidNotification(status) {
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
+    const { LocalNotifications } = window.Capacitor.Plugins;
+    if (!LocalNotifications) return;
+
+    let body = "";
+    let title = "🚌 DYGON BUS TRACK";
+
+    if (status === "active") {
+        const timeStr = new Date().toLocaleTimeString("en-US", { hour12: false });
+        body = `🟢 LIVE TRACKING ACTIVE\nBus ${state.busNumber}\n📍 Location sharing is active\nLast update: ${timeStr}`;
+    } else if (status === "error") {
+        body = `🟠 LOCATION UPDATE ISSUE\nBus ${state.busNumber}\nWaiting for GPS/network...`;
+    } else if (status === "stopped") {
+        body = `⚪ TRACKING STOPPED\nLocation sharing is inactive`;
+    } else {
+        return;
+    }
+
+    try {
+        await LocalNotifications.schedule({
+            notifications: [
+                {
+                    title: title,
+                    body: body,
+                    id: 28351, // Must match BackgroundGeolocation NOTIFICATION_ID
+                    ongoing: status !== "stopped",
+                    autoCancel: status === "stopped",
+                }
+            ]
+        });
+
+        if (status === "stopped") {
+            // Give it a moment so the user can see it stopped, then cancel it
+            setTimeout(() => {
+                LocalNotifications.cancel({ notifications: [{ id: 28351 }] }).catch(e => console.warn(e));
+            }, 3000);
+        }
+    } catch (e) {
+        console.error("Failed to update notification:", e);
+    }
   },
 
   /**
