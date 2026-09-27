@@ -2529,7 +2529,7 @@ const StudentsManager = {
     }
 
     tableBody.innerHTML = students.map((student) => `
-      <tr>
+      <tr style="cursor: pointer;" onclick="StudentsManager.openStudentDetails(${student.id})">
         <td data-label="Name"><strong>${this.escapeHtml(student.name || 'N/A')}</strong></td>
         <td data-label="Student ID">${this.escapeHtml(student.username || 'N/A')}</td>
         <td data-label="Email">${this.escapeHtml(student.email || 'N/A')}</td>
@@ -2564,6 +2564,58 @@ const StudentsManager = {
     this.renderStudents(filtered);
     const countEl = document.getElementById("studentsTotalCount");
     if (countEl) countEl.textContent = `${filtered.length} of ${this.allStudents.length} students`;
+  },
+
+  openStudentDetails(id) {
+    const student = this.allStudents.find((s) => s.id === id);
+    if (!student) return;
+
+    let busNumber = "N/A";
+    let routeName = "N/A";
+
+    // Cross reference bus/route if savedBusStop is set
+    if (student.savedBusStop && window.adminState && window.adminState.buses) {
+      for (const [_, bus] of window.adminState.buses.entries()) {
+        if (bus.busStop && bus.busStop.toLowerCase().includes(student.savedBusStop.toLowerCase())) {
+          busNumber = bus.busNumber || "N/A";
+          routeName = bus.busName || "N/A";
+          break;
+        }
+      }
+    }
+
+    const setField = (elemId, val) => {
+      const el = document.getElementById(elemId);
+      if (el) el.textContent = val || "N/A";
+    };
+
+    setField("sdName", student.name);
+    setField("sdStudentId", student.username);
+    setField("sdEmail", student.email);
+    setField("sdPhone", student.phoneNumber);
+    setField("sdBusStop", student.savedBusStop || "Not set");
+    setField("sdBusNumber", busNumber);
+    setField("sdRoute", routeName);
+    setField("sdDepartment", "N/A");
+    setField("sdYearSemester", "N/A");
+
+    const statusEl = document.getElementById("sdStatus");
+    if (statusEl) {
+      statusEl.textContent = student.phoneVerified ? "Verified" : "Unverified";
+      statusEl.className = `status-badge ${student.phoneVerified ? "active" : "inactive"}`;
+    }
+
+    const modal = document.getElementById("studentDetailModal");
+    if (modal) {
+      modal.style.display = "flex";
+    }
+  },
+
+  closeStudentDetails() {
+    const modal = document.getElementById("studentDetailModal");
+    if (modal) {
+      modal.style.display = "none";
+    }
   },
 
   escapeHtml(text) {
