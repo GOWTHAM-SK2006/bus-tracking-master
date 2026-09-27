@@ -608,11 +608,24 @@
             const latLng = [bus.latitude, bus.longitude];
             const isMoving = bus.status === 'RUNNING' || bus.status === 'MOVING';
 
+            const statusClass = isMoving ? "status-active" : "status-inactive";
+            const markerHtml = `
+            <div class="bus-marker-container ${statusClass}" style="position: relative; width: 100%; height: 100%;">
+                <div class="marker-pulse"></div>
+                <div class="bus-icon-container">
+                    <svg viewBox="0 0 24 24" class="bus-svg">
+                        <path fill="currentColor" d="M18,11H6V6H18M16.5,17A1.5,1.5 0 0,1 15,15.5A1.5,1.5 0 0,1 16.5,14A1.5,1.5 0 0,1 18,15.5A1.5,1.5 0 0,1 16.5,17M7.5,17A1.5,1.5 0 0,1 6,15.5A1.5,1.5 0 0,1 7.5,14A1.5,1.5 0 0,1 9,15.5A1.5,1.5 0 0,1 7.5,17M4,16C4,16.88 4.39,17.67 5,18.22V20A1,1 0 0,0 6,21H7A1,1 0 0,0 8,20V19H16V20A1,1 0 0,0 17,21H18A1,1 0 0,0 19,20V18.22C19.61,17.67 20,16.88 20,16V6C20,1.5 16,2 12,2C8,2 4,1.5 4,6V16Z" />
+                    </svg>
+                    <div class="bus-number-overlay">${bus.busNumber}</div>
+                </div>
+            </div>
+            `;
+
             const busIcon = L.divIcon({
-                className: `leaflet-bus-icon ${isMoving ? 'moving' : ''}`,
-                html: `<i class="fa-solid fa-bus"></i>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
+                className: `leaflet-custom-bus`,
+                html: markerHtml,
+                iconSize: [48, 48],
+                iconAnchor: [24, 24]
             });
 
             const popupContent = `

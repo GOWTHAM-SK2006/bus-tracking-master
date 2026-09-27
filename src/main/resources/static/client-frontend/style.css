@@ -1322,22 +1322,111 @@ body, html {
 }
 
 /* Leaflet Custom Marker Icons */
-.leaflet-bus-icon {
-    background: var(--primary);
-    border: 2px solid white;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(232, 93, 4, 0.5);
-    font-size: 1rem;
-    transition: transform 0.4s ease-out;
+.leaflet-custom-bus {
+    background: transparent;
+    border: none;
 }
 
-.leaflet-bus-icon.moving {
-    background: var(--primary);
-    box-shadow: 0 0 16px var(--primary);
+.bus-marker-container {
+    position: relative;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    display: block;
+    z-index: 1000;
+    pointer-events: auto !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bus-marker-container:hover {
+    transform: scale(1.15);
+    z-index: 1001;
+}
+
+.bus-icon-container {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+    transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+    border: 3px solid #e2e8f0;
+}
+
+.bus-number-overlay {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(232, 93, 4, 0.3);
+    white-space: nowrap;
+}
+
+.bus-svg {
+    width: 28px;
+    height: 28px;
+    color: #94a3b8;
+    margin-top: -2px;
+}
+
+.bus-marker-container.status-active .bus-icon-container {
+    border-color: var(--success);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+}
+.bus-marker-container.status-active .bus-svg {
+    color: var(--success);
+}
+
+.bus-marker-container.status-inactive .bus-icon-container {
+    border-color: var(--danger);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
+}
+.bus-marker-container.status-inactive .bus-svg {
+    color: var(--danger);
+}
+
+.marker-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(16, 185, 129, 0.3);
+    border-radius: 50%;
+    z-index: 1;
+    opacity: 0;
+}
+.bus-marker-container.status-active .marker-pulse {
+    animation: adminMarkerPulse 2s infinite;
+}
+.bus-marker-container.status-inactive .marker-pulse {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+@keyframes adminMarkerPulse {
+    0% {
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+    }
+    100% {
+        width: 90px;
+        height: 90px;
+        opacity: 0;
+    }
 }
 
 .leaflet-stop-icon {
