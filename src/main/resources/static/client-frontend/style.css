@@ -1369,7 +1369,13 @@ body, html {
 /* Responsive Mobile & Desktop Rules */
 @media (max-width: 768px) {
     .app-top-bar {
-        padding: 0 14px;
+        padding-top: var(--sat, 40px);
+        padding-bottom: 0;
+        padding-left: max(14px, var(--sal));
+        padding-right: max(14px, var(--sar));
+    }
+    body.is-native .app-top-bar {
+        padding-top: max(32px, var(--sat));
     }
 
     .top-user-card .user-details span {

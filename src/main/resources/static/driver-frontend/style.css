@@ -135,6 +135,13 @@ body {
     height: calc(var(--navbar-height) + max(env(safe-area-inset-top, 0px), 10px));
     padding-top: max(env(safe-area-inset-top, 0px), 10px);
     background: rgba(255,255,255,0.78);
+}
+body.is-native .navbar {
+    height: calc(var(--navbar-height) + max(env(safe-area-inset-top, 0px), 32px));
+    padding-top: max(env(safe-area-inset-top, 0px), 32px);
+}
+.navbar {
+    background: rgba(255,255,255,0.78);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-bottom: 1px solid rgba(255,255,255,0.4);
@@ -1034,6 +1041,7 @@ body {
 
 @media (max-width: 768px) {
     .navbar { height: auto; padding: var(--space-2) 0; padding-top: calc(env(safe-area-inset-top, 28px) + var(--space-2)); }
+    body.is-native .navbar { padding-top: calc(max(32px, env(safe-area-inset-top, 28px)) + var(--space-2)); }
     .navbar-container { flex-direction: row; height: auto; padding: var(--space-2) var(--space-4); gap: var(--space-3); }
     .navbar-brand { width: auto; justify-content: flex-start; margin-bottom: 0; }
     .brand-logo-img { height: 40px; }

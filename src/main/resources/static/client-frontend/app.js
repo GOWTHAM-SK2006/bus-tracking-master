@@ -1265,6 +1265,9 @@
 
     // Initialize on DOM Content Loaded
     document.addEventListener('DOMContentLoaded', () => {
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            document.body.classList.add('is-native');
+        }
         window.scrollTo(0, 0);
         init();
     });

@@ -2751,6 +2751,10 @@ function initApp() {
   }
 
   // Initialize controllers
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    document.body.classList.add('is-native');
+  }
+  
   NavigationController.init();
   TrackingController.init();
   LogController.init();
