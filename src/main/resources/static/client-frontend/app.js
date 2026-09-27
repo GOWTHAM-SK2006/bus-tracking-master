@@ -579,26 +579,30 @@
             const latLng = [bus.latitude, bus.longitude];
             const isMoving = bus.status === 'RUNNING' || bus.status === 'MOVING';
 
+            const busIcon = L.divIcon({
+                className: `leaflet-bus-icon ${isMoving ? 'moving' : ''}`,
+                html: `<i class="fa-solid fa-bus"></i>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            const popupContent = `
+                <div style="font-family: Inter, sans-serif; padding: 4px;">
+                    <b style="color: #E85D04; font-size: 1rem;">${bus.busNumber}</b> - ${bus.busName || 'Route'}<br>
+                    <b>Status:</b> <span style="color: ${isMoving ? '#10B981' : '#EF4444'}">${isMoving ? '● ACTIVE' : '● INACTIVE'}</span><br>
+                    <b>Driver:</b> ${bus.driverName || 'N/A'}<br>
+                    ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" style="color: #10B981; font-weight: bold; text-decoration: none;">📞 ${bus.driverPhone}</a>` : ''}
+                </div>
+            `;
+
             if (busMarkers[bus.busNumber]) {
-                busMarkers[bus.busNumber].setLatLng(latLng);
+                const marker = busMarkers[bus.busNumber];
+                marker.setLatLng(latLng);
+                marker.setIcon(busIcon);
+                marker.setPopupContent(popupContent);
             } else {
-                const busIcon = L.divIcon({
-                    className: `leaflet-bus-icon ${isMoving ? 'moving' : ''}`,
-                    html: `<i class="fa-solid fa-bus"></i>`,
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
-                });
-
                 const marker = L.marker(latLng, { icon: busIcon }).addTo(map);
-
-                marker.bindPopup(`
-                    <div style="font-family: Inter, sans-serif; padding: 4px;">
-                        <b style="color: #E85D04; font-size: 1rem;">${bus.busNumber}</b> - ${bus.busName || 'Route'}<br>
-                        <b>Status:</b> <span style="color: ${isMoving ? '#10B981' : '#EF4444'}">${isMoving ? '● ACTIVE' : '● INACTIVE'}</span><br>
-                        <b>Driver:</b> ${bus.driverName || 'N/A'}<br>
-                        ${bus.driverPhone ? `<a href="tel:${bus.driverPhone}" style="color: #10B981; font-weight: bold; text-decoration: none;">📞 ${bus.driverPhone}</a>` : ''}
-                    </div>
-                `);
+                marker.bindPopup(popupContent);
 
                 marker.on('click', () => {
                     selectBus(bus);
