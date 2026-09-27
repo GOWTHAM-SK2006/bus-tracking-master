@@ -26,6 +26,27 @@
 
     <!-- Custom Client Style -->
     <link rel="stylesheet" href="style.css">
+
+    <script>
+        // Immediate Student Session Route Guard
+        (function () {
+            const storedUser = localStorage.getItem('client');
+            if (!storedUser) {
+                window.location.replace('../auth.html');
+                return;
+            }
+            try {
+                const user = JSON.parse(storedUser);
+                if (!user || (!user.id && !user.email && !user.username)) {
+                    localStorage.removeItem('client');
+                    window.location.replace('../auth.html');
+                }
+            } catch (e) {
+                localStorage.removeItem('client');
+                window.location.replace('../auth.html');
+            }
+        })();
+    </script>
 </head>
 
 <body>

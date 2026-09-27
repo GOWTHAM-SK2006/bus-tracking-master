@@ -199,26 +199,83 @@
         pollingInterval = setInterval(fetchBusesData, 5000);
     }
 
-    // Load User Session from localStorage
-    function loadUserSession() {
+    // Load User Session from localStorage & verify with backend
+    async function loadUserSession() {
         const storedUser = localStorage.getItem('client');
-        if (storedUser) {
-            try {
-                currentUser = JSON.parse(storedUser);
-                elements.userName.textContent = currentUser.name || 'Student';
-                elements.userEmail.textContent = currentUser.email || 'student@sairamtap.edu.in';
-                elements.clientGreeting.textContent = `Welcome, ${currentUser.name ? currentUser.name.split(' ')[0] : 'Student'}`;
-                elements.userAvatar.textContent = (currentUser.name || 'S').charAt(0).toUpperCase();
+        if (!storedUser) {
+            window.location.replace('../auth.html');
+            return;
+        }
 
-                if (currentUser.busStop) {
-                    preferredStop = currentUser.busStop;
-                    localStorage.setItem('client_preferred_stop', preferredStop);
-                }
-            } catch (e) {
-                console.error('Error parsing client session:', e);
+        try {
+            currentUser = JSON.parse(storedUser);
+            if (!currentUser || (!currentUser.id && !currentUser.email && !currentUser.username)) {
+                logoutUser();
+                return;
             }
+
+            elements.userName.textContent = currentUser.name || 'Student';
+            elements.userEmail.textContent = currentUser.email || 'student@sairamtap.edu.in';
+            elements.clientGreeting.textContent = `Welcome, ${currentUser.name ? currentUser.name.split(' ')[0] : 'Student'}`;
+            elements.userAvatar.textContent = (currentUser.name || 'S').charAt(0).toUpperCase();
+
+            if (currentUser.savedBusStop || currentUser.busStop) {
+                preferredStop = currentUser.savedBusStop || currentUser.busStop;
+                localStorage.setItem('client_preferred_stop', preferredStop);
+            }
+
+            // Verify session with backend database
+            if (currentUser.id) {
+                try {
+                    const response = await fetch(`${getApiBaseUrl()}/api/client/${currentUser.id}`);
+                    if (!response.ok) {
+                        if (response.status === 404 || response.status === 401) {
+                            console.warn('[Session] Backend session invalid. Logging out...');
+                            logoutUser();
+                            return;
+                        }
+                    } else {
+                        const data = await response.json();
+                        if (data.success && data.client) {
+                            currentUser = data.client;
+                            localStorage.setItem('client', JSON.stringify(currentUser));
+                            elements.userName.textContent = currentUser.name || 'Student';
+                            elements.userEmail.textContent = currentUser.email || 'student@sairamtap.edu.in';
+                            elements.clientGreeting.textContent = `Welcome, ${currentUser.name ? currentUser.name.split(' ')[0] : 'Student'}`;
+                            elements.userAvatar.textContent = (currentUser.name || 'S').charAt(0).toUpperCase();
+                            if (currentUser.savedBusStop) {
+                                preferredStop = currentUser.savedBusStop;
+                                localStorage.setItem('client_preferred_stop', preferredStop);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[Session] Verification check network error:', err);
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing client session:', e);
+            logoutUser();
         }
         updateSavedStopUI();
+    }
+
+    // Logout User: Invalidate session on backend & clear local storage
+    async function logoutUser() {
+        if (currentUser && currentUser.id) {
+            try {
+                await fetch(`${getApiBaseUrl()}/api/client/logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clientId: currentUser.id })
+                });
+            } catch (e) {
+                console.error('[Session] Logout API error:', e);
+            }
+        }
+        localStorage.removeItem('client');
+        localStorage.removeItem('client_preferred_stop');
+        window.location.replace('../auth.html');
     }
 
     // Update Saved Stop UI
@@ -1310,11 +1367,21 @@
             }
         }
 
-        // Menu Item: Logout
+        // Header Logout Button
+        if (elements.logoutBtn) {
+            elements.logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                logoutUser();
+            });
+        }
+
+        // Profile Menu Logout Item
         if (elements.menuLogoutBtn) {
-            elements.menuLogoutBtn.addEventListener('click', () => {
+            elements.menuLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 closeModal(elements.profileModal);
-                elements.logoutBtn.click();
+                logoutUser();
             });
         }
     }
