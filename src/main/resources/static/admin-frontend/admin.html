@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 
 <head>
@@ -99,11 +99,14 @@
         </svg>
         <span>Export</span>
       </button>
-      <button class="bottom-nav-btn" data-tab="guest-access">
+      <button class="bottom-nav-btn" data-tab="students">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3L15.5 7.5z"></path>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
-        <span>Guest Access</span>
+        <span>Students</span>
       </button>
       <button class="bottom-nav-btn" data-tab="system-settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -270,7 +273,7 @@
 
       <!-- Active Bus Counter Widget (Right) -->
       <div class="bus-counter-widget hover-scale animate-float">
-        <div class="counter-icon">🚌</div>
+        <div class="counter-icon">ðŸšŒ</div>
         <div class="counter-info">
           <div class="counter-top">
             <span class="counter-number" id="activeBusCount">0</span>
@@ -307,7 +310,7 @@
               </div>
               <div class="stats-grid">
                 <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary-light);">📊
+                  <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary-light);">ðŸ“Š
                   </div>
                   <div class="stat-info">
                     <div class="stat-value" id="dashTotalBuses">0</div>
@@ -315,14 +318,14 @@
                   </div>
                 </div>
                 <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">🚌</div>
+                  <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">ðŸšŒ</div>
                   <div class="stat-info">
                     <div class="stat-value" id="dashActiveBuses">0</div>
                     <div class="stat-label">Buses Currently Live</div>
                   </div>
                 </div>
                 <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">⚡</div>
+                  <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">âš¡</div>
                   <div class="stat-info">
                     <div class="stat-value">99.9%</div>
                     <div class="stat-label">System Uptime</div>
@@ -338,7 +341,7 @@
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('map'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
                   <span class="dash-menu-icon"
-                    style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">📍</span>
+                    style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">ðŸ“</span>
                   <div class="dash-menu-text">
                     <h4>Live Tracking Map</h4>
                     <p>Real-time fleet monitoring</p>
@@ -347,7 +350,7 @@
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('buses'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
                   <span class="dash-menu-icon"
-                    style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">🚌</span>
+                    style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">ðŸšŒ</span>
                   <div class="dash-menu-text">
                     <h4>Bus Details</h4>
                     <p>Manage fleet configurations</p>
@@ -356,7 +359,7 @@
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('routes'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
                   <span class="dash-menu-icon"
-                    style="background: rgba(16, 185, 129, 0.1); color: var(--success);">🗺️</span>
+                    style="background: rgba(16, 185, 129, 0.1); color: var(--success);">ðŸ—ºï¸</span>
                   <div class="dash-menu-text">
                     <h4>Routes</h4>
                     <p>Route optimization & paths</p>
@@ -365,7 +368,7 @@
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('feedback'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
                   <span class="dash-menu-icon"
-                    style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">🔔</span>
+                    style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">ðŸ””</span>
                   <div class="dash-menu-text">
                     <h4>Feedback</h4>
                     <p>Student safety & issue logs</p>
@@ -373,7 +376,7 @@
                 </a>
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('export'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
-                  <span class="dash-menu-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">📄</span>
+                  <span class="dash-menu-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">ðŸ“„</span>
                   <div class="dash-menu-text">
                     <h4>Export Reports</h4>
                     <p>Analytical data downloads</p>
@@ -382,7 +385,7 @@
                 <a href="#" class="dash-menu-item glass-card"
                   onclick="mobileMenuTabClick('profile'); document.getElementById('dashboardPanel').classList.remove('active'); return false;">
                   <span class="dash-menu-icon"
-                    style="background: rgba(71, 85, 105, 0.1); color: var(--text-dark);">👤</span>
+                    style="background: rgba(71, 85, 105, 0.1); color: var(--text-dark);">ðŸ‘¤</span>
                   <div class="dash-menu-text">
                     <h4>Admin Profile</h4>
                     <p>Account settings & preferences</p>
@@ -418,11 +421,11 @@
             <span class="info-value" id="panelLocation">--</span>
           </div>
           <div class="info-row">
-            <span class="info-label">👤 Driver</span>
+            <span class="info-label">ðŸ‘¤ Driver</span>
             <span class="info-value" id="panelDriver">--</span>
           </div>
           <div class="info-row">
-            <span class="info-label">📞 Phone</span>
+            <span class="info-label">ðŸ“ž Phone</span>
             <span class="info-value" id="panelPhone">--</span>
           </div>
         </div>
@@ -582,7 +585,7 @@
               <option value="resolved">Resolved</option>
             </select>
             <button class="close-panel-btn" onclick="toggleFeedbackPanel(false)">
-              ×
+              Ã—
             </button>
           </div>
         </div>
@@ -606,56 +609,49 @@
       </div>
     </section>
 
-    <!-- Guest Access Panel -->
-    <section class="floating-panel panel-glass animate-fade-in-up" id="guestAccessView">
+    <!-- Students Panel -->
+    <section class="floating-panel panel-glass animate-fade-in-up" id="studentsView">
       <div class="panel-container">
         <div class="list-header" style="align-items: center">
           <div style="display: flex; flex-direction: column; gap: 4px">
-            <h2>Guest Access Management</h2>
-            <span class="list-count">Temporary Access Codes</span>
+            <h2>Students</h2>
+            <span class="list-count" id="studentsTotalCount">0 students registered</span>
           </div>
           <button class="close-panel-btn" onclick="PanelManager.closeAllPanels()">
-            ×
+            &times;
           </button>
         </div>
-        
-        <div class="guest-management-content" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
-          <div class="guest-access-card-large panel-glass">
-            <div class="guest-card-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-              <div class="card-icon" style="font-size: 2rem;">🔑</div>
-              <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Current Access Code</h3>
-            </div>
-            
-            <div class="guest-card-body" style="text-align: center; margin-bottom: 30px;">
-              <div class="code-box" style="background: rgba(249, 115, 22, 0.05); border: 2px dashed rgba(249, 115, 22, 0.2); border-radius: 16px; padding: 30px 40px; margin-bottom: 20px; position: relative;">
-                <span class="code-value-large" id="guestCodeDisplay" style="font-size: 3.5rem; font-weight: 800; letter-spacing: 0.1em; font-family: 'SF Mono', 'Fira Code', monospace; background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">------</span>
-                <span class="code-status-badge" style="position: absolute; top: -12px; right: 20px; background: var(--success); color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">ACTIVE</span>
-              </div>
-              
-              <div class="expiry-timer-large" style="display: flex; flex-direction: column; gap: 6px;">
-                <span class="timer-label" style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">This code will expire in:</span>
-                <span class="timer-value-large" id="guestCodeTimer" style="font-size: 1.4rem; font-weight: 700; color: #f59e0b;">--h --m</span>
-              </div>
-            </div>
-            
-            <div class="guest-card-actions" style="width: 100%;">
-              <button class="btn btn-primary" id="guestRegenerateBtn" onclick="regenerateGuestCode()" style="width: 100%; justify-content: center; gap: 10px; padding: 16px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15);">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="23 4 23 10 17 10"></polyline>
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
-                Regenerate New Access Code
-              </button>
-            </div>
+
+        <!-- Search Bar -->
+        <div style="padding: 16px 20px 0 20px;">
+          <div style="position: relative;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="studentSearchInput" placeholder="Search by name, ID, bus number, or route..." style="width: 100%; padding: 12px 16px 12px 42px; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; font-size: 0.9rem; font-family: inherit; background: rgba(255,255,255,0.6); outline: none; transition: border-color 0.2s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(0,0,0,0.08)'" />
           </div>
-          
-          <div class="guest-notice panel-glass" style="max-width: 480px; padding: 20px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.1); line-height: 1.6;">
-            <p style="margin: 0;"><strong>Security Note:</strong> Guest access codes allow temporary live tracking access for public users. Regenerating a code will immediately invalidate the previous one. Each code is valid for 24 hours.</p>
-          </div>
+        </div>
+
+        <div class="table-scroll-container" style="padding: 16px 20px 20px 20px;">
+          <table class="buses-table" id="studentsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Student ID</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Bus Stop</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              <!-- Student rows populated by JS -->
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
-
     <!-- System Settings Panel -->
     <section class="floating-panel panel-glass animate-fade-in-up" id="systemSettingsView">
       <div class="panel-container">
@@ -665,14 +661,14 @@
             <span class="list-count">Control Core Platform Access</span>
           </div>
           <button class="close-panel-btn" onclick="PanelManager.closeAllPanels()">
-            ×
+            Ã—
           </button>
         </div>
         
         <div class="settings-management-content" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
           <div class="settings-card panel-glass" style="width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; background: rgba(255, 255, 255, 0.7);">
             <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark); display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.4rem;">🛡️</span> Access Control Toggles
+              <span style="font-size: 1.4rem;">ðŸ›¡ï¸</span> Access Control Toggles
             </h3>
             
             <div class="settings-toggles-list" style="display: flex; flex-direction: column; gap: 20px;">
@@ -886,7 +882,7 @@
                 font-weight: 600;
                 cursor: pointer;
               ">
-            ✓ Mark as Resolved
+            âœ“ Mark as Resolved
           </button>
           <button onclick="FeedbackManager.deleteCurrentFeedback()" style="
                 flex: 1;
@@ -899,7 +895,7 @@
                 font-weight: 600;
                 cursor: pointer;
               ">
-            ✕ Delete Feedback
+            âœ• Delete Feedback
           </button>
         </div>
       </div>
@@ -928,7 +924,7 @@
             <span class="list-count" id="routeDetailsCount">0 buses</span>
           </div>
           <button class="close-panel-btn" onclick="toggleRouteDetailsPanel(false)">
-            ×
+            Ã—
           </button>
         </div>
         <div class="buses-table-container">
@@ -1190,7 +1186,7 @@
       <div class="list-header">
         <h2>Administrator Profile</h2>
         <button class="close-panel-btn" onclick="toggleProfilePanel(false)">
-          ×
+          Ã—
         </button>
       </div>
 

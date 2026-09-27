@@ -108,8 +108,8 @@ const DOM = {
   get exportPanel() {
     return document.getElementById("exportView");
   },
-  get guestAccessPanel() {
-    return document.getElementById("guestAccessView");
+  get studentsPanel() {
+    return document.getElementById("studentsView");
   },
   get systemSettingsPanel() {
     return document.getElementById("systemSettingsView");
@@ -345,8 +345,8 @@ const PanelManager = {
           this.togglePanel("feedback");
         } else if (target === "profile") {
           this.togglePanel("profile");
-        } else if (target === "guest-access") {
-          this.togglePanel("guest-access");
+        } else if (target === "students") {
+          this.togglePanel("students");
         } else if (target === "system-settings") {
           this.togglePanel("system-settings");
         } else if (target === "dashboard") {
@@ -390,9 +390,10 @@ const PanelManager = {
     } else if (panelName === "export" && DOM.exportPanel) {
       DOM.exportPanel.classList.add("visible");
       this.updateActiveTab("export");
-    } else if (panelName === "guest-access" && DOM.guestAccessPanel) {
-      DOM.guestAccessPanel.classList.add("visible");
-      this.updateActiveTab("guest-access");
+    } else if (panelName === "students" && DOM.studentsPanel) {
+      DOM.studentsPanel.classList.add("visible");
+      this.updateActiveTab("students");
+      StudentsManager.loadStudents();
     } else if (panelName === "system-settings" && DOM.systemSettingsPanel) {
       DOM.systemSettingsPanel.classList.add("visible");
       this.updateActiveTab("system-settings");
@@ -429,7 +430,7 @@ const PanelManager = {
     const rdp = DOM.routeDetailsPanel;
     const fp = document.getElementById("feedbackView");
     const pp = document.getElementById("profileView");
-    const gap = document.getElementById("guestAccessView");
+    const stp = document.getElementById("studentsView");
     const ssp = document.getElementById("systemSettingsView");
     if (bp) bp.classList.remove("visible");
     if (ep) ep.classList.remove("visible");
@@ -437,7 +438,7 @@ const PanelManager = {
     if (rdp) rdp.classList.remove("visible");
     if (fp) fp.classList.remove("visible");
     if (pp) pp.classList.remove("visible");
-    if (gap) gap.classList.remove("visible");
+    if (stp) stp.classList.remove("visible");
     if (ssp) ssp.classList.remove("visible");
     const dp = document.getElementById("dashboardPanel");
     if (dp) dp.classList.remove("active");
@@ -2472,6 +2473,105 @@ function toggleFeedbackPanel(show) {
     }
   }
 }
+
+// =========================================
+// Students Manager
+// =========================================
+const StudentsManager = {
+  allStudents: [],
+
+  async loadStudents() {
+    const tableBody = document.getElementById("studentsTableBody");
+    const countEl = document.getElementById("studentsTotalCount");
+    if (!tableBody) return;
+
+    // Show loading state
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Loading students...</td></tr>`;
+
+    try {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/admin/students`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const data = await response.json();
+
+      if (data.success && data.students) {
+        this.allStudents = data.students;
+        this.renderStudents(this.allStudents);
+        if (countEl) countEl.textContent = `${data.total} student${data.total !== 1 ? 's' : ''} registered`;
+        console.log(`[Students] Loaded ${data.total} students`);
+
+        // Attach search handler (only once)
+        const searchInput = document.getElementById("studentSearchInput");
+        if (searchInput && !searchInput._listenerAttached) {
+          searchInput.addEventListener("input", (e) => {
+            this.filterStudents(e.target.value);
+          });
+          searchInput._listenerAttached = true;
+        }
+      } else {
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load students</td></tr>`;
+      }
+    } catch (error) {
+      console.error("[Students] Error loading students:", error);
+      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Error loading students. Check connection.</td></tr>`;
+    }
+  },
+
+  renderStudents(students) {
+    const tableBody = document.getElementById("studentsTableBody");
+    if (!tableBody) return;
+
+    if (students.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">No students found</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = students.map((student) => `
+      <tr>
+        <td data-label="Name"><strong>${this.escapeHtml(student.name || 'N/A')}</strong></td>
+        <td data-label="Student ID">${this.escapeHtml(student.username || 'N/A')}</td>
+        <td data-label="Email">${this.escapeHtml(student.email || 'N/A')}</td>
+        <td data-label="Phone">${this.escapeHtml(student.phoneNumber || 'N/A')}</td>
+        <td data-label="Bus Stop">${this.escapeHtml(student.savedBusStop || 'Not set')}</td>
+        <td data-label="Status">
+          <span class="status-badge ${student.phoneVerified ? 'active' : 'inactive'}">
+            ${student.phoneVerified ? 'Verified' : 'Unverified'}
+          </span>
+        </td>
+      </tr>
+    `).join("");
+  },
+
+  filterStudents(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) {
+      this.renderStudents(this.allStudents);
+      const countEl = document.getElementById("studentsTotalCount");
+      if (countEl) countEl.textContent = `${this.allStudents.length} student${this.allStudents.length !== 1 ? 's' : ''} registered`;
+      return;
+    }
+
+    const filtered = this.allStudents.filter((student) => {
+      const name = (student.name || "").toLowerCase();
+      const username = (student.username || "").toLowerCase();
+      const email = (student.email || "").toLowerCase();
+      const busStop = (student.savedBusStop || "").toLowerCase();
+      return name.includes(q) || username.includes(q) || email.includes(q) || busStop.includes(q);
+    });
+
+    this.renderStudents(filtered);
+    const countEl = document.getElementById("studentsTotalCount");
+    if (countEl) countEl.textContent = `${filtered.length} of ${this.allStudents.length} students`;
+  },
+
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+};
 
 // =========================================
 // Guest Access Code Management

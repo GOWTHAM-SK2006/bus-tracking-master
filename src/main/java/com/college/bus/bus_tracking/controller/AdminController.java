@@ -1,14 +1,18 @@
 package com.college.bus.bus_tracking.controller;
 
+import com.college.bus.bus_tracking.entity.Client;
 import com.college.bus.bus_tracking.entity.SystemSettings;
 import com.college.bus.bus_tracking.repository.BusRepository;
+import com.college.bus.bus_tracking.repository.ClientRepository;
 import com.college.bus.bus_tracking.service.SystemSettingsService;
 import com.college.bus.bus_tracking.store.BusSessionStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.college.bus.bus_tracking.websocket.AdminWebSocketHandler;
 
@@ -19,6 +23,9 @@ public class AdminController {
 
     @Autowired
     private BusRepository busRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
 
     @Autowired
     private SystemSettingsService systemSettingsService;
@@ -238,6 +245,41 @@ public class AdminController {
             response.put("remainingBuses", BusSessionStore.BUS_MAP.size());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * Get all registered students (clients) for admin student list.
+     * Excludes sensitive fields like password and resetToken.
+     */
+    @GetMapping("/students")
+    public ResponseEntity<Map<String, Object>> getAllStudents() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Client> clients = clientRepository.findAll();
+            List<Map<String, Object>> studentList = new ArrayList<>();
+
+            for (Client client : clients) {
+                Map<String, Object> studentData = new HashMap<>();
+                studentData.put("id", client.getId());
+                studentData.put("name", client.getName());
+                studentData.put("username", client.getUsername());
+                studentData.put("email", client.getEmail());
+                studentData.put("phoneNumber", client.getPhoneNumber());
+                studentData.put("phoneVerified", client.getPhoneVerified());
+                studentData.put("savedBusStop", client.getSavedBusStop());
+                studentList.add(studentData);
+            }
+
+            response.put("success", true);
+            response.put("students", studentList);
+            response.put("total", studentList.size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
             return ResponseEntity.internalServerError().body(response);
