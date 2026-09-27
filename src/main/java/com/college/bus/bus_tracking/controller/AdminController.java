@@ -269,7 +269,7 @@ public class AdminController {
                 studentData.put("username", client.getUsername());
                 studentData.put("email", client.getEmail());
                 studentData.put("phoneNumber", client.getPhoneNumber());
-                studentData.put("phoneVerified", client.getPhoneVerified());
+                studentData.put("phoneVerified", Boolean.TRUE.equals(client.getPhoneVerified()));
                 studentData.put("savedBusStop", client.getSavedBusStop());
                 studentList.add(studentData);
             }

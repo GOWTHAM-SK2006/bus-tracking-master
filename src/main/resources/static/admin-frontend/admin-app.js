@@ -2489,11 +2489,33 @@ const StudentsManager = {
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Loading students...</td></tr>`;
 
     try {
-      const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/api/admin/students`, {
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache" },
-      });
+      let response;
+      const adminBaseUrl = (typeof getAdminApiBaseUrl === 'function' ? getAdminApiBaseUrl() : '') || getApiBaseUrl();
+      try {
+        response = await fetch(`${adminBaseUrl}/api/admin/students`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
+      } catch (e1) {
+        response = null;
+      }
+
+      if (!response || !response.ok) {
+        try {
+          response = await fetch(`/api/admin/students`, {
+            cache: "no-store",
+            headers: { "Cache-Control": "no-cache" },
+          });
+        } catch (e2) {
+          response = null;
+        }
+      }
+
+      if (!response || !response.ok) {
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load students</td></tr>`;
+        return;
+      }
+
       const data = await response.json();
 
       if (data.success && data.students) {
