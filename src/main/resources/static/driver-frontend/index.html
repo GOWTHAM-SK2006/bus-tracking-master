@@ -353,42 +353,30 @@
           </div>
 
           <!-- Tracking Controls -->
+          <!-- Tracking Controls -->
           <div class="section-card">
             <div class="section-header">
-              <h2 class="section-title">Tracking Controls</h2>
+              <h2 class="section-title">GPS Tracking</h2>
+              <span class="badge badge-danger" id="trackingStatusBadge">● INACTIVE</span>
             </div>
             <div class="section-body">
-              <div class="control-panel">
-                <div class="control-status">
-                  <div class="status-indicator" id="trackingIndicator">
-                    <span class="indicator-ring"></span>
-                    <span class="indicator-core"></span>
-                  </div>
-                  <div class="status-details">
-                    <span class="status-main" id="trackingStateText"
-                      >Not Started</span
-                    >
-                    <span class="status-sub" id="trackingStateDesc"
-                      >Click Start to begin GPS tracking</span
-                    >
-                  </div>
-                </div>
-                <div class="control-buttons">
-                  <button
-                    class="btn btn-warning btn-lg"
-                    id="startTrackingBtn"
-                    disabled
-                  >
-                    Start Tracking
-                  </button>
-                  <button
-                    class="btn btn-success btn-lg"
-                    id="stopTrackingBtn"
-                    disabled
-                  >
-                    Stop Tracking
-                  </button>
-                </div>
+              <div class="control-panel" style="display: flex; justify-content: center; width: 100%;">
+                <button
+                  class="btn btn-warning btn-lg"
+                  id="startTrackingBtn"
+                  style="width: 100%; font-weight: bold; font-size: 1.1rem; padding: 15px;"
+                  disabled
+                >
+                  START TRACKING
+                </button>
+                <button
+                  class="btn btn-lg"
+                  id="stopTrackingBtn"
+                  style="width: 100%; display: none; background-color: #222; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 15px;"
+                  disabled
+                >
+                  STOP TRACKING
+                </button>
               </div>
             </div>
           </div>

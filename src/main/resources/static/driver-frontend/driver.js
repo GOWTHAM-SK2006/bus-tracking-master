@@ -169,9 +169,6 @@ const DOM = {
   mainNavbarNav: document.getElementById("mainNavbarNav"),
 
   // Tracking status elements
-  trackingIndicator: document.getElementById("trackingIndicator"),
-  trackingStateText: document.getElementById("trackingStateText"),
-  trackingStateDesc: document.getElementById("trackingStateDesc"),
   startTrackingBtn: document.getElementById("startTrackingBtn"),
   stopTrackingBtn: document.getElementById("stopTrackingBtn"),
   gpsStatusBadge: document.getElementById("gpsStatusBadge"),
@@ -2387,34 +2384,40 @@ const TrackingController = {
    * @param {string} status - starting | active | stopped | error
    */
   updateTrackingUI(status) {
-    const indicator = DOM.trackingIndicator;
+    const badge = document.getElementById("trackingStatusBadge");
 
-    // Status texts
-    const texts = {
-      starting: { main: "Starting...", sub: "Requesting GPS permission" },
-      active: { main: "Tracking Active", sub: "Transmitting location data" },
-      stopped: { main: "Stopped", sub: "Click Start to begin GPS tracking" },
-      error: { main: "Error", sub: "GPS error occurred" },
-    };
-
-    const t = texts[status] || texts.stopped;
-    DOM.trackingStateText.textContent = t.main;
-    DOM.trackingStateDesc.textContent = t.sub;
-
-    // Dashboard status
-    DOM.dashTrackingStatus.textContent =
-      status === "active" ? "Running" : "Stopped";
-
-    // Update dashboard buttons
-    ProfileController.updateDashboardButtons();
-
-    // Indicator styling
-    indicator.classList.remove("active", "error");
     if (status === "active") {
-      indicator.classList.add("active");
-    } else if (status === "error") {
-      indicator.classList.add("error");
+        if (badge) {
+            badge.textContent = "🟢 ACTIVE";
+            badge.className = "badge badge-success";
+        }
+        if (DOM.startTrackingBtn) DOM.startTrackingBtn.style.display = "none";
+        if (DOM.stopTrackingBtn) {
+            DOM.stopTrackingBtn.style.display = "block";
+            DOM.stopTrackingBtn.disabled = false;
+        }
+        
+        // Dashboard status
+        if (DOM.dashTrackingStatus) DOM.dashTrackingStatus.textContent = "Running";
+        
+    } else {
+        // starting, stopped, or error
+        if (badge) {
+            badge.textContent = "● INACTIVE";
+            badge.className = "badge badge-danger";
+        }
+        
+        if (DOM.startTrackingBtn) {
+            DOM.startTrackingBtn.style.display = "block";
+            // ProfileController.updateDashboardButtons() handles the disabled state based on isConfigured
+        }
+        if (DOM.stopTrackingBtn) DOM.stopTrackingBtn.style.display = "none";
+        
+        if (DOM.dashTrackingStatus) DOM.dashTrackingStatus.textContent = "Stopped";
     }
+
+    // Update dashboard buttons (syncs disabled state based on isConfigured/isTracking)
+    ProfileController.updateDashboardButtons();
   },
 
   /**
