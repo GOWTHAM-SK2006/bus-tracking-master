@@ -573,21 +573,23 @@
         if (!elements.scheduleContentList) return;
 
         const isMorning = scheduleType === 'morning';
-        const sampleRoutes = [
-            { num: 'BUS-101', route: 'Tambaram - Chromepet Line', morning: '07:30 AM', evening: '04:30 PM' },
-            { num: 'BUS-102', route: 'Guindy - Saidapet Express', morning: '07:40 AM', evening: '04:35 PM' },
-            { num: 'BUS-103', route: 'Koyambedu - Vadapalani Line', morning: '07:25 AM', evening: '04:40 PM' },
-            { num: 'BUS-104', route: 'Porur - Iyyapanthangal Line', morning: '07:45 AM', evening: '04:45 PM' },
-            { num: 'BUS-105', route: 'Velachery - Medavakkam Route', morning: '07:35 AM', evening: '04:30 PM' }
-        ];
+        if (busesData.length === 0) {
+            elements.scheduleContentList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                    <p>No bus schedules available.</p>
+                </div>
+            `;
+            return;
+        }
 
-        elements.scheduleContentList.innerHTML = sampleRoutes.map(item => `
+        elements.scheduleContentList.innerHTML = busesData.map(bus => `
             <div class="schedule-card">
                 <div class="schedule-card-header">
-                    <span class="bus-number-badge">${item.num}</span>
-                    <span class="sched-time-badge"><i class="fa-regular fa-clock"></i> ${isMorning ? item.morning : item.evening}</span>
+                    <span class="bus-number-badge">${bus.busNumber}</span>
+                    <span class="sched-time-badge"><i class="fa-regular fa-clock"></i> ${isMorning ? '07:30 AM' : '04:30 PM'}</span>
                 </div>
-                <div class="bus-title">${item.route}</div>
+                <div class="bus-title">${bus.busName || 'College Route'}</div>
                 <div class="bus-meta">
                     <div class="meta-row"><i class="fa-solid fa-flag-checkered"></i> ${isMorning ? 'Pickup from stop → Campus' : 'Campus departure → Drop stops'}</div>
                 </div>
