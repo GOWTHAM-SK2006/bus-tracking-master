@@ -162,22 +162,30 @@
         function getApiBaseUrl() {
             const host = window.location.hostname;
             const protocol = window.location.protocol;
+            const port = window.location.port;
 
-            // File protocol fallback - use production URL for Capacitor
+            if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                return 'https://bus-tracking-master-production-2d22.up.railway.app';
+            }
+
             if (protocol === 'file:') {
                 return 'https://bus-tracking-master-production-2d22.up.railway.app';
             }
 
+            if (host.includes('railway.app')) {
+                return '';
+            }
+
             if (host.includes('.devtunnels.ms')) {
                 const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
-                if (tunnelMatch) return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+                if (tunnelMatch) return `//-8080.`;
             }
 
-            if (window.location.port) {
-                return `${protocol}//${host}:${window.location.port}`;
+            if (port && port !== '80' && port !== '443') {
+                return `//System.Management.Automation.Internal.Host.InternalHost:`;
             }
 
-            return `${protocol}//${host}`;
+            return `//System.Management.Automation.Internal.Host.InternalHost`;
         }
 
         const signupForm = document.getElementById('signupForm');

@@ -138,24 +138,51 @@
     function getApiBaseUrl() {
         const host = window.location.hostname;
         const protocol = window.location.protocol;
+        const port = window.location.port;
+
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            return 'https://bus-tracking-master-production-2d22.up.railway.app';
+        }
 
         if (protocol === 'file:') {
             return 'https://bus-tracking-master-production-2d22.up.railway.app';
+        }
+        if (host.includes('railway.app')) {
+            return '';
         }
         if (host.includes('.devtunnels.ms')) {
             const match = host.match(/^([^-]+)-\d+\.(.+)$/);
             if (match) return `${protocol}//${match[1]}-8080.${match[2]}`;
         }
-        if (window.location.port) {
-            return `${protocol}//${host}:${window.location.port}`;
+        if (port && port !== '80' && port !== '443') {
+            return `${protocol}//${host}:${port}`;
         }
         return `${protocol}//${host}`;
     }
 
-    // Helper: Dynamic WebSocket URL
     function getWsUrl() {
-        const baseUrl = getApiBaseUrl();
-        return baseUrl.replace(/^http/, 'ws') + '/ws/user';
+        const host = window.location.hostname;
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const port = window.location.port;
+
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            return 'wss://bus-tracking-master-production-2d22.up.railway.app/ws/user';
+        }
+
+        if (window.location.protocol === 'file:') {
+            return 'wss://bus-tracking-master-production-2d22.up.railway.app/ws/user';
+        }
+
+        if (host.includes('.devtunnels.ms')) {
+            const match = host.match(/^([^-]+)-\d+\.(.+)$/);
+            if (match) return `wss://${match[1]}-8080.${match[2]}/ws/user`;
+        }
+
+        if (port && port !== '80' && port !== '443') {
+            return `${protocol}//${host}:${port}/ws/user`;
+        }
+        
+        return `${protocol}//${host}/ws/user`;
     }
 
     // Initialize App
