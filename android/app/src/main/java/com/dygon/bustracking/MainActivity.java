@@ -21,6 +21,11 @@ public class MainActivity extends BridgeActivity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         getWindow().setStatusBarColor(0xFFFFFFFF);
         getWindow().setNavigationBarColor(0xFFFFFFFF);
+        
+        // Ensure status bar icons are dark (visible on white background)
+        androidx.core.view.WindowInsetsControllerCompat windowInsetsController = new androidx.core.view.WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        windowInsetsController.setAppearanceLightStatusBars(true);
+        windowInsetsController.setAppearanceLightNavigationBars(true);
     }
 
     // Removed onStop override that was stopping tracking when app backgrounded
