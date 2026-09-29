@@ -129,9 +129,9 @@
 .shimmer-btn {
   background: linear-gradient(
     90deg,
-    rgba(124, 58, 237, 0.1) 25%,
+    rgba(234, 88, 12, 0.1) 25%,
     rgba(236, 72, 153, 0.2) 50%,
-    rgba(124, 58, 237, 0.1) 75%
+    rgba(234, 88, 12, 0.1) 75%
   );
   background-size: 200% auto;
   transition: all 0.3s ease;
