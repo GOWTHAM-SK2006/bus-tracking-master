@@ -68,17 +68,22 @@ const BusesPage = {
   /**
    * Direct fetch of all buses from the database.
    * Uses /api/bus/all - no dependency on WebSocketManager or adminState.
+   * Has timeout + auto-retry to handle Railway cold starts.
    */
-  async fetchAndRenderBuses() {
+  async fetchAndRenderBuses(attempt = 1) {
     const tbody = document.getElementById('busesTableBody');
     const totalEl = document.getElementById('totalBuses');
+    const MAX_ATTEMPTS = 5;
+    const RETRY_DELAY_MS = 8000;
 
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
-            <span style="display:inline-block; animation: spin 1s linear infinite; margin-right:8px;">⟳</span>
-            Loading buses...
+          <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
+            <div style="font-size:1.5rem; margin-bottom:8px;">🔄</div>
+            ${attempt === 1
+              ? 'Loading buses...'
+              : `Server is waking up... (attempt ${attempt}/${MAX_ATTEMPTS})`}
           </td>
         </tr>`;
     }
@@ -105,39 +110,70 @@ const BusesPage = {
       const baseUrl = (typeof getApiBaseUrl === 'function') ? getApiBaseUrl() : getBase();
       const url = `${baseUrl}/api/bus/all?t=${Date.now()}`;
 
-      console.log('[BusesPage] Fetching buses from:', url);
-      const response = await fetch(url, { cache: 'no-store' });
+      console.log(`[BusesPage] Fetching buses from: ${url} (attempt ${attempt})`);
+
+      // Use AbortController for a 12-second timeout per attempt
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      let response;
+      try {
+        response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const buses = await response.json();
       console.log(`[BusesPage] Fetched ${buses.length} buses from DB`);
 
-      // Also sync into adminState/BusManager if available (for WebSocket continuity)
+      // Sync into adminState/BusManager if available (updates map markers, stats, etc.)
       if (typeof BusManager !== 'undefined' && BusManager.handleBusData) {
         BusManager.handleBusData(buses, true);
-        return; // BusManager.handleBusData will call renderBusesTable() itself
+        // BusManager.handleBusData calls renderBusesTable() internally
+        // but it reads DOM.totalBuses — update it explicitly too
+        if (totalEl) totalEl.textContent = buses.length;
+        return;
       }
 
       // Fallback: render directly if BusManager not available
       BusesPage.renderTable(buses);
 
     } catch (err) {
-      console.error('[BusesPage] Failed to fetch buses:', err);
-      if (tbody) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; padding: 30px; color: #e53e3e;">
-              ⚠️ Failed to load buses. 
-              <button onclick="BusesPage.fetchAndRenderBuses()" 
-                style="margin-left:8px; padding:4px 12px; background:var(--primary,#f97316); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
-                Retry
-              </button>
-            </td>
-          </tr>`;
+      const isTimeout = err.name === 'AbortError';
+      console.warn(`[BusesPage] Fetch attempt ${attempt} failed (${isTimeout ? 'timeout' : err.message})`);
+
+      if (attempt < MAX_ATTEMPTS) {
+        // Show retry countdown
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
+                <div style="font-size:1.5rem; margin-bottom:8px;">⏳</div>
+                Server is starting up — retrying in ${RETRY_DELAY_MS / 1000}s...
+                (attempt ${attempt}/${MAX_ATTEMPTS})
+              </td>
+            </tr>`;
+        }
+        setTimeout(() => BusesPage.fetchAndRenderBuses(attempt + 1), RETRY_DELAY_MS);
+      } else {
+        // All attempts exhausted
+        console.error('[BusesPage] All fetch attempts failed.');
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 30px; color: #e53e3e;">
+                ⚠️ Failed to load buses after ${MAX_ATTEMPTS} attempts. 
+                <button onclick="BusesPage.fetchAndRenderBuses(1)" 
+                  style="margin-left:8px; padding:4px 12px; background:var(--primary,#f97316); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                  Retry
+                </button>
+              </td>
+            </tr>`;
+        }
       }
     }
-  },
 
   /**
    * Fallback renderer if BusManager is not available
