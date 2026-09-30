@@ -1289,6 +1289,7 @@ const WebSocketManager = {
 
   init() {
     console.log("[WS] Initializing connection...");
+    this.fetchInitialBuses(true);
     this.connect();
   },
 
@@ -1500,9 +1501,9 @@ const WebSocketManager = {
       const response = await fetch(url, { cache: "reload" });
       if (response.ok) {
         const buses = await response.json();
-        if (buses && buses.length > 0) {
+        if (Array.isArray(buses)) {
           console.log(`[WS] Fetched ${buses.length} initial buses via REST`);
-          // This is a full sync from server - delete old buses
+          // This is a full sync from server
           BusManager.handleBusData(buses, true);
         }
       }

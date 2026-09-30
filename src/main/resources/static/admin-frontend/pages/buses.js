@@ -11,8 +11,12 @@ const BusesPage = {
               <h2>Registered Buses</h2>
               <p class="header-sub">Manage and monitor your fleet real-time</p>
             </div>
-            <div class="header-stats">
+            <div class="header-stats" style="display: flex; gap: 12px; align-items: center;">
               <span class="stat-badge"><span id="totalBuses">0</span> Buses Registered</span>
+              <button class="btn btn-sm btn-primary" onclick="AdminBusManager.openAddModal()" style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Bus
+              </button>
             </div>
           </div>
 
@@ -60,9 +64,12 @@ const BusesPage = {
       totalEl.textContent = adminState.buses.size;
     }
     
-    // Render bus table
+    // Render bus table & trigger fresh fetch from server
     if (typeof BusManager !== 'undefined') {
       BusManager.renderBusesTable();
+    }
+    if (typeof WebSocketManager !== 'undefined' && WebSocketManager.fetchInitialBuses) {
+      WebSocketManager.fetchInitialBuses(true);
     }
   }
 };
