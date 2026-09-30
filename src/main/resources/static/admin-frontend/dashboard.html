@@ -310,7 +310,7 @@
 
     /* Main Dashboard Body */
     main.admin-main {
-      padding: 56px 48px 60px 48px !important;
+      padding: 36px 48px 60px 48px !important;
       flex: 1 !important;
       overflow-y: auto !important;
       display: flex !important;
@@ -321,13 +321,13 @@
     .dashboard-container {
       display: flex !important;
       flex-direction: column !important;
-      gap: 36px !important;
+      gap: 32px !important;
       width: 100% !important;
       max-width: 1600px !important;
       margin: 0 auto !important;
     }
 
-    /* Welcome Banner Card */
+    /* 1. TOP Welcome Banner Card */
     .welcome-card {
       background: linear-gradient(135deg, #fff9f5 0%, #fff3ec 100%) !important;
       border: 1px solid #fed7aa !important;
@@ -338,6 +338,8 @@
       justify-content: space-between !important;
       box-shadow: 0 4px 16px rgba(249, 115, 22, 0.04) !important;
       width: 100% !important;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
 
     .welcome-left {
@@ -358,6 +360,7 @@
       align-items: center !important;
       justify-content: center !important;
       box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3) !important;
+      flex-shrink: 0 !important;
     }
 
     .welcome-text h2 {
@@ -475,7 +478,7 @@
       box-shadow: 0 0 0 2.5px rgba(34, 197, 94, 0.25) !important;
     }
 
-    /* Substantially Larger System Overview Statistic Cards */
+    /* 2. System Overview Statistic Cards */
     .system-overview-grid {
       display: grid !important;
       grid-template-columns: repeat(3, 1fr) !important;
@@ -561,7 +564,7 @@
       pointer-events: none !important;
     }
 
-    /* Larger Quick Access Cards Grid */
+    /* 3. Quick Access Cards Grid */
     .quick-access-grid {
       display: grid !important;
       grid-template-columns: repeat(4, 1fr) !important;
@@ -936,8 +939,8 @@
       <div class="dashboard-panel active" id="dashboardPanel">
         <div class="dashboard-container">
           
-          <!-- Welcome Card -->
-          <div class="welcome-card animate-fade-in-up">
+          <!-- 1. TOP: Admin Dashboard Welcome Section -->
+          <div class="welcome-card">
             <div class="welcome-left">
               <div class="welcome-avatar">AD</div>
               <div class="welcome-text">
@@ -986,8 +989,8 @@
             </div>
           </div>
 
-          <!-- System Overview -->
-          <div class="dashboard-section animate-fade-in-up">
+          <!-- 2. BELOW IT: System Overview -->
+          <div class="dashboard-section">
             <div class="section-header-flex">
               <div class="section-title-wrapper">
                 <div class="section-accent-bar"></div>
@@ -1070,8 +1073,8 @@
             </div>
           </div>
 
-          <!-- Quick Access & Management -->
-          <div class="dashboard-section animate-fade-in-up-delayed">
+          <!-- 3. BELOW IT: Quick Access & Management -->
+          <div class="dashboard-section">
             <div class="section-header-flex" style="margin-bottom: 20px;">
               <div class="section-title-wrapper">
                 <div class="section-accent-bar"></div>
