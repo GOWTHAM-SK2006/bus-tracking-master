@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="DYGON Admin - Manage drivers and buses" />
+  <meta name="description" content="DYGON Admin - Management Dashboard" />
   <title>DYGON Admin - Dashboard</title>
 
   <!-- MapTiler SDK CSS -->
@@ -19,6 +19,714 @@
   <link rel="stylesheet" href="./admin-style.css?v=3" />
   <link rel="stylesheet" href="./animations.css" />
   <link rel="icon" href="../logo.png" />
+
+  <style>
+    /* Redesign Overrides matching Reference Design */
+    :root {
+      --admin-orange: #f97316;
+      --admin-orange-hover: #ea580c;
+      --admin-orange-light: #fff4ed;
+      --admin-orange-border: #ffedd5;
+      --admin-navy: #0f172a;
+      --admin-text-dark: #1e293b;
+      --admin-text-muted: #64748b;
+      --admin-bg-light: #f8fafc;
+      --admin-card-bg: #ffffff;
+      --admin-border-subtle: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc !important;
+      color: var(--admin-text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .admin-wrapper {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Sidebar Styling */
+    aside.admin-sidebar {
+      width: 230px;
+      min-width: 230px;
+      background: #ffffff !important;
+      border-right: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      position: relative;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-header .logo-img {
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px;
+    }
+
+    .sidebar-nav a.bottom-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-radius: 12px;
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 13.5px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .sidebar-nav a.bottom-nav-btn svg {
+      stroke: #64748b;
+      transition: stroke 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav a.bottom-nav-btn:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .sidebar-nav a.bottom-nav-btn:hover svg {
+      stroke: #0f172a;
+    }
+
+    .sidebar-nav a.bottom-nav-btn.active {
+      background: var(--admin-orange-light) !important;
+      color: var(--admin-orange) !important;
+      font-weight: 600;
+    }
+
+    .sidebar-nav a.bottom-nav-btn.active svg {
+      stroke: var(--admin-orange) !important;
+    }
+
+    .sidebar-nav a.bottom-nav-btn.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      height: 70%;
+      width: 4px;
+      background: var(--admin-orange);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Main Content Layout */
+    .main-content-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #f8fafc;
+    }
+
+    /* Top Header Bar */
+    header.admin-header {
+      height: 72px;
+      background: #ffffff !important;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title-accent {
+      width: 4px;
+      height: 26px;
+      background: var(--admin-orange);
+      border-radius: 2px;
+    }
+
+    .header-title-group h1.page-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .header-title-group p.page-subtitle {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748b;
+      margin: 2px 0 0 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    /* Notification Icon */
+    .header-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.2s ease;
+    }
+
+    .header-icon-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 7px;
+      height: 7px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+    }
+
+    /* Admin Profile Header Badge */
+    .admin-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .admin-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--admin-orange);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+    }
+
+    .admin-profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-profile-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .admin-profile-role {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.2;
+    }
+
+    .admin-dropdown-arrow {
+      color: #64748b;
+      margin-left: 2px;
+    }
+
+    /* Logout Button */
+    .logout-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1.5px solid var(--admin-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--admin-orange);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .logout-icon-btn:hover {
+      background: var(--admin-orange-light);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    /* Main Dashboard Area */
+    main.admin-main {
+      padding: 24px 32px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Welcome Banner Card */
+    .welcome-card {
+      background: linear-gradient(135deg, #fff9f5 0%, #fff3ec 100%);
+      border: 1px solid #ffedd5;
+      border-radius: 16px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.03);
+    }
+
+    .welcome-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .welcome-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: var(--admin-orange);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.28);
+    }
+
+    .welcome-text h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 3px 0;
+    }
+
+    .welcome-text p {
+      font-size: 13.5px;
+      color: #475569;
+      margin: 0;
+    }
+
+    .welcome-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .widget-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .widget-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .widget-icon.calendar {
+      background: #ffedd5;
+      color: var(--admin-orange);
+    }
+
+    .widget-icon.weather {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .widget-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .widget-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .widget-value {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .widget-divider {
+      width: 1px;
+      height: 36px;
+      background: #fed7aa;
+    }
+
+    /* Section Header */
+    .section-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-accent-bar {
+      width: 4px;
+      height: 20px;
+      background: var(--admin-orange);
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .live-system-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+    }
+
+    /* System Overview Stats Grid */
+    .system-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .overview-card {
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overview-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .overview-card-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 2;
+    }
+
+    .overview-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .overview-icon-box.blue {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .overview-icon-box.green {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .overview-icon-box.orange {
+      background: #ffedd5;
+      color: var(--admin-orange);
+    }
+
+    .overview-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .overview-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+
+    .overview-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .overview-card-watermark {
+      position: absolute;
+      right: 18px;
+      bottom: 14px;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    /* Quick Access & Management Grid */
+    .quick-access-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .quick-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .quick-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .quick-card.orange {
+      border: 1px solid #feeae0;
+      background: #fffaf5;
+    }
+
+    .quick-card.blue {
+      border: 1px solid #e0f2fe;
+      background: #f0f9ff;
+    }
+
+    .quick-card.green {
+      border: 1px solid #dcfce7;
+      background: #f0fdf4;
+    }
+
+    .quick-card.red {
+      border: 1px solid #fee2e2;
+      background: #fef2f2;
+    }
+
+    .quick-card.purple {
+      border: 1px solid #f3e8ff;
+      background: #faf5ff;
+    }
+
+    .quick-card.gray {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .quick-card-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .quick-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .quick-icon-box.orange {
+      background: #ffedd5;
+      color: var(--admin-orange);
+    }
+
+    .quick-icon-box.blue {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .quick-icon-box.green {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .quick-icon-box.red {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .quick-icon-box.purple {
+      background: #f3e8ff;
+      color: #9333ea;
+    }
+
+    .quick-icon-box.gray {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .quick-card-text h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 2px 0;
+    }
+
+    .quick-card-text p {
+      font-size: 11px;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .quick-arrow-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .quick-card:hover .quick-arrow-btn {
+      border-color: #cbd5e1;
+      color: #0f172a;
+      transform: translateX(2px);
+    }
+
+    /* Responsive Rules */
+    @media (max-width: 1200px) {
+      .quick-access-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 992px) {
+      aside.admin-sidebar {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: flex;
+      }
+      .system-overview-grid {
+        grid-template-columns: 1fr;
+      }
+      .welcome-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .welcome-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main.admin-main {
+        padding: 16px;
+      }
+      header.admin-header {
+        padding: 0 16px;
+      }
+      .quick-access-grid {
+        grid-template-columns: 1fr;
+      }
+      .admin-profile-info {
+        display: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -32,9 +740,9 @@
         const adminSession = JSON.parse(adminSessionStr);
         document.addEventListener("DOMContentLoaded", () => {
           const nameDisplay = document.getElementById("adminNameDisplay");
-          if (nameDisplay) nameDisplay.textContent = adminSession.name || "Admin";
+          if (nameDisplay) nameDisplay.textContent = adminSession.name || "Administrator";
           const dashNameDisplay = document.getElementById("adminNameDisplayDashboard");
-          if (dashNameDisplay) dashNameDisplay.textContent = adminSession.name || "Admin";
+          if (dashNameDisplay) dashNameDisplay.textContent = adminSession.name || "Administrator";
         });
       } catch (e) {
         console.error("Session parse error", e);
@@ -43,334 +751,469 @@
     }
   </script>
 
-  <!-- Professional Sidebar Navigation -->
-  <aside class="admin-sidebar glass-nav animate-fade-in-left" id="adminSidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <img src="../logo.png" alt="DYGON" class="logo-img" />
+  <div class="admin-wrapper">
+    <!-- Professional Sidebar Navigation -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="../logo.png" alt="DYGON" class="logo-img" />
+        </div>
       </div>
-    </div>
-    
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="bottom-nav-btn active" data-tab="dashboard">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-        <span>Dashboard</span>
-      </a>
-      <a href="live-map.html" class="bottom-nav-btn" data-tab="map">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-          <line x1="8" y1="2" x2="8" y2="18" />
-          <line x1="16" y1="6" x2="16" y2="22" />
-        </svg>
-        <span>Live Map</span>
-      </a>
-      <a href="buses.html" class="bottom-nav-btn" data-tab="buses">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="6" width="18" height="12" rx="2" />
-          <circle cx="7" cy="18" r="2" />
-          <circle cx="17" cy="18" r="2" />
-        </svg>
-        <span>Buses</span>
-      </a>
-      <a href="routes.html" class="bottom-nav-btn" data-tab="routes">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-          <line x1="9" y1="4" x2="9" y2="19"></line>
-          <line x1="15" y1="5" x2="15" y2="20"></line>
-        </svg>
-        <span>Routes</span>
-      </a>
-      <a href="feedback.html" class="bottom-nav-btn" data-tab="feedback">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span>Feedback</span>
-      </a>
-      <a href="export.html" class="bottom-nav-btn" data-tab="export">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-        <span>Export</span>
-      </a>
-      <a href="students.html" class="bottom-nav-btn" data-tab="students">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-        <span>Students</span>
-      </a>
-      <a href="settings.html" class="bottom-nav-btn" data-tab="system-settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-        <span>System Settings</span>
-      </a>
-      <a href="profile.html" class="bottom-nav-btn" data-tab="profile">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <span>Profile</span>
-      </a>
-    </nav>
-  </aside>
 
-  <div class="main-content-layout">
-    <!-- Header -->
-    <header class="admin-header">
-      <div class="header-container">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="bottom-nav-btn active" data-tab="dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="live-map.html" class="bottom-nav-btn" data-tab="map">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+            <line x1="8" y1="2" x2="8" y2="18" />
+            <line x1="16" y1="6" x2="16" y2="22" />
+          </svg>
+          <span>Live Map</span>
+        </a>
+        <a href="buses.html" class="bottom-nav-btn" data-tab="buses">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="6" width="18" height="12" rx="2" />
+            <circle cx="7" cy="18" r="2" />
+            <circle cx="17" cy="18" r="2" />
+          </svg>
+          <span>Buses</span>
+        </a>
+        <a href="routes.html" class="bottom-nav-btn" data-tab="routes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+            <line x1="9" y1="4" x2="9" y2="19"></line>
+            <line x1="15" y1="5" x2="15" y2="20"></line>
+          </svg>
+          <span>Routes</span>
+        </a>
+        <a href="feedback.html" class="bottom-nav-btn" data-tab="feedback">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Feedback</span>
+        </a>
+        <a href="export.html" class="bottom-nav-btn" data-tab="export">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export</span>
+        </a>
+        <a href="students.html" class="bottom-nav-btn" data-tab="students">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Students</span>
+        </a>
+        <a href="settings.html" class="bottom-nav-btn" data-tab="system-settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>System Settings</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-btn" data-tab="profile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="main-content-layout">
+      <!-- Clean White Top Header -->
+      <header class="admin-header">
         <div class="header-left">
-           <h1 class="page-title">Management Dashboard</h1>
+          <div class="header-title-accent"></div>
+          <div class="header-title-group">
+            <h1 class="page-title">Management Dashboard</h1>
+            <p class="page-subtitle">Monitor • Manage • Track • Analyze</p>
+          </div>
         </div>
 
         <div class="header-actions" id="adminHeaderActions">
-          <button id="adminLogoutBtn" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();" title="Logout">
+          <!-- Notification Bell Icon -->
+          <div class="header-icon-btn" title="Notifications">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-badge"></span>
+          </div>
+
+          <!-- Admin Avatar & Role -->
+          <div class="admin-profile-header">
+            <div class="admin-avatar-circle">AD</div>
+            <div class="admin-profile-info">
+              <span class="admin-profile-name">Admin</span>
+              <span class="admin-profile-role" id="adminNameDisplay">Administrator</span>
+            </div>
+            <svg class="admin-dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
+          <!-- Logout Button -->
+          <button id="adminLogoutBtn" class="logout-icon-btn" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();" title="Logout">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
           </button>
-        </div>
-      </div>
 
-      <!-- Mobile Menu Dropdown -->
-      <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-content">
-          <div class="mobile-menu-section">
-            <h3 class="mobile-menu-title">Navigation</h3>
-            <a href="dashboard.html" class="mobile-menu-item active" data-tab="dashboard">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              Dashboard
-            </a>
-            <a href="live-map.html" class="mobile-menu-item" data-tab="map">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>
-              Live Map
-            </a>
-            <a href="buses.html" class="mobile-menu-item" data-tab="buses">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" /></svg>
-              Buses
-            </a>
-            <a href="routes.html" class="mobile-menu-item" data-tab="routes">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path><line x1="9" y1="4" x2="9" y2="19"></line><line x1="15" y1="5" x2="15" y2="20"></line></svg>
-              Routes
-            </a>
-            <a href="feedback.html" class="mobile-menu-item" data-tab="feedback">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              Feedback
-            </a>
-            <a href="export.html" class="mobile-menu-item" data-tab="export">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Export
-            </a>
-            <a href="students.html" class="mobile-menu-item" data-tab="students">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Students
-            </a>
-            <a href="settings.html" class="mobile-menu-item" data-tab="system-settings">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-              System Settings
-            </a>
-            <a href="profile.html" class="mobile-menu-item" data-tab="profile">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              Profile
-            </a>
-          </div>
-          <div class="mobile-menu-divider"></div>
-          <div class="mobile-menu-section">
-            <h3 class="mobile-menu-title">Controls</h3>
-            <div class="mobile-menu-toggle">
-              <span>Driver Sign In</span>
-              <button id="mobileDriverSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleDriverSignIn(event)">
-                <span class="toggle-slider" id="mobileDriverSignInSlider"></span>
-              </button>
-            </div>
-            <div class="mobile-menu-toggle">
-              <span>Student Sign In</span>
-              <button id="mobileStudentSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleStudentSignIn(event)">
-                <span class="toggle-slider" id="mobileStudentSignInSlider"></span>
-              </button>
-            </div>
-            <div class="mobile-menu-toggle">
-              <span>Driver Signup</span>
-              <button id="mobileAccountToggleBtn" class="toggle-btn" type="button" onclick="toggleAccountCreation(event)">
-                <span class="toggle-slider"></span>
-              </button>
-            </div>
-          </div>
-          <div class="mobile-menu-divider"></div>
-          <div class="mobile-menu-section">
-            <button class="mobile-menu-logout" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              Logout
-            </button>
-          </div>
+          <!-- Mobile Menu Toggle Button -->
+          <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" title="Toggle Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         </div>
-      </div>
-    </header>
 
-    <!-- Admin Main Content -->
-    <main class="admin-main">
-      <div class="dashboard-panel panel-glass animate-slide-in-left active" id="dashboardPanel" style="position:relative; height:100%; overflow-y:auto;">
-        <div class="dashboard-panel-header" style="padding: 100px 40px 32px;">
-          <div class="dashboard-user">
-            <div class="user-avatar">AD</div>
-            <div class="user-info">
-              <h3>Admin Dashboard</h3>
-              <p>Welcome back, <span id="adminNameDisplayDashboard">Admin</span></p>
+        <!-- Mobile Menu Dropdown -->
+        <div class="mobile-menu" id="mobileMenu">
+          <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+              <h3 class="mobile-menu-title">Navigation</h3>
+              <a href="dashboard.html" class="mobile-menu-item active" data-tab="dashboard">Dashboard</a>
+              <a href="live-map.html" class="mobile-menu-item" data-tab="map">Live Map</a>
+              <a href="buses.html" class="mobile-menu-item" data-tab="buses">Buses</a>
+              <a href="routes.html" class="mobile-menu-item" data-tab="routes">Routes</a>
+              <a href="feedback.html" class="mobile-menu-item" data-tab="feedback">Feedback</a>
+              <a href="export.html" class="mobile-menu-item" data-tab="export">Export</a>
+              <a href="students.html" class="mobile-menu-item" data-tab="students">Students</a>
+              <a href="settings.html" class="mobile-menu-item" data-tab="system-settings">System Settings</a>
+              <a href="profile.html" class="mobile-menu-item" data-tab="profile">Profile</a>
             </div>
           </div>
         </div>
+      </header>
 
-        <div class="dashboard-panel-body">
+      <!-- Admin Main Content -->
+      <main class="admin-main">
+        <div class="dashboard-panel active" id="dashboardPanel">
           <div class="dashboard-container">
-            <!-- Summary Stats -->
+            
+            <!-- Welcome Card -->
+            <div class="welcome-card animate-fade-in-up">
+              <div class="welcome-left">
+                <div class="welcome-avatar">AD</div>
+                <div class="welcome-text">
+                  <h2>Admin Dashboard</h2>
+                  <p>Welcome back, <span id="adminNameDisplayDashboard">Administrator</span> 👋</p>
+                </div>
+              </div>
+
+              <div class="welcome-right">
+                <div class="widget-item">
+                  <div class="widget-icon calendar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                  </div>
+                  <div class="widget-info">
+                    <span class="widget-label">Today</span>
+                    <span class="widget-value" id="currentDateDisplay">27 Sep 2026, Saturday</span>
+                  </div>
+                </div>
+
+                <div class="widget-divider"></div>
+
+                <div class="widget-item">
+                  <div class="widget-icon weather">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                  </div>
+                  <div class="widget-info">
+                    <span class="widget-value">28°C</span>
+                    <span class="widget-label">Chennai, Tamil Nadu</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Overview -->
             <div class="dashboard-section animate-fade-in-up">
-              <div class="section-flex">
-                <h3 class="dashboard-section-title">System Overview</h3>
-                <span class="live-indicator">
-                  <span class="status-dot"></span> Live System
+              <div class="section-header-flex">
+                <div class="section-title-wrapper">
+                  <div class="section-accent-bar"></div>
+                  <h3 class="section-title">System Overview</h3>
+                </div>
+                <span class="live-system-badge">
+                  <span class="badge-dot"></span> Live System
                 </span>
               </div>
-              <div class="stats-grid">
-                <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary-light);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+              <div class="system-overview-grid">
+                <!-- Total Registered Buses Card -->
+                <div class="overview-card">
+                  <div class="overview-card-left">
+                    <div class="overview-icon-box blue">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                        <circle cx="7" cy="18" r="2"></circle>
+                        <circle cx="17" cy="18" r="2"></circle>
+                      </svg>
+                    </div>
+                    <div class="overview-info">
+                      <span class="overview-value" id="dashTotalBuses">0</span>
+                      <span class="overview-label">Total Registered Buses</span>
+                    </div>
+                  </div>
+                  <div class="overview-card-watermark">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                       <rect x="3" y="6" width="18" height="12" rx="2"></rect>
                       <circle cx="7" cy="18" r="2"></circle>
                       <circle cx="17" cy="18" r="2"></circle>
                     </svg>
                   </div>
-                  <div class="stat-info">
-                    <div class="stat-value" id="dashTotalBuses">0</div>
-                    <div class="stat-label">Total Registered Buses</div>
-                  </div>
                 </div>
-                <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
-                      <circle cx="12" cy="10" r="3"></circle>
+
+                <!-- Buses Currently Live Card -->
+                <div class="overview-card">
+                  <div class="overview-card-left">
+                    <div class="overview-icon-box green">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </div>
+                    <div class="overview-info">
+                      <span class="overview-value" id="dashActiveBuses">0</span>
+                      <span class="overview-label">Buses Currently Live</span>
+                    </div>
+                  </div>
+                  <div class="overview-card-watermark">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line>
                     </svg>
                   </div>
-                  <div class="stat-info">
-                    <div class="stat-value" id="dashActiveBuses">0</div>
-                    <div class="stat-label">Buses Currently Live</div>
-                  </div>
                 </div>
-                <div class="stat-card glass-card">
-                  <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
+
+                <!-- System Uptime Card -->
+                <div class="overview-card">
+                  <div class="overview-card-left">
+                    <div class="overview-icon-box orange">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                      </svg>
+                    </div>
+                    <div class="overview-info">
+                      <span class="overview-value">99.9%</span>
+                      <span class="overview-label">System Uptime</span>
+                    </div>
                   </div>
-                  <div class="stat-info">
-                    <div class="stat-value">99.9%</div>
-                    <div class="stat-label">System Uptime</div>
+                  <div class="overview-card-watermark">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <line x1="18" y1="20" x2="18" y2="4"></line>
+                      <line x1="12" y1="20" x2="12" y2="10"></line>
+                      <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Quick Navigation -->
+            <!-- Quick Access & Management -->
             <div class="dashboard-section animate-fade-in-up-delayed">
-              <h3 class="dashboard-section-title">Quick Access & Management</h3>
-              <div class="dashboard-menu">
-                <a href="live-map.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                      <line x1="8" y1="2" x2="8" y2="18"></line>
-                      <line x1="16" y1="6" x2="16" y2="22"></line>
+              <div class="section-header-flex" style="margin-bottom: 16px;">
+                <div class="section-title-wrapper">
+                  <div class="section-accent-bar"></div>
+                  <h3 class="section-title">Quick Access & Management</h3>
+                </div>
+              </div>
+
+              <div class="quick-access-grid">
+                <!-- Live Tracking Map -->
+                <a href="live-map.html" class="quick-card orange">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box orange">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Live Tracking Map</h4>
+                      <p>Real-time fleet monitoring</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Live Tracking Map</h4>
-                    <p>Real-time fleet monitoring</p>
                   </div>
                 </a>
-                <a href="buses.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                      <circle cx="7" cy="18" r="2"></circle>
-                      <circle cx="17" cy="18" r="2"></circle>
+
+                <!-- Bus Details -->
+                <a href="buses.html" class="quick-card blue">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box blue">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                        <circle cx="7" cy="18" r="2"></circle>
+                        <circle cx="17" cy="18" r="2"></circle>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Bus Details</h4>
+                      <p>Manage fleet configurations</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Bus Details</h4>
-                    <p>Manage fleet configurations</p>
                   </div>
                 </a>
-                <a href="routes.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-                      <line x1="9" y1="4" x2="9" y2="19"></line>
-                      <line x1="15" y1="5" x2="15" y2="20"></line>
+
+                <!-- Routes -->
+                <a href="routes.html" class="quick-card green">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box green">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+                        <line x1="9" y1="4" x2="9" y2="19"></line>
+                        <line x1="15" y1="5" x2="15" y2="20"></line>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Routes</h4>
+                      <p>Route optimization & paths</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Routes</h4>
-                    <p>Route optimization & paths</p>
                   </div>
                 </a>
-                <a href="feedback.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+
+                <!-- Feedback -->
+                <a href="feedback.html" class="quick-card red">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box red">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Feedback</h4>
+                      <p>Student safety & issue logs</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Feedback</h4>
-                    <p>Student safety & issue logs</p>
                   </div>
                 </a>
-                <a href="export.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
+
+                <!-- Export Reports -->
+                <a href="export.html" class="quick-card purple">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box purple">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Export Reports</h4>
+                      <p>Analytical data downloads</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Export Reports</h4>
-                    <p>Analytical data downloads</p>
                   </div>
                 </a>
-                <a href="profile.html" class="dash-menu-item glass-card">
-                  <span class="dash-menu-icon" style="background: rgba(71, 85, 105, 0.1); color: var(--text-dark);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
+
+                <!-- Admin Profile -->
+                <a href="profile.html" class="quick-card gray">
+                  <div class="quick-card-left">
+                    <div class="quick-icon-box gray">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div class="quick-card-text">
+                      <h4>Admin Profile</h4>
+                      <p>Account settings & preferences</p>
+                    </div>
+                  </div>
+                  <div class="quick-arrow-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                  </span>
-                  <div class="dash-menu-text">
-                    <h4>Admin Profile</h4>
-                    <p>Account settings & preferences</p>
                   </div>
                 </a>
               </div>
             </div>
+
           </div>
         </div>
-      </div>
-    </main>
+      </main>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+      <!-- Toast Container -->
+      <div class="toast-container" id="toastContainer"></div>
+    </div>
   </div>
+
+  <script>
+    // Format dynamic date for welcome card
+    document.addEventListener("DOMContentLoaded", () => {
+      const dateEl = document.getElementById("currentDateDisplay");
+      if (dateEl) {
+        const now = new Date();
+        const dayNum = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const formatted = `${dayNum} ${monthNames[now.getMonth()]} ${now.getFullYear()}, ${dayNames[now.getDay()]}`;
+        dateEl.textContent = formatted;
+      }
+    });
+  </script>
 
   <!-- MapTiler SDK JS -->
   <script src="https://cdn.maptiler.com/maptiler-sdk-js/latest/maptiler-sdk.umd.js"></script>
