@@ -348,7 +348,7 @@ const SetupController = {
     }
   },
 
-  finishSetup() {
+  finishSetup(silent = false) {
     // Show navigation
     if (DOM.mainNavbarNav) DOM.mainNavbarNav.style.display = "flex";
     // Also show the bottom nav bar
@@ -358,12 +358,15 @@ const SetupController = {
     // Switch to dashboard
     NavigationController.switchTab("dashboard");
 
-    LogController.add("Setup complete. Session started.", "success");
-    AlertController.show(
-      "Welcome",
-      "Tracking session started successfully!",
-      "success",
-    );
+    LogController.add("Setup complete. Session ready.", "success");
+    // Only show welcome alert on explicit user action, not on auto-load
+    if (!silent) {
+      AlertController.show(
+        "Welcome",
+        "Tracking session started successfully!",
+        "success",
+      );
+    }
   },
 };
 const ProfileController = {
@@ -2795,19 +2798,54 @@ function initApp() {
   // Initial log
   LogController.add("System initialized. Ready for tracking.", "info");
 
-  // Auto-skip setup: go directly to dashboard and auto-submit setup data
+  // Auto-skip setup: restore state from localStorage and go directly to dashboard.
+  // Do NOT call handleSetup() here — it makes an async API call that can race/fail,
+  // causing the driver panel to stay on the setup screen on first load.
+  // The driver data is already persisted from the previous session; just use it.
   if (driverData) {
     const driver = JSON.parse(driverData);
     if (driver.name && driver.phone && driver.busNumber && driver.busName) {
-      // Auto-fill setup fields and submit silently
+      // Restore app state from saved driver data (no API call needed)
+      state.busNumber = driver.busNumber;
+      state.busName = driver.busName;
+      state.isConfigured = true;
+
+      // Auto-fill setup fields so the form shows correct data if user navigates there
       if (DOM.setupName) DOM.setupName.value = driver.name;
       if (DOM.setupPhone) DOM.setupPhone.value = driver.phone;
       if (DOM.setupBusNumber) DOM.setupBusNumber.value = driver.busNumber;
       if (DOM.setupBusName) DOM.setupBusName.value = driver.busName;
-      SetupController.handleSetup();
+
+      // Go straight to dashboard — reliable and instant (silent = no alert on auto-load)
+      SetupController.finishSetup(true);
+
+      // Silently sync profile to backend in the background (non-blocking, won't block UI)
+      setTimeout(() => {
+        const baseUrl = getApiBaseUrl();
+        fetch(`${baseUrl}/api/driver/${driver.id}/profile`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: driver.name,
+            phone: driver.phone,
+            busNumber: driver.busNumber,
+            busName: driver.busName,
+          }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success) {
+              localStorage.setItem("driver", JSON.stringify(data.driver));
+              console.log("[initApp] Background profile sync successful.");
+            }
+          })
+          .catch((e) =>
+            console.warn("[initApp] Background profile sync failed:", e)
+          );
+      }, 1000);
     } else {
-      // Driver data incomplete, still go to dashboard
-      SetupController.finishSetup();
+      // Driver data incomplete — show setup screen but navigate to dashboard (silent)
+      SetupController.finishSetup(true);
     }
   }
 
