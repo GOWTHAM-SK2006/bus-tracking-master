@@ -1037,7 +1037,9 @@ const BusManager = {
       currentBusIds.add(bus.busId);
       adminState.buses.set(bus.busId, bus);
       if (bus.gpsOn) activeCount++;
-      MapManager.updateBusMarker(bus);
+      if (typeof MapManager !== "undefined" && MapManager.updateBusMarker) {
+        MapManager.updateBusMarker(bus);
+      }
     });
 
     // Only remove buses if this is a full sync/initial load (shouldDeleteOldBuses = true)
@@ -1048,20 +1050,21 @@ const BusManager = {
           console.log(`[BusManager] Removing bus: ${busId} (full sync)`);
           adminState.buses.delete(busId);
           // Remove marker from map
-          const marker = MapManager.markers.get(busId);
-          if (marker) {
-            marker.remove();
-            MapManager.markers.delete(busId);
-          }
-          // Close info panel if this bus was selected
-          if (adminState.selectedBusId === busId) {
-            MapManager.closeInfoPanel();
+          if (typeof MapManager !== "undefined" && MapManager.markers) {
+            const marker = MapManager.markers.get(busId);
+            if (marker) {
+              marker.remove();
+              MapManager.markers.delete(busId);
+            }
+            if (adminState.selectedBusId === busId && MapManager.closeInfoPanel) {
+              MapManager.closeInfoPanel();
+            }
           }
         }
       }
     }
 
-    DOM.activeBusCount.textContent = activeCount;
+    if (DOM.activeBusCount) DOM.activeBusCount.textContent = activeCount;
     if (DOM.totalBuses) DOM.totalBuses.textContent = adminState.buses.size;
 
     // Update Dashboard Stats if it's open or about to be
@@ -1071,9 +1074,15 @@ const BusManager = {
 
     this.renderBusesTable();
 
+    if (typeof RouteManager !== 'undefined' && RouteManager.renderRoutes) {
+      RouteManager.renderRoutes();
+    }
+
     if (
       adminState.selectedBusId &&
-      adminState.buses.has(adminState.selectedBusId)
+      adminState.buses.has(adminState.selectedBusId) &&
+      typeof MapManager !== "undefined" &&
+      MapManager.updateInfoPanel
     ) {
       MapManager.updateInfoPanel(
         adminState.buses.get(adminState.selectedBusId),
@@ -1498,14 +1507,36 @@ const WebSocketManager = {
       const baseUrl = getApiBaseUrl();
       const url =
         `${baseUrl}/api/bus/all` + (forceReload ? `?t=${Date.now()}` : "");
-      const response = await fetch(url, { cache: "reload" });
-      if (response.ok) {
+      let response = null;
+      try {
+        response = await fetch(url, { cache: "no-store" });
+      } catch (e1) {
+        response = null;
+      }
+
+      // Fallback strategies if primary URL fails or returns non-200
+      if (!response || !response.ok) {
+        const prodFallback = `https://bus-tracking-master-production-2d22.up.railway.app/api/bus/all` + (forceReload ? `?t=${Date.now()}` : "");
+        try {
+          response = await fetch(prodFallback, { cache: "no-store" });
+        } catch (e2) {
+          try {
+            response = await fetch(`/api/bus/all` + (forceReload ? `?t=${Date.now()}` : ""));
+          } catch (e3) {
+            response = null;
+          }
+        }
+      }
+
+      if (response && response.ok) {
         const buses = await response.json();
         if (Array.isArray(buses)) {
           console.log(`[WS] Fetched ${buses.length} initial buses via REST`);
           // This is a full sync from server
           BusManager.handleBusData(buses, true);
         }
+      } else {
+        console.warn("[WS] Initial bus fetch response not OK:", response ? response.status : "No response");
       }
     } catch (error) {
       console.warn(
@@ -1562,7 +1593,7 @@ function showToast(message, type = "success") {
         <button class="toast-close" onclick="this.parentElement.remove()">×</button>
     `;
 
-  DOM.toastContainer.appendChild(toast);
+  if (DOM.toastContainer) DOM.toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
   // If a bus/account was deleted, force reload buses
   if (message && message.toLowerCase().includes("deleted")) {
@@ -1584,8 +1615,11 @@ function getApiBaseUrl() {
   const host = window.location.hostname;
   const protocol = window.location.protocol;
 
-  // Default to Railway production URL as per user instruction
   const productionUrl = "https://bus-tracking-master-production-2d22.up.railway.app";
+
+  if (protocol === "file:" || !host) {
+    return productionUrl;
+  }
 
   // If we are already on the production domain, return empty string (relative calls)
   if (host.includes("railway.app")) {
@@ -1606,6 +1640,9 @@ function getApiBaseUrl() {
   }
 
   if (window.location.port) {
+    if (window.location.port !== "8080" && window.location.port !== "80" && window.location.port !== "443") {
+      return `${protocol}//${host}:8080`;
+    }
     return `${protocol}//${host}:${window.location.port}`;
   }
 

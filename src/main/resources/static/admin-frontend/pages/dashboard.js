@@ -162,7 +162,17 @@ const DashboardPage = {
     if (typeof PanelManager !== 'undefined' && PanelManager.updateDashboardStats) {
       PanelManager.updateDashboardStats();
     }
+    if (typeof WebSocketManager !== 'undefined' && WebSocketManager.fetchInitialBuses) {
+      WebSocketManager.fetchInitialBuses(true);
+    }
   }
 };
 
 window.DashboardPage = DashboardPage;
+
+// Auto initialize DashboardPage when script is loaded on dashboard.html
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(() => DashboardPage.init(), 50);
+} else {
+  document.addEventListener('DOMContentLoaded', () => DashboardPage.init());
+}

@@ -94,7 +94,17 @@ const RoutesPage = {
     if (typeof RouteManager !== 'undefined') {
       RouteManager.renderRoutes();
     }
+    if (typeof WebSocketManager !== 'undefined' && WebSocketManager.fetchInitialBuses) {
+      WebSocketManager.fetchInitialBuses(true);
+    }
   }
 };
 
 window.RoutesPage = RoutesPage;
+
+// Auto initialize RoutesPage when script is loaded on routes.html
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(() => RoutesPage.init(), 50);
+} else {
+  document.addEventListener('DOMContentLoaded', () => RoutesPage.init());
+}

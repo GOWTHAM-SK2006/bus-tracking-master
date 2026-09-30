@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.college.bus.bus_tracking.store.BusSessionStore;
 import com.college.bus.bus_tracking.model.BusData;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.college.bus.bus_tracking.repository.BusRepository;
+import com.college.bus.bus_tracking.entity.BusEntity;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -15,6 +18,9 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
 
     private static final List<WebSocketSession> adminSessions = new CopyOnWriteArrayList<>();
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private BusRepository busRepository;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -28,9 +34,44 @@ public class AdminWebSocketHandler extends TextWebSocketHandler {
         welcome.put("timestamp", System.currentTimeMillis());
         session.sendMessage(new TextMessage(objectMapper.writeValueAsString(welcome)));
 
-        // Send all currently registered buses immediately (including 0,0 so admin sees
-        // status)
-        List<BusData> currentBuses = new ArrayList<>(BusSessionStore.BUS_MAP.values());
+        // Send all currently registered buses immediately from DB + live store
+        Map<String, BusData> mergedMap = new LinkedHashMap<>();
+        if (busRepository != null) {
+            try {
+                List<BusEntity> dbBuses = busRepository.findAll();
+                for (BusEntity entity : dbBuses) {
+                    String busNumber = entity.getBusNumber();
+                    BusData liveData = BusSessionStore.BUS_MAP.get(busNumber);
+                    if (liveData != null) {
+                        mergedMap.put(busNumber, liveData);
+                    } else {
+                        BusData dbData = new BusData(
+                                entity.getId(),
+                                entity.getBusNumber(),
+                                entity.getDriverId(),
+                                entity.getBusName(),
+                                entity.getBusStop(),
+                                entity.getLatitude(),
+                                entity.getLongitude(),
+                                "INACTIVE",
+                                entity.getDriverName(),
+                                entity.getDriverPhone());
+                        mergedMap.put(busNumber, dbData);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("[Admin WS] Error fetching DB buses on WS connect: " + e.getMessage());
+            }
+        }
+
+        // Include any additional live BUS_MAP entries
+        for (Map.Entry<String, BusData> entry : BusSessionStore.BUS_MAP.entrySet()) {
+            if (!mergedMap.containsKey(entry.getKey())) {
+                mergedMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        List<BusData> currentBuses = new ArrayList<>(mergedMap.values());
         if (!currentBuses.isEmpty()) {
             Map<String, Object> busUpdate = new HashMap<>();
             busUpdate.put("type", "BUS_UPDATE");

@@ -75,3 +75,10 @@ const BusesPage = {
 };
 
 window.BusesPage = BusesPage;
+
+// Auto initialize BusesPage when script is loaded on buses.html
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(() => BusesPage.init(), 50);
+} else {
+  document.addEventListener('DOMContentLoaded', () => BusesPage.init());
+}
