@@ -367,89 +367,30 @@ const PanelManager = {
 
   togglePanel(panelName) {
     console.log(`[Panel] Toggling: ${panelName}`);
-    // If clicking the same panel, close it
-    if (adminState.activePanel === panelName) {
-      this.closeAllPanels();
-      return;
+    const routeMap = {
+      'dashboard': '#/dashboard',
+      'buses': '#/buses',
+      'routes': '#/routes',
+      'feedback': '#/feedback',
+      'export': '#/export',
+      'students': '#/students',
+      'system-settings': '#/settings',
+      'profile': '#/profile',
+      'map': '#/live-map'
+    };
+    if (routeMap[panelName]) {
+      window.location.hash = routeMap[panelName];
+    } else {
+      window.location.hash = '#/live-map';
     }
-
-    // Close others first
-    this.closeAllPanels();
-
-    // Open target
-    if (panelName === "buses" && DOM.busesPanel) {
-      DOM.busesPanel.classList.add("visible");
-      this.updateActiveTab("buses");
-    } else if (panelName === "routes" && DOM.routesPanel) {
-      DOM.routesPanel.classList.add("visible");
-      this.updateActiveTab("routes");
-      RouteManager.renderRoutes();
-    } else if (panelName === "route-details" && DOM.routeDetailsPanel) {
-      DOM.routeDetailsPanel.classList.add("visible");
-      this.updateActiveTab("routes");
-    } else if (panelName === "export" && DOM.exportPanel) {
-      DOM.exportPanel.classList.add("visible");
-      this.updateActiveTab("export");
-    } else if (panelName === "students" && DOM.studentsPanel) {
-      DOM.studentsPanel.classList.add("visible");
-      this.updateActiveTab("students");
-      StudentsManager.loadStudents();
-    } else if (panelName === "system-settings" && DOM.systemSettingsPanel) {
-      DOM.systemSettingsPanel.classList.add("visible");
-      this.updateActiveTab("system-settings");
-    } else if (panelName === "feedback") {
-      const fp = document.getElementById("feedbackView");
-      if (fp) {
-        fp.classList.add("visible");
-        this.updateActiveTab("feedback");
-        FeedbackManager.loadFeedback();
-      }
-    } else if (panelName === "profile") {
-      const pp = document.getElementById("profileView");
-      if (pp) {
-        pp.classList.add("visible");
-        this.updateActiveTab("profile");
-        loadAdminProfile();
-      }
-    } else if (panelName === "dashboard") {
-      const dp = document.getElementById("dashboardPanel");
-      if (dp) {
-        dp.classList.add("active");
-        this.updateActiveTab("dashboard");
-        this.updateDashboardStats();
-      }
-    }
-
-    adminState.activePanel = panelName;
   },
 
   closeAllPanels() {
-    const bp = DOM.busesPanel;
-    const ep = DOM.exportPanel;
-    const rp = DOM.routesPanel;
-    const rdp = DOM.routeDetailsPanel;
-    const fp = document.getElementById("feedbackView");
-    const pp = document.getElementById("profileView");
-    const stp = document.getElementById("studentsView");
-    const ssp = document.getElementById("systemSettingsView");
-    if (bp) bp.classList.remove("visible");
-    if (ep) ep.classList.remove("visible");
-    if (rp) rp.classList.remove("visible");
-    if (rdp) rdp.classList.remove("visible");
-    if (fp) fp.classList.remove("visible");
-    if (pp) pp.classList.remove("visible");
-    if (stp) stp.classList.remove("visible");
-    if (ssp) ssp.classList.remove("visible");
-    const dp = document.getElementById("dashboardPanel");
-    if (dp) dp.classList.remove("active");
-
-    // Also close the right-side info panel if MapManager is initialized
+    // Close right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
       MapManager.closeInfoPanel();
     }
-
-    adminState.activePanel = null;
-    this.updateActiveTab("map");
+    window.location.hash = '#/live-map';
   },
 
   updateActiveTab(tabName) {
@@ -496,18 +437,20 @@ function mobileMenuTabClick(tabName) {
   if (menu) menu.classList.remove("open");
   if (header) header.classList.remove("menu-open");
 
-  // Toggle the panel
-  PanelManager.togglePanel(tabName);
-
-  // Update active tab in mobile menu
-  const menuItems = document.querySelectorAll(".mobile-menu-item");
-  menuItems.forEach((item) => {
-    if (item.dataset.tab === tabName) {
-      item.classList.add("active");
-    } else {
-      item.classList.remove("active");
-    }
-  });
+  // Navigate via hash routing
+  const tabToRoute = {
+    'dashboard': '#/dashboard',
+    'map': '#/live-map',
+    'buses': '#/buses',
+    'routes': '#/routes',
+    'feedback': '#/feedback',
+    'export': '#/export',
+    'students': '#/students',
+    'system-settings': '#/settings',
+    'profile': '#/profile',
+  };
+  const route = tabToRoute[tabName] || '#/dashboard';
+  window.location.hash = route;
 }
 
 // =========================================
@@ -1341,18 +1284,22 @@ const RouteManager = {
       )
       .join("");
 
-    PanelManager.togglePanel("route-details");
+    // Show route details sub-panel within the routes page
+    const routesView = document.getElementById('routesView');
+    const routeDetailsView = document.getElementById('routeDetailsView');
+    if (routesView) routesView.classList.remove('visible');
+    if (routeDetailsView) routeDetailsView.classList.add('visible');
   },
 };
 
 function toggleRoutesPanel(show) {
-  if (show === false) PanelManager.closeAllPanels();
-  else PanelManager.togglePanel("routes");
+  if (show === false) window.location.hash = '#/live-map';
+  else window.location.hash = '#/routes';
 }
 
 function toggleRouteDetailsPanel(show) {
-  if (show === false) PanelManager.togglePanel("routes");
-  else PanelManager.togglePanel("route-details");
+  if (show === false) window.location.hash = '#/routes';
+  // route-details is handled within the routes page
 }
 
 // =========================================
@@ -2219,26 +2166,34 @@ function generateBusPDF(buses, title) {
 }
 
 function toggleBusesPanel(show) {
-  if (show) PanelManager.togglePanel("buses");
-  else PanelManager.closeAllPanels();
+  if (show) window.location.hash = '#/buses';
+  else window.location.hash = '#/live-map';
 }
 
 function toggleExportPanel(show) {
-  if (show) PanelManager.togglePanel("export");
-  else PanelManager.closeAllPanels();
+  if (show) window.location.hash = '#/export';
+  else window.location.hash = '#/live-map';
 }
 
 function toggleProfilePanel(show) {
-  if (show) PanelManager.togglePanel("profile");
-  else PanelManager.closeAllPanels();
+  if (show) window.location.hash = '#/profile';
+  else window.location.hash = '#/dashboard';
 }
 
 function mobileMenuTabClick(tabName) {
-  if (tabName === "profile") {
-    PanelManager.togglePanel("profile");
-  } else {
-    PanelManager.togglePanel(tabName);
-  }
+  const tabToRoute = {
+    'dashboard': '#/dashboard',
+    'map': '#/live-map',
+    'buses': '#/buses',
+    'routes': '#/routes',
+    'feedback': '#/feedback',
+    'export': '#/export',
+    'students': '#/students',
+    'system-settings': '#/settings',
+    'profile': '#/profile',
+  };
+  const route = tabToRoute[tabName] || '#/dashboard';
+  window.location.hash = route;
 }
 
 function loadAdminProfile() {
@@ -2280,9 +2235,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 0. Mobile Menu
     MobileMenuManager.init();
 
-    // 1. Panel Manager
-    updateDebugStatus("Step 1/4: UI Panels...");
-    PanelManager.init();
+    // 1. Router (replaces PanelManager for navigation)
+    updateDebugStatus("Step 1/4: UI Router...");
+    // PanelManager.init() is no longer needed - AdminRouter handles navigation
 
     // 2. Map Manager
     updateDebugStatus("Step 2/4: Map System...");
@@ -2303,11 +2258,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     WebSocketManager.init();
     await loadAccountCreationState();
 
-    // 5. Default view is map
-    updateDebugStatus("Ready!");
-    
-    // Set Dashboard as default view
-    PanelManager.togglePanel('dashboard');
+    // 5. Initialize Router (handles default view based on URL hash)
+    updateDebugStatus("Step 5/5: Router...");
+    if (typeof AdminRouter !== 'undefined') {
+      AdminRouter.init();
+    }
 
     adminState.isInitialized = true;
     updateDebugStatus("System: Operational", "success");
@@ -2461,17 +2416,8 @@ const FeedbackManager = {
 };
 
 function toggleFeedbackPanel(show) {
-  const panel = document.getElementById("feedbackView");
-  if (panel) {
-    if (show) {
-      panel.classList.add("visible");
-      FeedbackManager.loadFeedback();
-    } else {
-      panel.classList.remove("visible");
-      adminState.activePanel = null;
-      PanelManager.updateActiveTab("map");
-    }
-  }
+  if (show) window.location.hash = '#/feedback';
+  else window.location.hash = '#/live-map';
 }
 
 // =========================================
