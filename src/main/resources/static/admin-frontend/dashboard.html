@@ -21,12 +21,12 @@
   <link rel="icon" href="../logo.png" />
 
   <style>
-    /* Redesign Overrides matching Reference Design */
+    /* Target Design Proportion & Sizing Overrides */
     :root {
       --admin-orange: #f97316;
       --admin-orange-hover: #ea580c;
       --admin-orange-light: #fff4ed;
-      --admin-orange-border: #ffedd5;
+      --admin-orange-border: #fed7aa;
       --admin-navy: #0f172a;
       --admin-text-dark: #1e293b;
       --admin-text-muted: #64748b;
@@ -36,87 +36,90 @@
     }
 
     * {
-      box-sizing: border-box;
+      box-sizing: border-box !important;
     }
 
-    body {
-      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
       background-color: #f8fafc !important;
-      color: var(--admin-text-dark);
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      color: var(--admin-text-dark) !important;
+      overflow-x: hidden !important;
     }
 
-    .admin-wrapper {
-      display: flex;
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    /* Sidebar Styling */
+    /* Fixed Sidebar Navigation */
     aside.admin-sidebar {
-      width: 230px;
-      min-width: 230px;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      bottom: 0 !important;
+      width: 250px !important;
+      height: 100vh !important;
       background: #ffffff !important;
-      border-right: 1px solid #f1f5f9;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-      position: relative;
+      border-right: 1px solid #f1f5f9 !important;
+      z-index: 2500 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02) !important;
     }
 
     .sidebar-header {
-      padding: 24px 20px;
-      display: flex;
-      align-items: center;
+      padding: 28px 24px 20px 24px !important;
+      display: flex !important;
+      align-items: center !important;
     }
 
     .sidebar-header .logo-img {
-      height: 38px;
-      object-fit: contain;
+      height: 44px !important;
+      width: auto !important;
+      object-fit: contain !important;
     }
 
     .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 12px;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 4px !important;
+      padding: 12px 14px !important;
     }
 
     .sidebar-nav a.bottom-nav-btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 16px;
-      border-radius: 12px;
-      color: #64748b;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 13.5px;
-      transition: all 0.2s ease;
-      position: relative;
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      padding: 12px 18px !important;
+      border-radius: 12px !important;
+      color: #64748b !important;
+      text-decoration: none !important;
+      font-weight: 500 !important;
+      font-size: 14.5px !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
     }
 
     .sidebar-nav a.bottom-nav-btn svg {
-      stroke: #64748b;
-      transition: stroke 0.2s ease;
-      flex-shrink: 0;
+      stroke: #64748b !important;
+      width: 22px !important;
+      height: 22px !important;
+      transition: stroke 0.2s ease !important;
+      flex-shrink: 0 !important;
     }
 
     .sidebar-nav a.bottom-nav-btn:hover {
-      background: #f8fafc;
-      color: #0f172a;
+      background: #f8fafc !important;
+      color: #0f172a !important;
     }
 
     .sidebar-nav a.bottom-nav-btn:hover svg {
-      stroke: #0f172a;
+      stroke: #0f172a !important;
     }
 
     .sidebar-nav a.bottom-nav-btn.active {
       background: var(--admin-orange-light) !important;
       color: var(--admin-orange) !important;
-      font-weight: 600;
+      font-weight: 600 !important;
     }
 
     .sidebar-nav a.bottom-nav-btn.active svg {
@@ -124,606 +127,612 @@
     }
 
     .sidebar-nav a.bottom-nav-btn.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 15%;
-      height: 70%;
-      width: 4px;
-      background: var(--admin-orange);
-      border-radius: 0 4px 4px 0;
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 15% !important;
+      height: 70% !important;
+      width: 4.5px !important;
+      background: var(--admin-orange) !important;
+      border-radius: 0 4px 4px 0 !important;
     }
 
-    /* Main Content Layout */
+    /* Main Content Layout (takes remaining screen width) */
     .main-content-layout {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      background: #f8fafc;
+      margin-left: 250px !important;
+      width: calc(100% - 250px) !important;
+      min-height: 100vh !important;
+      background: #f8fafc !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     /* Top Header Bar */
     header.admin-header {
-      height: 72px;
+      height: 80px !important;
       background: #ffffff !important;
-      border-bottom: 1px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      position: sticky;
-      top: 0;
-      z-index: 90;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      border-bottom: 1px solid #f1f5f9 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0 40px !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 2000 !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
     }
 
     .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
     }
 
     .header-title-accent {
-      width: 4px;
-      height: 26px;
-      background: var(--admin-orange);
-      border-radius: 2px;
+      width: 4.5px !important;
+      height: 28px !important;
+      background: var(--admin-orange) !important;
+      border-radius: 3px !important;
     }
 
     .header-title-group h1.page-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0;
-      line-height: 1.2;
+      font-size: 21px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 !important;
+      line-height: 1.2 !important;
     }
 
     .header-title-group p.page-subtitle {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: #64748b;
-      margin: 2px 0 0 0;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: #64748b !important;
+      margin: 3px 0 0 0 !important;
     }
 
     .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 18px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 20px !important;
     }
 
-    /* Notification Icon */
+    /* Notification Bell */
     .header-icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: pointer;
-      color: #475569;
-      transition: all 0.2s ease;
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 50% !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: relative !important;
+      cursor: pointer !important;
+      color: #475569 !important;
+      transition: all 0.2s ease !important;
     }
 
     .header-icon-btn:hover {
-      background: #f1f5f9;
-      color: #0f172a;
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
     }
 
     .notification-badge {
-      position: absolute;
-      top: 9px;
-      right: 9px;
-      width: 7px;
-      height: 7px;
-      background-color: #ef4444;
-      border-radius: 50%;
-      border: 1.5px solid #ffffff;
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      width: 8px !important;
+      height: 8px !important;
+      background-color: #ef4444 !important;
+      border-radius: 50% !important;
+      border: 1.5px solid #ffffff !important;
     }
 
-    /* Admin Profile Header Badge */
+    /* Admin Profile Badge */
     .admin-profile-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 4px 6px;
-      border-radius: 20px;
-      cursor: pointer;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 4px 8px !important;
+      border-radius: 24px !important;
+      cursor: pointer !important;
     }
 
     .admin-avatar-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--admin-orange);
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 50% !important;
+      background: var(--admin-orange) !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      font-size: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.28) !important;
     }
 
     .admin-profile-info {
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .admin-profile-name {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.2;
+      font-size: 14.5px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      line-height: 1.2 !important;
     }
 
     .admin-profile-role {
-      font-size: 11px;
-      color: #64748b;
-      line-height: 1.2;
+      font-size: 12px !important;
+      color: #64748b !important;
+      line-height: 1.2 !important;
     }
 
     .admin-dropdown-arrow {
-      color: #64748b;
-      margin-left: 2px;
+      color: #64748b !important;
+      margin-left: 2px !important;
     }
 
     /* Logout Button */
     .logout-icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: #ffffff;
-      border: 1.5px solid var(--admin-orange);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--admin-orange);
-      cursor: pointer;
-      transition: all 0.2s ease;
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      border: 1.5px solid var(--admin-orange) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: var(--admin-orange) !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
     }
 
     .logout-icon-btn:hover {
-      background: var(--admin-orange-light);
+      background: var(--admin-orange-light) !important;
     }
 
-    /* Mobile Menu Toggle */
+    /* Mobile Menu Button */
     .mobile-menu-btn {
-      display: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: #475569;
+      display: none !important;
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      color: #475569 !important;
     }
 
-    /* Main Dashboard Area */
+    /* Main Dashboard Body */
     main.admin-main {
-      padding: 24px 32px;
-      flex: 1;
-      overflow-y: auto;
+      padding: 32px 40px !important;
+      flex: 1 !important;
+      overflow-y: auto !important;
     }
 
     .dashboard-container {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 28px !important;
+      width: 100% !important;
+      max-width: 100% !important;
     }
 
     /* Welcome Banner Card */
     .welcome-card {
-      background: linear-gradient(135deg, #fff9f5 0%, #fff3ec 100%);
-      border: 1px solid #ffedd5;
-      border-radius: 16px;
-      padding: 20px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.03);
+      background: linear-gradient(135deg, #fff9f5 0%, #fff3ec 100%) !important;
+      border: 1px solid #fed7aa !important;
+      border-radius: 18px !important;
+      padding: 24px 32px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.04) !important;
     }
 
     .welcome-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 18px !important;
     }
 
     .welcome-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: var(--admin-orange);
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.28);
+      width: 58px !important;
+      height: 58px !important;
+      border-radius: 16px !important;
+      background: var(--admin-orange) !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      font-size: 20px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3) !important;
     }
 
     .welcome-text h2 {
-      font-size: 19px;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0 0 3px 0;
+      font-size: 21px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 4px 0 !important;
     }
 
     .welcome-text p {
-      font-size: 13.5px;
-      color: #475569;
-      margin: 0;
+      font-size: 14.5px !important;
+      color: #475569 !important;
+      margin: 0 !important;
     }
 
     .welcome-right {
-      display: flex;
-      align-items: center;
-      gap: 24px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 32px !important;
     }
 
     .widget-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
     }
 
     .widget-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 46px !important;
+      height: 46px !important;
+      border-radius: 14px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .widget-icon.calendar {
-      background: #ffedd5;
-      color: var(--admin-orange);
+      background: #ffedd5 !important;
+      color: var(--admin-orange) !important;
     }
 
     .widget-icon.weather {
-      background: #fef3c7;
-      color: #f59e0b;
+      background: #fef3c7 !important;
+      color: #f59e0b !important;
     }
 
     .widget-info {
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .widget-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #64748b;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      color: #64748b !important;
     }
 
     .widget-value {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #0f172a;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
     }
 
     .widget-divider {
-      width: 1px;
-      height: 36px;
-      background: #fed7aa;
+      width: 1px !important;
+      height: 42px !important;
+      background: #fed7aa !important;
     }
 
     /* Section Header */
     .section-header-flex {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      margin-bottom: 16px !important;
     }
 
     .section-title-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
     }
 
     .section-accent-bar {
-      width: 4px;
-      height: 20px;
-      background: var(--admin-orange);
-      border-radius: 2px;
+      width: 4.5px !important;
+      height: 22px !important;
+      background: var(--admin-orange) !important;
+      border-radius: 3px !important;
     }
 
     .section-title {
-      font-size: 16.5px;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0;
+      font-size: 18.5px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 !important;
     }
 
     .live-system-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: #dcfce7;
-      color: #15803d;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 20px;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      background: #dcfce7 !important;
+      color: #15803d !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      padding: 6px 16px !important;
+      border-radius: 20px !important;
     }
 
     .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #22c55e;
-      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+      width: 9px !important;
+      height: 9px !important;
+      border-radius: 50% !important;
+      background-color: #22c55e !important;
+      box-shadow: 0 0 0 2.5px rgba(34, 197, 94, 0.25) !important;
     }
 
-    /* System Overview Stats Grid */
+    /* System Overview Grid */
     .system-overview-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 24px !important;
     }
 
     .overview-card {
-      background: #ffffff;
-      border: 1px solid #f1f5f9;
-      border-radius: 16px;
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
-      overflow: hidden;
+      background: #ffffff !important;
+      border: 1px solid #f1f5f9 !important;
+      border-radius: 18px !important;
+      padding: 24px 28px !important;
+      min-height: 115px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      position: relative !important;
+      overflow: hidden !important;
     }
 
     .overview-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04) !important;
     }
 
     .overview-card-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      z-index: 2;
+      display: flex !important;
+      align-items: center !important;
+      gap: 18px !important;
+      z-index: 2 !important;
     }
 
     .overview-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 58px !important;
+      height: 58px !important;
+      border-radius: 14px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
     }
 
     .overview-icon-box.blue {
-      background: #e0f2fe;
-      color: #0284c7;
+      background: #e0f2fe !important;
+      color: #0284c7 !important;
     }
 
     .overview-icon-box.green {
-      background: #dcfce7;
-      color: #16a34a;
+      background: #dcfce7 !important;
+      color: #16a34a !important;
     }
 
     .overview-icon-box.orange {
-      background: #ffedd5;
-      color: var(--admin-orange);
+      background: #ffedd5 !important;
+      color: var(--admin-orange) !important;
     }
 
     .overview-info {
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
     }
 
     .overview-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.1;
+      font-size: 34px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      line-height: 1.1 !important;
     }
 
     .overview-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #64748b;
-      margin-top: 4px;
+      font-size: 13.5px !important;
+      font-weight: 500 !important;
+      color: #64748b !important;
+      margin-top: 5px !important;
     }
 
     .overview-card-watermark {
-      position: absolute;
-      right: 18px;
-      bottom: 14px;
-      opacity: 0.12;
-      pointer-events: none;
+      position: absolute !important;
+      right: 22px !important;
+      bottom: 18px !important;
+      opacity: 0.14 !important;
+      pointer-events: none !important;
     }
 
-    /* Quick Access & Management Grid */
+    /* Quick Access Grid */
     .quick-access-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 20px !important;
     }
 
     .quick-card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      position: relative;
+      background: #ffffff !important;
+      border-radius: 16px !important;
+      padding: 20px 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      text-decoration: none !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
     }
 
     .quick-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
     }
 
     .quick-card.orange {
-      border: 1px solid #feeae0;
-      background: #fffaf5;
+      border: 1px solid #feeae0 !important;
+      background: #fffaf5 !important;
     }
 
     .quick-card.blue {
-      border: 1px solid #e0f2fe;
-      background: #f0f9ff;
+      border: 1px solid #e0f2fe !important;
+      background: #f0f9ff !important;
     }
 
     .quick-card.green {
-      border: 1px solid #dcfce7;
-      background: #f0fdf4;
+      border: 1px solid #dcfce7 !important;
+      background: #f0fdf4 !important;
     }
 
     .quick-card.red {
-      border: 1px solid #fee2e2;
-      background: #fef2f2;
+      border: 1px solid #fee2e2 !important;
+      background: #fef2f2 !important;
     }
 
     .quick-card.purple {
-      border: 1px solid #f3e8ff;
-      background: #faf5ff;
+      border: 1px solid #f3e8ff !important;
+      background: #faf5ff !important;
     }
 
     .quick-card.gray {
-      border: 1px solid #e2e8f0;
-      background: #f8fafc;
+      border: 1px solid #e2e8f0 !important;
+      background: #f8fafc !important;
     }
 
     .quick-card-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
     }
 
     .quick-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 50px !important;
+      height: 50px !important;
+      border-radius: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
     }
 
     .quick-icon-box.orange {
-      background: #ffedd5;
-      color: var(--admin-orange);
+      background: #ffedd5 !important;
+      color: var(--admin-orange) !important;
     }
 
     .quick-icon-box.blue {
-      background: #e0f2fe;
-      color: #0284c7;
+      background: #e0f2fe !important;
+      color: #0284c7 !important;
     }
 
     .quick-icon-box.green {
-      background: #dcfce7;
-      color: #16a34a;
+      background: #dcfce7 !important;
+      color: #16a34a !important;
     }
 
     .quick-icon-box.red {
-      background: #fee2e2;
-      color: #ef4444;
+      background: #fee2e2 !important;
+      color: #ef4444 !important;
     }
 
     .quick-icon-box.purple {
-      background: #f3e8ff;
-      color: #9333ea;
+      background: #f3e8ff !important;
+      color: #9333ea !important;
     }
 
     .quick-icon-box.gray {
-      background: #f1f5f9;
-      color: #475569;
+      background: #f1f5f9 !important;
+      color: #475569 !important;
     }
 
     .quick-card-text h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0 0 2px 0;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 3px 0 !important;
     }
 
     .quick-card-text p {
-      font-size: 11px;
-      color: #64748b;
-      margin: 0;
+      font-size: 12.5px !important;
+      color: #64748b !important;
+      margin: 0 !important;
     }
 
     .quick-arrow-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      flex-shrink: 0;
-      transition: all 0.2s ease;
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% !important;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: #64748b !important;
+      flex-shrink: 0 !important;
+      transition: all 0.2s ease !important;
     }
 
     .quick-card:hover .quick-arrow-btn {
-      border-color: #cbd5e1;
-      color: #0f172a;
-      transform: translateX(2px);
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      transform: translateX(2px) !important;
     }
 
     /* Responsive Rules */
-    @media (max-width: 1200px) {
+    @media (max-width: 1280px) {
       .quick-access-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr) !important;
       }
     }
 
-    @media (max-width: 992px) {
+    @media (max-width: 1024px) {
       aside.admin-sidebar {
-        display: none;
+        display: none !important;
+      }
+      .main-content-layout {
+        margin-left: 0 !important;
+        width: 100% !important;
       }
       .mobile-menu-btn {
-        display: flex;
+        display: flex !important;
       }
       .system-overview-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
       }
       .welcome-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 20px !important;
       }
       .welcome-right {
-        width: 100%;
-        justify-content: space-between;
+        width: 100% !important;
+        justify-content: space-between !important;
       }
     }
 
     @media (max-width: 640px) {
       main.admin-main {
-        padding: 16px;
+        padding: 20px 16px !important;
       }
       header.admin-header {
-        padding: 0 16px;
+        padding: 0 16px !important;
       }
       .quick-access-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
       }
       .admin-profile-info {
-        display: none;
+        display: none !important;
       }
     }
   </style>
@@ -751,453 +760,451 @@
     }
   </script>
 
-  <div class="admin-wrapper">
-    <!-- Professional Sidebar Navigation -->
-    <aside class="admin-sidebar" id="adminSidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <img src="../logo.png" alt="DYGON" class="logo-img" />
+  <!-- Professional Sidebar Navigation -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="../logo.png" alt="DYGON" class="logo-img" />
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="bottom-nav-btn active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="live-map.html" class="bottom-nav-btn" data-tab="map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+          <line x1="8" y1="2" x2="8" y2="18" />
+          <line x1="16" y1="6" x2="16" y2="22" />
+        </svg>
+        <span>Live Map</span>
+      </a>
+      <a href="buses.html" class="bottom-nav-btn" data-tab="buses">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <circle cx="7" cy="18" r="2" />
+          <circle cx="17" cy="18" r="2" />
+        </svg>
+        <span>Buses</span>
+      </a>
+      <a href="routes.html" class="bottom-nav-btn" data-tab="routes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+          <line x1="9" y1="4" x2="9" y2="19"></line>
+          <line x1="15" y1="5" x2="15" y2="20"></line>
+        </svg>
+        <span>Routes</span>
+      </a>
+      <a href="feedback.html" class="bottom-nav-btn" data-tab="feedback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Feedback</span>
+      </a>
+      <a href="export.html" class="bottom-nav-btn" data-tab="export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export</span>
+      </a>
+      <a href="students.html" class="bottom-nav-btn" data-tab="students">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Students</span>
+      </a>
+      <a href="settings.html" class="bottom-nav-btn" data-tab="system-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>System Settings</span>
+      </a>
+      <a href="profile.html" class="bottom-nav-btn" data-tab="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main-content-layout">
+    <!-- Clean White Top Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="header-title-accent"></div>
+        <div class="header-title-group">
+          <h1 class="page-title">Management Dashboard</h1>
+          <p class="page-subtitle">Monitor • Manage • Track • Analyze</p>
         </div>
       </div>
 
-      <nav class="sidebar-nav">
-        <a href="dashboard.html" class="bottom-nav-btn active" data-tab="dashboard">
+      <div class="header-actions" id="adminHeaderActions">
+        <!-- Notification Bell Icon -->
+        <div class="header-icon-btn" title="Notifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="live-map.html" class="bottom-nav-btn" data-tab="map">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-            <line x1="8" y1="2" x2="8" y2="18" />
-            <line x1="16" y1="6" x2="16" y2="22" />
-          </svg>
-          <span>Live Map</span>
-        </a>
-        <a href="buses.html" class="bottom-nav-btn" data-tab="buses">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="6" width="18" height="12" rx="2" />
-            <circle cx="7" cy="18" r="2" />
-            <circle cx="17" cy="18" r="2" />
-          </svg>
-          <span>Buses</span>
-        </a>
-        <a href="routes.html" class="bottom-nav-btn" data-tab="routes">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-            <line x1="9" y1="4" x2="9" y2="19"></line>
-            <line x1="15" y1="5" x2="15" y2="20"></line>
-          </svg>
-          <span>Routes</span>
-        </a>
-        <a href="feedback.html" class="bottom-nav-btn" data-tab="feedback">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span>Feedback</span>
-        </a>
-        <a href="export.html" class="bottom-nav-btn" data-tab="export">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span>Export</span>
-        </a>
-        <a href="students.html" class="bottom-nav-btn" data-tab="students">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-          <span>Students</span>
-        </a>
-        <a href="settings.html" class="bottom-nav-btn" data-tab="system-settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          <span>System Settings</span>
-        </a>
-        <a href="profile.html" class="bottom-nav-btn" data-tab="profile">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-    </aside>
-
-    <div class="main-content-layout">
-      <!-- Clean White Top Header -->
-      <header class="admin-header">
-        <div class="header-left">
-          <div class="header-title-accent"></div>
-          <div class="header-title-group">
-            <h1 class="page-title">Management Dashboard</h1>
-            <p class="page-subtitle">Monitor • Manage • Track • Analyze</p>
-          </div>
+          <span class="notification-badge"></span>
         </div>
 
-        <div class="header-actions" id="adminHeaderActions">
-          <!-- Notification Bell Icon -->
-          <div class="header-icon-btn" title="Notifications">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span class="notification-badge"></span>
+        <!-- Admin Avatar & Role -->
+        <div class="admin-profile-header">
+          <div class="admin-avatar-circle">AD</div>
+          <div class="admin-profile-info">
+            <span class="admin-profile-name">Admin</span>
+            <span class="admin-profile-role" id="adminNameDisplay">Administrator</span>
           </div>
-
-          <!-- Admin Avatar & Role -->
-          <div class="admin-profile-header">
-            <div class="admin-avatar-circle">AD</div>
-            <div class="admin-profile-info">
-              <span class="admin-profile-name">Admin</span>
-              <span class="admin-profile-role" id="adminNameDisplay">Administrator</span>
-            </div>
-            <svg class="admin-dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-
-          <!-- Logout Button -->
-          <button id="adminLogoutBtn" class="logout-icon-btn" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();" title="Logout">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-          </button>
-
-          <!-- Mobile Menu Toggle Button -->
-          <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" title="Toggle Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
+          <svg class="admin-dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </div>
 
-        <!-- Mobile Menu Dropdown -->
-        <div class="mobile-menu" id="mobileMenu">
-          <div class="mobile-menu-content">
-            <div class="mobile-menu-section">
-              <h3 class="mobile-menu-title">Navigation</h3>
-              <a href="dashboard.html" class="mobile-menu-item active" data-tab="dashboard">Dashboard</a>
-              <a href="live-map.html" class="mobile-menu-item" data-tab="map">Live Map</a>
-              <a href="buses.html" class="mobile-menu-item" data-tab="buses">Buses</a>
-              <a href="routes.html" class="mobile-menu-item" data-tab="routes">Routes</a>
-              <a href="feedback.html" class="mobile-menu-item" data-tab="feedback">Feedback</a>
-              <a href="export.html" class="mobile-menu-item" data-tab="export">Export</a>
-              <a href="students.html" class="mobile-menu-item" data-tab="students">Students</a>
-              <a href="settings.html" class="mobile-menu-item" data-tab="system-settings">System Settings</a>
-              <a href="profile.html" class="mobile-menu-item" data-tab="profile">Profile</a>
-            </div>
+        <!-- Logout Button -->
+        <button id="adminLogoutBtn" class="logout-icon-btn" type="button" onclick="event.preventDefault(); event.stopPropagation(); adminLogout();" title="Logout">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" title="Toggle Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+          <div class="mobile-menu-section">
+            <h3 class="mobile-menu-title">Navigation</h3>
+            <a href="dashboard.html" class="mobile-menu-item active" data-tab="dashboard">Dashboard</a>
+            <a href="live-map.html" class="mobile-menu-item" data-tab="map">Live Map</a>
+            <a href="buses.html" class="mobile-menu-item" data-tab="buses">Buses</a>
+            <a href="routes.html" class="mobile-menu-item" data-tab="routes">Routes</a>
+            <a href="feedback.html" class="mobile-menu-item" data-tab="feedback">Feedback</a>
+            <a href="export.html" class="mobile-menu-item" data-tab="export">Export</a>
+            <a href="students.html" class="mobile-menu-item" data-tab="students">Students</a>
+            <a href="settings.html" class="mobile-menu-item" data-tab="system-settings">System Settings</a>
+            <a href="profile.html" class="mobile-menu-item" data-tab="profile">Profile</a>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- Admin Main Content -->
-      <main class="admin-main">
-        <div class="dashboard-panel active" id="dashboardPanel">
-          <div class="dashboard-container">
-            
-            <!-- Welcome Card -->
-            <div class="welcome-card animate-fade-in-up">
-              <div class="welcome-left">
-                <div class="welcome-avatar">AD</div>
-                <div class="welcome-text">
-                  <h2>Admin Dashboard</h2>
-                  <p>Welcome back, <span id="adminNameDisplayDashboard">Administrator</span> 👋</p>
-                </div>
-              </div>
-
-              <div class="welcome-right">
-                <div class="widget-item">
-                  <div class="widget-icon calendar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                  </div>
-                  <div class="widget-info">
-                    <span class="widget-label">Today</span>
-                    <span class="widget-value" id="currentDateDisplay">27 Sep 2026, Saturday</span>
-                  </div>
-                </div>
-
-                <div class="widget-divider"></div>
-
-                <div class="widget-item">
-                  <div class="widget-icon weather">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="5"></circle>
-                      <line x1="12" y1="1" x2="12" y2="3"></line>
-                      <line x1="12" y1="21" x2="12" y2="23"></line>
-                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                      <line x1="1" y1="12" x2="3" y2="12"></line>
-                      <line x1="21" y1="12" x2="23" y2="12"></line>
-                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                  </div>
-                  <div class="widget-info">
-                    <span class="widget-value">28°C</span>
-                    <span class="widget-label">Chennai, Tamil Nadu</span>
-                  </div>
-                </div>
+    <!-- Admin Main Content -->
+    <main class="admin-main">
+      <div class="dashboard-panel active" id="dashboardPanel">
+        <div class="dashboard-container">
+          
+          <!-- Welcome Card -->
+          <div class="welcome-card animate-fade-in-up">
+            <div class="welcome-left">
+              <div class="welcome-avatar">AD</div>
+              <div class="welcome-text">
+                <h2>Admin Dashboard</h2>
+                <p>Welcome back, <span id="adminNameDisplayDashboard">Administrator</span> 👋</p>
               </div>
             </div>
 
-            <!-- System Overview -->
-            <div class="dashboard-section animate-fade-in-up">
-              <div class="section-header-flex">
-                <div class="section-title-wrapper">
-                  <div class="section-accent-bar"></div>
-                  <h3 class="section-title">System Overview</h3>
+            <div class="welcome-right">
+              <div class="widget-item">
+                <div class="widget-icon calendar">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
                 </div>
-                <span class="live-system-badge">
-                  <span class="badge-dot"></span> Live System
-                </span>
+                <div class="widget-info">
+                  <span class="widget-label">Today</span>
+                  <span class="widget-value" id="currentDateDisplay">27 Sep 2026, Saturday</span>
+                </div>
               </div>
 
-              <div class="system-overview-grid">
-                <!-- Total Registered Buses Card -->
-                <div class="overview-card">
-                  <div class="overview-card-left">
-                    <div class="overview-icon-box blue">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                        <circle cx="7" cy="18" r="2"></circle>
-                        <circle cx="17" cy="18" r="2"></circle>
-                      </svg>
-                    </div>
-                    <div class="overview-info">
-                      <span class="overview-value" id="dashTotalBuses">0</span>
-                      <span class="overview-label">Total Registered Buses</span>
-                    </div>
-                  </div>
-                  <div class="overview-card-watermark">
-                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <div class="widget-divider"></div>
+
+              <div class="widget-item">
+                <div class="widget-icon weather">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </svg>
+                </div>
+                <div class="widget-info">
+                  <span class="widget-value">28°C</span>
+                  <span class="widget-label">Chennai, Tamil Nadu</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Overview -->
+          <div class="dashboard-section animate-fade-in-up">
+            <div class="section-header-flex">
+              <div class="section-title-wrapper">
+                <div class="section-accent-bar"></div>
+                <h3 class="section-title">System Overview</h3>
+              </div>
+              <span class="live-system-badge">
+                <span class="badge-dot"></span> Live System
+              </span>
+            </div>
+
+            <div class="system-overview-grid">
+              <!-- Total Registered Buses Card -->
+              <div class="overview-card">
+                <div class="overview-card-left">
+                  <div class="overview-icon-box blue">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="6" width="18" height="12" rx="2"></rect>
                       <circle cx="7" cy="18" r="2"></circle>
                       <circle cx="17" cy="18" r="2"></circle>
                     </svg>
                   </div>
-                </div>
-
-                <!-- Buses Currently Live Card -->
-                <div class="overview-card">
-                  <div class="overview-card-left">
-                    <div class="overview-icon-box green">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                    </div>
-                    <div class="overview-info">
-                      <span class="overview-value" id="dashActiveBuses">0</span>
-                      <span class="overview-label">Buses Currently Live</span>
-                    </div>
-                  </div>
-                  <div class="overview-card-watermark">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <line x1="18" y1="20" x2="18" y2="10"></line>
-                      <line x1="12" y1="20" x2="12" y2="4"></line>
-                      <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
+                  <div class="overview-info">
+                    <span class="overview-value" id="dashTotalBuses">0</span>
+                    <span class="overview-label">Total Registered Buses</span>
                   </div>
                 </div>
+                <div class="overview-card-watermark">
+                  <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                    <circle cx="7" cy="18" r="2"></circle>
+                    <circle cx="17" cy="18" r="2"></circle>
+                  </svg>
+                </div>
+              </div>
 
-                <!-- System Uptime Card -->
-                <div class="overview-card">
-                  <div class="overview-card-left">
-                    <div class="overview-icon-box orange">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                      </svg>
-                    </div>
-                    <div class="overview-info">
-                      <span class="overview-value">99.9%</span>
-                      <span class="overview-label">System Uptime</span>
-                    </div>
-                  </div>
-                  <div class="overview-card-watermark">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <line x1="18" y1="20" x2="18" y2="4"></line>
-                      <line x1="12" y1="20" x2="12" y2="10"></line>
-                      <line x1="6" y1="20" x2="6" y2="16"></line>
+              <!-- Buses Currently Live Card -->
+              <div class="overview-card">
+                <div class="overview-card-left">
+                  <div class="overview-icon-box green">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
                     </svg>
                   </div>
+                  <div class="overview-info">
+                    <span class="overview-value" id="dashActiveBuses">0</span>
+                    <span class="overview-label">Buses Currently Live</span>
+                  </div>
+                </div>
+                <div class="overview-card-watermark">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- System Uptime Card -->
+              <div class="overview-card">
+                <div class="overview-card-left">
+                  <div class="overview-icon-box orange">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                  </div>
+                  <div class="overview-info">
+                    <span class="overview-value">99.9%</span>
+                    <span class="overview-label">System Uptime</span>
+                  </div>
+                </div>
+                <div class="overview-card-watermark">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                  </svg>
                 </div>
               </div>
             </div>
-
-            <!-- Quick Access & Management -->
-            <div class="dashboard-section animate-fade-in-up-delayed">
-              <div class="section-header-flex" style="margin-bottom: 16px;">
-                <div class="section-title-wrapper">
-                  <div class="section-accent-bar"></div>
-                  <h3 class="section-title">Quick Access & Management</h3>
-                </div>
-              </div>
-
-              <div class="quick-access-grid">
-                <!-- Live Tracking Map -->
-                <a href="live-map.html" class="quick-card orange">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box orange">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                        <line x1="8" y1="2" x2="8" y2="18"></line>
-                        <line x1="16" y1="6" x2="16" y2="22"></line>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Live Tracking Map</h4>
-                      <p>Real-time fleet monitoring</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-
-                <!-- Bus Details -->
-                <a href="buses.html" class="quick-card blue">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box blue">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                        <circle cx="7" cy="18" r="2"></circle>
-                        <circle cx="17" cy="18" r="2"></circle>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Bus Details</h4>
-                      <p>Manage fleet configurations</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-
-                <!-- Routes -->
-                <a href="routes.html" class="quick-card green">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box green">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
-                        <line x1="9" y1="4" x2="9" y2="19"></line>
-                        <line x1="15" y1="5" x2="15" y2="20"></line>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Routes</h4>
-                      <p>Route optimization & paths</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-
-                <!-- Feedback -->
-                <a href="feedback.html" class="quick-card red">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box red">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Feedback</h4>
-                      <p>Student safety & issue logs</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-
-                <!-- Export Reports -->
-                <a href="export.html" class="quick-card purple">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box purple">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Export Reports</h4>
-                      <p>Analytical data downloads</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-
-                <!-- Admin Profile -->
-                <a href="profile.html" class="quick-card gray">
-                  <div class="quick-card-left">
-                    <div class="quick-icon-box gray">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
-                    </div>
-                    <div class="quick-card-text">
-                      <h4>Admin Profile</h4>
-                      <p>Account settings & preferences</p>
-                    </div>
-                  </div>
-                  <div class="quick-arrow-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </a>
-              </div>
-            </div>
-
           </div>
-        </div>
-      </main>
 
-      <!-- Toast Container -->
-      <div class="toast-container" id="toastContainer"></div>
-    </div>
+          <!-- Quick Access & Management -->
+          <div class="dashboard-section animate-fade-in-up-delayed">
+            <div class="section-header-flex" style="margin-bottom: 18px;">
+              <div class="section-title-wrapper">
+                <div class="section-accent-bar"></div>
+                <h3 class="section-title">Quick Access & Management</h3>
+              </div>
+            </div>
+
+            <div class="quick-access-grid">
+              <!-- Live Tracking Map -->
+              <a href="live-map.html" class="quick-card orange">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box orange">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                      <line x1="8" y1="2" x2="8" y2="18"></line>
+                      <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Live Tracking Map</h4>
+                    <p>Real-time fleet monitoring</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- Bus Details -->
+              <a href="buses.html" class="quick-card blue">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box blue">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                      <circle cx="7" cy="18" r="2"></circle>
+                      <circle cx="17" cy="18" r="2"></circle>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Bus Details</h4>
+                    <p>Manage fleet configurations</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- Routes -->
+              <a href="routes.html" class="quick-card green">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box green">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path>
+                      <line x1="9" y1="4" x2="9" y2="19"></line>
+                      <line x1="15" y1="5" x2="15" y2="20"></line>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Routes</h4>
+                    <p>Route optimization & paths</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- Feedback -->
+              <a href="feedback.html" class="quick-card red">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box red">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Feedback</h4>
+                    <p>Student safety & issue logs</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- Export Reports -->
+              <a href="export.html" class="quick-card purple">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box purple">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Export Reports</h4>
+                    <p>Analytical data downloads</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+
+              <!-- Admin Profile -->
+              <a href="profile.html" class="quick-card gray">
+                <div class="quick-card-left">
+                  <div class="quick-icon-box gray">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div class="quick-card-text">
+                    <h4>Admin Profile</h4>
+                    <p>Account settings & preferences</p>
+                  </div>
+                </div>
+                <div class="quick-arrow-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
   </div>
 
   <script>
