@@ -1,6 +1,9 @@
 // =========================================
-// Buses Page Module
+// Buses Page - Direct DB Fetch Module
+// Fetches all buses directly from /api/bus/all on page load
+// No dependency on WebSocketManager or adminState timing
 // =========================================
+
 const BusesPage = {
   render() {
     return `
@@ -57,20 +60,139 @@ const BusesPage = {
         }
       });
     }
-    
-    // Update total count
+
+    // Always do a direct fetch regardless of WebSocket/adminState state
+    BusesPage.fetchAndRenderBuses();
+  },
+
+  /**
+   * Direct fetch of all buses from the database.
+   * Uses /api/bus/all - no dependency on WebSocketManager or adminState.
+   */
+  async fetchAndRenderBuses() {
+    const tbody = document.getElementById('busesTableBody');
     const totalEl = document.getElementById('totalBuses');
-    if (totalEl && typeof adminState !== 'undefined') {
-      totalEl.textContent = adminState.buses.size;
+
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
+            <span style="display:inline-block; animation: spin 1s linear infinite; margin-right:8px;">⟳</span>
+            Loading buses...
+          </td>
+        </tr>`;
     }
-    
-    // Render bus table & trigger fresh fetch from server
-    if (typeof BusManager !== 'undefined') {
-      BusManager.renderBusesTable();
+
+    try {
+      // Detect base URL (same logic used elsewhere in the app)
+      function getBase() {
+        const host = window.location.hostname;
+        const protocol = window.location.protocol;
+        const port = window.location.port;
+        if (window.Capacitor && window.Capacitor.isNativePlatform())
+          return 'https://bus-tracking-master-production-2d22.up.railway.app';
+        if (protocol === 'file:')
+          return 'https://bus-tracking-master-production-2d22.up.railway.app';
+        if (host.includes('.devtunnels.ms')) {
+          const m = host.match(/^([^-]+)-\d+\.(.+)$/);
+          if (m) return `${protocol}//${m[1]}-8080.${m[2]}`;
+        }
+        if (port && port !== '80' && port !== '443')
+          return `${protocol}//${host}:${port}`;
+        return `${protocol}//${host}`;
+      }
+
+      const baseUrl = (typeof getApiBaseUrl === 'function') ? getApiBaseUrl() : getBase();
+      const url = `${baseUrl}/api/bus/all?t=${Date.now()}`;
+
+      console.log('[BusesPage] Fetching buses from:', url);
+      const response = await fetch(url, { cache: 'no-store' });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const buses = await response.json();
+      console.log(`[BusesPage] Fetched ${buses.length} buses from DB`);
+
+      // Also sync into adminState/BusManager if available (for WebSocket continuity)
+      if (typeof BusManager !== 'undefined' && BusManager.handleBusData) {
+        BusManager.handleBusData(buses, true);
+        return; // BusManager.handleBusData will call renderBusesTable() itself
+      }
+
+      // Fallback: render directly if BusManager not available
+      BusesPage.renderTable(buses);
+
+    } catch (err) {
+      console.error('[BusesPage] Failed to fetch buses:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 30px; color: #e53e3e;">
+              ⚠️ Failed to load buses. 
+              <button onclick="BusesPage.fetchAndRenderBuses()" 
+                style="margin-left:8px; padding:4px 12px; background:var(--primary,#f97316); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">
+                Retry
+              </button>
+            </td>
+          </tr>`;
+      }
     }
-    if (typeof WebSocketManager !== 'undefined' && WebSocketManager.fetchInitialBuses) {
-      WebSocketManager.fetchInitialBuses(true);
+  },
+
+  /**
+   * Fallback renderer if BusManager is not available
+   */
+  renderTable(buses) {
+    const tbody = document.getElementById('busesTableBody');
+    const totalEl = document.getElementById('totalBuses');
+
+    if (totalEl) totalEl.textContent = buses.length;
+
+    if (!tbody) return;
+
+    if (!buses || buses.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
+            No buses found
+          </td>
+        </tr>`;
+      return;
     }
+
+    tbody.innerHTML = buses.map(bus => {
+      const busNo    = bus.busNumber || bus.busNo || bus.busId || '—';
+      const driver   = bus.driverName || 'Unassigned';
+      const phone    = bus.driverPhone || '';
+      const route    = bus.busName || bus.routeName || `Route ${busNo}`;
+      const isActive = bus.status && (bus.status.toUpperCase() === 'RUNNING' || bus.status.toUpperCase() === 'GPS_ACTIVE');
+      const driverId = bus.driverId || '';
+
+      return `
+        <tr>
+          <td data-label="Bus No"><span class="bus-number-badge">${busNo}</span></td>
+          <td data-label="Driver" style="font-weight: 500;">${driver}</td>
+          <td data-label="Route" style="color: var(--text-secondary);">${route}</td>
+          <td data-label="Status">
+            <span class="status-badge ${isActive ? 'active' : 'inactive'}">
+              ${isActive ? 'Online' : 'Offline'}
+            </span>
+          </td>
+          <td data-label="Action">
+            <div class="table-actions">
+              <button class="action-btn info"
+                onclick="event.stopPropagation(); AdminBusManager && AdminBusManager.openDriverInfoModal('${driverId}', '${driver.replace(/'/g, "\\'")}', '${phone.replace(/'/g, "\\'")}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Details
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
   }
 };
 
@@ -78,7 +200,7 @@ window.BusesPage = BusesPage;
 
 // Auto initialize BusesPage when script is loaded on buses.html
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setTimeout(() => BusesPage.init(), 50);
+  setTimeout(() => BusesPage.init(), 100);
 } else {
   document.addEventListener('DOMContentLoaded', () => BusesPage.init());
 }
