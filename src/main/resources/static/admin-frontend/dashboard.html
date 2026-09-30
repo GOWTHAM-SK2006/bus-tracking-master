@@ -154,8 +154,8 @@
       border-bottom: 1px solid #f1f5f9 !important;
       display: flex !important;
       align-items: center !important;
-      justify-content: space-between !important;
-      padding: 0 40px !important;
+      justify-content: flex-end !important;
+      padding: 0 48px !important;
       position: sticky !important;
       top: 0 !important;
       z-index: 2000 !important;
@@ -310,7 +310,7 @@
 
     /* Main Dashboard Body */
     main.admin-main {
-      padding: 48px 48px 60px 48px !important;
+      padding: 36px 48px 60px 48px !important;
       flex: 1 !important;
       overflow-y: auto !important;
       display: flex !important;
@@ -321,10 +321,17 @@
     .dashboard-container {
       display: flex !important;
       flex-direction: column !important;
-      gap: 32px !important;
+      gap: 24px !important;
       width: 100% !important;
       max-width: 1600px !important;
       margin: 0 auto !important;
+    }
+
+    .page-main-header {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      margin-bottom: -4px !important;
     }
 
     /* 1. TOP Welcome Banner Card */
@@ -340,7 +347,7 @@
       width: 100% !important;
       opacity: 1 !important;
       visibility: visible !important;
-      margin-top: 12px !important;
+      margin-top: 0 !important;
     }
 
     .welcome-left {
@@ -867,15 +874,8 @@
   <div class="main-content-layout">
     <!-- Clean White Top Header -->
     <header class="admin-header">
-      <div class="header-left">
-        <div class="header-title-accent"></div>
-        <div class="header-title-group">
-          <h1 class="page-title">Management Dashboard</h1>
-          <p class="page-subtitle">Monitor • Manage • Track • Analyze</p>
-        </div>
-      </div>
-
       <div class="header-actions" id="adminHeaderActions">
+        <!-- Notification Bell Icon -->
         <!-- Notification Bell Icon -->
         <div class="header-icon-btn" title="Notifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -940,6 +940,15 @@
       <div class="dashboard-panel active" id="dashboardPanel">
         <div class="dashboard-container">
           
+          <!-- Management Dashboard Title Header -->
+          <div class="header-left page-main-header">
+            <div class="header-title-accent"></div>
+            <div class="header-title-group">
+              <h1 class="page-title">Management Dashboard</h1>
+              <p class="page-subtitle">Monitor • Manage • Track • Analyze</p>
+            </div>
+          </div>
+
           <!-- 1. TOP: Admin Dashboard Welcome Section -->
           <div class="welcome-card">
             <div class="welcome-left">
