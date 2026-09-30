@@ -495,23 +495,51 @@
     }
 
     .overview-card {
-      background: #ffffff !important;
-      border: 1px solid #f1f5f9 !important;
-      border-radius: 20px !important;
+      border-radius: 18px !important;
       padding: 30px 34px !important;
       min-height: 145px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02) !important;
-      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
       position: relative !important;
       overflow: hidden !important;
     }
 
-    .overview-card:hover {
-      transform: translateY(-2px) !important;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05) !important;
+    .overview-card.blue {
+      border: 1.5px solid #7dd3fc !important;
+      background: #f0f9ff !important;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .overview-card.blue:hover {
+      border-color: #0284c7 !important;
+      transform: translateY(-3px) !important;
+      box-shadow: 0 10px 24px rgba(2, 132, 199, 0.16) !important;
+    }
+
+    .overview-card.green {
+      border: 1.5px solid #86efac !important;
+      background: #f0fdf4 !important;
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .overview-card.green:hover {
+      border-color: #16a34a !important;
+      transform: translateY(-3px) !important;
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.16) !important;
+    }
+
+    .overview-card.orange {
+      border: 1.5px solid #fdba74 !important;
+      background: #fffaf5 !important;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .overview-card.orange:hover {
+      border-color: #f97316 !important;
+      transform: translateY(-3px) !important;
+      box-shadow: 0 10px 24px rgba(249, 115, 22, 0.16) !important;
     }
 
     .overview-card-left {
@@ -1051,7 +1079,7 @@
 
             <div class="system-overview-grid">
               <!-- Total Registered Buses Card -->
-              <div class="overview-card">
+              <div class="overview-card blue">
                 <div class="overview-card-left">
                   <div class="overview-icon-box blue">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1075,7 +1103,7 @@
               </div>
 
               <!-- Buses Currently Live Card -->
-              <div class="overview-card">
+              <div class="overview-card green">
                 <div class="overview-card-left">
                   <div class="overview-icon-box green">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1098,7 +1126,7 @@
               </div>
 
               <!-- System Uptime Card -->
-              <div class="overview-card">
+              <div class="overview-card orange">
                 <div class="overview-card-left">
                   <div class="overview-icon-box orange">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
