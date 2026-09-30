@@ -48,7 +48,7 @@ const AuthManager = {
                         email: username,
                         role: 'ADMIN'
                     }));
-                    window.location.href = '/admin-frontend/admin.html';
+                    window.location.href = '/admin-frontend/dashboard.html';
                     return;
                 } else {
                     this.showError('Invalid admin credentials. Use admin@college.com / admin123');

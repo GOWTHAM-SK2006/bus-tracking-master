@@ -326,38 +326,15 @@ const MobileMenuManager = {
 };
 
 // =========================================
-// Panel Manager (Replaces TabManager)
+// Panel Manager (Page Navigation)
 // =========================================
 const PanelManager = {
   init() {
     DOM.tabBtns.forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const target = btn.dataset.tab;
-        if (target === "map") {
-          this.closeAllPanels();
-        } else if (target === "buses") {
-          this.togglePanel("buses");
-        } else if (target === "routes") {
-          this.togglePanel("routes");
-        } else if (target === "export") {
-          this.togglePanel("export");
-        } else if (target === "feedback") {
-          this.togglePanel("feedback");
-        } else if (target === "profile") {
-          this.togglePanel("profile");
-        } else if (target === "students") {
-          this.togglePanel("students");
-        } else if (target === "system-settings") {
-          this.togglePanel("system-settings");
-        } else if (target === "dashboard") {
-          this.togglePanel("dashboard");
-        }
+        this.togglePanel(target);
       });
-    });
-
-    // Back button in route details
-    DOM.routeDetailsBackBtn?.addEventListener("click", () => {
-      this.togglePanel("routes");
     });
 
     DOM.closePanelBtns.forEach((btn) => {
@@ -366,31 +343,26 @@ const PanelManager = {
   },
 
   togglePanel(panelName) {
-    console.log(`[Panel] Toggling: ${panelName}`);
+    console.log(`[Panel] Navigating to: ${panelName}`);
     const routeMap = {
-      'dashboard': '#/dashboard',
-      'buses': '#/buses',
-      'routes': '#/routes',
-      'feedback': '#/feedback',
-      'export': '#/export',
-      'students': '#/students',
-      'system-settings': '#/settings',
-      'profile': '#/profile',
-      'map': '#/live-map'
+      'dashboard': 'dashboard.html',
+      'buses': 'buses.html',
+      'routes': 'routes.html',
+      'feedback': 'feedback.html',
+      'export': 'export.html',
+      'students': 'students.html',
+      'system-settings': 'settings.html',
+      'profile': 'profile.html',
+      'map': 'live-map.html'
     };
-    if (routeMap[panelName]) {
-      window.location.hash = routeMap[panelName];
-    } else {
-      window.location.hash = '#/live-map';
-    }
+    window.location.href = routeMap[panelName] || 'dashboard.html';
   },
 
   closeAllPanels() {
-    // Close right-side info panel if MapManager is initialized
     if (typeof MapManager !== "undefined" && MapManager.closeInfoPanel) {
       MapManager.closeInfoPanel();
     }
-    window.location.hash = '#/live-map';
+    window.location.href = 'dashboard.html';
   },
 
   updateActiveTab(tabName) {
@@ -437,20 +409,18 @@ function mobileMenuTabClick(tabName) {
   if (menu) menu.classList.remove("open");
   if (header) header.classList.remove("menu-open");
 
-  // Navigate via hash routing
-  const tabToRoute = {
-    'dashboard': '#/dashboard',
-    'map': '#/live-map',
-    'buses': '#/buses',
-    'routes': '#/routes',
-    'feedback': '#/feedback',
-    'export': '#/export',
-    'students': '#/students',
-    'system-settings': '#/settings',
-    'profile': '#/profile',
+  const tabToPage = {
+    'dashboard': 'dashboard.html',
+    'map': 'live-map.html',
+    'buses': 'buses.html',
+    'routes': 'routes.html',
+    'feedback': 'feedback.html',
+    'export': 'export.html',
+    'students': 'students.html',
+    'system-settings': 'settings.html',
+    'profile': 'profile.html',
   };
-  const route = tabToRoute[tabName] || '#/dashboard';
-  window.location.hash = route;
+  window.location.href = tabToPage[tabName] || 'dashboard.html';
 }
 
 // =========================================
@@ -464,6 +434,10 @@ var MapManager = {
   lockTimeout: null,
 
   init() {
+    if (!DOM.mapContainer) {
+      console.log("[Map] No map container on this page.");
+      return;
+    }
     console.log("[Map] Initializing MapTiler SDK...");
 
     // MapTiler SDK Initialization
@@ -2166,57 +2140,43 @@ function generateBusPDF(buses, title) {
 }
 
 function toggleBusesPanel(show) {
-  if (show) window.location.hash = '#/buses';
-  else window.location.hash = '#/live-map';
+  if (show) window.location.href = 'buses.html';
+  else window.location.href = 'live-map.html';
 }
 
 function toggleExportPanel(show) {
-  if (show) window.location.hash = '#/export';
-  else window.location.hash = '#/live-map';
+  if (show) window.location.href = 'export.html';
+  else window.location.href = 'live-map.html';
 }
 
 function toggleProfilePanel(show) {
-  if (show) window.location.hash = '#/profile';
-  else window.location.hash = '#/dashboard';
-}
-
-function mobileMenuTabClick(tabName) {
-  const tabToRoute = {
-    'dashboard': '#/dashboard',
-    'map': '#/live-map',
-    'buses': '#/buses',
-    'routes': '#/routes',
-    'feedback': '#/feedback',
-    'export': '#/export',
-    'students': '#/students',
-    'system-settings': '#/settings',
-    'profile': '#/profile',
-  };
-  const route = tabToRoute[tabName] || '#/dashboard';
-  window.location.hash = route;
+  if (show) window.location.href = 'profile.html';
+  else window.location.href = 'dashboard.html';
 }
 
 function loadAdminProfile() {
   const adminData = JSON.parse(localStorage.getItem("admin"));
   if (adminData) {
-    document.getElementById("profileName").textContent =
-      adminData.name || "Admin";
-    document.getElementById("adminEmail").value = adminData.email || "";
+    const profName = document.getElementById("profileName");
+    const profEmail = document.getElementById("adminEmail");
+    if (profName) profName.textContent = adminData.name || "Admin";
+    if (profEmail) profEmail.value = adminData.email || "";
   }
 }
 
 function updateAdminProfile() {
-  const password = document.getElementById("adminPassword").value;
+  const passwordInput = document.getElementById("adminPassword");
+  const password = passwordInput ? passwordInput.value : "";
 
-  // Simple validation and alert
   if (password) {
-    alert("Profile updated and password changed successfully!");
+    showAdminToast("Profile updated and password changed successfully!", "success");
   } else {
-    alert("Profile updated successfully!");
+    showAdminToast("Profile updated successfully!", "success");
   }
 
-  // Close the panel
-  PanelManager.closeAllPanels();
+  setTimeout(() => {
+    window.location.href = 'dashboard.html';
+  }, 1000);
 }
 
 // =========================================
@@ -2228,19 +2188,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateDebugStatus("System: Initializing Components...");
 
   try {
-    // Clear any stale bus data from previous sessions before displaying anything
     adminState.buses.clear();
     adminState.selectedBusId = null;
 
     // 0. Mobile Menu
     MobileMenuManager.init();
 
-    // 1. Router (replaces PanelManager for navigation)
-    updateDebugStatus("Step 1/4: UI Router...");
-    // PanelManager.init() is no longer needed - AdminRouter handles navigation
-
-    // 2. Map Manager
-    updateDebugStatus("Step 2/4: Map System...");
+    // 1. Map System (only if #map container exists on page)
+    updateDebugStatus("Step 1/3: Map System...");
     try {
       MapManager.init();
     } catch (mapErr) {
@@ -2248,26 +2203,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateDebugStatus("Map Failed (Continuing...)", "error");
     }
 
-    // 3. Bus Manager & Route Manager
-    updateDebugStatus("Step 3/5: Bus Logic...");
+    // 2. Bus Manager & Route Manager
+    updateDebugStatus("Step 2/3: Bus & Route Logic...");
     BusManager.init();
     RouteManager.init();
 
+    // 3. Page-specific initializations
+    if (document.getElementById("busesTableBody")) {
+      BusManager.renderBusesTable();
+    }
+    if (document.getElementById("totalFeedback") && typeof FeedbackManager !== 'undefined') {
+      FeedbackManager.loadFeedback();
+    }
+    if (document.getElementById("studentSearchInput") && typeof StudentsManager !== 'undefined') {
+      StudentsManager.loadStudents();
+    }
+    if (document.getElementById("profileName")) {
+      loadAdminProfile();
+    }
+    if (document.getElementById("dashTotalBuses")) {
+      PanelManager.updateDashboardStats();
+    }
+
     // 4. WebSocket & Auth
-    updateDebugStatus("Step 4/5: Connecting...");
+    updateDebugStatus("Step 3/3: Connecting...");
     WebSocketManager.init();
     await loadAccountCreationState();
-
-    // 5. Initialize Router (handles default view based on URL hash)
-    updateDebugStatus("Step 5/5: Router...");
-    if (typeof AdminRouter !== 'undefined') {
-      AdminRouter.init();
-    }
 
     adminState.isInitialized = true;
     updateDebugStatus("System: Operational", "success");
 
-    // Hide trace bar after 5 seconds if successful
     setTimeout(() => {
       const bar = document.getElementById("debug-trace-bar");
       if (bar && !bar.textContent.includes("ERROR")) {

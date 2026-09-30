@@ -418,7 +418,7 @@ signinForm.addEventListener("submit", async (e) => {
             role: "ADMIN",
           }),
         );
-        window.location.href = "admin-frontend/admin.html";
+        window.location.href = "admin-frontend/dashboard.html";
         break;
     }
   } catch (error) {

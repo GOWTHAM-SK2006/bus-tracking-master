@@ -67,7 +67,7 @@ const ProfilePage = {
                   ">
                 Save Changes
               </button>
-              <button onclick="window.location.hash='#/dashboard'" style="
+              <button onclick="window.location.href='dashboard.html'" style="
                     flex: 1;
                     padding: 12px;
                     background: #e0e0e0;

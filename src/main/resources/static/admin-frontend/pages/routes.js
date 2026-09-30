@@ -43,7 +43,7 @@ const RoutesPage = {
               <h2 id="routeDetailsTitle">Route Name</h2>
               <span class="list-count" id="routeDetailsCount">0 buses</span>
             </div>
-            <button class="close-panel-btn" onclick="window.location.hash = '#/routes'">
+            <button class="close-panel-btn" onclick="document.getElementById('routeDetailsView').classList.remove('visible'); document.getElementById('routesView').classList.add('visible');">
               &times;
             </button>
           </div>

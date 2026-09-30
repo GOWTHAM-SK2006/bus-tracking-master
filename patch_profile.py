@@ -2,7 +2,7 @@ import sys
 import re
 
 def update_html():
-    file = "src/main/resources/static/admin-frontend/admin.html"
+    file = "src/main/resources/static/admin-frontend/profile.html"
     with open(file, 'r') as f:
         html = f.read()
 
