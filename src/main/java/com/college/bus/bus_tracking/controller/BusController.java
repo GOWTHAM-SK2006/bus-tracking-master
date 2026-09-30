@@ -80,29 +80,6 @@ public class BusController {
         }
     }
 
-    /**
-     * Get a specific bus by ID
-     */
-    @GetMapping("/{busId}")
-    public ResponseEntity<?> getBusById(@PathVariable Long busId) {
-        try {
-            // Sample bus
-            Map<String, Object> bus = new HashMap<>();
-            bus.put("busId", busId);
-            bus.put("busNumber", "BUS" + String.format("%03d", busId));
-            bus.put("busName", "Route " + busId);
-            bus.put("latitude", 13.0827 + (busId * 0.01));
-            bus.put("longitude", 80.2707 + (busId * 0.01));
-            bus.put("status", "RUNNING");
-            bus.put("driverId", busId);
-            bus.put("driverName", "Driver " + busId);
-            bus.put("driverPhone", "+91-9000000000");
-
-            return ResponseEntity.ok(bus);
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
-        }
-    }
 
     /**
      * Update bus location (Called by Driver App)
@@ -169,44 +146,6 @@ public class BusController {
         }
     }
 
-    /**
-     * Trigger sample bus updates for testing
-     */
-    @PostMapping("/trigger-sample-data")
-    public ResponseEntity<?> triggerSampleData() {
-        try {
-            List<Map<String, Object>> buses = new ArrayList<>();
-
-            // Sample buses
-            for (int i = 1; i <= 3; i++) {
-                Map<String, Object> bus = new HashMap<>();
-                bus.put("busId", i);
-                bus.put("busNumber", "BUS" + String.format("%03d", i));
-                bus.put("busName", "Route " + i);
-                bus.put("latitude", 13.0827 + (i * 0.01));
-                bus.put("longitude", 80.2707 + (i * 0.01));
-                bus.put("status", i == 3 ? "IDLE" : "RUNNING");
-                bus.put("driverId", i);
-                bus.put("driverName", "Driver " + i);
-                bus.put("driverPhone", "+91-9000000" + i);
-                buses.add(bus);
-            }
-
-            broadcastBusUpdates(buses);
-            return ResponseEntity.ok(Map.of("status", "success", "buses sent", buses.size()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("status", "error", "message", e.getMessage()));
-        }
-    }
-
-    private void broadcastBusUpdates(List<Map<String, Object>> buses) throws Exception {
-        Map<String, Object> update = new HashMap<>();
-        update.put("type", "BUS_UPDATE");
-        update.put("buses", buses);
-        update.put("timestamp", System.currentTimeMillis());
-
-        AdminWebSocketHandler.broadcastToAdmins(update);
-    }
 
     // =========================================
     // Bus Config Management (Admin)

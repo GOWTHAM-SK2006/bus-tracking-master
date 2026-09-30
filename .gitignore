@@ -41,3 +41,24 @@ node_modules/
 # ios/
 joystick/
 
+### Logs ###
+*.log
+*.log.*
+
+### Python scripts ###
+*.py
+
+### Maven installations (use mvnw instead) ###
+apache-maven-*/
+
+### Android build artifacts ###
+android/app/build/
+android/.gradle/
+android/build/
+
+### Static resource node_modules (should not be deployed) ###
+src/main/resources/static/**/node_modules/
+
+### OS ###
+.DS_Store
+Thumbs.db
