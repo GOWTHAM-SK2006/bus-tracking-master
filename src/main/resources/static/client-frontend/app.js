@@ -14,28 +14,13 @@
     const CAMPUS_COORDS = [12.9602, 80.0573];
     const DEFAULT_ZOOM = 13;
 
-    // Default Buses & Stops for Direct Loading
-    const DEFAULT_BUSES = [
-        { id: 101, busNumber: 'BUS-101', busName: 'Tambaram Line', driverName: 'Ramesh Kumar', driverPhone: '+91 9876543210', busStop: 'Tambaram', status: 'RUNNING', latitude: 12.9250, longitude: 80.1270, calculatedSpeed: 34 },
-        { id: 102, busNumber: 'BUS-102', busName: 'Guindy Express', driverName: 'Suresh Babu', driverPhone: '+91 9876543211', busStop: 'Guindy', status: 'RUNNING', latitude: 13.0067, longitude: 80.2020, calculatedSpeed: 42 },
-        { id: 103, busNumber: 'BUS-103', busName: 'Koyambedu Route', driverName: 'Venkatesh', driverPhone: '+91 9876543212', busStop: 'Koyambedu', status: 'INACTIVE', latitude: 13.0694, longitude: 80.1948, calculatedSpeed: 0 },
-        { id: 104, busNumber: 'BUS-104', busName: 'Porur Line', driverName: 'Karthik', driverPhone: '+91 9876543213', busStop: 'Porur', status: 'RUNNING', latitude: 13.0382, longitude: 80.1565, calculatedSpeed: 28 },
-        { id: 105, busNumber: 'BUS-105', busName: 'Velachery Route', driverName: 'Anand', driverPhone: '+91 9876543214', busStop: 'Velachery', status: 'INACTIVE', latitude: 12.9757, longitude: 80.2207, calculatedSpeed: 0 }
-    ];
-
-    const DEFAULT_STOPS = [
-        'Tambaram', 'Guindy', 'Koyambedu', 'Porur', 'Poonamallee', 'Velachery',
-        'Chromepet', 'Vadapalani', 'Chengalpattu', 'Avadi', 'Sriperumbudur',
-        'Ashok Nagar', 'T. Nagar', 'Adyar'
-    ];
-
     // State Variables
     let map = null;
     let userLocationMarker = null;
     let busMarkers = {}; // busNumber -> Leaflet Marker
-    let busesData = [...DEFAULT_BUSES];
+    let busesData = [];
     let busHistory = {}; // Keep track of previous location and timestamp to calculate speed
-    let busStopsList = [...DEFAULT_STOPS];
+    let busStopsList = [];
     let currentUser = null;
     let preferredStop = localStorage.getItem('client_preferred_stop') || null;
     let selectedBusNumber = null;
@@ -440,24 +425,15 @@
                 const data = await response.json();
                 busesFetchError = null;
                 isBusesLoading = false;
-                if (Array.isArray(data) && data.length > 0) {
-                    updateBusesData(data);
-                } else {
-                    updateBusesData(DEFAULT_BUSES);
-                }
+                updateBusesData(Array.isArray(data) ? data : []);
             } else {
                 throw new Error(`HTTP Error ${response.status}`);
             }
         } catch (e) {
-            console.warn('Backend fetch notice, using active bus directory:', e);
+            console.error('Error fetching buses from database:', e);
             busesFetchError = null;
             isBusesLoading = false;
-            if (!busesData || busesData.length === 0) {
-                updateBusesData(DEFAULT_BUSES);
-            } else {
-                renderBusList();
-                renderSchedules();
-            }
+            updateBusesData([]);
         }
     }
 
@@ -467,7 +443,7 @@
             const response = await fetch(`${getApiBaseUrl()}/api/bus-stops/all`);
             if (response.ok) {
                 const res = await response.json();
-                if (res.success && Array.isArray(res.busStops) && res.busStops.length > 0) {
+                if (res.success && Array.isArray(res.busStops)) {
                     busStopsList = res.busStops;
                     stopsFetchError = null;
                     isStopsLoading = false;
@@ -477,15 +453,13 @@
                     return;
                 }
             }
-            throw new Error(`HTTP ${response.status} or empty bus stops`);
+            throw new Error(`HTTP ${response.status} or invalid response`);
         } catch (e) {
-            console.warn('Backend bus stops notice, using default stops directory:', e);
+            console.error('Error fetching bus stops:', e);
+            busStopsList = [];
             stopsFetchError = null;
             isStopsLoading = false;
-            if (!busStopsList || busStopsList.length === 0) {
-                busStopsList = DEFAULT_STOPS;
-            }
-            if (elements.statTotalStops) elements.statTotalStops.textContent = busStopsList.length;
+            if (elements.statTotalStops) elements.statTotalStops.textContent = 0;
             renderStopsList();
             renderSchedules();
         }
@@ -570,10 +544,6 @@
     function renderBusList() {
         if (!elements.busList) return;
 
-        if (!busesData || busesData.length === 0) {
-            busesData = [...DEFAULT_BUSES];
-        }
-
         const searchTerm = elements.busSearchInput ? elements.busSearchInput.value.toLowerCase().trim() : '';
 
         let filtered = busesData.filter(b => {
@@ -627,19 +597,15 @@
     function renderStopsList() {
         if (!elements.stopsList) return;
 
-        if (!busStopsList || busStopsList.length === 0) {
-            busStopsList = [...DEFAULT_STOPS];
-        }
-
         const searchTerm = elements.stopSearchInput ? elements.stopSearchInput.value.toLowerCase().trim() : '';
 
-        const filtered = busStopsList.filter(stop => !searchTerm || stop.toLowerCase().includes(searchTerm));
+        const filtered = (busStopsList || []).filter(stop => !searchTerm || stop.toLowerCase().includes(searchTerm));
 
         if (filtered.length === 0) {
             elements.stopsList.innerHTML = `
                 <div class="inline-empty-state">
                     <i class="fa-solid fa-location-dot"></i>
-                    <p>No bus stops found matching search.</p>
+                    <p>No bus stops registered in database.</p>
                 </div>`;
             return;
         }
@@ -663,9 +629,17 @@
         if (!elements.scheduleContentList) return;
 
         const isMorning = scheduleType === 'morning';
-        const listToRender = (busesData && busesData.length > 0) ? busesData : DEFAULT_BUSES;
+        if (!busesData || busesData.length === 0) {
+            elements.scheduleContentList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                    <p>No bus schedules available in database.</p>
+                </div>
+            `;
+            return;
+        }
 
-        elements.scheduleContentList.innerHTML = listToRender.map(bus => `
+        elements.scheduleContentList.innerHTML = busesData.map(bus => `
             <div class="schedule-card">
                 <div class="schedule-card-header">
                     <span class="bus-number-badge">${bus.busNumber}</span>

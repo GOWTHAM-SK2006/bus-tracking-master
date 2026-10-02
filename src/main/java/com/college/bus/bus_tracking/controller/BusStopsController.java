@@ -16,38 +16,18 @@ public class BusStopsController {
     @Autowired
     private BusRepository busRepository;
 
-    private static final List<String> DEFAULT_STOPS = Arrays.asList(
-        "Tambaram",
-        "Guindy",
-        "Koyambedu",
-        "Porur",
-        "Poonamallee",
-        "Velachery",
-        "Chromepet",
-        "Vadapalani",
-        "Chengalpattu",
-        "Avadi",
-        "Sriperumbudur",
-        "Ashok Nagar",
-        "T. Nagar",
-        "Adyar"
-    );
-
     @GetMapping("/all")
     public ResponseEntity<?> getAllBusStops() {
         try {
             Set<String> stopSet = new LinkedHashSet<>();
 
-            // 1. Add stops configured in DB buses
+            // Extract distinct stops configured across DB buses
             List<BusEntity> dbBuses = busRepository.findAll();
             for (BusEntity bus : dbBuses) {
                 if (bus.getBusStop() != null && !bus.getBusStop().trim().isEmpty()) {
                     stopSet.add(bus.getBusStop().trim());
                 }
             }
-
-            // 2. Add default college bus stops
-            stopSet.addAll(DEFAULT_STOPS);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -56,7 +36,7 @@ public class BusStopsController {
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("busStops", DEFAULT_STOPS);
+            response.put("busStops", Collections.emptyList());
             return ResponseEntity.ok(response);
         }
     }
