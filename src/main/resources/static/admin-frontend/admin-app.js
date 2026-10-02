@@ -2345,8 +2345,17 @@ function loadAdminProfile() {
   if (adminData) {
     const profName = document.getElementById("profileName");
     const profEmail = document.getElementById("adminEmail");
+    const profInitials = document.getElementById("profileAvatarInitials");
     if (profName) profName.textContent = adminData.name || "Admin";
     if (profEmail) profEmail.value = adminData.email || "";
+    if (profInitials && adminData.name) {
+      const parts = adminData.name.trim().split(" ");
+      if (parts.length >= 2) {
+        profInitials.textContent = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else {
+        profInitials.textContent = adminData.name.substring(0, 2).toUpperCase();
+      }
+    }
   }
 }
 
