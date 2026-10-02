@@ -35,6 +35,10 @@ public class BusController {
         try {
             // Start with all buses from the database (the source of truth for registered buses)
             List<BusEntity> dbBuses = busRepository.findAll();
+            if (dbBuses.isEmpty() && BusSessionStore.BUS_MAP.isEmpty()) {
+                seedDefaultBuses();
+                dbBuses = busRepository.findAll();
+            }
             Map<String, BusData> mergedMap = new LinkedHashMap<>();
 
             // First, add all DB buses with their stored info
@@ -56,7 +60,7 @@ public class BusController {
                             entity.getBusStop(),
                             entity.getLatitude(),
                             entity.getLongitude(),
-                            "INACTIVE",
+                            entity.getStatus() != null ? entity.getStatus() : "INACTIVE",
                             entity.getDriverName(),
                             entity.getDriverPhone());
                     mergedMap.put(busNumber, dbData);
@@ -77,6 +81,36 @@ public class BusController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    private void seedDefaultBuses() {
+        try {
+            List<BusEntity> defaults = new ArrayList<>();
+            BusEntity b1 = new BusEntity(); b1.setBusNumber("BUS-101"); b1.setBusName("Tambaram Line"); b1.setBusStop("Tambaram"); b1.setLatitude(12.9250); b1.setLongitude(80.1270); b1.setStatus("RUNNING"); b1.setDriverName("Ramesh Kumar"); b1.setDriverPhone("+91 9876543210");
+            defaults.add(b1);
+            BusEntity b2 = new BusEntity(); b2.setBusNumber("BUS-102"); b2.setBusName("Guindy Express"); b2.setBusStop("Guindy"); b2.setLatitude(13.0067); b2.setLongitude(80.2020); b2.setStatus("RUNNING"); b2.setDriverName("Suresh Babu"); b2.setDriverPhone("+91 9876543211");
+            defaults.add(b2);
+            BusEntity b3 = new BusEntity(); b3.setBusNumber("BUS-103"); b3.setBusName("Koyambedu Route"); b3.setBusStop("Koyambedu"); b3.setLatitude(13.0694); b3.setLongitude(80.1948); b3.setStatus("INACTIVE"); b3.setDriverName("Venkatesh"); b3.setDriverPhone("+91 9876543212");
+            defaults.add(b3);
+            BusEntity b4 = new BusEntity(); b4.setBusNumber("BUS-104"); b4.setBusName("Porur Line"); b4.setBusStop("Porur"); b4.setLatitude(13.0382); b4.setLongitude(80.1565); b4.setStatus("RUNNING"); b4.setDriverName("Karthik"); b4.setDriverPhone("+91 9876543213");
+            defaults.add(b4);
+            BusEntity b5 = new BusEntity(); b5.setBusNumber("BUS-105"); b5.setBusName("Velachery Route"); b5.setBusStop("Velachery"); b5.setLatitude(12.9757); b5.setLongitude(80.2207); b5.setStatus("INACTIVE"); b5.setDriverName("Anand"); b5.setDriverPhone("+91 9876543214");
+            defaults.add(b5);
+
+            for (BusEntity b : defaults) {
+                if (busRepository.findByBusNumber(b.getBusNumber()).isEmpty()) {
+                    BusEntity saved = busRepository.save(b);
+                    BusData data = new BusData(
+                        saved.getId(), saved.getBusNumber(), saved.getDriverId(),
+                        saved.getBusName(), saved.getBusStop(), saved.getLatitude(), saved.getLongitude(),
+                        saved.getStatus(), saved.getDriverName(), saved.getDriverPhone()
+                    );
+                    BusSessionStore.BUS_MAP.put(saved.getBusNumber(), data);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[BusController] Error seeding default buses: " + e.getMessage());
         }
     }
 
