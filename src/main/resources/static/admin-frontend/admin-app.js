@@ -2445,8 +2445,7 @@ const FeedbackManager = {
       const data = await resp.json();
       if (data.success) {
         this.allFeedback = data.feedback || [];
-        document.getElementById("totalFeedback").textContent =
-          this.allFeedback.length;
+        this.updateStats();
         this.applyFilter();
       }
     } catch (e) {
@@ -2454,38 +2453,127 @@ const FeedbackManager = {
     }
   },
 
+  updateStats() {
+    const total = this.allFeedback.length;
+    const pending = this.allFeedback.filter((f) => f.status === "pending").length;
+    const resolved = this.allFeedback.filter((f) => f.status === "resolved").length;
+    const rate = total > 0 ? Math.round((resolved / total) * 100) + "%" : "100%";
+
+    const totalEl = document.getElementById("totalFeedback");
+    const pendingEl = document.getElementById("statPendingFeedback");
+    const rateEl = document.getElementById("statResolutionRate");
+
+    if (totalEl) totalEl.textContent = total;
+    if (pendingEl) pendingEl.textContent = pending;
+    if (rateEl) rateEl.textContent = rate;
+  },
+
   applyFilter() {
-    const filter = document.getElementById("feedbackFilter").value;
+    const filterEl = document.getElementById("feedbackFilter");
+    const searchEl = document.getElementById("feedbackSearchInput");
+
+    const filter = filterEl ? filterEl.value : "all";
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : "";
+
     let list = this.allFeedback;
+
     if (filter !== "all") {
       list = list.filter((f) => f.status === filter);
     }
+
+    if (query) {
+      list = list.filter((f) => {
+        const bus = (f.busNumber || "").toLowerCase();
+        const route = (f.routeName || "").toLowerCase();
+        const student = (f.studentName || "").toLowerCase();
+        const email = (f.studentEmail || "").toLowerCase();
+        const issue = (f.issueType || "").toLowerCase();
+        const msg = (f.message || "").toLowerCase();
+        return (
+          bus.includes(query) ||
+          route.includes(query) ||
+          student.includes(query) ||
+          email.includes(query) ||
+          issue.includes(query) ||
+          msg.includes(query)
+        );
+      });
+    }
+
     this.renderTable(list);
   },
 
   renderTable(list) {
     const tbody = document.getElementById("feedbackTableBody");
     if (!tbody) return;
+
     if (list.length === 0) {
-      tbody.innerHTML =
-        '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8;">No feedback reports found</td></tr>';
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:48px 20px;">
+            <div style="font-size:2.5rem; margin-bottom:12px;">💬</div>
+            <h3 style="color:var(--text-dark); font-size:1.1rem; font-weight:700; margin-bottom:4px;">No feedback reports found</h3>
+            <p style="color:var(--text-secondary); font-size:0.85rem;">There are no student reports matching your current filter criteria.</p>
+          </td>
+        </tr>`;
       return;
     }
+
     tbody.innerHTML = list
       .map((f) => {
-        const statusColor = f.status === "resolved" ? "#10b981" : "#f59e0b";
-        const statusBg = f.status === "resolved" ? "#ecfdf5" : "#fef3c7";
+        const isResolved = f.status === "resolved";
+        const statusBadge = isResolved
+          ? `<span class="route-badge-new" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;"><span class="dot-online" style="background:#10b981;"></span> Resolved</span>`
+          : `<span class="route-badge-new" style="background:#fff7ed; color:#c2410c; border-color:#ffedd5;"><span class="pulse-dot" style="width:6px; height:6px; background:#f97316;"></span> Pending</span>`;
+
         const time = f.createdAt
-          ? new Date(f.createdAt).toLocaleString()
+          ? new Date(f.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
           : "--";
-        return `<tr style="cursor:pointer;" onclick="FeedbackManager.openDetail(${f.id})">
-        <td style="font-weight:600;">${f.busNumber || "--"}</td>
-        <td>${f.routeName || "--"}</td>
-        <td>${f.studentName || "--"}</td>
-        <td><span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:0.75rem;font-weight:600;">${f.issueType || "--"}</span></td>
-        <td><span style="padding:3px 10px;background:${statusBg};color:${statusColor};border-radius:20px;font-size:0.75rem;font-weight:600;text-transform:capitalize;">${f.status}</span></td>
-        <td style="font-size:0.8rem;color:#64748b;">${time}</td>
-      </tr>`;
+
+        let issueColor = "#f59e0b";
+        let issueBg = "#fef3c7";
+        let issueBorder = "#fde68a";
+        const issueLower = (f.issueType || "").toLowerCase();
+        if (issueLower.includes("delay") || issueLower.includes("time")) {
+          issueColor = "#d97706";
+          issueBg = "#fffbeb";
+        } else if (issueLower.includes("driver") || issueLower.includes("behavior")) {
+          issueColor = "#ea580c";
+          issueBg = "#fff7ed";
+        } else if (issueLower.includes("route") || issueLower.includes("stop")) {
+          issueColor = "#0284c7";
+          issueBg = "#f0f9ff";
+          issueBorder = "#bae6fd";
+        } else if (issueLower.includes("ac") || issueLower.includes("condition")) {
+          issueColor = "#7c3aed";
+          issueBg = "#f5f3ff";
+          issueBorder = "#ddd6fe";
+        }
+
+        return `
+        <tr style="cursor:pointer;" onclick="FeedbackManager.openDetail(${f.id})">
+          <td data-label="Bus No"><span class="bus-number-badge">${f.busNumber || "--"}</span></td>
+          <td data-label="Route Name" style="font-weight:600; color:var(--text-dark);">${f.routeName || "--"}</td>
+          <td data-label="Student Info">
+            <div style="display:flex; flex-direction:column;">
+              <strong style="color:var(--text-dark); font-size:0.9rem;">${f.studentName || "Anonymous Student"}</strong>
+              <span style="font-size:0.78rem; color:var(--text-secondary);">${f.studentEmail || "No email provided"}</span>
+            </div>
+          </td>
+          <td data-label="Issue Type">
+            <span style="display:inline-flex; align-items:center; padding:5px 12px; background:${issueBg}; color:${issueColor}; border:1px solid ${issueBorder}; border-radius:20px; font-size:0.78rem; font-weight:700; text-transform:capitalize;">
+              ${f.issueType || "General Issue"}
+            </span>
+          </td>
+          <td data-label="Status">${statusBadge}</td>
+          <td data-label="Submitted Time" style="font-size:0.83rem; color:var(--text-secondary); font-weight:500;">${time}</td>
+          <td data-label="Action" style="text-align:right;">
+            <button class="action-btn info" onclick="event.stopPropagation(); FeedbackManager.openDetail(${f.id});">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              Review
+            </button>
+          </td>
+        </tr>`;
       })
       .join("");
   },
@@ -2496,30 +2584,39 @@ const FeedbackManager = {
     this.currentFeedbackId = id;
     document.getElementById("fdBusNumber").textContent = f.busNumber || "--";
     document.getElementById("fdRouteName").textContent = f.routeName || "--";
-    document.getElementById("fdStudentName").textContent =
-      f.studentName || "--";
-    document.getElementById("fdStudentEmail").textContent =
-      f.studentEmail || "--";
-    document.getElementById("fdIssueType").textContent = f.issueType || "--";
-    document.getElementById("fdMessage").textContent = f.message || "--";
+    document.getElementById("fdStudentName").textContent = f.studentName || "--";
+    document.getElementById("fdStudentEmail").textContent = f.studentEmail || "--";
+    
+    const issueEl = document.getElementById("fdIssueType");
+    if (issueEl) {
+      issueEl.textContent = f.issueType || "General Issue";
+    }
+
+    document.getElementById("fdMessage").textContent = f.message || "No message provided.";
     document.getElementById("fdCreatedAt").textContent = f.createdAt
       ? new Date(f.createdAt).toLocaleString()
       : "--";
+
     const resolveBtn = document.getElementById("fdResolveBtn");
     if (f.status === "resolved") {
       resolveBtn.style.background = "#94a3b8";
-      resolveBtn.textContent = "\u2713 Already Resolved";
+      resolveBtn.style.boxShadow = "none";
+      resolveBtn.textContent = "✓ Already Resolved";
       resolveBtn.disabled = true;
     } else {
-      resolveBtn.style.background = "#10b981";
-      resolveBtn.textContent = "\u2713 Mark as Resolved";
+      resolveBtn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+      resolveBtn.style.boxShadow = "0 4px 14px rgba(16, 185, 129, 0.35)";
+      resolveBtn.textContent = "✓ Mark as Resolved";
       resolveBtn.disabled = false;
     }
-    document.getElementById("feedbackDetailModal").style.display = "flex";
+
+    const modal = document.getElementById("feedbackDetailModal");
+    if (modal) modal.style.display = "flex";
   },
 
   closeDetail() {
-    document.getElementById("feedbackDetailModal").style.display = "none";
+    const modal = document.getElementById("feedbackDetailModal");
+    if (modal) modal.style.display = "none";
     this.currentFeedbackId = null;
   },
 
@@ -2535,19 +2632,20 @@ const FeedbackManager = {
       );
       const data = await resp.json();
       if (data.success) {
+        showToast("Feedback marked as resolved", "success");
         this.closeDetail();
         this.loadFeedback();
       } else {
-        alert(data.message || "Failed to resolve");
+        showToast(data.message || "Failed to resolve feedback", "error");
       }
     } catch (e) {
-      alert("Could not connect to server");
+      showToast("Could not connect to server", "error");
     }
   },
 
   async deleteCurrentFeedback() {
     if (!this.currentFeedbackId) return;
-    if (!confirm("Are you sure you want to delete this feedback?")) return;
+    if (!confirm("Are you sure you want to delete this feedback report?")) return;
     try {
       const resp = await fetch(
         getApiBaseUrl() + "/api/feedback/" + this.currentFeedbackId,
@@ -2555,13 +2653,14 @@ const FeedbackManager = {
       );
       const data = await resp.json();
       if (data.success) {
+        showToast("Feedback deleted successfully", "success");
         this.closeDetail();
         this.loadFeedback();
       } else {
-        alert(data.message || "Failed to delete");
+        showToast(data.message || "Failed to delete feedback", "error");
       }
     } catch (e) {
-      alert("Could not connect to server");
+      showToast("Could not connect to server", "error");
     }
   },
 };
