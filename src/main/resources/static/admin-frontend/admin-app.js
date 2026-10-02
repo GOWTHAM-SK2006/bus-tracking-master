@@ -49,6 +49,32 @@ function getWebSocketUrl(endpoint) {
   return `${protocol}//${host}${endpoint}`;
 }
 
+function getApiBaseUrl() {
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port;
+
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    return "https://bus-tracking-master-production-2d22.up.railway.app";
+  }
+
+  if (protocol === "file:") {
+    return "https://bus-tracking-master-production-2d22.up.railway.app";
+  }
+
+  if (host.includes(".devtunnels.ms")) {
+    const tunnelMatch = host.match(/^([^-]+)-\d+\.(.+)$/);
+    if (tunnelMatch)
+      return `${protocol}//${tunnelMatch[1]}-8080.${tunnelMatch[2]}`;
+  }
+
+  if (port && port !== "80" && port !== "443") {
+    return `${protocol}//${host}:${port}`;
+  }
+
+  return `${protocol}//${host}`;
+}
+
 const CONFIG = {
   WS_URL: (() => {
     const url = getWebSocketUrl("/ws/admin");
@@ -1142,7 +1168,7 @@ const BusManager = {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             Locate
                         </button>
-                        <button class="action-btn info" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId}', '${bus.driverName.replace(/'/g, "\\'")}', '${bus.driverPhone.replace(/'/g, "\\'")}')">
+                        <button class="action-btn info" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId || ''}', '${(bus.driverName || 'Unknown').replace(/'/g, "\\'")}', '${(bus.driverPhone || 'N/A').replace(/'/g, "\\'")}')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                             Details
                         </button>

@@ -174,6 +174,7 @@ const BusesPage = {
         }
       }
     }
+  },
 
   /**
    * Fallback renderer if BusManager is not available
