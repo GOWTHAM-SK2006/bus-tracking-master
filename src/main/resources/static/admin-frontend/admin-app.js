@@ -496,6 +496,7 @@ var MapManager = {
   },
 
   updateBusMarker(bus) {
+    if (!this.map) return;
     const busId = String(bus.busId || bus.busNo);
     const isSelected = String(adminState.selectedBusId) === busId;
     const isGpsOn = bus.gpsOn;
@@ -616,7 +617,7 @@ var MapManager = {
     this.showInfoPanel();
 
     // 4. Fly to location
-    if (bus.latitude && bus.longitude && Math.abs(bus.latitude) > 0.0001) {
+    if (this.map && bus.latitude && bus.longitude && Math.abs(bus.latitude) > 0.0001) {
       this.isNavigating = true;
       this.map.resize();
       this.map.flyTo({
@@ -2759,6 +2760,10 @@ function showAdminToast(message, type) {
     toast.style.opacity = "0";
     setTimeout(() => toast.remove(), 300);
   }, 3000);
+}
+
+function handleAdminLogoutOnClose() {
+  // Optional cleanup on unload
 }
 
 // Load guest code on page init
