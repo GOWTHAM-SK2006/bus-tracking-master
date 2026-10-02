@@ -6,57 +6,172 @@ const SettingsPage = {
     return `
       <section class="floating-panel panel-glass animate-fade-in-up visible" id="systemSettingsView">
         <div class="panel-container">
-          <div class="list-header" style="align-items: center">
-            <div style="display: flex; flex-direction: column; gap: 4px">
-              <h2>System Global Settings</h2>
-              <span class="list-count">Control Core Platform Access</span>
+          <!-- Header Banner -->
+          <div class="routes-page-banner">
+            <div class="banner-left">
+              <h2><span class="gradient-text">System Global Settings</span></h2>
+              <p class="banner-subtitle">Platform-wide authentication policies, guest pass access & security controls</p>
+            </div>
+            <div class="banner-right">
+              <span class="live-pulse-badge"><span class="pulse-dot"></span> System Governance Active</span>
             </div>
           </div>
-          
-          <div class="settings-management-content" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
-            <div class="settings-card panel-glass" style="width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; background: rgba(255, 255, 255, 0.7);">
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark); display: flex; align-items: center; gap: 10px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Access Control Toggles
-              </h3>
-              
-              <div class="settings-toggles-list" style="display: flex; flex-direction: column; gap: 20px;">
-                <!-- Driver Sign In Toggle -->
-                <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
-                  <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
-                    <span style="font-weight: 600; font-size: 0.95rem;">Driver Sign In</span>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Allow drivers to log into their mobile app.</p>
-                  </div>
-                  <button id="driverSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleDriverSignIn(event)" style="flex-shrink: 0;">
-                    <span class="toggle-slider" id="driverSignInSlider"></span>
-                  </button>
-                </div>
 
-                <!-- Student Sign In Toggle -->
-                <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
-                  <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
-                    <span style="font-weight: 600; font-size: 0.95rem;">Student Sign In</span>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Enable student authentication for tracking.</p>
-                  </div>
-                  <button id="studentSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleStudentSignIn(event)" style="flex-shrink: 0;">
-                    <span class="toggle-slider" id="studentSignInSlider"></span>
-                  </button>
-                </div>
+          <!-- Stats KPI Overview Row -->
+          <div class="routes-stats-row">
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Driver Sign In</span>
+                <h3 class="stat-value-new" id="statDriverPortalStatus">Active</h3>
+                <span class="stat-trend-new positive">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Mobile App Auth
+                </span>
+              </div>
+            </div>
 
-                <!-- Account Creation Toggle -->
-                <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 14px; border: 1px solid rgba(0,0,0,0.03);">
-                  <div class="setting-info" style="display: flex; flex-direction: column; gap: 2px;">
-                    <span style="font-weight: 600; font-size: 0.95rem;">Driver Signup</span>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Allow new drivers to register via the app.</p>
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Student Sign In</span>
+                <h3 class="stat-value-new" id="statStudentPortalStatus">Active</h3>
+                <span class="stat-trend-new positive">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Student Tracking Gate
+                </span>
+              </div>
+            </div>
+
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Driver Signup</span>
+                <h3 class="stat-value-new" id="statSignupPortalStatus">Open</h3>
+                <span class="stat-trend-new positive">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Registration Gate
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Settings Cards Grid -->
+          <div class="export-grid-new">
+            <!-- Card 1: Access Control Toggles -->
+            <div class="export-card-new">
+              <div>
+                <div class="export-header-new">
+                  <div class="export-icon-box-new">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                   </div>
-                  <button id="accountToggleBtn" class="toggle-btn" type="button" onclick="toggleAccountCreation(event)" style="flex-shrink: 0;">
-                    <span class="toggle-slider"></span>
-                  </button>
+                  <div>
+                    <h3>Access Control Toggles</h3>
+                    <span class="live-pulse-badge" style="padding: 3px 10px; font-size: 0.72rem;"><span class="pulse-dot"></span> System Gateways</span>
+                  </div>
+                </div>
+                <p>Control user authentication policies across driver and student mobile and web applications.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                  <!-- Driver Sign In Item -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #f8fafc; border-radius: 14px; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 38px; height: 38px; border-radius: 10px; background: #fff7ed; color: #ea580c; display: flex; align-items: center; justify-content: center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                      </div>
+                      <div>
+                        <span style="font-weight: 700; font-size: 0.95rem; color: #0f172a; display: block;">Driver Sign In</span>
+                        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">Allow drivers to log into mobile tracking app</p>
+                      </div>
+                    </div>
+                    <button id="driverSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleDriverSignIn(event)" style="flex-shrink: 0;">
+                      <span class="toggle-slider" id="driverSignInSlider"></span>
+                    </button>
+                  </div>
+
+                  <!-- Student Sign In Item -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #f8fafc; border-radius: 14px; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 38px; height: 38px; border-radius: 10px; background: #f0f9ff; color: #0284c7; display: flex; align-items: center; justify-content: center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                      </div>
+                      <div>
+                        <span style="font-weight: 700; font-size: 0.95rem; color: #0f172a; display: block;">Student Sign In</span>
+                        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">Enable student authentication for live bus map</p>
+                      </div>
+                    </div>
+                    <button id="studentSignInToggleBtn" class="toggle-btn" type="button" onclick="toggleStudentSignIn(event)" style="flex-shrink: 0;">
+                      <span class="toggle-slider" id="studentSignInSlider"></span>
+                    </button>
+                  </div>
+
+                  <!-- Driver Signup Item -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #f8fafc; border-radius: 14px; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 38px; height: 38px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                      </div>
+                      <div>
+                        <span style="font-weight: 700; font-size: 0.95rem; color: #0f172a; display: block;">Driver Signup</span>
+                        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">Allow new driver registrations via mobile app</p>
+                      </div>
+                    </div>
+                    <button id="accountToggleBtn" class="toggle-btn" type="button" onclick="toggleAccountCreation(event)" style="flex-shrink: 0;">
+                      <span class="toggle-slider"></span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div class="settings-info-box panel-glass" style="max-width: 500px; padding: 20px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.1); line-height: 1.6;">
-              <p style="margin: 0;"><strong>Global Impact:</strong> Changes made here affect all users immediately. Disabling sign-in will prevent new sessions but will not forcefully log out existing active users.</p>
+
+            <!-- Card 2: Security & Global Governance Guidelines -->
+            <div class="export-card-new">
+              <div>
+                <div class="export-header-new">
+                  <div class="export-icon-box-new" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #0284c7; border-color: #bae6fd;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  </div>
+                  <div>
+                    <h3>System Security Policy</h3>
+                    <span class="route-badge-new" style="padding: 3px 10px; font-size: 0.72rem; background: #f0f9ff; color: #0284c7; border-color: #bae6fd;">Governance Protocol</span>
+                  </div>
+                </div>
+                <p>Important system security parameters regarding real-time session management and access controls.</p>
+
+                <div class="export-feature-list" style="margin-top: 16px;">
+                  <div class="export-feature-item" style="align-items: flex-start;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-top: 2px; flex-shrink: 0; color: #f97316;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div>
+                      <strong style="color: #0f172a; font-size: 0.88rem;">Immediate Global Effect</strong>
+                      <p style="margin: 2px 0 0; font-size: 0.8rem; color: #64748b; font-weight: 500;">Toggling access controls updates API endpoints live for all connecting clients without requiring a server reboot.</p>
+                    </div>
+                  </div>
+
+                  <div class="export-feature-item" style="align-items: flex-start; margin-top: 12px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-top: 2px; flex-shrink: 0; color: #0284c7;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <div>
+                      <strong style="color: #0f172a; font-size: 0.88rem;">Session Continuity</strong>
+                      <p style="margin: 2px 0 0; font-size: 0.8rem; color: #64748b; font-weight: 500;">Disabling login prevents new login attempts but does not abruptly kill currently active location broadcast trips.</p>
+                    </div>
+                  </div>
+
+                  <div class="export-feature-item" style="align-items: flex-start; margin-top: 12px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-top: 2px; flex-shrink: 0; color: #10b981;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <div>
+                      <strong style="color: #0f172a; font-size: 0.88rem;">Audit Trail Logging</strong>
+                      <p style="margin: 2px 0 0; font-size: 0.8rem; color: #64748b; font-weight: 500;">All toggle changes are timestamped and logged under the active administrator session.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding: 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 14px; font-size: 0.82rem; color: #b45309; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-top: 16px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <span>Changes take effect immediately across all client applications.</span>
+              </div>
             </div>
           </div>
         </div>
