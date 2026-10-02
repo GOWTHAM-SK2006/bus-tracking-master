@@ -1140,6 +1140,7 @@ const BusManager = {
   },
 
   renderTableRows(buses) {
+    if (!DOM.busesTableBody) return;
     if (buses.length === 0) {
       DOM.busesTableBody.innerHTML = `
                 <tr>
@@ -1196,6 +1197,7 @@ const RouteManager = {
   },
 
   renderRoutes(filterQuery) {
+    if (!DOM.routesListContainer) return;
     const buses = Array.from(adminState.buses.values());
     const routesMap = new Map();
 
@@ -1266,6 +1268,8 @@ const RouteManager = {
     if (DOM.routeDetailsTitle) DOM.routeDetailsTitle.textContent = routeName;
     if (DOM.routeDetailsCount)
       DOM.routeDetailsCount.textContent = `${buses.length} ${buses.length === 1 ? "bus" : "buses"}`;
+
+    if (!DOM.routeBusesTableBody) return;
 
     DOM.routeBusesTableBody.innerHTML = buses
       .map(
