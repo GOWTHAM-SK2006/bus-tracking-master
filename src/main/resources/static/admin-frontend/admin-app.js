@@ -2678,11 +2678,10 @@ const StudentsManager = {
 
   async loadStudents() {
     const tableBody = document.getElementById("studentsTableBody");
-    const countEl = document.getElementById("studentsTotalCount");
     if (!tableBody) return;
 
     // Show loading state
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Loading students...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:48px 20px; color:var(--text-secondary);">Loading registered students...</td></tr>`;
 
     try {
       let response;
@@ -2708,7 +2707,7 @@ const StudentsManager = {
       }
 
       if (!response || !response.ok) {
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load students</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load student directory</td></tr>`;
         return;
       }
 
@@ -2716,8 +2715,8 @@ const StudentsManager = {
 
       if (data.success && data.students) {
         this.allStudents = data.students;
+        this.updateStats();
         this.renderStudents(this.allStudents);
-        if (countEl) countEl.textContent = `${data.total} student${data.total !== 1 ? 's' : ''} registered`;
         console.log(`[Students] Loaded ${data.total} students`);
 
         // Attach search handler (only once)
@@ -2729,12 +2728,26 @@ const StudentsManager = {
           searchInput._listenerAttached = true;
         }
       } else {
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load students</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);">Failed to load student directory</td></tr>`;
       }
     } catch (error) {
       console.error("[Students] Error loading students:", error);
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">Error loading students. Check connection.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-secondary);">Error loading students. Check server connection.</td></tr>`;
     }
+  },
+
+  updateStats() {
+    const total = this.allStudents.length;
+    const verified = this.allStudents.filter((s) => s.phoneVerified).length;
+    const assignedStops = this.allStudents.filter((s) => s.savedBusStop && s.savedBusStop !== "Not set").length;
+
+    const countEl = document.getElementById("studentsTotalCount");
+    const verifiedEl = document.getElementById("statVerifiedStudents");
+    const stopsEl = document.getElementById("statAssignedBusStops");
+
+    if (countEl) countEl.textContent = total;
+    if (verifiedEl) verifiedEl.textContent = verified;
+    if (stopsEl) stopsEl.textContent = assignedStops;
   },
 
   renderStudents(students) {
@@ -2742,32 +2755,50 @@ const StudentsManager = {
     if (!tableBody) return;
 
     if (students.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-secondary);">No students found</td></tr>`;
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:48px 20px;">
+            <div style="font-size:2.5rem; margin-bottom:12px;">🎓</div>
+            <h3 style="color:var(--text-dark); font-size:1.1rem; font-weight:700; margin-bottom:4px;">No students found</h3>
+            <p style="color:var(--text-secondary); font-size:0.85rem;">No student accounts match your search query.</p>
+          </td>
+        </tr>`;
       return;
     }
 
-    tableBody.innerHTML = students.map((student) => `
+    tableBody.innerHTML = students.map((student) => {
+      const statusBadge = student.phoneVerified
+        ? `<span class="route-badge-new" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;"><span class="dot-online" style="background:#10b981;"></span> Verified</span>`
+        : `<span class="route-badge-new" style="background:#fef2f2; color:#b91c1c; border-color:#fecaca;">Unverified</span>`;
+
+      return `
       <tr style="cursor: pointer;" onclick="StudentsManager.openStudentDetails(${student.id})">
-        <td data-label="Name"><strong>${this.escapeHtml(student.name || 'N/A')}</strong></td>
-        <td data-label="Student ID">${this.escapeHtml(student.username || 'N/A')}</td>
-        <td data-label="Email">${this.escapeHtml(student.email || 'N/A')}</td>
-        <td data-label="Phone">${this.escapeHtml(student.phoneNumber || 'N/A')}</td>
-        <td data-label="Bus Stop">${this.escapeHtml(student.savedBusStop || 'Not set')}</td>
-        <td data-label="Status">
-          <span class="status-badge ${student.phoneVerified ? 'active' : 'inactive'}">
-            ${student.phoneVerified ? 'Verified' : 'Unverified'}
+        <td data-label="Name"><strong style="color:var(--text-dark); font-size:0.92rem;">${this.escapeHtml(student.name || 'N/A')}</strong></td>
+        <td data-label="Student ID"><span class="bus-number-badge" style="background:#f1f5f9; color:#334155; border-color:#cbd5e1;">${this.escapeHtml(student.username || 'N/A')}</span></td>
+        <td data-label="Email" style="color:var(--text-secondary); font-size:0.85rem;">${this.escapeHtml(student.email || 'N/A')}</td>
+        <td data-label="Phone" style="font-weight:600; color:#475569; font-size:0.85rem;">${this.escapeHtml(student.phoneNumber || 'N/A')}</td>
+        <td data-label="Bus Stop">
+          <span style="display:inline-flex; align-items:center; gap:4px; font-weight:600; color:var(--primary);">
+            📍 ${this.escapeHtml(student.savedBusStop || 'Not set')}
           </span>
         </td>
+        <td data-label="Status">${statusBadge}</td>
+        <td data-label="Action" style="text-align:right;">
+          <button class="action-btn info" onclick="event.stopPropagation(); StudentsManager.openStudentDetails(${student.id});">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Profile
+          </button>
+        </td>
       </tr>
-    `).join("");
+    `;
+    }).join("");
   },
 
   filterStudents(query) {
     const q = query.toLowerCase().trim();
     if (!q) {
       this.renderStudents(this.allStudents);
-      const countEl = document.getElementById("studentsTotalCount");
-      if (countEl) countEl.textContent = `${this.allStudents.length} student${this.allStudents.length !== 1 ? 's' : ''} registered`;
+      this.updateStats();
       return;
     }
 
@@ -2776,12 +2807,13 @@ const StudentsManager = {
       const username = (student.username || "").toLowerCase();
       const email = (student.email || "").toLowerCase();
       const busStop = (student.savedBusStop || "").toLowerCase();
-      return name.includes(q) || username.includes(q) || email.includes(q) || busStop.includes(q);
+      const phone = (student.phoneNumber || "").toLowerCase();
+      return name.includes(q) || username.includes(q) || email.includes(q) || busStop.includes(q) || phone.includes(q);
     });
 
     this.renderStudents(filtered);
     const countEl = document.getElementById("studentsTotalCount");
-    if (countEl) countEl.textContent = `${filtered.length} of ${this.allStudents.length} students`;
+    if (countEl) countEl.textContent = filtered.length;
   },
 
   openStudentDetails(id) {
