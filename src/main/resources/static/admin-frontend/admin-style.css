@@ -4011,3 +4011,137 @@ body {
   transform: translateY(-2px) scale(1.02) !important;
   box-shadow: 0 10px 25px rgba(249, 115, 22, 0.45) !important;
 }
+
+/* ======================================== 
+   Service Routes Enhanced UI & Grid Layout
+   ======================================== */
+
+.routes-grid-new {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.route-card-new {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+.route-card-new::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.route-card-new:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 36px rgba(249, 115, 22, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.route-card-new:hover::before {
+  opacity: 1;
+}
+
+.route-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.route-card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.route-icon-new {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.route-card-new:hover .route-icon-new {
+  transform: scale(1.08) rotate(-4deg);
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.route-details-new h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.route-details-new p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.route-badge-new {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.route-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.83rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.route-action-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.2s ease;
+}
+
+.route-card-new:hover .route-action-link {
+  gap: 10px;
+}

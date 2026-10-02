@@ -6,16 +6,72 @@ const RoutesPage = {
     return `
       <section class="floating-panel panel-glass animate-fade-in-up visible" id="routesView">
         <div class="panel-container">
-          <div class="routes-header-new">
-            <h2>Service Routes</h2>
-            <p><span id="totalRoutes">0</span> Active Service Paths</p>
+          <!-- Header Banner -->
+          <div class="routes-page-banner">
+            <div class="banner-left">
+              <h2><span class="gradient-text">Service Routes Overview</span></h2>
+              <p class="banner-subtitle">Real-time network map, active routes & vehicle allocation</p>
+            </div>
+            <div class="banner-right">
+              <span class="live-pulse-badge"><span class="pulse-dot"></span> Dynamic Tracking Active</span>
+            </div>
           </div>
 
-          <div class="search-wrapper-new">
-             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-             <input type="text" id="routeFilterInput" placeholder="Search routes by name..." />
+          <!-- Stats KPI Row -->
+          <div class="routes-stats-row">
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 18l-2-1-5 2V7l5-2 6 3 5-2v12l-5 2-4-2z"></path><line x1="9" y1="4" x2="9" y2="19"></line><line x1="15" y1="5" x2="15" y2="20"></line></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Active Routes</span>
+                <h3 class="stat-value-new" id="statActiveRoutes">0</h3>
+                <span class="stat-trend-new positive">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Network Paths
+                </span>
+              </div>
+            </div>
+
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="18" r="2"></circle></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Assigned Vehicles</span>
+                <h3 class="stat-value-new" id="statAssignedBuses">0</h3>
+                <span class="stat-trend-new positive">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Fleet Operational
+                </span>
+              </div>
+            </div>
+
+            <div class="stat-card-new">
+              <div class="stat-icon-wrapper bg-gradient-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div class="stat-info-new">
+                <span class="stat-label-new">Avg Fleet / Route</span>
+                <h3 class="stat-value-new" id="statAvgBuses">0.0</h3>
+                <span class="stat-trend-new neutral">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg> Coverage Density
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="routes-list" id="routesListContainer" style="padding: 16px; display: grid; gap: 12px">
+
+          <!-- Search & Filter Bar -->
+          <div class="routes-action-bar">
+            <div class="search-wrapper-new glow-focus">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="routeFilterInput" placeholder="Search routes by origin, destination or name..." />
+            </div>
+            <div class="routes-counter-badge">
+              <span id="totalRoutes">0</span> Active Paths
+            </div>
+          </div>
+
+          <!-- Routes Grid Container -->
+          <div class="routes-grid-new" id="routesListContainer">
             <!-- Routes will be populated here -->
           </div>
         </div>

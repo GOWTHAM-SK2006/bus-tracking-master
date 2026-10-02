@@ -1313,32 +1313,63 @@ const RouteManager = {
       );
     }
 
-    if (DOM.totalRoutes) DOM.totalRoutes.textContent = routes.length;
+    const totalRoutesCount = routesMap.size;
+    const totalBusesAssigned = buses.length;
+    const avgBuses = totalRoutesCount > 0 ? (totalBusesAssigned / totalRoutesCount).toFixed(1) : "0";
 
-        if (routes.length === 0) {
+    if (DOM.totalRoutes) DOM.totalRoutes.textContent = totalRoutesCount;
+
+    const statActiveRoutes = document.getElementById("statActiveRoutes");
+    const statAssignedBuses = document.getElementById("statAssignedBuses");
+    const statAvgBuses = document.getElementById("statAvgBuses");
+
+    if (statActiveRoutes) statActiveRoutes.textContent = totalRoutesCount;
+    if (statAssignedBuses) statAssignedBuses.textContent = totalBusesAssigned;
+    if (statAvgBuses) statAvgBuses.textContent = avgBuses;
+
+    if (routes.length === 0) {
+      DOM.routesListContainer.className = "routes-grid-new";
       DOM.routesListContainer.innerHTML = `
-        <div class="no-routes-placeholder">
-          <div class="icon">📍</div>
-          <p>${query ? "No routes matching your search" : "No service routes available"}</p>
+        <div class="no-routes-placeholder" style="grid-column: 1 / -1; text-align:center; padding:40px; background:rgba(255,255,255,0.7); border-radius:16px;">
+          <div style="font-size:2.5rem; margin-bottom:12px;">📍</div>
+          <h3 style="color:var(--text-dark); font-size:1.1rem; font-weight:600;">${query ? "No routes matching your search" : "No service routes available"}</h3>
+          <p style="color:var(--text-secondary); font-size:0.85rem; margin-top:4px;">Try refining your search terms or add a new bus configuration.</p>
         </div>`;
       return;
     }
 
+    DOM.routesListContainer.className = "routes-grid-new";
     DOM.routesListContainer.innerHTML = routes
       .map(
         (route) => `
-      <div class="route-card-new" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\\\")}')">
-        <div class="route-card-left">
-          <div class="route-icon-new">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div class="route-card-new hover-lift" onclick="RouteManager.showRouteDetails('${route.name.replace(/'/g, "\\\\")}')">
+        <div class="route-card-top">
+          <div class="route-card-left">
+            <div class="route-icon-new">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="route-details-new">
+              <h3>${route.name}</h3>
+              <p>Active Service Path</p>
+            </div>
           </div>
-          <div class="route-details-new">
-            <h3>${route.name}</h3>
-            <p>Active Service Route</p>
+          <div class="route-badge-new">
+            <span class="dot-online"></span>
+            ${route.busCount} ${route.busCount === 1 ? "Vehicle" : "Vehicles"}
           </div>
         </div>
-        <div class="route-badge-new">
-          ${route.busCount} ${route.busCount === 1 ? "Bus" : "Buses"}
+        <div class="route-card-bottom">
+          <span>Fleet Coverage Active</span>
+          <div class="route-action-link">
+            <span>View Details</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
         </div>
       </div>
     `,
