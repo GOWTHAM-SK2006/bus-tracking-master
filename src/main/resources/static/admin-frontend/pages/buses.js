@@ -217,8 +217,16 @@ const BusesPage = {
           </td>
           <td data-label="Action">
             <div class="table-actions">
+              <button class="action-btn locate"
+                onclick="event.stopPropagation(); window.location.href='live-map.html?busId=${encodeURIComponent(busNo)}';">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Locate
+              </button>
               <button class="action-btn info"
-                onclick="event.stopPropagation(); AdminBusManager && AdminBusManager.openDriverInfoModal('${driverId}', '${driver.replace(/'/g, "\\'")}', '${phone.replace(/'/g, "\\'")}')">
+                onclick="event.stopPropagation(); AdminBusManager && AdminBusManager.openBusDetailsModal('${busNo}', '${driverId}', '${driver.replace(/'/g, "\\'")}', '${phone.replace(/'/g, "\\'")}')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="16" x2="12" y2="12"></line>

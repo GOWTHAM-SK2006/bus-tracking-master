@@ -73,7 +73,49 @@ const LiveMapPage = {
     if (typeof MapManager !== 'undefined' && MapManager.map) {
       setTimeout(() => MapManager.map.resize(), 100);
     }
+
+    // Check URL parameters for bus locate requests
+    this.checkUrlParamsAndLocate();
+  },
+
+  checkUrlParamsAndLocate() {
+    const params = new URLSearchParams(window.location.search);
+    const targetBusId = params.get('busId') || params.get('locate') || params.get('bus');
+    if (!targetBusId) return;
+
+    let attempts = 0;
+    const tryLocate = () => {
+      attempts++;
+      if (typeof MapManager !== 'undefined' && MapManager.map && typeof adminState !== 'undefined' && adminState.buses) {
+        let busToSelect = adminState.buses.get(String(targetBusId));
+        if (!busToSelect) {
+          for (const b of adminState.buses.values()) {
+            if (String(b.busNo) === String(targetBusId) || String(b.busId) === String(targetBusId)) {
+              busToSelect = b;
+              break;
+            }
+          }
+        }
+        if (busToSelect) {
+          console.log(`[LiveMapPage] Auto-locating bus: ${busToSelect.busId}`);
+          MapManager.selectBus(busToSelect.busId);
+          return;
+        }
+      }
+      if (attempts < 25) {
+        setTimeout(tryLocate, 300);
+      }
+    };
+
+    setTimeout(tryLocate, 300);
   }
 };
 
 window.LiveMapPage = LiveMapPage;
+
+// Auto initialize LiveMapPage if loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(() => LiveMapPage.init(), 100);
+} else {
+  document.addEventListener('DOMContentLoaded', () => LiveMapPage.init());
+}

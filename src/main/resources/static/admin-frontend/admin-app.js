@@ -792,27 +792,81 @@ const AdminBusManager = {
     });
   },
 
-  // --- Driver Info Modal Logic ---
+  // --- Driver & Bus Info Modal Logic ---
 
-  openDriverInfoModal(driverId, driverName, driverPhone) {
-    if (!driverId || driverId === "undefined" || driverId === "null") {
-      showToast("No driver associated with this bus.", "warning");
-      return;
+  openBusDetailsModal(busNo, driverId, driverName, driverPhone) {
+    const modal = document.getElementById("adminDriverBusModal");
+    if (!modal) return;
+
+    let bus = adminState.buses.get(String(busNo));
+    if (!bus) {
+      for (const b of adminState.buses.values()) {
+        if (String(b.busNo) === String(busNo) || String(b.busId) === String(busNo)) {
+          bus = b;
+          break;
+        }
+      }
     }
 
-    this.currentDriverId = driverId;
-    document.getElementById("infoDriverName").textContent =
-      driverName || "Unknown";
-    document.getElementById("infoDriverPhone").textContent =
-      driverPhone || "N/A";
+    const titleEl = document.getElementById("infoModalTitle");
+    if (titleEl) titleEl.textContent = `Bus ${busNo || ''} Details`;
 
-    document.getElementById("adminDriverBusModal").style.display = "flex";
+    const nameEl = document.getElementById("infoDriverName");
+    if (nameEl) nameEl.textContent = driverName || (bus && bus.driverName) || "Unassigned";
 
-    // Hide form by default
-    document.getElementById("driverAddBusForm").style.display = "none";
+    const phoneEl = document.getElementById("infoDriverPhone");
+    if (phoneEl) phoneEl.textContent = driverPhone || (bus && bus.driverPhone) || "N/A";
 
-    // Fetch buses for this driver
-    this.fetchDriverBuses(driverId);
+    modal.style.display = "flex";
+
+    const form = document.getElementById("driverAddBusForm");
+    if (form) form.style.display = "none";
+
+    const validDriverId = driverId && driverId !== "undefined" && driverId !== "null" && driverId !== "";
+
+    if (validDriverId) {
+      this.currentDriverId = driverId;
+      this.fetchDriverBuses(driverId);
+    } else {
+      this.currentDriverId = null;
+      const container = document.getElementById("driverBusListContainer");
+      if (container) {
+        const routeName = (bus && bus.routeName) || "N/A";
+        const isOnline = bus && bus.gpsOn;
+        const statusText = isOnline ? "Online" : "Offline";
+        const statusColor = isOnline ? "#10b981" : "#ef4444";
+
+        container.innerHTML = `
+          <div style="background:var(--bg-gray, #f8fafc); border:1px solid var(--border-light, #e2e8f0); border-radius:12px; padding:16px; margin-top:8px;">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary, #64748b); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px;">
+              Bus System Summary
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:0.9rem;">
+              <div>
+                <span style="color:#64748b; font-size:0.75rem; text-transform:uppercase; display:block;">Bus Number</span>
+                <div style="font-weight:700; color:#1e293b; font-size:1.1rem; margin-top:2px;">${busNo || '--'}</div>
+              </div>
+              <div>
+                <span style="color:#64748b; font-size:0.75rem; text-transform:uppercase; display:block;">Route</span>
+                <div style="font-weight:600; color:#1e293b; margin-top:2px;">${routeName}</div>
+              </div>
+              <div>
+                <span style="color:#64748b; font-size:0.75rem; text-transform:uppercase; display:block;">GPS Status</span>
+                <div style="font-weight:600; color:${statusColor}; margin-top:2px;">● ${statusText}</div>
+              </div>
+              <div>
+                <span style="color:#64748b; font-size:0.75rem; text-transform:uppercase; display:block;">Driver</span>
+                <div style="font-weight:600; color:#1e293b; margin-top:2px;">${driverName || "Unassigned"}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  },
+
+  openDriverInfoModal(driverId, driverName, driverPhone) {
+    this.openBusDetailsModal("--", driverId, driverName, driverPhone);
   },
 
   closeDriverInfoModal() {
@@ -1166,11 +1220,11 @@ const BusManager = {
                 </td>
                 <td data-label="Action">
                     <div class="table-actions">
-                        <button class="action-btn locate" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); MapManager.selectBus('${bus.busId}')">
+                        <button class="action-btn locate" onclick="event.stopPropagation(); window.location.href='live-map.html?busId=${encodeURIComponent(bus.busNo)}';">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             Locate
                         </button>
-                        <button class="action-btn info" onclick="event.stopPropagation(); PanelManager.closeAllPanels(); AdminBusManager.openDriverInfoModal('${bus.driverId || ''}', '${(bus.driverName || 'Unknown').replace(/'/g, "\\'")}', '${(bus.driverPhone || 'N/A').replace(/'/g, "\\'")}')">
+                        <button class="action-btn info" onclick="event.stopPropagation(); AdminBusManager.openBusDetailsModal('${bus.busNo}', '${bus.driverId || ''}', '${(bus.driverName || 'Unknown').replace(/'/g, "\\'")}', '${(bus.driverPhone || 'N/A').replace(/'/g, "\\'")}')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                             Details
                         </button>
