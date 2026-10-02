@@ -1145,8 +1145,19 @@ const BusManager = {
       }
     }
 
+    const totalCount = adminState.buses.size;
+    const offlineCount = Math.max(0, totalCount - activeCount);
+
     if (DOM.activeBusCount) DOM.activeBusCount.textContent = activeCount;
-    if (DOM.totalBuses) DOM.totalBuses.textContent = adminState.buses.size;
+    if (DOM.totalBuses) DOM.totalBuses.textContent = totalCount;
+
+    const statTotalFleet = document.getElementById("statTotalFleet");
+    const statLiveCount = document.getElementById("statLiveCount");
+    const statOfflineCount = document.getElementById("statOfflineCount");
+
+    if (statTotalFleet) statTotalFleet.textContent = totalCount;
+    if (statLiveCount) statLiveCount.textContent = activeCount;
+    if (statOfflineCount) statOfflineCount.textContent = offlineCount;
 
     // Update Dashboard Stats if it's open or about to be
     if (typeof PanelManager !== 'undefined' && PanelManager.updateDashboardStats) {
@@ -1191,6 +1202,27 @@ const BusManager = {
         String(bus.driverName).toLowerCase().includes(lowerQuery),
     );
     this.renderTableRows(filtered);
+  },
+
+  filterByStatus(status, pillEl) {
+    if (pillEl) {
+      const container = pillEl.parentElement;
+      if (container) {
+        container.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        pillEl.classList.add('active');
+      }
+    }
+
+    const allBuses = Array.from(adminState.buses.values());
+    if (status === 'online') {
+      const filtered = allBuses.filter(b => b.gpsOn);
+      this.renderTableRows(filtered);
+    } else if (status === 'offline') {
+      const filtered = allBuses.filter(b => !b.gpsOn);
+      this.renderTableRows(filtered);
+    } else {
+      this.renderBusesTable();
+    }
   },
 
   renderTableRows(buses) {
