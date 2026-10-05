@@ -2684,6 +2684,7 @@ function toggleFeedbackPanel(show) {
 // =========================================
 const StudentsManager = {
   allStudents: [],
+  currentStudentId: null,
 
   async loadStudents() {
     const tableBody = document.getElementById("studentsTableBody");
@@ -2706,7 +2707,7 @@ const StudentsManager = {
 
       if (!response || !response.ok) {
         try {
-          response = await fetch(`/api/admin/students`, {
+          response = await fetch(`/api/students`, {
             cache: "no-store",
             headers: { "Cache-Control": "no-cache" },
           });
@@ -2747,7 +2748,7 @@ const StudentsManager = {
 
   updateStats() {
     const total = this.allStudents.length;
-    const verified = this.allStudents.filter((s) => s.phoneVerified).length;
+    const verified = this.allStudents.filter((s) => s.phoneVerified || (s.accountStatus && s.accountStatus.toUpperCase() === 'VERIFIED')).length;
     const assignedStops = this.allStudents.filter((s) => s.savedBusStop && s.savedBusStop !== "Not set").length;
 
     const countEl = document.getElementById("studentsTotalCount");
@@ -2776,7 +2777,8 @@ const StudentsManager = {
     }
 
     tableBody.innerHTML = students.map((student) => {
-      const statusBadge = student.phoneVerified
+      const isVerified = student.phoneVerified || (student.accountStatus && student.accountStatus.toUpperCase() === 'VERIFIED');
+      const statusBadge = isVerified
         ? `<span class="route-badge-new" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;"><span class="dot-online" style="background:#10b981;"></span> Verified</span>`
         : `<span class="route-badge-new" style="background:#fef2f2; color:#b91c1c; border-color:#fecaca;">Unverified</span>`;
 
@@ -2829,15 +2831,17 @@ const StudentsManager = {
     const student = this.allStudents.find((s) => s.id === id);
     if (!student) return;
 
-    let busNumber = "N/A";
-    let routeName = "N/A";
+    this.currentStudentId = id;
 
-    // Cross reference bus/route if savedBusStop is set
-    if (student.savedBusStop && window.adminState && window.adminState.buses) {
+    let busNumber = student.assignedBus || "N/A";
+    let routeName = student.assignedRoute || "N/A";
+
+    // Cross reference bus/route if savedBusStop is set and fields are not set explicitly
+    if ((!student.assignedBus || !student.assignedRoute) && student.savedBusStop && window.adminState && window.adminState.buses) {
       for (const [_, bus] of window.adminState.buses.entries()) {
         if (bus.busStop && bus.busStop.toLowerCase().includes(student.savedBusStop.toLowerCase())) {
-          busNumber = bus.busNumber || "N/A";
-          routeName = bus.busName || "N/A";
+          if (!student.assignedBus) busNumber = bus.busNumber || "N/A";
+          if (!student.assignedRoute) routeName = bus.busName || "N/A";
           break;
         }
       }
@@ -2855,13 +2859,12 @@ const StudentsManager = {
     setField("sdBusStop", student.savedBusStop || "Not set");
     setField("sdBusNumber", busNumber);
     setField("sdRoute", routeName);
-    setField("sdDepartment", "N/A");
-    setField("sdYearSemester", "N/A");
 
     const statusEl = document.getElementById("sdStatus");
     if (statusEl) {
-      statusEl.textContent = student.phoneVerified ? "Verified" : "Unverified";
-      statusEl.className = `status-badge ${student.phoneVerified ? "active" : "inactive"}`;
+      const isVerified = student.phoneVerified || (student.accountStatus && student.accountStatus.toUpperCase() === 'VERIFIED');
+      statusEl.textContent = isVerified ? "VERIFIED" : "UNVERIFIED";
+      statusEl.className = `status-badge ${isVerified ? "active" : "inactive"}`;
     }
 
     const modal = document.getElementById("studentDetailModal");
@@ -2874,6 +2877,261 @@ const StudentsManager = {
     const modal = document.getElementById("studentDetailModal");
     if (modal) {
       modal.style.display = "none";
+    }
+  },
+
+  openAddModal() {
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+
+    setVal("addStudentName", "");
+    setVal("addStudentId", "");
+    setVal("addStudentEmail", "");
+    setVal("addStudentPhone", "");
+    setVal("addStudentStatus", "UNVERIFIED");
+    setVal("addStudentBusNumber", "");
+    setVal("addStudentBusStop", "");
+    setVal("addStudentRoute", "");
+
+    const modal = document.getElementById("studentAddModal");
+    if (modal) {
+      modal.style.display = "flex";
+    }
+  },
+
+  closeAddModal() {
+    const modal = document.getElementById("studentAddModal");
+    if (modal) {
+      modal.style.display = "none";
+    }
+  },
+
+  async saveNewStudent() {
+    const getVal = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
+    };
+
+    const name = getVal("addStudentName");
+    const studentId = getVal("addStudentId");
+    const email = getVal("addStudentEmail");
+    const phone = getVal("addStudentPhone");
+    const status = getVal("addStudentStatus");
+    const busNumber = getVal("addStudentBusNumber");
+    const busStop = getVal("addStudentBusStop");
+    const route = getVal("addStudentRoute");
+
+    if (!name) {
+      showAdminToast("Full Name is required", "error");
+      return;
+    }
+    if (!studentId) {
+      showAdminToast("Student ID is required", "error");
+      return;
+    }
+    if (!email) {
+      showAdminToast("Email Address is required", "error");
+      return;
+    }
+
+    const payload = {
+      name: name,
+      username: studentId,
+      email: email,
+      phoneNumber: phone,
+      accountStatus: status,
+      phoneVerified: status === "VERIFIED",
+      assignedBus: busNumber,
+      savedBusStop: busStop,
+      assignedRoute: route
+    };
+
+    try {
+      const adminBaseUrl = (typeof getAdminApiBaseUrl === 'function' ? getAdminApiBaseUrl() : '') || getApiBaseUrl();
+      const resp = await fetch(`${adminBaseUrl}/api/admin/students`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await resp.json();
+      if (data.success) {
+        showAdminToast(data.message || "Student added successfully", "success");
+        this.closeAddModal();
+        await this.loadStudents();
+      } else {
+        showAdminToast(data.message || "Failed to add student", "error");
+      }
+    } catch (e) {
+      console.error("[Students] Error saving new student:", e);
+      showAdminToast("Connection error while creating student", "error");
+    }
+  },
+
+  openEditModalFromCurrent() {
+    if (this.currentStudentId) {
+      this.openEditModal(this.currentStudentId);
+    }
+  },
+
+  openEditModal(id) {
+    const student = this.allStudents.find((s) => s.id === id);
+    if (!student) return;
+
+    this.currentStudentId = id;
+
+    const setVal = (elemId, val) => {
+      const el = document.getElementById(elemId);
+      if (el) el.value = val || "";
+    };
+
+    setVal("editStudentName", student.name);
+    setVal("editStudentId", student.username);
+    setVal("editStudentEmail", student.email);
+    setVal("editStudentPhone", student.phoneNumber);
+
+    const isVerified = student.phoneVerified || (student.accountStatus && student.accountStatus.toUpperCase() === 'VERIFIED');
+    setVal("editStudentStatus", isVerified ? "VERIFIED" : "UNVERIFIED");
+
+    setVal("editStudentBusNumber", student.assignedBus || "");
+    setVal("editStudentBusStop", student.savedBusStop || "");
+    setVal("editStudentRoute", student.assignedRoute || "");
+
+    const modal = document.getElementById("studentEditModal");
+    if (modal) {
+      modal.style.display = "flex";
+    }
+  },
+
+  closeEditModal() {
+    const modal = document.getElementById("studentEditModal");
+    if (modal) {
+      modal.style.display = "none";
+    }
+  },
+
+  async saveStudentEdit() {
+    if (!this.currentStudentId) return;
+
+    const getVal = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
+    };
+
+    const name = getVal("editStudentName");
+    const studentId = getVal("editStudentId");
+    const email = getVal("editStudentEmail");
+    const phone = getVal("editStudentPhone");
+    const status = getVal("editStudentStatus");
+    const busNumber = getVal("editStudentBusNumber");
+    const busStop = getVal("editStudentBusStop");
+    const route = getVal("editStudentRoute");
+
+    if (!name) {
+      showAdminToast("Full Name is required", "error");
+      return;
+    }
+    if (!studentId) {
+      showAdminToast("Student ID is required", "error");
+      return;
+    }
+    if (!email) {
+      showAdminToast("Email Address is required", "error");
+      return;
+    }
+
+    const payload = {
+      name: name,
+      username: studentId,
+      email: email,
+      phoneNumber: phone,
+      accountStatus: status,
+      phoneVerified: status === "VERIFIED",
+      assignedBus: busNumber,
+      savedBusStop: busStop,
+      assignedRoute: route
+    };
+
+    try {
+      const adminBaseUrl = (typeof getAdminApiBaseUrl === 'function' ? getAdminApiBaseUrl() : '') || getApiBaseUrl();
+      const resp = await fetch(`${adminBaseUrl}/api/admin/students/${this.currentStudentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await resp.json();
+      if (data.success) {
+        showAdminToast(data.message || "Student profile updated successfully", "success");
+        this.closeEditModal();
+        await this.loadStudents();
+        // If profile modal is open, refresh details display immediately
+        const profileModal = document.getElementById("studentDetailModal");
+        if (profileModal && profileModal.style.display !== "none") {
+          this.openStudentDetails(this.currentStudentId);
+        }
+      } else {
+        showAdminToast(data.message || "Failed to update student profile", "error");
+      }
+    } catch (e) {
+      console.error("[Students] Error updating student:", e);
+      showAdminToast("Connection error while updating student profile", "error");
+    }
+  },
+
+  confirmDeleteFromCurrent() {
+    if (this.currentStudentId) {
+      this.openDeleteConfirmModal(this.currentStudentId);
+    }
+  },
+
+  openDeleteConfirmModal(id) {
+    const student = this.allStudents.find((s) => s.id === id);
+    if (!student) return;
+
+    this.currentStudentId = id;
+
+    const nameEl = document.getElementById("deleteConfirmStudentName");
+    if (nameEl) {
+      nameEl.textContent = `${student.name || 'Student'} (ID: ${student.username || 'N/A'})`;
+    }
+
+    const modal = document.getElementById("studentDeleteConfirmModal");
+    if (modal) {
+      modal.style.display = "flex";
+    }
+  },
+
+  closeDeleteConfirmModal() {
+    const modal = document.getElementById("studentDeleteConfirmModal");
+    if (modal) {
+      modal.style.display = "none";
+    }
+  },
+
+  async executeDeleteStudent() {
+    if (!this.currentStudentId) return;
+
+    try {
+      const adminBaseUrl = (typeof getAdminApiBaseUrl === 'function' ? getAdminApiBaseUrl() : '') || getApiBaseUrl();
+      const resp = await fetch(`${adminBaseUrl}/api/admin/students/${this.currentStudentId}`, {
+        method: "DELETE"
+      });
+
+      const data = await resp.json();
+      if (data.success) {
+        showAdminToast("Student permanently deleted successfully", "success");
+        this.closeDeleteConfirmModal();
+        this.closeStudentDetails();
+        await this.loadStudents();
+      } else {
+        showAdminToast(data.message || "Failed to delete student record", "error");
+      }
+    } catch (e) {
+      console.error("[Students] Error deleting student:", e);
+      showAdminToast("Connection error while deleting student record", "error");
     }
   },
 

@@ -12,8 +12,15 @@ const StudentsPage = {
               <h2><span class="gradient-text">Student Directory & Profiles</span></h2>
               <p class="banner-subtitle">Registered student database, bus allocation & contact verification</p>
             </div>
-            <div class="banner-right">
+            <div class="banner-right" style="display: flex; align-items: center; gap: 12px;">
               <span class="live-pulse-badge"><span class="pulse-dot"></span> Directory Active</span>
+              <button class="btn btn-primary hover-lift" onclick="StudentsManager.openAddModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35); transition: all 0.2s;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>+ Add Student</span>
+              </button>
             </div>
           </div>
 

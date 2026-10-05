@@ -845,9 +845,9 @@
     function updateStudentProfileUI() {
         if (!currentUser) return;
 
-        const regNo = currentUser.username || (currentUser.email ? currentUser.email.split('@')[0].toUpperCase() : 'SEC24AM042');
-        const name = currentUser.name || 'Student User';
-        const email = currentUser.email || 'student@sairamtap.edu.in';
+        const regNo = currentUser.username || (currentUser.email ? currentUser.email.split('@')[0].toUpperCase() : 'SEC24EC130');
+        const name = currentUser.name || 'divya shree';
+        const email = currentUser.email || 'sec24ec130@sairamtap.edu.in';
         const phone = currentUser.phoneNumber || 'Not configured';
 
         if (elements.profAvatarBig) elements.profAvatarBig.textContent = name.charAt(0).toUpperCase();
@@ -858,25 +858,39 @@
         if (elements.profDept) elements.profDept.textContent = 'AI & Machine Learning';
         if (elements.profYear) elements.profYear.textContent = 'Year II / Sem 4';
 
+        const fullNameEl = document.getElementById('profFullName');
+        if (fullNameEl) fullNameEl.textContent = name;
+
+        const emailDetailEl = document.getElementById('profEmailDetail');
+        if (emailDetailEl) emailDetailEl.textContent = email;
+
         const assignedBus = getAssignedBusForStudent();
         if (assignedBus) {
             const isMoving = assignedBus.status === 'RUNNING' || assignedBus.status === 'MOVING';
-            if (elements.profBusBadge) elements.profBusBadge.textContent = assignedBus.busNumber || 'BUS-101';
-            if (elements.profRouteName) elements.profRouteName.textContent = assignedBus.busName || 'College Route Line';
-            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || assignedBus.busStop || 'Campus';
-            if (elements.profDriverName) elements.profDriverName.textContent = assignedBus.driverName || 'Assigned Driver';
+            if (elements.profBusBadge) elements.profBusBadge.textContent = assignedBus.busNumber || '101';
+            if (elements.profRouteName) elements.profRouteName.textContent = assignedBus.busName || 'Mudichur';
+            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || assignedBus.busStop || 'College';
+            if (elements.profDriverName) elements.profDriverName.textContent = assignedBus.driverName || 'Gowtham';
+
+            const routePathEl = document.getElementById('profRoutePath');
+            if (routePathEl) routePathEl.textContent = assignedBus.routePath || 'Not set';
+
             if (elements.profBusStatus) {
                 elements.profBusStatus.textContent = isMoving ? '● ACTIVE' : '● INACTIVE';
-                elements.profBusStatus.className = `status-pill ${isMoving ? 'running' : 'stopped'}`;
+                elements.profBusStatus.className = `status-pill-v2 ${isMoving ? 'running' : 'stopped'}`;
             }
         } else {
-            if (elements.profBusBadge) elements.profBusBadge.textContent = 'BUS-101';
-            if (elements.profRouteName) elements.profRouteName.textContent = 'Main Campus Route';
-            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || 'Campus';
-            if (elements.profDriverName) elements.profDriverName.textContent = 'Driver Assigned';
+            if (elements.profBusBadge) elements.profBusBadge.textContent = '101';
+            if (elements.profRouteName) elements.profRouteName.textContent = 'Mudichur';
+            if (elements.profBusStop) elements.profBusStop.textContent = preferredStop || 'College';
+            if (elements.profDriverName) elements.profDriverName.textContent = 'Gowtham';
+
+            const routePathEl = document.getElementById('profRoutePath');
+            if (routePathEl) routePathEl.textContent = 'Not set';
+
             if (elements.profBusStatus) {
                 elements.profBusStatus.textContent = '● INACTIVE';
-                elements.profBusStatus.className = 'status-pill stopped';
+                elements.profBusStatus.className = 'status-pill-v2 stopped';
             }
         }
     }
@@ -1134,6 +1148,35 @@
 
         if (elements.closeProfileModal) {
             elements.closeProfileModal.addEventListener('click', () => closeModal(elements.profileModal));
+        }
+
+        // Profile V2 Tab Navigation Listeners
+        const profTabBtns = document.querySelectorAll('.prof-tab-btn');
+        profTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                profTabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.dataset.profTab;
+                const secInfo = document.getElementById('profSecInfo');
+                const secBus = document.getElementById('profSecBus');
+                const secAccount = document.getElementById('profSecAccount');
+
+                if (tab === 'profile' && secInfo) {
+                    secInfo.scrollIntoView({ behavior: 'smooth' });
+                } else if (tab === 'bus' && secBus) {
+                    secBus.scrollIntoView({ behavior: 'smooth' });
+                } else if (tab === 'account' && secAccount) {
+                    secAccount.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Edit Details Button in Student Info Section
+        const btnEditSec = document.getElementById('btnEditDetailsSec');
+        if (btnEditSec) {
+            btnEditSec.addEventListener('click', () => {
+                if (elements.menuEditProfileBtn) elements.menuEditProfileBtn.click();
+            });
         }
 
         // Track Assigned Bus on Map

@@ -314,106 +314,168 @@
         </div>
     </div>
 
-    <!-- 👤 STUDENT PROFILE / ACCOUNT MODAL -->
+    <!-- 👤 STUDENT PROFILE / ACCOUNT MODAL (MATCHING IMAGE 2 EXACTLY) -->
     <div class="modal-backdrop hidden" id="profileModal">
-        <div class="profile-modal-card">
-            <div class="profile-top-banner">
-                <div class="profile-avatar-wrapper">
-                    <div class="profile-avatar-big" id="profAvatarBig">G</div>
-                    <div class="profile-title-details">
-                        <h3 id="profNameBig">Gowtham</h3>
-                        <p id="profEmailBig">sec24am042@sairamtap.edu.in</p>
-                        <span class="profile-role-badge"><i class="fa-solid fa-graduation-cap"></i> Student Account</span>
-                    </div>
+        <div class="profile-modal-card-v2">
+            <!-- Header Top Banner -->
+            <div class="profile-v2-banner">
+                <div class="profile-v2-avatar-wrap">
+                    <div class="profile-v2-avatar-circle" id="profAvatarBig">D</div>
+                    <span class="avatar-online-dot"></span>
                 </div>
-                <button class="modal-close-btn text-white" id="closeProfileModal" style="color: white; background: none; border: none; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <div class="profile-v2-user-info">
+                    <h3 id="profNameBig">divya shree</h3>
+                    <p id="profEmailBig">sec24ec130@sairamtap.edu.in</p>
+                    <span class="profile-v2-badge"><i class="fa-solid fa-graduation-cap"></i> Student Account</span>
+                </div>
+                <button class="profile-v2-close-btn" id="closeProfileModal"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="profile-body-scroll">
-                <!-- 1. Registered Student Information -->
-                <div>
-                    <div class="profile-section-title"><i class="fa-solid fa-id-card"></i> Student Details</div>
-                    <div class="profile-info-grid">
-                        <div class="info-item">
-                            <span class="label">Register No / ID</span>
-                            <span class="val" id="profRegNo">SEC24AM042</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Department</span>
-                            <span class="val" id="profDept">AI & Machine Learning</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Year / Semester</span>
-                            <span class="val" id="profYear">Year II / Sem 4</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Phone Number</span>
-                            <span class="val" id="profPhone">+91 Not set</span>
+            <!-- Tab Switcher Navigation Bar -->
+            <div class="profile-v2-tabs">
+                <button class="prof-tab-btn active" data-prof-tab="profile">
+                    <i class="fa-solid fa-user"></i> Profile
+                </button>
+                <button class="prof-tab-btn" data-prof-tab="bus">
+                    <i class="fa-solid fa-bus"></i> Bus & Route
+                </button>
+                <button class="prof-tab-btn" data-prof-tab="account">
+                    <i class="fa-solid fa-gear"></i> Account
+                </button>
+            </div>
+
+            <!-- Modal Content Scroll Area -->
+            <div class="profile-v2-content-scroll">
+                <!-- 1. Student Information Section -->
+                <div class="prof-v2-section" id="profSecInfo">
+                    <div class="prof-v2-sec-header">
+                        <h4><i class="fa-solid fa-address-card text-muted"></i> Student Information</h4>
+                        <button class="btn-sm-orange" id="btnEditDetailsSec">
+                            <i class="fa-solid fa-pen"></i> Edit Details
+                        </button>
+                    </div>
+                    <div class="prof-v2-info-box">
+                        <div class="prof-v2-grid">
+                            <div class="prof-v2-field">
+                                <span class="lbl">Register No / ID</span>
+                                <strong class="val" id="profRegNo">SEC24EC130</strong>
+                            </div>
+                            <div class="prof-v2-field">
+                                <span class="lbl">Department</span>
+                                <strong class="val" id="profDept">AI & Machine Learning</strong>
+                            </div>
+                            <div class="prof-v2-field">
+                                <span class="lbl">Full Name</span>
+                                <strong class="val" id="profFullName">divya shree</strong>
+                            </div>
+                            <div class="prof-v2-field">
+                                <span class="lbl">Email Address</span>
+                                <strong class="val" id="profEmailDetail">sec24ec130@sairamtap.edu.in</strong>
+                            </div>
+                            <div class="prof-v2-field">
+                                <span class="lbl">Year / Semester</span>
+                                <strong class="val" id="profYear">Year II / Sem 4</strong>
+                            </div>
+                            <div class="prof-v2-field">
+                                <span class="lbl">Phone Number</span>
+                                <strong class="val" id="profPhone">Not configured</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Assigned Bus Information -->
-                <div>
-                    <div class="profile-section-title"><i class="fa-solid fa-bus"></i> Assigned Bus & Route</div>
-                    <div class="assigned-bus-box">
-                        <div class="assigned-bus-header">
+                <!-- 2. Bus & Route Information Section -->
+                <div class="prof-v2-section" id="profSecBus">
+                    <div class="prof-v2-sec-header">
+                        <h4><i class="fa-solid fa-bus text-orange"></i> Bus & Route Information</h4>
+                        <button class="btn-sm-orange" id="profTrackBusBtn">
+                            <i class="fa-solid fa-location-dot"></i> View on Map
+                        </button>
+                    </div>
+                    <div class="prof-v2-bus-card">
+                        <div class="prof-v2-bus-top">
+                            <div class="bus-badge-orange" id="profBusBadge">101</div>
+                            <div class="bus-title-group">
+                                <h4 id="profRouteName">Mudichur</h4>
+                                <span class="sub-lbl">Assigned Bus</span>
+                            </div>
+                            <span class="status-pill-v2 stopped" id="profBusStatus">● INACTIVE</span>
+                        </div>
+                        <div class="prof-v2-bus-grid">
+                            <div class="bus-sub-item">
+                                <i class="fa-solid fa-location-dot icon-orange"></i>
+                                <div>
+                                    <span class="lbl">Preferred Stop</span>
+                                    <strong class="val-orange" id="profBusStop">College</strong>
+                                </div>
+                            </div>
+                            <div class="bus-sub-item">
+                                <i class="fa-solid fa-user-tie icon-orange"></i>
+                                <div>
+                                    <span class="lbl">Assigned Driver</span>
+                                    <strong class="val" id="profDriverName">Gowtham</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="prof-v2-divider"></div>
+                        <div class="bus-route-path-row">
+                            <i class="fa-solid fa-route icon-orange"></i>
                             <div>
-                                <span class="bus-number-badge" id="profBusBadge">BUS-101</span>
-                                <strong id="profRouteName" style="margin-left: 8px; font-size: 0.95rem;">Tambaram Line</strong>
+                                <span class="lbl">Assigned Route Path</span>
+                                <strong class="val" id="profRoutePath">Not set</strong>
                             </div>
-                            <span class="status-pill stopped" id="profBusStatus">● INACTIVE</span>
                         </div>
-                        <div class="bus-meta">
-                            <div class="meta-row"><i class="fa-solid fa-location-dot"></i> Preferred Stop: <strong id="profBusStop" class="text-primary">Tambaram</strong></div>
-                            <div class="meta-row"><i class="fa-solid fa-user-tie"></i> Assigned Driver: <span id="profDriverName">Assigned Driver</span></div>
-                        </div>
-                        <button class="btn btn-primary btn-block" id="profTrackBusBtn" style="width: 100%; margin-top: 6px;">
-                            <i class="fa-solid fa-location-crosshairs"></i> Track Assigned Bus on Map
+                    </div>
+                </div>
+
+                <!-- 3. Quick Actions Section -->
+                <div class="prof-v2-section" id="profSecAccount">
+                    <div class="prof-v2-sec-header">
+                        <h4><i class="fa-solid fa-bolt text-orange"></i> Quick Actions</h4>
+                    </div>
+                    <div class="quick-actions-2x2">
+                        <button class="quick-act-card" id="menuMyBusBtn">
+                            <div class="quick-act-icon"><i class="fa-solid fa-bus"></i></div>
+                            <div class="quick-act-text">
+                                <strong>My Bus & Live Location</strong>
+                                <span>Track your assigned bus</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right icon-arrow"></i>
+                        </button>
+
+                        <button class="quick-act-card" id="menuMyRouteBtn">
+                            <div class="quick-act-icon"><i class="fa-solid fa-route"></i></div>
+                            <div class="quick-act-text">
+                                <strong>My Stop & Route Details</strong>
+                                <span>View your stop and route</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right icon-arrow"></i>
+                        </button>
+
+                        <button class="quick-act-card" id="menuEditProfileBtn">
+                            <div class="quick-act-icon"><i class="fa-solid fa-user-pen"></i></div>
+                            <div class="quick-act-text">
+                                <strong>Edit Profile Info</strong>
+                                <span>Update your personal details</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right icon-arrow"></i>
+                        </button>
+
+                        <button class="quick-act-card" id="menuChangePasswordBtn">
+                            <div class="quick-act-icon"><i class="fa-solid fa-key"></i></div>
+                            <div class="quick-act-text">
+                                <strong>Change Password</strong>
+                                <span>Keep your account secure</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right icon-arrow"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- 3. Account Actions Menu -->
-                <div>
-                    <div class="profile-section-title"><i class="fa-solid fa-sliders"></i> Account Actions</div>
-                    <div class="account-menu-list">
-                        <button class="account-menu-item" id="menuMyBusBtn">
-                            <div class="account-menu-item-left">
-                                <i class="fa-solid fa-bus text-primary"></i>
-                                <span>My Bus & Live Location</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <button class="account-menu-item" id="menuMyRouteBtn">
-                            <div class="account-menu-item-left">
-                                <i class="fa-solid fa-route text-primary"></i>
-                                <span>My Stop & Route Details</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <button class="account-menu-item" id="menuEditProfileBtn">
-                            <div class="account-menu-item-left">
-                                <i class="fa-solid fa-user-pen text-primary"></i>
-                                <span>Edit Profile Info</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <button class="account-menu-item" id="menuChangePasswordBtn">
-                            <div class="account-menu-item-left">
-                                <i class="fa-solid fa-key text-primary"></i>
-                                <span>Change Password</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <button class="account-menu-item danger-item" id="menuLogoutBtn">
-                            <div class="account-menu-item-left">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                                <span>Log Out Account</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
+                <!-- 4. Log Out Account Button -->
+                <button class="btn-logout-v2" id="menuLogoutBtn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log Out Account
+                </button>
             </div>
         </div>
     </div>

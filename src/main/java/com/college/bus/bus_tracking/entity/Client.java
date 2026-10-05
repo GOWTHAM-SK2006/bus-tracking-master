@@ -34,6 +34,9 @@ public class Client {
     private String profilePicture; // Base64 encoded image
 
     private String savedBusStop;
+    private String assignedBus;
+    private String assignedRoute;
+    private String accountStatus;
 
     // Reset password fields
     private String resetToken;
@@ -109,6 +112,30 @@ public class Client {
 
     public void setSavedBusStop(String savedBusStop) {
         this.savedBusStop = savedBusStop;
+    }
+
+    public String getAssignedBus() {
+        return assignedBus;
+    }
+
+    public void setAssignedBus(String assignedBus) {
+        this.assignedBus = assignedBus;
+    }
+
+    public String getAssignedRoute() {
+        return assignedRoute;
+    }
+
+    public void setAssignedRoute(String assignedRoute) {
+        this.assignedRoute = assignedRoute;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
     }
 
     public String getResetToken() {
