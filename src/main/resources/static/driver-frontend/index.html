@@ -205,12 +205,16 @@
             </div>
 
             <div class="status-card">
-              <div class="status-card-header">
+              <div class="status-card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="status-card-title">Auto Tracking</span>
+                <button class="btn-icon-edit" id="editAutoTrackingBtn" onclick="AutoTrackingController.openScheduleModal()" title="Edit Schedule" style="background: transparent; border: none; color: var(--primary-600, #ea580c); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                  Edit
+                </button>
               </div>
               <div class="status-card-body">
-                <span class="status-value" id="dashAutoTrackingStatus" style="font-size: 0.95rem;">Scheduled</span>
-                <span class="status-label" id="dashAutoTrackingLabel">8:00 AM – 9:00 AM</span>
+                <span class="status-value" id="dashAutoTrackingStatus" style="font-size: 0.95rem;">08:00 AM – 09:00 AM</span>
+                <span class="status-label" id="dashAutoTrackingLabel">Next session tomorrow at 08:00 AM</span>
               </div>
             </div>
           </div>
@@ -348,6 +352,41 @@
                   </svg>
                   Save
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto Tracking Schedule Modal -->
+          <div class="bus-info-modal-overlay" id="autoTrackingModal" style="display:none;">
+            <div class="bus-info-modal">
+              <div class="bus-info-modal-header">
+                <h3>Automatic Tracking Schedule</h3>
+                <button class="bus-info-modal-close" onclick="AutoTrackingController.closeScheduleModal()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="bus-info-modal-body">
+                <p style="font-size:0.85rem; color:var(--text-muted,#64748b); margin-bottom:16px;">
+                  Set daily automatic GPS tracking window (Local Time).
+                </p>
+                <div class="form-group">
+                  <label class="form-label" for="autoStartTime">Start Time <span class="required">*</span></label>
+                  <input type="time" id="autoStartTime" class="form-input" style="font-size:1rem; padding:10px;" value="08:00" required />
+                </div>
+                <div class="form-group" style="margin-top:16px;">
+                  <label class="form-label" for="autoEndTime">End Time <span class="required">*</span></label>
+                  <input type="time" id="autoEndTime" class="form-input" style="font-size:1rem; padding:10px;" value="09:00" required />
+                </div>
+                <div id="autoScheduleError" style="display:none; color:var(--danger-500,#ef4444); font-size:0.82rem; margin-top:12px; font-weight:500;">
+                  Start time must be earlier than end time.
+                </div>
+              </div>
+              <div class="bus-info-modal-footer">
+                <button class="btn btn-secondary" onclick="AutoTrackingController.closeScheduleModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="AutoTrackingController.saveSchedule()">Save Schedule</button>
               </div>
             </div>
           </div>

@@ -2732,11 +2732,137 @@ const TrackingController = {
 };
 
 // =========================================
+// Time Conversion Helpers
+// =========================================
+function timeToMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(":");
+  return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
+function formatMinutesTo12h(totalMinutes) {
+  let mins = totalMinutes % (24 * 60);
+  if (mins < 0) mins += 24 * 60;
+  let hours = Math.floor(mins / 60);
+  const minutes = mins % 60;
+  const period = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+  const hStr = hours < 10 ? "0" + hours : String(hours);
+  const mStr = minutes < 10 ? "0" + minutes : String(minutes);
+  return `${hStr}:${mStr} ${period}`;
+}
+
+function format24To12h(timeStr) {
+  return formatMinutesTo12h(timeToMinutes(timeStr));
+}
+
+// =========================================
 // Auto Tracking Controller
 // =========================================
 const AutoTrackingController = {
   checkTimer: null,
   isAutoActive: false,
+
+  getSchedule() {
+    let driverId = "default";
+    try {
+      const driverData = localStorage.getItem("driver");
+      if (driverData) {
+        const driver = JSON.parse(driverData);
+        if (driver.id) driverId = driver.id;
+      }
+    } catch (e) {}
+
+    const key = `autoSchedule_${driverId}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.startTime && parsed.endTime) {
+          return parsed;
+        }
+      } catch (e) {}
+    }
+    return { startTime: "08:00", endTime: "09:00" };
+  },
+
+  openScheduleModal() {
+    const modal = document.getElementById("autoTrackingModal");
+    if (!modal) return;
+
+    const schedule = this.getSchedule();
+    const startInput = document.getElementById("autoStartTime");
+    const endInput = document.getElementById("autoEndTime");
+    const errorEl = document.getElementById("autoScheduleError");
+
+    if (startInput) startInput.value = schedule.startTime;
+    if (endInput) endInput.value = schedule.endTime;
+    if (errorEl) errorEl.style.display = "none";
+
+    modal.style.display = "flex";
+  },
+
+  closeScheduleModal() {
+    const modal = document.getElementById("autoTrackingModal");
+    if (modal) modal.style.display = "none";
+  },
+
+  saveSchedule() {
+    const startVal = document.getElementById("autoStartTime")?.value;
+    const endVal = document.getElementById("autoEndTime")?.value;
+    const errorEl = document.getElementById("autoScheduleError");
+
+    if (!startVal || !endVal) {
+      if (errorEl) {
+        errorEl.textContent = "Please select both start and end times.";
+        errorEl.style.display = "block";
+      }
+      return;
+    }
+
+    const startMins = timeToMinutes(startVal);
+    const endMins = timeToMinutes(endVal);
+
+    if (startMins >= endMins) {
+      if (errorEl) {
+        errorEl.textContent = "Start time must be earlier than end time.";
+        errorEl.style.display = "block";
+      }
+      return;
+    }
+
+    if (errorEl) errorEl.style.display = "none";
+
+    let driverId = "default";
+    try {
+      const driverData = localStorage.getItem("driver");
+      if (driverData) {
+        const driver = JSON.parse(driverData);
+        if (driver.id) driverId = driver.id;
+      }
+    } catch (e) {}
+
+    const schedule = { startTime: startVal, endTime: endVal };
+    localStorage.setItem(`autoSchedule_${driverId}`, JSON.stringify(schedule));
+
+    const start12h = format24To12h(startVal);
+    const end12h = format24To12h(endVal);
+
+    LogController.add(
+      `Auto tracking schedule updated to ${start12h} – ${end12h}`,
+      "success"
+    );
+
+    AlertController.show(
+      "Schedule Saved",
+      `Auto tracking schedule updated to ${start12h} – ${end12h}`,
+      "success"
+    );
+
+    this.closeScheduleModal();
+    this.evaluateAutoTracking();
+  },
 
   init() {
     if (this.checkTimer) {
@@ -2752,26 +2878,32 @@ const AutoTrackingController = {
   },
 
   /**
-   * Evaluate local time window (8:00 AM - 9:00 AM)
+   * Evaluate local time window dynamically against saved driver schedule
    */
   async evaluateAutoTracking() {
+    const schedule = this.getSchedule();
+    const startMins = timeToMinutes(schedule.startTime);
+    const endMins = timeToMinutes(schedule.endTime);
+
     const now = new Date();
     const currentMins = now.getHours() * 60 + now.getMinutes();
 
-    // Window: 8:00 AM (480 mins) to 9:00 AM (540 mins)
-    const inWindow = currentMins >= 480 && currentMins < 540;
+    // Window: [startMins, endMins)
+    const inWindow = currentMins >= startMins && currentMins < endMins;
     const hasBus = state.isConfigured && Boolean(state.busNumber);
 
     if (inWindow) {
       if (!hasBus) {
-        this.updateUI("no_bus");
+        this.updateUI("no_bus", schedule);
         return;
       }
 
       // Inside window & bus selected
       if (!state.isTracking && !this.isAutoActive) {
-        console.log("[AutoTrackingController] 8:00–9:00 AM window active. Starting auto tracking...");
-        LogController.add("Automatic tracking window active (8:00 AM – 9:00 AM). Initializing...", "info");
+        const start12h = format24To12h(schedule.startTime);
+        const end12h = format24To12h(schedule.endTime);
+        console.log(`[AutoTrackingController] ${schedule.startTime}–${schedule.endTime} window active. Starting auto tracking...`);
+        LogController.add(`Automatic tracking window active (${start12h} – ${end12h}). Initializing...`, "info");
 
         // Request / check location permission
         const granted = await LocationPermissionController.requestPermission(true);
@@ -2780,16 +2912,17 @@ const AutoTrackingController = {
           state.isAutoSession = true;
           await TrackingController.startAuto();
         } else {
-          this.updateUI("permission_denied");
+          this.updateUI("permission_denied", schedule);
         }
       } else if (state.isTracking) {
-        this.updateUI("active");
+        this.updateUI("active", schedule);
       }
     } else {
-      // Outside window (before 8:00 AM or after 9:00 AM)
+      // Outside window (before start time or at/after end time)
       if (this.isAutoActive || (state.isAutoSession && state.isTracking)) {
-        console.log("[AutoTrackingController] 9:00 AM reached or outside window. Stopping auto tracking...");
-        LogController.add("9:00 AM reached: Automatic GPS transmission stopped.", "info");
+        const end12h = format24To12h(schedule.endTime);
+        console.log(`[AutoTrackingController] ${schedule.endTime} reached. Stopping auto tracking...`);
+        LogController.add(`${end12h} reached: Automatic GPS transmission stopped.`, "info");
         this.isAutoActive = false;
         state.isAutoSession = false;
         if (state.isTracking) {
@@ -2797,63 +2930,58 @@ const AutoTrackingController = {
         }
       }
 
-      if (currentMins < 480) {
-        this.updateUI("scheduled_before");
+      if (currentMins < startMins) {
+        this.updateUI("scheduled_before", schedule);
       } else {
-        this.updateUI("scheduled_after");
+        this.updateUI("scheduled_after", schedule);
       }
     }
   },
 
-  updateUI(status) {
+  updateUI(status, schedule) {
+    const sched = schedule || this.getSchedule();
+    const start12h = format24To12h(sched.startTime);
+    const end12h = format24To12h(sched.endTime);
+
     if (DOM.dashAutoTrackingStatus) {
-      if (status === "active") {
-        DOM.dashAutoTrackingStatus.textContent = "Active";
-        DOM.dashAutoTrackingStatus.style.color = "#10b981";
-      } else if (status === "no_bus") {
-        DOM.dashAutoTrackingStatus.textContent = "Waiting Bus";
-        DOM.dashAutoTrackingStatus.style.color = "#f59e0b";
-      } else if (status === "permission_denied") {
-        DOM.dashAutoTrackingStatus.textContent = "No Permission";
-        DOM.dashAutoTrackingStatus.style.color = "#ef4444";
-      } else if (status === "scheduled_before") {
-        DOM.dashAutoTrackingStatus.textContent = "Starts 8:00 AM";
-        DOM.dashAutoTrackingStatus.style.color = "#94a3b8";
-      } else {
-        DOM.dashAutoTrackingStatus.textContent = "Ended 9:00 AM";
-        DOM.dashAutoTrackingStatus.style.color = "#94a3b8";
-      }
+      DOM.dashAutoTrackingStatus.textContent = `${start12h} – ${end12h}`;
+      DOM.dashAutoTrackingStatus.style.color = status === "active" ? "#10b981" : "#0f172a";
     }
 
     if (DOM.dashAutoTrackingLabel) {
       if (status === "active") {
-        DOM.dashAutoTrackingLabel.textContent = `Bus ${state.busNumber} (8:00–9:00 AM)`;
+        DOM.dashAutoTrackingLabel.textContent = `🟢 Active for Bus ${state.busNumber}`;
+        DOM.dashAutoTrackingLabel.style.color = "#10b981";
       } else if (status === "no_bus") {
         DOM.dashAutoTrackingLabel.textContent = "Select a bus to enable auto tracking";
+        DOM.dashAutoTrackingLabel.style.color = "#f59e0b";
       } else if (status === "permission_denied") {
         DOM.dashAutoTrackingLabel.textContent = "Location permission is required";
+        DOM.dashAutoTrackingLabel.style.color = "#ef4444";
       } else if (status === "scheduled_before") {
-        DOM.dashAutoTrackingLabel.textContent = "Auto tracking begins at 8:00 AM";
+        DOM.dashAutoTrackingLabel.textContent = `Starts today at ${start12h}`;
+        DOM.dashAutoTrackingLabel.style.color = "#64748b";
       } else {
-        DOM.dashAutoTrackingLabel.textContent = "Next session tomorrow at 8:00 AM";
+        DOM.dashAutoTrackingLabel.textContent = `Next session tomorrow at ${start12h}`;
+        DOM.dashAutoTrackingLabel.style.color = "#64748b";
       }
     }
 
     if (DOM.autoTrackingStatusValue) {
       if (status === "active") {
-        DOM.autoTrackingStatusValue.textContent = `Active for Bus ${state.busNumber} (8:00 AM – 9:00 AM)`;
+        DOM.autoTrackingStatusValue.textContent = `Active for Bus ${state.busNumber} (${start12h} – ${end12h})`;
         DOM.autoTrackingStatusValue.style.color = "#10b981";
       } else if (status === "no_bus") {
-        DOM.autoTrackingStatusValue.textContent = "Waiting for Bus Selection (8:00 AM – 9:00 AM)";
+        DOM.autoTrackingStatusValue.textContent = `Waiting for Bus Selection (${start12h} – ${end12h})`;
         DOM.autoTrackingStatusValue.style.color = "#f59e0b";
       } else if (status === "permission_denied") {
-        DOM.autoTrackingStatusValue.textContent = "Permission Denied (Required for 8–9 AM)";
+        DOM.autoTrackingStatusValue.textContent = `Permission Denied (${start12h} – ${end12h})`;
         DOM.autoTrackingStatusValue.style.color = "#ef4444";
       } else if (status === "scheduled_before") {
-        DOM.autoTrackingStatusValue.textContent = "Scheduled (Starts at 8:00 AM)";
+        DOM.autoTrackingStatusValue.textContent = `Scheduled (Starts at ${start12h})`;
         DOM.autoTrackingStatusValue.style.color = "#94a3b8";
       } else {
-        DOM.autoTrackingStatusValue.textContent = "Inactive (Ended at 9:00 AM)";
+        DOM.autoTrackingStatusValue.textContent = `Inactive (${start12h} – ${end12h})`;
         DOM.autoTrackingStatusValue.style.color = "#94a3b8";
       }
     }
