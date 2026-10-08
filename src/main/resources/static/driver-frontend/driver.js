@@ -117,6 +117,11 @@ const state = {
   isTracking: false,
   isConfigured: false,
 
+  // Auto-tracking & permission state
+  autoTrackingActive: false,
+  permissionState: "not_requested", // not_requested | granted | denied | permanently_denied
+  isAutoSession: false,
+
   // GPS state
   watchId: null,
   lastPosition: null,
@@ -155,6 +160,8 @@ const DOM = {
   dashStartBtn: document.getElementById("dashStartBtn"),
   dashStopBtn: document.getElementById("dashStopBtn"),
   dashHelpText: document.getElementById("dashHelpText"),
+  dashAutoTrackingStatus: document.getElementById("dashAutoTrackingStatus"),
+  dashAutoTrackingLabel: document.getElementById("dashAutoTrackingLabel"),
 
   // Dashboard details (new)
   dashDriverName: document.getElementById("dashDriverName"),
@@ -174,6 +181,9 @@ const DOM = {
   gpsStatusBadge: document.getElementById("gpsStatusBadge"),
   gpsStatusValue: document.getElementById("gpsStatusValue"),
   lastUpdatedValue: document.getElementById("lastUpdatedValue"),
+  autoTrackingStatusValue: document.getElementById("autoTrackingStatusValue"),
+  gpsPermissionStatusValue: document.getElementById("gpsPermissionStatusValue"),
+  selectedBusValue: document.getElementById("selectedBusValue"),
 
   // Log
   logContainer: document.getElementById("logContainer"),
@@ -1036,9 +1046,15 @@ const BusInfoManager = {
     if (DOM.profileBusNumber) DOM.profileBusNumber.value = entry.busNumber;
     if (DOM.profileBusName) DOM.profileBusName.value = entry.busName;
 
-    // Re-render and update buttons
+    // Re-render and update buttons and UI
     this.renderEntries();
     ProfileController.updateDashboardButtons();
+    updateSelectedBusUI();
+
+    // Trigger auto-tracking check if switching/selecting bus during window
+    if (typeof AutoTrackingController !== "undefined") {
+      AutoTrackingController.evaluateAutoTracking();
+    }
   },
 
   /**
@@ -1189,6 +1205,196 @@ function logout() {
 }
 
 // =========================================
+// Location Permission Controller
+// =========================================
+const LocationPermissionController = {
+  STORAGE_KEY: "location_permission_state", // 'not_requested' | 'granted' | 'denied' | 'permanently_denied'
+
+  getSavedState() {
+    return localStorage.getItem(this.STORAGE_KEY) || "not_requested";
+  },
+
+  setSavedState(val) {
+    localStorage.setItem(this.STORAGE_KEY, val);
+    state.permissionState = val;
+    this.updateUI();
+  },
+
+  async checkPermission() {
+    if (
+      window.Capacitor &&
+      window.Capacitor.isNativePlatform() &&
+      window.Capacitor.isPluginAvailable("Geolocation")
+    ) {
+      try {
+        const { Geolocation } = window.Capacitor.Plugins;
+        const status = await Geolocation.checkPermissions();
+        console.log("[LocationPermissionController] checkPermissions:", status);
+
+        if (status.location === "granted" || status.coarseLocation === "granted") {
+          this.setSavedState("granted");
+          return "granted";
+        } else if (status.location === "denied" || status.coarseLocation === "denied") {
+          const saved = this.getSavedState();
+          return saved === "not_requested" ? "denied" : saved;
+        } else {
+          return "not_requested";
+        }
+      } catch (e) {
+        console.warn("[LocationPermissionController] checkPermissions error:", e);
+      }
+    }
+    return this.getSavedState();
+  },
+
+  async requestPermission(isAuto = false) {
+    const currentState = await this.checkPermission();
+    if (currentState === "granted") {
+      this.setSavedState("granted");
+      return true;
+    }
+
+    if (currentState === "permanently_denied") {
+      this.showPermanentlyDeniedNotice();
+      return false;
+    }
+
+    // Show initial explanation dialog if first-time request
+    if (currentState === "not_requested") {
+      const userConfirmed = await this.showExplanationDialog(
+        "Location Permission Required",
+        "Location permission is required to automatically update your selected bus location from 8:00 AM to 9:00 AM."
+      );
+      if (!userConfirmed) {
+        this.setSavedState("denied");
+        this.showDeniedNotice();
+        return false;
+      }
+    }
+
+    // Native Capacitor request
+    if (
+      window.Capacitor &&
+      window.Capacitor.isNativePlatform() &&
+      window.Capacitor.isPluginAvailable("Geolocation")
+    ) {
+      try {
+        const { Geolocation } = window.Capacitor.Plugins;
+        const res = await Geolocation.requestPermissions({
+          permissions: ["location", "coarseLocation"],
+        });
+        console.log(
+          "[LocationPermissionController] requestPermissions result:",
+          res,
+        );
+
+        if (res.location === "granted" || res.coarseLocation === "granted") {
+          this.setSavedState("granted");
+          AlertController.show("Permission Granted", "Location permission granted.", "success");
+          return true;
+        } else {
+          this.setSavedState("permanently_denied");
+          this.showPermanentlyDeniedNotice();
+          return false;
+        }
+      } catch (e) {
+        console.error(
+          "[LocationPermissionController] requestPermissions error:",
+          e,
+        );
+      }
+    }
+
+    // Web browser fallback
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.setSavedState("granted");
+          AlertController.show("Permission Granted", "Location permission granted.", "success");
+          resolve(true);
+        },
+        (err) => {
+          if (err.code === err.PERMISSION_DENIED) {
+            this.setSavedState("permanently_denied");
+            this.showPermanentlyDeniedNotice();
+          } else {
+            this.setSavedState("denied");
+            this.showDeniedNotice();
+          }
+          resolve(false);
+        },
+        { timeout: 10000 }
+      );
+    });
+  },
+
+  showExplanationDialog(title, message) {
+    return new Promise((resolve) => {
+      showConfirmDialog({
+        title: title,
+        message: message,
+        icon: "📍",
+        iconBg: "rgba(249, 115, 22, 0.15)",
+        btnText: "Allow Location Access",
+        btnColor: "#f97316",
+        onConfirm: () => resolve(true),
+      });
+      const cancelBtn = document.getElementById("confirmCancel");
+      if (cancelBtn) {
+        const oldClick = cancelBtn.onclick;
+        cancelBtn.onclick = () => {
+          if (oldClick) oldClick();
+          resolve(false);
+        };
+      }
+    });
+  },
+
+  showDeniedNotice() {
+    AlertController.show(
+      "Permission Required",
+      "Location permission is required for automatic bus tracking.",
+      "error"
+    );
+  },
+
+  showPermanentlyDeniedNotice() {
+    showConfirmDialog({
+      title: "Location Permission Disabled",
+      message:
+        "Location permission is disabled. Please enable Location permission from App Settings.",
+      icon: "⚙️",
+      iconBg: "rgba(239, 68, 68, 0.15)",
+      btnText: "Open App Settings",
+      btnColor: "#ef4444",
+      onConfirm: async () => {
+        await GPSController.openSettings();
+      },
+    });
+  },
+
+  updateUI() {
+    const permState = this.getSavedState();
+    if (DOM.gpsPermissionStatusValue) {
+      const labels = {
+        granted: "Granted",
+        denied: "Denied",
+        permanently_denied: "Blocked (Open Settings)",
+        not_requested: "Not Requested",
+      };
+      DOM.gpsPermissionStatusValue.textContent =
+        labels[permState] || "Not Requested";
+      DOM.gpsPermissionStatusValue.style.color =
+        permState === "granted"
+          ? "#10b981"
+          : permState === "not_requested"
+            ? "#94a3b8"
+            : "#ef4444";
+    }
+  },
+};
+
+// =========================================
 // GPS Controller
 // =========================================
 const GPSController = {
@@ -1207,6 +1413,11 @@ const GPSController = {
    * @returns {number|null} Watch ID or null on failure
    */
   async startWatching(onSuccess, onError) {
+    // Duplicate protection: clear any existing watcher before starting a new one
+    if (state.watchId !== null || state.backgroundWatcherId !== null) {
+      console.log("[GPSController] Stopping existing watcher before starting new one");
+      this.stopWatching(state.watchId);
+    }
     if (
       window.Capacitor &&
       window.Capacitor.isPluginAvailable("BackgroundGeolocation")
@@ -2500,7 +2711,166 @@ const TrackingController = {
   updateConnectionIndicator(status) {
     WebSocketController.updateUI(status);
   },
+
+  /**
+   * Helper to start auto tracking
+   */
+  async startAuto() {
+    if (state.isTracking) return;
+    LogController.add("Starting automatic GPS tracking (8:00 AM window)...", "info");
+    await this.start();
+  },
+
+  /**
+   * Helper to stop auto tracking
+   */
+  stopAuto() {
+    if (!state.isTracking) return;
+    LogController.add("Stopping automatic GPS tracking (9:00 AM window end)...", "info");
+    this.stop();
+  },
 };
+
+// =========================================
+// Auto Tracking Controller
+// =========================================
+const AutoTrackingController = {
+  checkTimer: null,
+  isAutoActive: false,
+
+  init() {
+    if (this.checkTimer) {
+      clearInterval(this.checkTimer);
+    }
+    // Check local time window every 5 seconds
+    this.checkTimer = setInterval(() => {
+      this.evaluateAutoTracking();
+    }, 5000);
+
+    // Initial evaluation on setup
+    this.evaluateAutoTracking();
+  },
+
+  /**
+   * Evaluate local time window (8:00 AM - 9:00 AM)
+   */
+  async evaluateAutoTracking() {
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+
+    // Window: 8:00 AM (480 mins) to 9:00 AM (540 mins)
+    const inWindow = currentMins >= 480 && currentMins < 540;
+    const hasBus = state.isConfigured && Boolean(state.busNumber);
+
+    if (inWindow) {
+      if (!hasBus) {
+        this.updateUI("no_bus");
+        return;
+      }
+
+      // Inside window & bus selected
+      if (!state.isTracking && !this.isAutoActive) {
+        console.log("[AutoTrackingController] 8:00–9:00 AM window active. Starting auto tracking...");
+        LogController.add("Automatic tracking window active (8:00 AM – 9:00 AM). Initializing...", "info");
+
+        // Request / check location permission
+        const granted = await LocationPermissionController.requestPermission(true);
+        if (granted) {
+          this.isAutoActive = true;
+          state.isAutoSession = true;
+          await TrackingController.startAuto();
+        } else {
+          this.updateUI("permission_denied");
+        }
+      } else if (state.isTracking) {
+        this.updateUI("active");
+      }
+    } else {
+      // Outside window (before 8:00 AM or after 9:00 AM)
+      if (this.isAutoActive || (state.isAutoSession && state.isTracking)) {
+        console.log("[AutoTrackingController] 9:00 AM reached or outside window. Stopping auto tracking...");
+        LogController.add("9:00 AM reached: Automatic GPS transmission stopped.", "info");
+        this.isAutoActive = false;
+        state.isAutoSession = false;
+        if (state.isTracking) {
+          TrackingController.stopAuto();
+        }
+      }
+
+      if (currentMins < 480) {
+        this.updateUI("scheduled_before");
+      } else {
+        this.updateUI("scheduled_after");
+      }
+    }
+  },
+
+  updateUI(status) {
+    if (DOM.dashAutoTrackingStatus) {
+      if (status === "active") {
+        DOM.dashAutoTrackingStatus.textContent = "Active";
+        DOM.dashAutoTrackingStatus.style.color = "#10b981";
+      } else if (status === "no_bus") {
+        DOM.dashAutoTrackingStatus.textContent = "Waiting Bus";
+        DOM.dashAutoTrackingStatus.style.color = "#f59e0b";
+      } else if (status === "permission_denied") {
+        DOM.dashAutoTrackingStatus.textContent = "No Permission";
+        DOM.dashAutoTrackingStatus.style.color = "#ef4444";
+      } else if (status === "scheduled_before") {
+        DOM.dashAutoTrackingStatus.textContent = "Starts 8:00 AM";
+        DOM.dashAutoTrackingStatus.style.color = "#94a3b8";
+      } else {
+        DOM.dashAutoTrackingStatus.textContent = "Ended 9:00 AM";
+        DOM.dashAutoTrackingStatus.style.color = "#94a3b8";
+      }
+    }
+
+    if (DOM.dashAutoTrackingLabel) {
+      if (status === "active") {
+        DOM.dashAutoTrackingLabel.textContent = `Bus ${state.busNumber} (8:00–9:00 AM)`;
+      } else if (status === "no_bus") {
+        DOM.dashAutoTrackingLabel.textContent = "Select a bus to enable auto tracking";
+      } else if (status === "permission_denied") {
+        DOM.dashAutoTrackingLabel.textContent = "Location permission is required";
+      } else if (status === "scheduled_before") {
+        DOM.dashAutoTrackingLabel.textContent = "Auto tracking begins at 8:00 AM";
+      } else {
+        DOM.dashAutoTrackingLabel.textContent = "Next session tomorrow at 8:00 AM";
+      }
+    }
+
+    if (DOM.autoTrackingStatusValue) {
+      if (status === "active") {
+        DOM.autoTrackingStatusValue.textContent = `Active for Bus ${state.busNumber} (8:00 AM – 9:00 AM)`;
+        DOM.autoTrackingStatusValue.style.color = "#10b981";
+      } else if (status === "no_bus") {
+        DOM.autoTrackingStatusValue.textContent = "Waiting for Bus Selection (8:00 AM – 9:00 AM)";
+        DOM.autoTrackingStatusValue.style.color = "#f59e0b";
+      } else if (status === "permission_denied") {
+        DOM.autoTrackingStatusValue.textContent = "Permission Denied (Required for 8–9 AM)";
+        DOM.autoTrackingStatusValue.style.color = "#ef4444";
+      } else if (status === "scheduled_before") {
+        DOM.autoTrackingStatusValue.textContent = "Scheduled (Starts at 8:00 AM)";
+        DOM.autoTrackingStatusValue.style.color = "#94a3b8";
+      } else {
+        DOM.autoTrackingStatusValue.textContent = "Inactive (Ended at 9:00 AM)";
+        DOM.autoTrackingStatusValue.style.color = "#94a3b8";
+      }
+    }
+  },
+};
+
+/**
+ * Helper to update selected bus UI label
+ */
+function updateSelectedBusUI() {
+  if (DOM.selectedBusValue) {
+    DOM.selectedBusValue.textContent = state.busNumber
+      ? `${state.busNumber} (${state.busName || "Selected"})`
+      : "None";
+    DOM.selectedBusValue.style.color = state.busNumber ? "#0f172a" : "#94a3b8";
+  }
+}
 
 // =========================================
 // Log Controller
@@ -2765,6 +3135,10 @@ function initApp() {
   SetupController.init();
   NetworkController.init();
   BusInfoManager.init();
+  LocationPermissionController.checkPermission();
+  LocationPermissionController.updateUI();
+  updateSelectedBusUI();
+  AutoTrackingController.init();
 
   // GPS permission is now requested when user clicks Start Tracking
   // No aggressive polling on page load
